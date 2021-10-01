@@ -1,1 +1,10 @@
-*/.vs/*
+!/DxtTS/
+
+/DxtSdk/temp/
+/DxtSdk/.vs/
+*.exe
+*.pdb
+*.user
+*.ilk
+*.iobj
+*.ipdb

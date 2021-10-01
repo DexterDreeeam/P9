@@ -1,2 +1,2 @@
-# DxtSdk2021
-DxtSdk2021
+# DxtSdk
+One cross Os development tool kit

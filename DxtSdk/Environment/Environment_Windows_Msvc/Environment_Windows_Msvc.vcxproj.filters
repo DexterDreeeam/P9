@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="Definition.h" />
+    <ClInclude Include="Interface.h" />
+    <ClInclude Include="BuildinDefinition\ComplierDirective.h">
+      <Filter>BuildinDefinition</Filter>
+    </ClInclude>
+    <ClInclude Include="BuildinDefinition\BuildinType.h">
+      <Filter>BuildinDefinition</Filter>
+    </ClInclude>
+    <ClInclude Include="BuildinDefinition\CString.h">
+      <Filter>BuildinDefinition</Filter>
+    </ClInclude>
+    <ClInclude Include="PlatformOperation\Print.h">
+      <Filter>PlatformOperation</Filter>
+    </ClInclude>
+    <ClInclude Include="PlatformHeader.h" />
+    <ClInclude Include="PlatformOperation\Assert.h">
+      <Filter>PlatformOperation</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="BuildinDefinition">
+      <UniqueIdentifier>{d4c6d3fe-fe0a-402d-8272-937a81dd77d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PlatformOperation">
+      <UniqueIdentifier>{21ed534b-561c-4a0a-b4f2-26670a672665}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,7 @@
+﻿  Main.cpp
+C:\Users\jiaxiangzou\Desktop\DxtSdk2021\DxtSdk\Environment\Environment_Windows_Msvc\BuildinDefinition\CString.h(247,28): warning C4244: '=': conversion from 's64' to 'char', possible loss of data
+  Generating code
+  Previous IPDB and IOBJ mismatch, fall back to full compilation.
+  All 1 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  TestExecutor.vcxproj -> C:\Users\jiaxiangzou\Desktop\DxtSdk2021\DxtSdk\x64\Release\TestExecutor.exe
