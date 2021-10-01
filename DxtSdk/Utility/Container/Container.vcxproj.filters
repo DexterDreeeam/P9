@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="Interface.h" />
+    <ClInclude Include="Unsafe\Array.h">
+      <Filter>Unsafe</Filter>
+    </ClInclude>
+    <ClInclude Include="Algo\Hash.h">
+      <Filter>Algo</Filter>
+    </ClInclude>
+    <ClInclude Include="Internal\Hashmap.h">
+      <Filter>Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Internal\RBTree.h">
+      <Filter>Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Internal\SlotAllocator.h">
+      <Filter>Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Unsafe\Deque.h">
+      <Filter>Unsafe</Filter>
+    </ClInclude>
+    <ClInclude Include="Unsafe\List.h">
+      <Filter>Unsafe</Filter>
+    </ClInclude>
+    <ClInclude Include="Unsafe\Map.h">
+      <Filter>Unsafe</Filter>
+    </ClInclude>
+    <ClInclude Include="Unsafe\Pair.h">
+      <Filter>Unsafe</Filter>
+    </ClInclude>
+    <ClInclude Include="Unsafe\Queue.h">
+      <Filter>Unsafe</Filter>
+    </ClInclude>
+    <ClInclude Include="Safe\SafeQueue.h">
+      <Filter>Safe</Filter>
+    </ClInclude>
+    <ClInclude Include="Safe\Selectee.h">
+      <Filter>Safe</Filter>
+    </ClInclude>
+    <ClInclude Include="Unsafe\Set.h">
+      <Filter>Unsafe</Filter>
+    </ClInclude>
+    <ClInclude Include="Unsafe\Stack.h">
+      <Filter>Unsafe</Filter>
+    </ClInclude>
+    <ClInclude Include="Unsafe\String.h">
+      <Filter>Unsafe</Filter>
+    </ClInclude>
+    <ClInclude Include="Unsafe\Triple.h">
+      <Filter>Unsafe</Filter>
+    </ClInclude>
+    <ClInclude Include="Unsafe\Unordered_Map.h">
+      <Filter>Unsafe</Filter>
+    </ClInclude>
+    <ClInclude Include="Unsafe\Unordered_Set.h">
+      <Filter>Unsafe</Filter>
+    </ClInclude>
+    <ClInclude Include="Unsafe\Vector.h">
+      <Filter>Unsafe</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Safe">
+      <UniqueIdentifier>{000e16f3-4c77-4393-a4e3-15026deeb078}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unsafe">
+      <UniqueIdentifier>{98b88d16-efd1-451d-92dc-8fd54100d64c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Algo">
+      <UniqueIdentifier>{48920e0f-505c-4608-a926-278635c6d964}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Internal">
+      <UniqueIdentifier>{d2892fa0-c8ee-461c-8af0-9dab1c5d61b5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

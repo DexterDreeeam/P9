@@ -1,7 +1,5 @@
 #pragma once
 
-#include "ComplierDirective.h"
-
 typedef    unsigned               char  u8;
 typedef      signed               char  s8;
 typedef    unsigned  short         int  u16;
@@ -16,6 +14,18 @@ typedef                            u64  uint;
 typedef                            s64  sint;
 typedef                            s32  boole;
 typedef                            u64  hndl;
+
+typedef struct
+{
+    s32 year;
+    s32 month;
+    s32 day;
+    s32 week_day;
+    s32 hour;
+    s32 minute;
+    s32 second;
+    s32 millisec;
+} date;
 
 #pragma warning (push)
 #pragma warning (disable : 26450)
@@ -72,6 +82,12 @@ _INLINE_ _NOALIAS_ void swap(Ty1& e1, Ty2& e2) noexcept
     Ty1 tmp = e1;
     e1 = e2;
     e2 = tmp;
+}
+
+template<typename Ty>
+constexpr auto right_value_type(Ty& e) noexcept -> Ty&&
+{
+    return static_cast<Ty&&>(e);
 }
 
 #pragma warning (pop)

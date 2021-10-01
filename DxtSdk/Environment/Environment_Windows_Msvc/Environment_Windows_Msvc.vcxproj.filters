@@ -19,6 +19,42 @@
     <ClInclude Include="PlatformOperation\Assert.h">
       <Filter>PlatformOperation</Filter>
     </ClInclude>
+    <ClInclude Include="PlatformOperation\Date.h">
+      <Filter>PlatformOperation</Filter>
+    </ClInclude>
+    <ClInclude Include="PlatformOperation\Atomic.h">
+      <Filter>PlatformOperation</Filter>
+    </ClInclude>
+    <ClInclude Include="PlatformOperation\Memory.h">
+      <Filter>PlatformOperation</Filter>
+    </ClInclude>
+    <ClInclude Include="PlatformOperation\Thread.h">
+      <Filter>PlatformOperation</Filter>
+    </ClInclude>
+    <ClInclude Include="PlatformOperation\Lock.h">
+      <Filter>PlatformOperation</Filter>
+    </ClInclude>
+    <ClInclude Include="PlatformOperation\Event.h">
+      <Filter>PlatformOperation</Filter>
+    </ClInclude>
+    <ClInclude Include="PlatformOperation\Timer.h">
+      <Filter>PlatformOperation</Filter>
+    </ClInclude>
+    <ClInclude Include="PlatformOperation\File.h">
+      <Filter>PlatformOperation</Filter>
+    </ClInclude>
+    <ClInclude Include="PlatformOperation\Spin.h">
+      <Filter>PlatformOperation</Filter>
+    </ClInclude>
+    <ClInclude Include="PlatformOperation\Math.h">
+      <Filter>PlatformOperation</Filter>
+    </ClInclude>
+    <ClInclude Include="PlatformOperation\SIMD.h">
+      <Filter>PlatformOperation</Filter>
+    </ClInclude>
+    <ClInclude Include="PlatformOperation\New.h">
+      <Filter>PlatformOperation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="BuildinDefinition">

@@ -59,7 +59,19 @@
     <ClInclude Include="Interface.h" />
     <ClInclude Include="PlatformHeader.h" />
     <ClInclude Include="PlatformOperation\Assert.h" />
+    <ClInclude Include="PlatformOperation\Atomic.h" />
+    <ClInclude Include="PlatformOperation\Date.h" />
+    <ClInclude Include="PlatformOperation\Event.h" />
+    <ClInclude Include="PlatformOperation\File.h" />
+    <ClInclude Include="PlatformOperation\Lock.h" />
+    <ClInclude Include="PlatformOperation\Math.h" />
+    <ClInclude Include="PlatformOperation\Memory.h" />
+    <ClInclude Include="PlatformOperation\New.h" />
     <ClInclude Include="PlatformOperation\Print.h" />
+    <ClInclude Include="PlatformOperation\SIMD.h" />
+    <ClInclude Include="PlatformOperation\Spin.h" />
+    <ClInclude Include="PlatformOperation\Thread.h" />
+    <ClInclude Include="PlatformOperation\Timer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

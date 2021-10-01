@@ -4,5 +4,6 @@
     <ClInclude Include="Definition.h" />
     <ClInclude Include="Interface.h" />
     <ClInclude Include="DebugCalibration.h" />
+    <ClInclude Include="DebugCalibrationDefinition.h" />
   </ItemGroup>
 </Project>

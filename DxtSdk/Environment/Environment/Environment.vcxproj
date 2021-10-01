@@ -53,6 +53,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="DebugCalibration.h" />
+    <ClInclude Include="DebugCalibrationDefinition.h" />
     <ClInclude Include="Definition.h" />
     <ClInclude Include="Interface.h" />
   </ItemGroup>

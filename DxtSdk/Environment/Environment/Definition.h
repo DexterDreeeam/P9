@@ -13,6 +13,7 @@
 #pragma once
 
 #include "../Environment_Windows_Msvc/Definition.h"
+#include "DebugCalibrationDefinition.h"
 
 #define \
     WHO_I_AM \

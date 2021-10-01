@@ -1,7 +1,5 @@
 #pragma once
 
-#include "BuildinType.h"
-
 _INLINE_ _NOALIAS_ s64 str_len(const char* s) noexcept
 {
     s64 i = 0;
@@ -244,7 +242,7 @@ _INLINE_ s64 u64_to_text_hex_padding(u64 v, char* text, s64 holds)
     while (--myhold >= 0)
     {
         s64 rem = v % 16;
-        text[myhold] = rem >= 10 ? rem - 10 + 'a' : '0' + rem;
+        text[myhold] = (char)rem >= (char)10 ? (char)rem - (char)10 + 'a' : '0' + (char)rem;
         v /= 16;
     }
     return holds;
