@@ -636,6 +636,24 @@ public:
         }
     }
 
+    void erase(s64 pos, s64 erase_cnt) noexcept
+    {
+        assert(sz >= 0 && sz <= cap);
+        assert(pos >= 0 && pos < sz);
+        assert(erase_cnt >= 0);
+        s64 rear_sz = sz - pos - erase_cnt;
+        s64 release_cnt = rear_sz >= 0 ? erase_cnt : sz - pos;
+        sz -= release_cnt;
+        for (s64 i = 0; i != release_cnt; ++i)
+        {
+            (&elem[pos + i])->~Ty();
+        }
+        if (rear_sz > 0)
+        {
+            memory_copy(&elem[pos + release_cnt], &elem[pos], sizeof(Ty) * rear_sz);
+        }
+    }
+
     void swap(Self_Ty& rhs) noexcept
     {
         assert(sz >= 0 && sz <= cap);
@@ -749,6 +767,18 @@ public:
         Iter_Ty itr = begin();
         const Iter_Ty eitr = end();
         while (itr != eitr && *itr != e)
+        {
+            ++itr;
+        }
+        return itr;
+    }
+
+    template<typename Fc>
+    Iter_Ty find(Fc function)
+    {
+        Iter_Ty itr = begin();
+        const Iter_Ty eitr = end();
+        while (itr != eitr && function(*itr) == boole_false)
         {
             ++itr;
         }

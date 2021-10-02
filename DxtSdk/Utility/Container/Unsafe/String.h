@@ -329,8 +329,8 @@ const s64 string_cap_max = 1LL << 30;
 
 class string
 {
-    using Iter_Ty = StringNs::string_iter;
-    using Ritr_Ty = StringNs::string_ritr;
+    using Iter_Ty  = StringNs::string_iter;
+    using Ritr_Ty  = StringNs::string_ritr;
     using cIter_Ty = StringNs::string_const_iter;
     using cRitr_Ty = StringNs::string_const_ritr;
 
@@ -341,12 +341,12 @@ class string
 
     friend string operator +(char c, const string& s) noexcept;
     friend string operator +(const char* cstr, const string& s) noexcept;
-    friend bool operator ==(const char* cstr, const string& s) noexcept;
-    friend bool operator !=(const char* cstr, const string& s) noexcept;
-    friend bool operator <(const char* cstr, const string& s) noexcept;
-    friend bool operator >(const char* cstr, const string& s) noexcept;
-    friend bool operator <=(const char* cstr, const string& s) noexcept;
-    friend bool operator >=(const char* cstr, const string& s) noexcept;
+    friend bool   operator ==(const char* cstr, const string& s) noexcept;
+    friend bool   operator !=(const char* cstr, const string& s) noexcept;
+    friend bool   operator <(const char* cstr, const string& s) noexcept;
+    friend bool   operator >(const char* cstr, const string& s) noexcept;
+    friend bool   operator <=(const char* cstr, const string& s) noexcept;
+    friend bool   operator >=(const char* cstr, const string& s) noexcept;
 
     struct string_max_len_expectation
     {

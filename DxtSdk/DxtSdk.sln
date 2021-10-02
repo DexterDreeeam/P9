@@ -27,6 +27,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Window", "Window\Window\Win
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Window_Windows_Msvc", "Window\Window_Windows_Msvc\Window_Windows_Msvc.vcxproj", "{D862B76F-3389-4648-A018-E610C85B092A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Json", "Utility\Json\Json.vcxproj", "{5761FDC8-6530-4CE1-8AF2-BB04CFC43C8B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Release|x64 = Release|x64
@@ -48,6 +50,8 @@ Global
 		{9FE39ED7-0BC2-4D84-940E-9F34661B4E2C}.Release|x64.Build.0 = Release|x64
 		{D862B76F-3389-4648-A018-E610C85B092A}.Release|x64.ActiveCfg = Release|x64
 		{D862B76F-3389-4648-A018-E610C85B092A}.Release|x64.Build.0 = Release|x64
+		{5761FDC8-6530-4CE1-8AF2-BB04CFC43C8B}.Release|x64.ActiveCfg = Release|x64
+		{5761FDC8-6530-4CE1-8AF2-BB04CFC43C8B}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -59,6 +63,7 @@ Global
 		{F5A9335A-1251-4969-A1DF-F99DC2B97AE5} = {C508EE5F-3901-4FEC-81B7-1474A7A8C788}
 		{9FE39ED7-0BC2-4D84-940E-9F34661B4E2C} = {21E2E1FC-F488-43C3-8D4D-DAB426032761}
 		{D862B76F-3389-4648-A018-E610C85B092A} = {21E2E1FC-F488-43C3-8D4D-DAB426032761}
+		{5761FDC8-6530-4CE1-8AF2-BB04CFC43C8B} = {567D2493-4142-494D-B550-6C0D34326D4F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1117CA9C-6B52-40B6-B188-F96F1496AB11}

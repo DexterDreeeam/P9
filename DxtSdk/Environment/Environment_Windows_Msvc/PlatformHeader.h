@@ -8,4 +8,5 @@ namespace WindowsMsvcNs
 #include <stdlib.h>
 #include <math.h>
 #include <intrin.h>
+#include <time.h>
 }

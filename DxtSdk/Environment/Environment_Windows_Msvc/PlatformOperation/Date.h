@@ -1,7 +1,11 @@
 #pragma once
 
 _INLINE_ date  date_query();
+_INLINE_ date  date_query_utc();
+_INLINE_ u64   date_timestamp_utc();
 _INLINE_ void  tick_sleep(u64 ms);
+_INLINE_ u64   tick_count();
+_INLINE_ u64   tick_record(u64 rec);
 _INLINE_ void  tick_start();
 _INLINE_ u64   tick_elapse();
 _INLINE_ void  tick_elapse_print();
@@ -22,6 +26,31 @@ _INLINE_ date date_query()
         sys.wMilliseconds,
     };
     return rst;
+}
+
+_INLINE_ date date_query_utc()
+{
+    WindowsMsvcNs::SYSTEMTIME sys;
+    WindowsMsvcNs::GetSystemTime(&sys);
+    date rst =
+    {
+        sys.wYear,
+        sys.wMonth,
+        sys.wDay,
+        sys.wDayOfWeek,
+        sys.wHour,
+        sys.wMinute,
+        sys.wSecond,
+        sys.wMilliseconds,
+    };
+    return rst;
+}
+
+_INLINE_ u64 date_timestamp_utc()
+{
+    time_t time_utc;
+    time(&time_utc);
+    return time_utc;
 }
 
 _INLINE_ void tick_sleep(u64 ms)

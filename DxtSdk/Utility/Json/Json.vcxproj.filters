@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="Interface.h" />
+    <ClInclude Include="JsonObject.h" />
+    <ClInclude Include="JsonArray.h" />
+    <ClInclude Include="JsonValue.h" />
+    <ClInclude Include="JsonBase.h" />
+  </ItemGroup>
+</Project>
