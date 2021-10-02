@@ -8,10 +8,10 @@ _INLINE_ void err(Args...args);
 
 #if DEBUG_LEVEL > DEBUG_LEVEL_CALIBRATION_LOG_NONE
 
-namespace log_system_ns
+namespace LoggerNs
 {
 
-    const s64 worker_count = 8LL;
+    const s64 worker_count = 32LL;
     const s64 log_args_max_count = 16LL;
     const s64 log_line_max_length = 256LL;
     const s64 log_path_max_length = 512LL;
@@ -20,7 +20,7 @@ namespace log_system_ns
     {
     public:
         log_system_worker() :
-            log_file((outf)nullptr),
+            log_file((outf)0),
             busy(1)
         {}
 
@@ -52,11 +52,9 @@ namespace log_system_ns
                 ++cnt;
                 yield();
             }
-            if (cnt == s32_max)
-            {
-                assert(0);
-            }
+            assert(cnt != s32_max);
             output_file_destroy(log_file);
+            log_file = 0;
         }
 
         const char* mypath() const
@@ -84,31 +82,32 @@ namespace log_system_ns
 
         void write_log(const char* text, s64 write_len, u64 order)
         {
-            char buf[64];
-            s64 buf_len = 0;
-            u64 thread_id = thrd_myid();
-            date mydate = date_query();
+            char  buf[64];
+            char* buf_ptr = buf;
+            u64   thread_id = thrd_myid();
+            date  mydate = date_query();
 
-            buf[buf_len++] = '[';
-            buf_len += u64_to_text_hex_padding(thread_id, buf + buf_len, 8);
-            buf[buf_len++] = ' ';
-            buf_len += u32_to_text_padding(mydate.hour, buf + buf_len, 2);
-            buf[buf_len++] = ':';
-            buf_len += u32_to_text_padding(mydate.minute, buf + buf_len, 2);
-            buf[buf_len++] = ':';
-            buf_len += u32_to_text_padding(mydate.second, buf + buf_len, 2);
-            buf[buf_len++] = '.';
-            buf_len += u32_to_text_padding(mydate.millisec, buf + buf_len, 3);
-            buf[buf_len++] = ']';
-            output_file_write(log_file, buf, buf_len);
+            *buf_ptr++ = '[';
+            buf_ptr += u64_to_text_hex_padding(thread_id, buf_ptr, 8);
+            *buf_ptr++ = '_';
+            buf_ptr += u32_to_text_padding(mydate.hour, buf_ptr, 2);
+            *buf_ptr++ = ':';
+            buf_ptr += u32_to_text_padding(mydate.minute, buf_ptr, 2);
+            *buf_ptr++ = ':';
+            buf_ptr += u32_to_text_padding(mydate.second, buf_ptr, 2);
+            *buf_ptr++ = '.';
+            buf_ptr += u32_to_text_padding(mydate.millisec, buf_ptr, 3);
+            *buf_ptr++ = ']';
+            *buf_ptr++ = ' ';
+            output_file_write(log_file, buf, buf_ptr - buf);
 
             output_file_write(log_file, text, write_len);
 
-            buf_len = 0;
-            buf[buf_len++] = '#';
-            buf_len += u64_to_text(order, buf + buf_len);
-            buf[buf_len++] = '\n';
-            output_file_write(log_file, buf, buf_len);
+            buf_ptr = buf;
+            *buf_ptr++ = '#';
+            buf_ptr += u64_to_text(order, buf_ptr);
+            *buf_ptr++ = '\n';
+            output_file_write(log_file, buf, buf_ptr - buf);
         }
 
     private:
@@ -116,6 +115,14 @@ namespace log_system_ns
         outf log_file;
         volatile s64 busy;
     };
+
+    template<typename ...Args>
+    _INLINE_ void _log(const char* fmt, Args...args);
+    _INLINE_ void _log(const char* fmt);
+
+    template<typename ...Args>
+    _INLINE_ void _err(const char* fmt, Args...args);
+    _INLINE_ void _err(const char* fmt);
 
     class log_system
     {
@@ -135,9 +142,8 @@ namespace log_system_ns
         {
             s64 path_buf_len = str_len(LOG_FOLDER);
             memory_copy(LOG_FOLDER, path_buf, path_buf_len);
-
-            memory_copy("dxt_log_", path_buf + path_buf_len, 8);
-            path_buf_len += 8;
+            memory_copy("Log_", path_buf + path_buf_len, 4);
+            path_buf_len += 4;
 
             date current_date = date_query();
             path_buf_len += s32_to_text(current_date.year, path_buf + path_buf_len);
@@ -250,8 +256,8 @@ namespace log_system_ns
             path_buf[path_buf_len] = 0;
 
             char texts[worker_count][log_line_max_length];
-            s64 text_lens[worker_count] = {};
-            u64 text_order_numbers[worker_count] = {};
+            s64  text_lens[worker_count] = {};
+            u64  text_order_numbers[worker_count] = {};
             inpf text_logs[worker_count];
 
             for (s64 i = 0; i < worker_count; ++i)
@@ -340,21 +346,21 @@ namespace log_system_ns
     {
         assert_info(sizeof...(args) <= log_args_max_count, "Greater than max log arguements.");
         char output_buf[log_line_max_length];
-        s64 output_len = 0;
+        s64  output_len = 0;
         char arg_buf[log_args_max_count][16] = {};
-        s64 arg_idx = 0;
-        s64 len = str_len(fmt);
-        s64 last = 0;
-        s64 idx = 0;
+        s64  arg_idx = 0;
+        s64  len = str_len(fmt);
+        s64  idx = 0;
+        s64  idx_start = 0;
         parse_args(arg_buf, 0, args...);
-        while (last < len)
+        while (idx_start < len)
         {
             while (idx < len && fmt[idx] != '%')
             {
                 ++idx;
             }
-            memory_copy(fmt + last, output_buf + output_len, idx - last);
-            output_len += idx - last;
+            memory_copy(fmt + idx_start, output_buf + output_len, idx - idx_start);
+            output_len += idx - idx_start;
             if (idx >= len)
             {
                 break;
@@ -364,21 +370,22 @@ namespace log_system_ns
                 //# string
                 char* arg_cursor = arg_buf[arg_idx++];
                 const char* cstr = *pointer_convert(arg_cursor, 0, const char**);
+                u64 cstr_len = str_len(cstr);
+                assert(output_len + cstr_len < log_line_max_length);
                 memory_copy(cstr, output_buf + output_len, str_len(cstr));
-                output_len += str_len(cstr);
-                assert(output_len < log_line_max_length);
-                last = idx + 2;
-                idx = last;
+                output_len += cstr_len;
+                idx_start = idx + 2;
+                idx = idx_start;
             }
-            else if (fmt[idx + 1] == 'p')
+            else if (fmt[idx + 1] == 'p' || fmt[idx + 1] == 'x')
             {
                 //# pointer
                 char* arg_cursor = arg_buf[arg_idx++];
                 u64 v = *pointer_convert(arg_cursor, 0, u64*);
                 output_len += u64_to_text_hex(v, output_buf + output_len);
                 assert(output_len < log_line_max_length);
-                last = idx + 2;
-                idx = last;
+                idx_start = idx + 2;
+                idx = idx_start;
             }
             else if (fmt[idx + 1] == 'l' && fmt[idx + 2] == 'l')
             {
@@ -387,8 +394,8 @@ namespace log_system_ns
                 s64 v = *pointer_convert(arg_cursor, 0, s64*);
                 output_len += s64_to_text(v, output_buf + output_len);
                 assert(output_len < log_line_max_length);
-                last = idx + 3;
-                idx = last;
+                idx_start = idx + 3;
+                idx = idx_start;
             }
             else if (fmt[idx + 1] == 'u' && fmt[idx + 2] == 'l' && fmt[idx + 3] == 'l')
             {
@@ -397,8 +404,8 @@ namespace log_system_ns
                 u64 v = *pointer_convert(arg_cursor, 0, u64*);
                 output_len += u64_to_text(v, output_buf + output_len);
                 assert(output_len < log_line_max_length);
-                last = idx + 4;
-                idx = last;
+                idx_start = idx + 4;
+                idx = idx_start;
             }
             else if (fmt[idx + 1] == 'd')
             {
@@ -407,8 +414,8 @@ namespace log_system_ns
                 s32 v = *pointer_convert(arg_cursor, 0, s32*);
                 output_len += s32_to_text(v, output_buf + output_len);
                 assert(output_len < log_line_max_length);
-                last = idx + 2;
-                idx = last;
+                idx_start = idx + 2;
+                idx = idx_start;
             }
             else if (fmt[idx + 1] == 'u')
             {
@@ -417,16 +424,16 @@ namespace log_system_ns
                 u32 v = *pointer_convert(arg_cursor, 0, u32*);
                 output_len += u32_to_text(v, output_buf + output_len);
                 assert(output_len < log_line_max_length);
-                last = idx + 2;
-                idx = last;
+                idx_start = idx + 2;
+                idx = idx_start;
             }
             else
             {
-                last = idx;
+                idx_start = idx;
                 ++idx;
             }
         }
-        output_buf[output_len] = 0;
+        output_buf[min(output_len, log_line_max_length - 1)] = 0;
         global_log_system.write_log(output_buf, output_len);
     }
 
@@ -440,22 +447,22 @@ namespace log_system_ns
     {
         assert_info(sizeof...(args) <= log_args_max_count, "Greater than max log arguements.");
         char output_buf[log_line_max_length] = "[ERROR] ";
-        s64 output_len = 8;
+        s64  output_len = 8;
         char arg_buf[log_args_max_count][16] = {};
-        s64 arg_idx = 0;
-        s64 len = str_len(fmt);
-        s64 last = 0;
-        s64 idx = 0;
+        s64  arg_idx = 0;
+        s64  len = str_len(fmt);
+        s64  idx = 0;
+        s64  idx_start = 0;
         parse_args(arg_buf, 0, args...);
-        while (last < len)
+        while (idx_start < len)
         {
             while (idx < len && fmt[idx] != '%')
             {
                 ++idx;
             }
-            assert(output_len + (idx - last) < log_line_max_length);
-            memory_copy(fmt + last, output_buf + output_len, idx - last);
-            output_len += idx - last;
+            assert(output_len + (idx - idx_start) < log_line_max_length);
+            memory_copy(fmt + idx_start, output_buf + output_len, idx - idx_start);
+            output_len += idx - idx_start;
             if (idx >= len)
             {
                 break;
@@ -465,11 +472,12 @@ namespace log_system_ns
                 //# string
                 char* arg_cursor = arg_buf[arg_idx++];
                 const char* cstr = *pointer_convert(arg_cursor, 0, const char**);
-                assert(output_len + str_len(cstr) < log_line_max_length);
+                u64 cstr_len = str_len(cstr);
+                assert(output_len + cstr_len < log_line_max_length);
                 memory_copy(cstr, output_buf + output_len, str_len(cstr));
-                output_len += str_len(cstr);
-                last = idx + 2;
-                idx = last;
+                output_len += cstr_len;
+                idx_start = idx + 2;
+                idx = idx_start;
             }
             else if (fmt[idx + 1] == 'p' || fmt[idx + 1] == 'x')
             {
@@ -478,8 +486,8 @@ namespace log_system_ns
                 u64 v = *pointer_convert(arg_cursor, 0, u64*);
                 output_len += u64_to_text_hex(v, output_buf + output_len);
                 assert(output_len < log_line_max_length);
-                last = idx + 2;
-                idx = last;
+                idx_start = idx + 2;
+                idx = idx_start;
             }
             else if (fmt[idx + 1] == 'l' && fmt[idx + 2] == 'l')
             {
@@ -488,8 +496,8 @@ namespace log_system_ns
                 s64 v = *pointer_convert(arg_cursor, 0, s64*);
                 output_len += s64_to_text(v, output_buf + output_len);
                 assert(output_len < log_line_max_length);
-                last = idx + 3;
-                idx = last;
+                idx_start = idx + 3;
+                idx = idx_start;
             }
             else if (fmt[idx + 1] == 'u' && fmt[idx + 2] == 'l' && fmt[idx + 3] == 'l')
             {
@@ -498,8 +506,8 @@ namespace log_system_ns
                 u64 v = *pointer_convert(arg_cursor, 0, u64*);
                 output_len += u64_to_text(v, output_buf + output_len);
                 assert(output_len < log_line_max_length);
-                last = idx + 4;
-                idx = last;
+                idx_start = idx + 4;
+                idx = idx_start;
             }
             else if (fmt[idx + 1] == 'd')
             {
@@ -508,8 +516,8 @@ namespace log_system_ns
                 s32 v = *pointer_convert(arg_cursor, 0, s32*);
                 output_len += s32_to_text(v, output_buf + output_len);
                 assert(output_len < log_line_max_length);
-                last = idx + 2;
-                idx = last;
+                idx_start = idx + 2;
+                idx = idx_start;
             }
             else if (fmt[idx + 1] == 'u')
             {
@@ -518,8 +526,8 @@ namespace log_system_ns
                 u32 v = *pointer_convert(arg_cursor, 0, u32*);
                 output_len += u32_to_text(v, output_buf + output_len);
                 assert(output_len < log_line_max_length);
-                last = idx + 2;
-                idx = last;
+                idx_start = idx + 2;
+                idx = idx_start;
             }
             else
             {
@@ -552,7 +560,7 @@ _INLINE_ void log(Args...args)
 {
     #if DEBUG_LEVEL >= DEBUG_LEVEL_CALIBRATION_LOG_NORM
 
-    log_system_ns::_log(args...);
+    LoggerNs::_log(args...);
 
     #endif
 }
@@ -563,7 +571,7 @@ _INLINE_ void err(Args...args)
 {
     #if DEBUG_LEVEL >= DEBUG_LEVEL_CALIBRATION_LOG_ERROR
 
-    log_system_ns::_err(args...);
+    LoggerNs::_err(args...);
 
     #endif
 }

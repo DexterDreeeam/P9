@@ -15,3 +15,5 @@
 #define I_AM_WINDOWS  9090
 
 #define LOG_FOLDER    "C:/DxtSdk/Log/"
+
+#pragma warning (disable : 26495)

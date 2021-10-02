@@ -30,10 +30,10 @@ private:
 
 #if DEBUG_LEVEL >= DEBUG_LEVEL_CALIBRATION_LOG_CALLSTACK
 
-#define AUTO_TRACE auto_trace __auto_trace__(__FUNCTION__)
+    #define AUTO_TRACE auto_trace __auto_trace__(__FUNCTION__)
 
 #else
 
-#define AUTO_TRACE ((void)0)
+    #define AUTO_TRACE ((void)0)
 
 #endif
