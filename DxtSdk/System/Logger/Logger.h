@@ -89,7 +89,8 @@ namespace LoggerNs
 
             *buf_ptr++ = '[';
             buf_ptr += u64_to_text_hex_padding(thread_id, buf_ptr, 8);
-            *buf_ptr++ = '_';
+            *buf_ptr++ = ']';
+            *buf_ptr++ = '[';
             buf_ptr += u32_to_text_padding(mydate.hour, buf_ptr, 2);
             *buf_ptr++ = ':';
             buf_ptr += u32_to_text_padding(mydate.minute, buf_ptr, 2);
@@ -98,7 +99,6 @@ namespace LoggerNs
             *buf_ptr++ = '.';
             buf_ptr += u32_to_text_padding(mydate.millisec, buf_ptr, 3);
             *buf_ptr++ = ']';
-            *buf_ptr++ = ' ';
             output_file_write(log_file, buf, buf_ptr - buf);
 
             output_file_write(log_file, text, write_len);
@@ -541,10 +541,10 @@ namespace LoggerNs
 
     _INLINE_ void _err(const char* fmt)
     {
-        char output_buf[log_line_max_length] = "[ERROR] ";
-        s64 output_len = 8;
+        char output_buf[log_line_max_length] = "[ERROR]";
+        s64 output_len = 7;
         s64 strlen = str_len(fmt);
-        assert(strlen + 8 < log_line_max_length);
+        assert(strlen + 7 < log_line_max_length);
         memory_copy(fmt, output_buf + output_len, strlen);
         output_len += strlen;
         output_buf[output_len] = 0;
