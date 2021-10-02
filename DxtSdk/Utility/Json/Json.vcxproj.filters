@@ -2,9 +2,26 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClInclude Include="Interface.h" />
-    <ClInclude Include="JsonObject.h" />
-    <ClInclude Include="JsonArray.h" />
-    <ClInclude Include="JsonValue.h" />
     <ClInclude Include="JsonBase.h" />
+    <ClInclude Include="JsonType\JsonArray.h">
+      <Filter>JsonType</Filter>
+    </ClInclude>
+    <ClInclude Include="JsonType\JsonObject.h">
+      <Filter>JsonType</Filter>
+    </ClInclude>
+    <ClInclude Include="JsonType\JsonInt.h">
+      <Filter>JsonType</Filter>
+    </ClInclude>
+    <ClInclude Include="JsonType\JsonString.h">
+      <Filter>JsonType</Filter>
+    </ClInclude>
+    <ClInclude Include="JsonType\JsonBoole.h">
+      <Filter>JsonType</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="JsonType">
+      <UniqueIdentifier>{2256a8cf-8a07-4e07-b8d3-8ac7deb79cdf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

@@ -17,3 +17,5 @@
 #define LOG_FOLDER    "C:/DxtSdk/Log/"
 
 #pragma warning (disable : 26495)
+#pragma warning (disable : 6385)
+#pragma warning (disable : 6386)

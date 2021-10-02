@@ -48,8 +48,8 @@ _INLINE_ date date_query_utc()
 
 _INLINE_ u64 date_timestamp_utc()
 {
-    time_t time_utc;
-    time(&time_utc);
+    WindowsMsvcNs::time_t time_utc;
+    WindowsMsvcNs::time(&time_utc);
     return time_utc;
 }
 

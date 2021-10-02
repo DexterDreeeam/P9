@@ -12,6 +12,5 @@
 
 #pragma once
 
-#include "JsonArray.h"
-#include "JsonObject.h"
-#include "JsonValue.h"
+#include "../Container/Interface.h"
+#include "JsonBase.h"

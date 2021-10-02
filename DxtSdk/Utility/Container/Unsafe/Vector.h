@@ -411,7 +411,7 @@ public:
         assert(sz >= 0 && sz <= cap);
     }
 
-    vector(Self_Ty&& rhs) :
+    vector(Self_Ty&& rhs) noexcept :
         elem(rhs.elem),
         cap(rhs.cap),
         sz(rhs.sz)
@@ -636,24 +636,6 @@ public:
         }
     }
 
-    void erase(s64 pos, s64 erase_cnt) noexcept
-    {
-        assert(sz >= 0 && sz <= cap);
-        assert(pos >= 0 && pos < sz);
-        assert(erase_cnt >= 0);
-        s64 rear_sz = sz - pos - erase_cnt;
-        s64 release_cnt = rear_sz >= 0 ? erase_cnt : sz - pos;
-        sz -= release_cnt;
-        for (s64 i = 0; i != release_cnt; ++i)
-        {
-            (&elem[pos + i])->~Ty();
-        }
-        if (rear_sz > 0)
-        {
-            memory_copy(&elem[pos + release_cnt], &elem[pos], sizeof(Ty) * rear_sz);
-        }
-    }
-
     void swap(Self_Ty& rhs) noexcept
     {
         assert(sz >= 0 && sz <= cap);
@@ -720,6 +702,12 @@ public:
         return Iter_Ty(elem);
     }
 
+    const cIter_Ty begin() const noexcept
+    {
+        assert(sz >= 0 && sz <= cap);
+        return cIter_Ty(elem);
+    }
+
     const cIter_Ty cbegin() const noexcept
     {
         assert(sz >= 0 && sz <= cap);
@@ -730,6 +718,12 @@ public:
     {
         assert(sz >= 0 && sz <= cap);
         return Iter_Ty(pointer_convert(elem, sizeof(Ty) * sz, Ty*));
+    }
+
+    const cIter_Ty end() const noexcept
+    {
+        assert(sz >= 0 && sz <= cap);
+        return cIter_Ty(pointer_convert(elem, sizeof(Ty) * sz, Ty*));
     }
 
     const cIter_Ty cend() const noexcept
@@ -778,8 +772,21 @@ public:
     {
         Iter_Ty itr = begin();
         const Iter_Ty eitr = end();
-        while (itr != eitr && function(*itr) == boole_false)
+        while (itr != eitr && function(*itr) == boole::False)
         {
+            ++itr;
+        }
+        return itr;
+    }
+
+    template<typename Fc>
+    Iter_Ty foreach(Fc function)
+    {
+        Iter_Ty itr = begin();
+        const Iter_Ty eitr = end();
+        while (itr != eitr)
+        {
+            function(*itr);
             ++itr;
         }
         return itr;

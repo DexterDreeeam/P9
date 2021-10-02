@@ -45,7 +45,7 @@ static void timr_cb(void* p)
     void* param = desc->param;
     spin sp = desc->oplock;
     u64 delay = desc->delay;
-    desc->running = true;
+    desc->running = boole::True;
     spin_put(sp);
 
     tick_sleep(delay);
@@ -53,7 +53,7 @@ static void timr_cb(void* p)
     spin_wait_get(sp);
     auto* execute_desc = new timr_cb_execute_desc(func, param);
     execute_desc->my_handle = thrd_create(timr_execute, execute_desc);
-    desc->running = false;
+    desc->running = boole::False;
     spin_put(sp);
 }
 

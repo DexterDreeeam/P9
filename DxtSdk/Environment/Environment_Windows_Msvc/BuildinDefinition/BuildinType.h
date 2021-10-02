@@ -12,8 +12,53 @@ typedef                          float  f32;
 typedef                         double  f64;
 typedef                            u64  uint;
 typedef                            s64  sint;
-typedef                            s32  boole;
 typedef                            u64  hndl;
+
+typedef struct boole
+{
+    enum class boole_value_type : s64
+    {
+        Boole_False = 0,
+        Boole_True = 1,
+    } v;
+
+    static const s64 True  = (s64)boole_value_type::Boole_True;
+    static const s64 False = (s64)boole_value_type::Boole_False;
+
+    boole(s64 value) :
+        v((boole_value_type)value)
+    {}
+
+    boole& operator =(s64 i)
+    {
+        if (i == 0)
+        {
+            v = boole_value_type::Boole_False;
+        }
+        else
+        {
+            v = boole_value_type::Boole_True;
+        }
+    }
+
+    volatile boole& operator =(s64 i) volatile
+    {
+        if (i == 0)
+        {
+            v = boole_value_type::Boole_False;
+        }
+        else
+        {
+            v = boole_value_type::Boole_True;
+        }
+    }
+
+    operator bool() const
+    {
+        return (s64)v == boole::True;
+    }
+
+} boole;
 
 typedef struct
 {
@@ -52,8 +97,6 @@ const s64 s64_min = (s64)((s64)1 << 63);
 const f32 f32_pos_min = (1.0e-30f);
 const f32 f32_pos_max = (1.0e30f);
 const f32 f32_epsilon = (1.0e-5f);
-const boole boole_true = ((s32)1);
-const boole boole_false = ((s32)0);
 
 typedef enum : s32
 {
@@ -73,7 +116,32 @@ typedef enum : s32
 
 _INLINE_ _NOALIAS_ boole is_success(RET rt) noexcept
 {
-    return rt > 0L ? boole_true : boole_false;
+    return rt > 0L ? boole::True : boole::False;
+}
+
+_INLINE_ _NOALIAS_ boole is_digit(char c) noexcept
+{
+    return c >= '0' && c <= '9';
+}
+
+_INLINE_ _NOALIAS_ boole is_lower_case(char c) noexcept
+{
+    return c >= 'a' && c <= 'z';
+}
+
+_INLINE_ _NOALIAS_ boole is_upper_case(char c) noexcept
+{
+    return c >= 'A' && c <= 'Z';
+}
+
+_INLINE_ _NOALIAS_ boole is_alpha(char c) noexcept
+{
+    return is_lower_case(c) || is_upper_case(c);
+}
+
+_INLINE_ _NOALIAS_ boole is_alphanumeric(char c) noexcept
+{
+    return is_digit(c) || is_alpha(c);
 }
 
 template<typename Ty1, typename Ty2>

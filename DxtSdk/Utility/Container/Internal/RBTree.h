@@ -13,8 +13,8 @@ namespace RBTreeNs
     class rbtree;
 
     typedef boole RB_TREE_COLOR;
-    #define RB_TREE_BLACK (boole_false)
-    #define RB_TREE_RED   (boole_true)
+    #define RB_TREE_BLACK (boole::False)
+    #define RB_TREE_RED   (boole::True)
 
     template<typename Key_Ty, typename Val_Ty = rbtree_dummy_type>
     class rbtree_node;

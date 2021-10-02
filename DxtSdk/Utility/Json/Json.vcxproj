@@ -53,10 +53,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Interface.h" />
-    <ClInclude Include="JsonArray.h" />
     <ClInclude Include="JsonBase.h" />
-    <ClInclude Include="JsonObject.h" />
-    <ClInclude Include="JsonValue.h" />
+    <ClInclude Include="JsonType\JsonArray.h" />
+    <ClInclude Include="JsonType\JsonBoole.h" />
+    <ClInclude Include="JsonType\JsonInt.h" />
+    <ClInclude Include="JsonType\JsonObject.h" />
+    <ClInclude Include="JsonType\JsonString.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

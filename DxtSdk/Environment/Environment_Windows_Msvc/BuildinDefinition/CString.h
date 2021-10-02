@@ -16,12 +16,12 @@ _INLINE_ _NOALIAS_ boole str_equal(const char* s1, const char* s2) noexcept
     {
         if (*s1 == '\0')
         {
-            return boole_true;
+            return boole::True;
         }
         ++s1;
         ++s2;
     }
-    return boole_false;
+    return boole::False;
 }
 
 _INLINE_ _NOALIAS_ s64 str_compare(const char* s1, const char* s2) noexcept

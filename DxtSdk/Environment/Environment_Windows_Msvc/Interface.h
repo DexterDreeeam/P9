@@ -16,7 +16,6 @@
 #include "PlatformHeader.h"
 
 #include "BuildinDefinition/ComplierDirective.h"
-
 #include "BuildinDefinition/BuildinType.h"
 #include "BuildinDefinition/CString.h"
 

@@ -375,12 +375,21 @@ public:
         _set_tail_zero();
     }
 
-    string(const char* s)
+    string(const char* s) :
+        string(s, str_len(s))
     {
-        s64 s_len = str_len(s);
-        cap = _ceil_align(s_len + 1);
-        len = s_len;
-        ch = (char*)memory_alloc_copy(s, cap, len + 1);
+        //s64 s_len = str_len(s);
+        //cap = _ceil_align(s_len + 1);
+        //len = s_len;
+        //ch = (char*)memory_alloc_copy(s, cap, len + 1);
+        //assert(_validation());
+    }
+
+    string(const char* s, s64 len)
+    {
+        cap = _ceil_align(len + 1);
+        ch = (char*)memory_alloc_copy(s, cap, len);
+        _set_tail_zero();
         assert(_validation());
     }
 
@@ -432,52 +441,52 @@ public:
         assert(_validation());
     }
 
-    bool operator ==(const string& rhs) const noexcept
+    boole operator ==(const string& rhs) const noexcept
     {
         return str_equal(ch ? ch : "", rhs.ch ? rhs.ch : "");
     }
 
-    bool operator !=(const string& rhs) const noexcept
+    boole operator !=(const string& rhs) const noexcept
     {
         return !str_equal(ch ? ch : "", rhs.ch ? rhs.ch : "");
     }
 
-    bool operator <(const string& rhs) const noexcept
+    boole operator <(const string& rhs) const noexcept
     {
         return str_compare(ch ? ch : "", rhs.ch ? rhs.ch : "") < 0;
     }
 
-    bool operator <(const char* cstr) const noexcept
+    boole operator <(const char* cstr) const noexcept
     {
         return str_compare(ch ? ch : "", cstr) < 0;
     }
 
-    bool operator >(const string& rhs) const noexcept
+    boole operator >(const string& rhs) const noexcept
     {
         return str_compare(ch ? ch : "", rhs.ch ? rhs.ch : "") > 0;
     }
 
-    bool operator >(const char* cstr) const noexcept
+    boole operator >(const char* cstr) const noexcept
     {
         return str_compare(ch ? ch : "", cstr) > 0;
     }
 
-    bool operator <=(const string& rhs) const noexcept
+    boole operator <=(const string& rhs) const noexcept
     {
         return str_compare(ch ? ch : "", rhs.ch ? rhs.ch : "") <= 0;
     }
 
-    bool operator <=(const char* cstr) const noexcept
+    boole operator <=(const char* cstr) const noexcept
     {
         return str_compare(ch ? ch : "", cstr) <= 0;
     }
 
-    bool operator >=(const string& rhs) const noexcept
+    boole operator >=(const string& rhs) const noexcept
     {
         return str_compare(ch ? ch : "", rhs.ch ? rhs.ch : "") >= 0;
     }
 
-    bool operator >=(const char* cstr) const noexcept
+    boole operator >=(const char* cstr) const noexcept
     {
         return str_compare(ch ? ch : "", cstr) >= 0;
     }
@@ -646,6 +655,21 @@ public:
         assert(len >= pop_number);
         len -= pop_number;
         _set_tail_zero();
+    }
+
+    string substr(s64 pos) const noexcept
+    {
+        assert(_validation());
+        assert(pos < len);
+        return substr(pos, len - pos);
+    }
+
+    string substr(s64 pos, s64 sublen) const noexcept
+    {
+        assert(_validation());
+        assert(pos < len);
+        assert(pos + sublen <= len);
+        return string(data() + pos, sublen);
     }
 
     Iter_Ty begin() noexcept

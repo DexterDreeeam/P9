@@ -70,11 +70,11 @@ _INLINE_ boole output_file_write(outf f, const char *content)
 {
     if (WindowsMsvcNs::WriteFile((WindowsMsvcNs::HANDLE)f, content, (WindowsMsvcNs::DWORD)str_len(content), nullptr, nullptr))
     {
-        return boole_true;
+        return boole::True;
     }
     else
     {
-        return boole_false;
+        return boole::False;
     }
 }
 
@@ -82,11 +82,11 @@ _INLINE_ boole output_file_write(outf f, const char *content, s64 write_len)
 {
     if (WindowsMsvcNs::WriteFile((WindowsMsvcNs::HANDLE)f, content, (WindowsMsvcNs::DWORD)write_len, nullptr, nullptr))
     {
-        return boole_true;
+        return boole::True;
     }
     else
     {
-        return boole_false;
+        return boole::False;
     }
 }
 
@@ -95,11 +95,11 @@ _INLINE_ boole output_file_destroy(outf f)
     WindowsMsvcNs::FlushFileBuffers((WindowsMsvcNs::HANDLE)f);
     if (WindowsMsvcNs::CloseHandle((WindowsMsvcNs::HANDLE)f))
     {
-        return boole_true;
+        return boole::True;
     }
     else
     {
-        return boole_false;
+        return boole::False;
     }
 }
 
@@ -127,11 +127,11 @@ _INLINE_ boole input_file_destroy(inpf f)
 {
     if (WindowsMsvcNs::CloseHandle((WindowsMsvcNs::HANDLE)f))
     {
-        return boole_true;
+        return boole::True;
     }
     else
     {
-        return boole_false;
+        return boole::False;
     }
 }
 
@@ -139,10 +139,10 @@ _INLINE_ boole delete_file(const char *path)
 {
     if (WindowsMsvcNs::DeleteFileA(path))
     {
-        return boole_true;
+        return boole::True;
     }
     else
     {
-        return boole_false;
+        return boole::False;
     }
 }

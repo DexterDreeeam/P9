@@ -18,7 +18,10 @@ _INLINE_ void* memory_alloc_zero(u64 sz)
 {
     void* p = reinterpret_cast<void*>(WindowsMsvcNs::malloc(sz));
     assert(p);
-    WindowsMsvcNs::memset(p, 0, sz);
+    if (p != nullptr)
+    {
+        WindowsMsvcNs::memset(p, 0, sz);
+    }
     return p;
 }
 

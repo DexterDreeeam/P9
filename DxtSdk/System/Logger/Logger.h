@@ -11,7 +11,7 @@ _INLINE_ void err(Args...args);
 namespace LoggerNs
 {
 
-    const s64 worker_count = 32LL;
+    const s64 worker_count = 16LL;
     const s64 log_args_max_count = 16LL;
     const s64 log_line_max_length = 256LL;
     const s64 log_path_max_length = 512LL;
@@ -66,11 +66,11 @@ namespace LoggerNs
         {
             if (atom_exchange(busy, 1LL) == 0)
             {
-                return boole_true;
+                return boole::True;
             }
             else
             {
-                return boole_false;
+                return boole::False;
             }
         }
 
