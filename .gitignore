@@ -4,7 +4,6 @@
 /DxtSdk/temp/*
 /DxtSdk/.vs/*
 *x64*
-*.exe
 *.pdb
 *.user
 *.ilk
