@@ -50,7 +50,7 @@ public:
 public:
     static json_base* deserialize(const string& str, s64 from, s64 to)
     {
-        return nullptr;
+        trim_index(str, from, to);
     }
 
 private:

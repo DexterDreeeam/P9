@@ -128,16 +128,16 @@ _INLINE_ s64 s64_to_text(s64 v, char* text)
     }
     if (v == s64_min)
     {
-        text[0] = '-';
-        text[1] = '9';
-        text[2] = '2';
-        text[3] = '2';
-        text[4] = '3';
-        text[5] = '3';
-        text[6] = '7';
-        text[7] = '2';
-        text[8] = '0';
-        text[9] = '3';
+        text[0]  = '-';
+        text[1]  = '9';
+        text[2]  = '2';
+        text[3]  = '2';
+        text[4]  = '3';
+        text[5]  = '3';
+        text[6]  = '7';
+        text[7]  = '2';
+        text[8]  = '0';
+        text[9]  = '3';
         text[10] = '6';
         text[11] = '8';
         text[12] = '5';
@@ -246,4 +246,43 @@ _INLINE_ s64 u64_to_text_hex_padding(u64 v, char* text, s64 holds)
         v /= 16;
     }
     return holds;
+}
+
+_INLINE_ boole text_to_s64(const char* text, s64 len, OUT s64& rst)
+{
+    if (len <= 0)
+    {
+        return boole::False;
+    }
+    boole neg = boole::False;
+    auto* ptr = text;
+    auto* ptr_end = text + len;
+    if (*ptr == '-')
+    {
+        ++ptr;
+        neg = boole::True;
+    }
+
+    rst = 0;
+    while (ptr < ptr_end)
+    {
+        char c = *ptr;
+        if (!is_digit(c))
+        {
+            return boole::False;
+        }
+        s64 digit = c - '0';
+        if ((s64_max - digit) / 10 < rst)
+        {
+            return boole::False;
+        }
+        rst *= 10;
+        rst += digit;
+        ++ptr;
+    }
+    if (neg)
+    {
+        rst = -rst;
+    }
+    return boole::True;
 }

@@ -44,7 +44,16 @@ public:
 public:
     static json_base* deserialize(const string& str, s64 from, s64 to)
     {
-        return nullptr;
+        trim_index(str, from, to);
+        s64 v;
+        if (text_to_s64(str.data() + from, to - from, v))
+        {
+            return new json_int(v);
+        }
+        else
+        {
+            return nullptr;
+        }
     }
 
 private:

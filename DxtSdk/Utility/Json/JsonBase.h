@@ -20,8 +20,6 @@ class json_boole;
 namespace JsonNs
 {
 
-const char blank_chars[] = { ' ', '\n', '\t' };
-
 enum class json_type : u64
 {
     BASE = 9009,
@@ -55,17 +53,53 @@ public:
 protected:
     static void trim_index_from(const string& str, OUT s64& from, s64 to)
     {
-        while (from < to && is_blank_char(str[from]))
+        while (from + 1 < to)
         {
-            ++from;
+            if (is_blank_char(str[from], str[from + 1]))
+            {
+                from += 2;
+            }
+            else if (is_blank_char(str[from]))
+            {
+                ++from;
+            }
+            else
+            {
+                break;
+            }
+        }
+        if (from == to - 1)
+        {
+            if (is_blank_char(str[from]))
+            {
+                ++from;
+            }
         }
     }
 
     static void trim_index_to(const string& str, s64 from, OUT s64& to)
     {
-        while (to > from && is_blank_char(str[to - 1]))
+        while (from + 1 < to)
         {
-            --to;
+            if (is_blank_char(str[to - 2], str[to - 1]))
+            {
+                to -= 2;
+            }
+            else if (is_blank_char(str[to - 1]))
+            {
+                --to;
+            }
+            else
+            {
+                break;
+            }
+        }
+        if (from + 1 == to)
+        {
+            if (is_blank_char(str[to - 1]))
+            {
+                --to;
+            }
         }
     }
 
@@ -77,14 +111,14 @@ protected:
 
     static boole is_blank_char(char ch)
     {
-        for (char c : blank_chars)
-        {
-            if (c == ch)
-            {
-                return boole::True;
-            }
-        }
-        return boole::False;
+        return ch == ' ';
+    }
+
+    static boole is_blank_char(char ch1, char ch2)
+    {
+        return
+            ch1 == '\\' &&
+            (ch2 == 't' || ch2 == 'n');
     }
 };
 
