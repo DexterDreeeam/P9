@@ -251,6 +251,7 @@ namespace LoggerNs
             path_buf[path_buf_len++] = 'x';
             path_buf[path_buf_len++] = 't';
             path_buf[path_buf_len] = 0;
+
             outf integrate_log_file = output_file_create(path_buf);
             path_buf_len = ori_len;
             path_buf[path_buf_len] = 0;

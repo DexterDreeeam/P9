@@ -54,12 +54,13 @@
   <ItemGroup>
     <ClInclude Include="BuildinDefinition\BuildinType.h" />
     <ClInclude Include="BuildinDefinition\ComplierDirective.h" />
-    <ClInclude Include="BuildinDefinition\CString.h" />
     <ClInclude Include="Definition.h" />
     <ClInclude Include="Interface.h" />
     <ClInclude Include="PlatformHeader.h" />
     <ClInclude Include="PlatformOperation\Assert.h" />
     <ClInclude Include="PlatformOperation\Atomic.h" />
+    <ClInclude Include="PlatformOperation\CString.h" />
+    <ClInclude Include="PlatformOperation\CStringConversion.h" />
     <ClInclude Include="PlatformOperation\Date.h" />
     <ClInclude Include="PlatformOperation\Event.h" />
     <ClInclude Include="PlatformOperation\File.h" />

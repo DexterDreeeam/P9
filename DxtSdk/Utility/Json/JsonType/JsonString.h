@@ -31,6 +31,11 @@ public:
         return JsonNs::json_type::STRING;
     }
 
+    virtual const char* type_name() const override
+    {
+        return "json_string";
+    }
+
     virtual JsonNs::json_base* clone() const override
     {
         return new json_string(*this);

@@ -17,10 +17,11 @@
 
 #include "BuildinDefinition/ComplierDirective.h"
 #include "BuildinDefinition/BuildinType.h"
-#include "BuildinDefinition/CString.h"
 
 #include "PlatformOperation/Assert.h"
 #include "PlatformOperation/Atomic.h"
+#include "PlatformOperation/CString.h"
+#include "PlatformOperation/CStringConversion.h"
 #include "PlatformOperation/Date.h"
 #include "PlatformOperation/Event.h"
 #include "PlatformOperation/File.h"

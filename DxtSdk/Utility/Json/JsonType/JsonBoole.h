@@ -23,6 +23,11 @@ public:
         return JsonNs::json_type::BOOLE;
     }
 
+    virtual const char* type_name() const override
+    {
+        return "json_boole";
+    }
+
     virtual JsonNs::json_base* clone() const override
     {
         return new json_boole(*this);

@@ -46,6 +46,8 @@ public:
 
     virtual json_type type() const = 0;
 
+    virtual const char* type_name() const = 0;
+
     virtual json_base* clone() const = 0;
 
     virtual void serialize(OUT string& str) const = 0;

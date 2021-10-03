@@ -1,44 +1,5 @@
 #pragma once
 
-_INLINE_ _NOALIAS_ s64 str_len(const char* s) noexcept
-{
-    s64 i = 0;
-    while (*(s + i) != '\0')
-    {
-        ++i;
-    }
-    return i;
-}
-
-_INLINE_ _NOALIAS_ boole str_equal(const char* s1, const char* s2) noexcept
-{
-    while (*s1 == *s2)
-    {
-        if (*s1 == '\0')
-        {
-            return boole::True;
-        }
-        ++s1;
-        ++s2;
-    }
-    return boole::False;
-}
-
-_INLINE_ _NOALIAS_ s64 str_compare(const char* s1, const char* s2) noexcept
-{
-    s64 i = 0;
-    while (*s1 == *s2)
-    {
-        if (*s1 == 0)
-        {
-            return 0; //# equal
-        }
-        ++s1;
-        ++s2;
-    }
-    return (s64)*s1 - (s64)*s2;
-}
-
 _INLINE_ s64 s32_to_text(s32 v, char* text)
 {
     if (v == 0)
@@ -128,16 +89,16 @@ _INLINE_ s64 s64_to_text(s64 v, char* text)
     }
     if (v == s64_min)
     {
-        text[0]  = '-';
-        text[1]  = '9';
-        text[2]  = '2';
-        text[3]  = '2';
-        text[4]  = '3';
-        text[5]  = '3';
-        text[6]  = '7';
-        text[7]  = '2';
-        text[8]  = '0';
-        text[9]  = '3';
+        text[0] = '-';
+        text[1] = '9';
+        text[2] = '2';
+        text[3] = '2';
+        text[4] = '3';
+        text[5] = '3';
+        text[6] = '7';
+        text[7] = '2';
+        text[8] = '0';
+        text[9] = '3';
         text[10] = '6';
         text[11] = '8';
         text[12] = '5';

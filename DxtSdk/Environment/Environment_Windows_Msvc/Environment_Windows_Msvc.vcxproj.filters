@@ -9,9 +9,6 @@
     <ClInclude Include="BuildinDefinition\BuildinType.h">
       <Filter>BuildinDefinition</Filter>
     </ClInclude>
-    <ClInclude Include="BuildinDefinition\CString.h">
-      <Filter>BuildinDefinition</Filter>
-    </ClInclude>
     <ClInclude Include="PlatformOperation\Print.h">
       <Filter>PlatformOperation</Filter>
     </ClInclude>
@@ -53,6 +50,12 @@
       <Filter>PlatformOperation</Filter>
     </ClInclude>
     <ClInclude Include="PlatformOperation\New.h">
+      <Filter>PlatformOperation</Filter>
+    </ClInclude>
+    <ClInclude Include="PlatformOperation\CString.h">
+      <Filter>PlatformOperation</Filter>
+    </ClInclude>
+    <ClInclude Include="PlatformOperation\CStringConversion.h">
       <Filter>PlatformOperation</Filter>
     </ClInclude>
   </ItemGroup>

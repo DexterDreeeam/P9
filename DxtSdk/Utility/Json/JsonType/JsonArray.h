@@ -38,6 +38,11 @@ public:
         return JsonNs::json_type::ARRAY;
     }
 
+    virtual const char* type_name() const override
+    {
+        return "json_type";
+    }
+
     virtual JsonNs::json_base* clone() const override
     {
         return new json_array(*this);

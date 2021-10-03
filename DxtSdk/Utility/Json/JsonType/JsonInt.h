@@ -23,6 +23,11 @@ public:
         return JsonNs::json_type::INT;
     }
 
+    virtual const char* type_name() const override
+    {
+        return "json_int";
+    }
+
     virtual JsonNs::json_base* clone() const override
     {
         return new json_int(*this);
