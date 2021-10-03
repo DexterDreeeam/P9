@@ -4,21 +4,25 @@ class json_array : public JsonNs::json_base
 {
 public:
     json_array() :
+        json_base(),
         _items()
     {
     }
 
     json_array(const json_array& rhs) :
+        json_base(),
         _items()
     {
         for (const auto& item : rhs._items)
         {
             _items.push_back(item->clone());
+            _items.back()->my_parent() = this;
         }
     }
 
     template<typename ...Args>
     json_array(Args ...args) :
+        json_base(),
         _items()
     {
         constructor_iterator(args...);

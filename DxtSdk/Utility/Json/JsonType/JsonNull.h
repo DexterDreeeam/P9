@@ -6,7 +6,8 @@ public:
     static const string Null;
 
 public:
-    json_null()
+    json_null() :
+        json_base()
     {}
 
     virtual ~json_null() override = default;

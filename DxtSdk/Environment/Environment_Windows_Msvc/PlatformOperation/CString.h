@@ -43,6 +43,11 @@ _INLINE_ _NOALIAS_ s64 str_compare(const char* s1, const char* s2) noexcept
     return (s64)*s1 - (s64)*s2;
 }
 
+_INLINE_ _NOALIAS_ boole is_blank_char(char c) noexcept
+{
+    return c == ' ';
+}
+
 _INLINE_ _NOALIAS_ boole is_alike_blank_char(char c) noexcept
 {
     switch (c)

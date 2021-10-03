@@ -4,14 +4,17 @@ class json_int : public JsonNs::json_base
 {
 public:
     json_int() :
+        json_base(),
         _value(0)
     {}
 
     json_int(s64 i) :
+        json_base(),
         _value(i)
     {}
 
     json_int(const json_int& rhs) :
+        json_base(),
         _value(rhs._value)
     {}
 

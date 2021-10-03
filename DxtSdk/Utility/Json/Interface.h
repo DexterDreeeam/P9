@@ -15,6 +15,7 @@
 #include "../Container/Interface.h"
 
 #include "JsonBase.h"
+#include "Utility.h"
 
 #include "JsonType/JsonArray.h"
 #include "JsonType/JsonBoole.h"

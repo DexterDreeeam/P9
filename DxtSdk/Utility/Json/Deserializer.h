@@ -2,7 +2,7 @@
 
 JsonNs::json_base* JsonDeserialize(const string& str, s64 from, s64 to)
 {
-    JsonNs::json_base::trim_index(str, from, to);
+    trim_index(str, from, to);
 
     if (from == to)
     {

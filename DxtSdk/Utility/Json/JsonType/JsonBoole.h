@@ -8,14 +8,17 @@ public:
 
 public:
     json_boole() :
+        json_base(),
         _value(boole::False)
     {}
 
     json_boole(boole b) :
+        json_base(),
         _value(b)
     {}
 
     json_boole(const json_boole& rhs) :
+        json_base(),
         _value(rhs._value)
     {}
 

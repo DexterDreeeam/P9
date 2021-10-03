@@ -4,16 +4,29 @@ class json_object : public JsonNs::json_base
 {
 public:
     json_object() :
+        json_base(),
         _items()
     {}
 
     json_object(const json_object& rhs) :
-        _items(rhs._items)
-    {}
+        json_base(),
+        _items()
+    {
+        for (auto& p : _items)
+        {
+            p.second->my_parent() = this;
+        }
+    }
 
     json_object(json_object&& rhs) noexcept :
+        json_base(),
         _items(right_value_type(rhs._items))
-    {}
+    {
+        for (auto& p : _items)
+        {
+            p.second->my_parent() = this;
+        }
+    }
 
     virtual ~json_object() override
     {

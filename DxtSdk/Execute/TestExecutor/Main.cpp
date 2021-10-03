@@ -22,7 +22,7 @@ int main()
 
     string str = buf;
 
-    log(buf);
+    //log(buf);
 
     auto j = JsonDeserialize(buf);
 

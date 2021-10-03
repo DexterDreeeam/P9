@@ -62,6 +62,7 @@
     <ClInclude Include="JsonType\JsonNull.h" />
     <ClInclude Include="JsonType\JsonObject.h" />
     <ClInclude Include="JsonType\JsonString.h" />
+    <ClInclude Include="Utility.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

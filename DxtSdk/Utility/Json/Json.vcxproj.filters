@@ -23,6 +23,7 @@
     <ClInclude Include="JsonType\JsonNull.h">
       <Filter>JsonType</Filter>
     </ClInclude>
+    <ClInclude Include="Utility.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="JsonType">
