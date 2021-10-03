@@ -14,9 +14,13 @@ int main()
     myFunc(b);
 
     auto f = input_file_create("C:/dxtSDK/test.txt");
-    char buf[512];
-    input_file_read(f, buf, 512);
+    char buf[2048];
+    s64 len = input_file_read(f, buf, 2048);
+    buf[len] = 0;
+    print("%d", len);
     str_pick_out_blank(buf);
+
+    string str = buf;
 
     log(buf);
 

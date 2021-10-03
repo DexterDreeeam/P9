@@ -3,6 +3,10 @@
 class json_boole : public JsonNs::json_base
 {
 public:
+    static const string True;
+    static const string False;
+
+public:
     json_boole() :
         _value(boole::False)
     {}
@@ -43,22 +47,24 @@ public:
     {
         if (_value)
         {
-            str += "True";
+            str += True;
         }
         else
         {
-            str += "False";
+            str += False;
         }
     }
 
 public:
     static json_base* deserialize(const string& str, s64 from, s64 to)
     {
-        if (to - from == 4 && str.substr(from, to - from) == "True")
+        trim_index(str, from, to);
+        string sub = str.substr(from, to - from);
+        if (to - from == True.size() && str.substr(from, to - from) == True)
         {
             return new json_boole(boole::True);
         }
-        if (to - from == 5 && str.substr(from, to - from) == "False")
+        if (to - from == False.size() && str.substr(from, to - from) == False)
         {
             return new json_boole(boole::False);
         }
@@ -68,3 +74,6 @@ public:
 private:
     boole _value;
 };
+
+_SELECTANY_ const string json_boole::True  = string("true");
+_SELECTANY_ const string json_boole::False = string("false");

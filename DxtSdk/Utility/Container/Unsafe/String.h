@@ -389,7 +389,8 @@ public:
     {
         cap = _ceil_align(s_len + 1);
         len = s_len;
-        ch = (char*)memory_alloc_copy(s, cap, len + 1);
+        ch = (char*)memory_alloc_copy(s, cap, len);
+        _set_tail_zero();
         assert(_validation());
     }
 

@@ -19,6 +19,10 @@
       <Filter>JsonType</Filter>
     </ClInclude>
     <ClInclude Include="Deserializer.h" />
+    <ClInclude Include="Iterator.h" />
+    <ClInclude Include="JsonType\JsonNull.h">
+      <Filter>JsonType</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="JsonType">

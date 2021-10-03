@@ -34,7 +34,8 @@ enum class json_type : u64
     ARRAY,
     INT,
     STRING,
-    BOOLE
+    BOOLE,
+    JSON_NULL,
 };
 
 class json_base

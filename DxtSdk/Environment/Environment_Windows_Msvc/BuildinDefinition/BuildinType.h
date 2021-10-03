@@ -14,53 +14,6 @@ typedef                            u64  uint;
 typedef                            s64  sint;
 typedef                            u64  hndl;
 
-typedef struct boole
-{
-    enum class boole_value_type : s64
-    {
-        Boole_False = 0,
-        Boole_True = 1,
-    } v;
-
-    static const s64 True  = (s64)boole_value_type::Boole_True;
-    static const s64 False = (s64)boole_value_type::Boole_False;
-
-    boole(s64 value) :
-        v((boole_value_type)value)
-    {}
-
-    boole& operator =(s64 i)
-    {
-        if (i == 0)
-        {
-            v = boole_value_type::Boole_False;
-        }
-        else
-        {
-            v = boole_value_type::Boole_True;
-        }
-        return *this;
-    }
-
-    volatile boole& operator =(s64 i) volatile
-    {
-        if (i == 0)
-        {
-            v = boole_value_type::Boole_False;
-        }
-        else
-        {
-            v = boole_value_type::Boole_True;
-        }
-    }
-
-    operator bool() const
-    {
-        return (s64)v == boole::True;
-    }
-
-} boole;
-
 typedef struct
 {
     s32 year;
@@ -98,6 +51,8 @@ const s64 s64_min = (s64)((s64)1 << 63);
 const f32 f32_pos_min = (1.0e-30f);
 const f32 f32_pos_max = (1.0e30f);
 const f32 f32_epsilon = (1.0e-5f);
+
+#include "Boole.h"
 
 typedef enum : s32
 {

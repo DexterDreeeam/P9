@@ -19,7 +19,9 @@
 #include "JsonType/JsonArray.h"
 #include "JsonType/JsonBoole.h"
 #include "JsonType/JsonInt.h"
+#include "JsonType/JsonNull.h"
 #include "JsonType/JsonObject.h"
 #include "JsonType/JsonString.h"
 
 #include "Deserializer.h"
+#include "Iterator.h"

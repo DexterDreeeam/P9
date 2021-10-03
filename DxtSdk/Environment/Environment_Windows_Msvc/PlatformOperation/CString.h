@@ -14,6 +14,8 @@ _INLINE_ _NOALIAS_ s64 str_len(const char* s) noexcept
 
 _INLINE_ _NOALIAS_ boole str_equal(const char* s1, const char* s2) noexcept
 {
+    assert(s1);
+    assert(s2);
     while (*s1 == *s2)
     {
         if (*s1 == '\0')

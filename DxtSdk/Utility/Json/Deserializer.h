@@ -8,37 +8,55 @@ JsonNs::json_base* JsonDeserialize(const string& str, s64 from, s64 to)
     {
         return nullptr;
     }
-    char ch = str[from];
-    if (ch == '{')
+    JsonNs::json_base* rst = nullptr;
+
+    //===================================================== json_object
+    rst = json_object::deserialize(str, from, to);
+    if (rst)
     {
-        // json object
-        return json_object::deserialize(str, from, to);
+        goto L_finish;
     }
-    if (ch == '[')
+
+    //===================================================== json_array
+    rst = json_array::deserialize(str, from, to);
+    if (rst)
     {
-        // json array
-        return json_array::deserialize(str, from, to);
+        goto L_finish;
     }
-    if (ch == '\"')
+
+    //===================================================== json_string
+    rst = json_string::deserialize(str, from, to);
+    if (rst)
     {
-        // json string
-        return json_string::deserialize(str, from, to);
+        goto L_finish;
     }
-    if (is_digit(ch))
+
+    //===================================================== json_int
+    rst = json_int::deserialize(str, from, to);
+    if (rst)
     {
-        // json int
-        return json_int::deserialize(str, from, to);
+        goto L_finish;
     }
-    if (to - from == 4 && str.substr(from, to - from) == "True")
+
+    //===================================================== json_boole
+    rst = json_boole::deserialize(str, from, to);
+    if (rst)
     {
-        return new json_boole(boole::True);
+        goto L_finish;
     }
-    if (to - from == 5 && str.substr(from, to - from) == "False")
+
+    //===================================================== json_null
+    rst = json_null::deserialize(str, from, to);
+    if (rst)
     {
-        return new json_boole(boole::False);
+        goto L_finish;
     }
+
     assert_info(0, "encounter unexpected charactor");
     return nullptr;
+
+L_finish:
+    return rst;
 }
 
 JsonNs::json_base* JsonDeserialize(const string& str)

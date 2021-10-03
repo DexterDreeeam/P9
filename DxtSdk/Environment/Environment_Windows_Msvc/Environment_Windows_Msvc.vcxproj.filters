@@ -58,6 +58,9 @@
     <ClInclude Include="PlatformOperation\CStringConversion.h">
       <Filter>PlatformOperation</Filter>
     </ClInclude>
+    <ClInclude Include="BuildinDefinition\Boole.h">
+      <Filter>BuildinDefinition</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="BuildinDefinition">
