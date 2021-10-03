@@ -23,6 +23,8 @@ public:
         _value(right_value_type(rhs._value))
     {}
 
+    virtual ~json_string() override = default;
+
 public:
     virtual JsonNs::json_type type() const override
     {
@@ -51,6 +53,29 @@ public:
     static json_base* deserialize(const string& str, s64 from, s64 to)
     {
         trim_index(str, from, to);
+        if (to - from < 2 || str[from] != '\"' || str[to - 1] != '\"')
+        {
+            return nullptr;
+        }
+
+        string value = "";
+
+        s64 tail =
+            iterate_quotation_json_string(
+                str,
+                from,
+                [&value](char c)
+                {
+                    value += c;
+                });
+
+        if (tail != to - 1)
+        {
+            // error
+            return nullptr;
+        }
+
+        return new json_string(value);
     }
 
 private:

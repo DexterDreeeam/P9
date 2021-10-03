@@ -39,6 +39,7 @@ typedef struct boole
         {
             v = boole_value_type::Boole_True;
         }
+        return *this;
     }
 
     volatile boole& operator =(s64 i) volatile

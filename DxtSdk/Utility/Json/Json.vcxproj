@@ -52,6 +52,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Deserializer.h" />
     <ClInclude Include="Interface.h" />
     <ClInclude Include="JsonBase.h" />
     <ClInclude Include="JsonType\JsonArray.h" />

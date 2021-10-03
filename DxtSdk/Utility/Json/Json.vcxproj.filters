@@ -18,6 +18,7 @@
     <ClInclude Include="JsonType\JsonBoole.h">
       <Filter>JsonType</Filter>
     </ClInclude>
+    <ClInclude Include="Deserializer.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="JsonType">

@@ -15,6 +15,8 @@ public:
         _value(rhs._value)
     {}
 
+    virtual ~json_int() override = default;
+
 public:
     virtual JsonNs::json_type type() const override
     {

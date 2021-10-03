@@ -24,7 +24,7 @@ public:
         constructor_iterator(args...);
     }
 
-    ~json_array()
+    virtual ~json_array() override
     {
         for (auto* item : _items)
         {
@@ -70,7 +70,124 @@ public:
 
     static json_base* deserialize(const string& str, s64 from, s64 to)
     {
+        trim_index(str, from, to);
+        if (from >= to)
+        {
+            // error
+            return nullptr;
+        }
+        if (str[from] != '[' || str[to - 1] != ']')
+        {
+            // error
+            return nullptr;
+        }
+        ++from;
+        --to;
+
+        json_array* rst = new json_array();
+        while (1)
+        {
+            trim_index_from(str, from, to);
+            if (from == to)
+            {
+                // complete
+                goto L_process_finish;
+            }
+            if (from > to || str[from] == ',')
+            {
+                // error
+                goto L_process_error;
+            }
+
+            s64 value_from_pos = from;
+            s64 curly_brace_cnt = 0;
+            s64 bracket_cnt = 0;
+
+            while (1)
+            {
+                // search for json value tail
+                if (from == to && (curly_brace_cnt != 0 || bracket_cnt != 0))
+                {
+                    // error
+                    goto L_process_error;
+                }
+                if (from == to)
+                {
+                    auto* j = JsonNs::json_base::deserialize(str, value_from_pos, from);
+                    if (j == nullptr)
+                    {
+                        // error
+                        goto L_process_error;
+                    }
+                    rst->add_item(j);
+                    // complte
+                    goto L_process_finish;
+                }
+                char c = str[from];
+                if (c == ',' && curly_brace_cnt == 0 && bracket_cnt == 0)
+                {
+                    auto* j = JsonNs::json_base::deserialize(str, value_from_pos, from);
+                    if (j == nullptr)
+                    {
+                        // error
+                        goto L_process_error;
+                    }
+                    rst->add_item(j);
+                    ++from;
+                    break; // loop back
+                }
+                s64 pos = 0;
+                switch (c)
+                {
+                case '\"':
+                    pos = iterate_quotation_json_string(str, from, [](char) {});
+                    if (pos < 0 || pos >= to)
+                    {
+                        // error
+                        goto L_process_error;
+                    }
+                    from = pos;
+                    break;
+                case '{':
+                    ++curly_brace_cnt;
+                    break;
+                case '}':
+                    --curly_brace_cnt;
+                    break;
+                case '[':
+                    ++bracket_cnt;
+                    break;
+                case ']':
+                    --bracket_cnt;
+                    break;
+                default:
+                    break;
+                }
+                ++from;
+            }
+        }
+
+    L_process_error:
+        if (rst)
+        {
+            delete rst;
+            rst = nullptr;
+        }
         return nullptr;
+
+    L_process_finish:
+        return rst;
+    }
+
+public:
+    void add_item(const json_base& json)
+    {
+        _items.push_back(json.clone());
+    }
+
+    void add_item(json_base* json)
+    {
+        _items.push_back(json);
     }
 
 private:

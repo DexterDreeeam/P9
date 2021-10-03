@@ -15,7 +15,7 @@ public:
         _items(right_value_type(rhs._items))
     {}
 
-    ~json_object()
+    virtual ~json_object() override
     {
         for (const auto& item : _items)
         {
@@ -71,18 +71,145 @@ public:
 
         if (from == to)
         {
+            // error
             return nullptr;
         }
-        assert(str[from] == '{');
-        assert(str[to - 1] == '}');
+        if (str[from] != '{' || str[to - 1] != '}')
+        {
+            // error
+            return nullptr;
+        }
         ++from;
         --to;
 
-        trim_index_from(str, OUT from, to);
+        trim_index(str, from, to);
 
-        // todo
+        if (from == to)
+        {
+            // empty object but valid
+            return new json_object();
+        }
 
+        json_object* rst = new json_object();
+        while (1)
+        {
+            //================================================= search key
+            if (from > to)
+            {
+                // error
+                goto L_process_error;
+            }
+            trim_index_from(str, from, to);
+            if (from == to)
+            {
+                // complete
+                goto L_process_finish;
+            }
+            if (str[from] != '\"')
+            {
+                // error
+                goto L_process_error;
+            }
+            string key = "";
+            s64 key_tail = iterate_quotation_json_string(str, from, [&key](char c) { key += c; });
+            if (key_tail < 0)
+            {
+                // error
+                goto L_process_error;
+            }
+            from = key_tail + 1;
+
+            //================================================= search colon
+            if (from >= to)
+            {
+                // error
+                goto L_process_error;
+            }
+            trim_index_from(str, from, to);
+            if (str[from] != ':')
+            {
+                // error
+                goto L_process_error;
+            }
+            ++from;
+
+            //================================================= search tail comma
+            trim_index_from(str, from, to);
+            if (from >= to)
+            {
+                // error
+                goto L_process_error;
+            }
+            s64 value_start_from = from;
+            s64 curly_brace_cnt = 0;
+            s64 bracket_cnt = 0;
+            while (1)
+            {
+                if (from == to)
+                {
+                    auto* j = JsonNs::json_base::deserialize(str, value_start_from, from);
+                    if (j == nullptr)
+                    {
+                        // error
+                        goto L_process_error;
+                    }
+                    rst->add_item(key, j);
+                    goto L_process_finish; // complete
+                }
+                char c = str[from];
+                if (c == ',' && curly_brace_cnt == 0 && bracket_cnt == 0)
+                {
+                    auto* j = JsonNs::json_base::deserialize(str, value_start_from, from);
+                    if (j == nullptr)
+                    {
+                        // error
+                        goto L_process_error;
+                    }
+                    rst->add_item(key, j);
+                    ++from;
+                    break; // loop back
+                }
+                s64 pos = 0;
+                switch (c)
+                {
+                case '\"':
+                    pos = iterate_quotation_json_string(str, from, [](char) {});
+                    if (pos < 0 || pos >= to)
+                    {
+                        // error
+                        goto L_process_error;
+                    }
+                    from = pos;
+                    break;
+                case '{':
+                    ++curly_brace_cnt;
+                    break;
+                case '}':
+                    --curly_brace_cnt;
+                    break;
+                case '[':
+                    ++bracket_cnt;
+                    break;
+                case ']':
+                    --bracket_cnt;
+                    break;
+                default:
+                    break;
+                }
+                ++from;
+            }
+        }
+
+    L_process_error:
+        if (rst)
+        {
+            delete rst;
+            rst = nullptr;
+        }
         return nullptr;
+
+    L_process_finish:
+        return rst;
     }
 
 public:
@@ -98,6 +225,19 @@ public:
         );
 
         _items.push_back(make_pair<string, JsonNs::json_base*>(key, value.clone()));
+    }
+
+    void add_item(const string& key, JsonNs::json_base* value_ptr)
+    {
+        assert(
+            _items.find(
+                [&](const pair<string, JsonNs::json_base*>& p) -> boole
+                {
+                    return p.first == key;
+                }
+            ) == _items.end());
+
+        _items.push_back(make_pair<string, JsonNs::json_base*>(key, value_ptr));
     }
 
     boole remove_item(const string& key)
