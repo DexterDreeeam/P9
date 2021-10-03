@@ -4,24 +4,21 @@ class json_string : public JsonNs::json_base
 {
 public:
     json_string() :
-        _value(0)
+        json_base(),
+        _value()
     {}
 
     json_string(const string& s) :
+        json_base(),
         _value(s)
     {}
 
     json_string(string&& s) :
+        json_base(),
         _value(right_value_type(s))
     {}
 
-    json_string(const json_string& rhs) :
-        _value(rhs._value)
-    {}
-
-    json_string(json_string&& rhs) noexcept :
-        _value(right_value_type(rhs._value))
-    {}
+    json_string(const json_string& rhs) = delete;
 
     virtual ~json_string() override = default;
 
@@ -36,9 +33,30 @@ public:
         return "json_string";
     }
 
+    virtual s64 size() const override
+    {
+        return 0;
+    }
+
+    virtual JsonNs::json_parent_context get_parent_context(s64 order) override
+    {
+        assert(0);
+        return JsonNs::json_parent_context();
+    }
+
+    virtual string element_value() const override
+    {
+        return '\"' + _value + '\"';
+    }
+
     virtual JsonNs::json_base* clone() const override
     {
-        return new json_string(*this);
+        return new json_string(_value);
+    }
+
+    virtual void Iterate(JsonNs::JsonIterateFunc function) override
+    {
+        function(this);
     }
 
     virtual void serialize(OUT string& str) const override

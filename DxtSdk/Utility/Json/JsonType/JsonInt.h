@@ -3,20 +3,14 @@
 class json_int : public JsonNs::json_base
 {
 public:
-    json_int() :
-        json_base(),
-        _value(0)
-    {}
+    json_int() = delete;
 
     json_int(s64 i) :
         json_base(),
         _value(i)
     {}
 
-    json_int(const json_int& rhs) :
-        json_base(),
-        _value(rhs._value)
-    {}
+    json_int(const json_int& rhs) = delete;
 
     virtual ~json_int() override = default;
 
@@ -31,9 +25,33 @@ public:
         return "json_int";
     }
 
+    virtual s64 size() const override
+    {
+        return 0;
+    }
+
+    virtual JsonNs::json_parent_context get_parent_context(s64 order) override
+    {
+        assert(0);
+        return JsonNs::json_parent_context();
+    }
+
+    virtual string element_value() const override
+    {
+        char text[32];
+        s64 len = s64_to_text(_value, text);
+        text[len] = 0;
+        return string(text);
+    }
+
     virtual JsonNs::json_base* clone() const override
     {
-        return new json_int(*this);
+        return new json_int(_value);
+    }
+
+    virtual void Iterate(JsonNs::JsonIterateFunc function) override
+    {
+        function(this);
     }
 
     virtual void serialize(OUT string& str) const override
@@ -48,7 +66,7 @@ public:
         s64 len = s64_to_text(_value, text);
         text[len] = 0;
 
-        str += text;
+        str += element_value();
     }
 
 public:

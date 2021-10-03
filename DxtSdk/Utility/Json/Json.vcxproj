@@ -54,8 +54,8 @@
   <ItemGroup>
     <ClInclude Include="Deserializer.h" />
     <ClInclude Include="Interface.h" />
-    <ClInclude Include="Iterator.h" />
     <ClInclude Include="JsonBase.h" />
+    <ClInclude Include="JsonIndex.h" />
     <ClInclude Include="JsonType\JsonArray.h" />
     <ClInclude Include="JsonType\JsonBoole.h" />
     <ClInclude Include="JsonType\JsonInt.h" />

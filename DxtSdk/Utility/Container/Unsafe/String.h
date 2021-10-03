@@ -428,6 +428,7 @@ public:
         ch = (char*)memory_alloc_copy(rhs.ch, cap, len);
         _set_tail_zero();
         assert(_validation());
+        return *this;
     }
 
     string& operator =(string&& rhs) noexcept
@@ -440,6 +441,7 @@ public:
         rhs.len = 0;
         rhs.ch = nullptr;
         assert(_validation());
+        return *this;
     }
 
     boole operator ==(const string& rhs) const noexcept

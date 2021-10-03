@@ -35,9 +35,9 @@ namespace LoggerNs
             log_file_path[len++] = '_';
             len += s64_to_text(mynumber, log_file_path + len);
             log_file_path[len++] = '.';
-            log_file_path[len++] = 't';
-            log_file_path[len++] = 'x';
-            log_file_path[len++] = 't';
+            log_file_path[len++] = 'l';
+            log_file_path[len++] = 'o';
+            log_file_path[len++] = 'g';
             log_file_path[len] = 0;
             log_file = output_file_create(log_file_path);
             assert(log_file);
@@ -247,9 +247,9 @@ namespace LoggerNs
             path_buf[path_buf_len++] = 'o';
             path_buf[path_buf_len++] = 'g';
             path_buf[path_buf_len++] = '.';
-            path_buf[path_buf_len++] = 't';
-            path_buf[path_buf_len++] = 'x';
-            path_buf[path_buf_len++] = 't';
+            path_buf[path_buf_len++] = 'l';
+            path_buf[path_buf_len++] = 'o';
+            path_buf[path_buf_len++] = 'g';
             path_buf[path_buf_len] = 0;
 
             outf integrate_log_file = output_file_create(path_buf);

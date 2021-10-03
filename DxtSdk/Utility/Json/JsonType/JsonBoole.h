@@ -17,10 +17,7 @@ public:
         _value(b)
     {}
 
-    json_boole(const json_boole& rhs) :
-        json_base(),
-        _value(rhs._value)
-    {}
+    json_boole(const json_boole& rhs) = delete;
 
     virtual ~json_boole() override = default;
 
@@ -35,9 +32,30 @@ public:
         return "json_boole";
     }
 
+    virtual s64 size() const override
+    {
+        return 0;
+    }
+
+    virtual JsonNs::json_parent_context get_parent_context(s64 order) override
+    {
+        assert(0);
+        return JsonNs::json_parent_context();
+    }
+
+    virtual string element_value() const override
+    {
+        return _value ? True : False;
+    }
+
     virtual JsonNs::json_base* clone() const override
     {
-        return new json_boole(*this);
+        return new json_boole(_value);
+    }
+
+    virtual void Iterate(JsonNs::JsonIterateFunc function) override
+    {
+        function(this);
     }
 
     virtual void serialize(OUT string& str) const override
@@ -48,14 +66,7 @@ public:
 
     virtual void serialize_append(OUT string& str) const override
     {
-        if (_value)
-        {
-            str += True;
-        }
-        else
-        {
-            str += False;
-        }
+        str += element_value();
     }
 
 public:
@@ -73,6 +84,8 @@ public:
         }
         return nullptr;
     }
+
+private:
 
 private:
     boole _value;

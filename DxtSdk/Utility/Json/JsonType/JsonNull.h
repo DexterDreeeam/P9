@@ -10,6 +10,8 @@ public:
         json_base()
     {}
 
+    json_null(const json_null& rhs) = delete;
+
     virtual ~json_null() override = default;
 
 public:
@@ -23,9 +25,30 @@ public:
         return "json_null";
     }
 
+    virtual s64 size() const override
+    {
+        return 0;
+    }
+
+    virtual JsonNs::json_parent_context get_parent_context(s64 order) override
+    {
+        assert(0);
+        return JsonNs::json_parent_context();
+    }
+
+    virtual string element_value() const override
+    {
+        return Null;
+    }
+
     virtual JsonNs::json_base* clone() const override
     {
         return new json_null();
+    }
+
+    virtual void Iterate(JsonNs::JsonIterateFunc function) override
+    {
+        function(this);
     }
 
     virtual void serialize(OUT string& str) const override

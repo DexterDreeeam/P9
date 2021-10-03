@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include "../../Environment/Environment/Interface.h"
 #include "../Container/Interface.h"
 
 #include "JsonBase.h"
@@ -25,4 +26,4 @@
 #include "JsonType/JsonString.h"
 
 #include "Deserializer.h"
-#include "Iterator.h"
+#include "JsonIndex.h"
