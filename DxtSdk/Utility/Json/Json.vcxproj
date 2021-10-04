@@ -58,6 +58,7 @@
     <ClInclude Include="JsonIndex.h" />
     <ClInclude Include="JsonType\JsonArray.h" />
     <ClInclude Include="JsonType\JsonBoole.h" />
+    <ClInclude Include="JsonType\JsonFloat.h" />
     <ClInclude Include="JsonType\JsonInt.h" />
     <ClInclude Include="JsonType\JsonNull.h" />
     <ClInclude Include="JsonType\JsonObject.h" />

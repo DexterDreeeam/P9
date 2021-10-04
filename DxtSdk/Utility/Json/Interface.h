@@ -20,6 +20,7 @@
 
 #include "JsonType/JsonArray.h"
 #include "JsonType/JsonBoole.h"
+#include "JsonType/JsonFloat.h"
 #include "JsonType/JsonInt.h"
 #include "JsonType/JsonNull.h"
 #include "JsonType/JsonObject.h"

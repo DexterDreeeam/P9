@@ -675,9 +675,24 @@ public:
         return string(data() + pos, sublen);
     }
 
+    string reverse() const noexcept
+    {
+        string rst = "";
+        for (auto itr = rbegin(); itr != rend(); ++itr)
+        {
+            rst += *itr;
+        }
+        return rst;
+    }
+
     Iter_Ty begin() noexcept
     {
         return Iter_Ty(ch);
+    }
+
+    cIter_Ty begin() const noexcept
+    {
+        return cIter_Ty(ch);
     }
 
     Iter_Ty end() noexcept
@@ -685,14 +700,29 @@ public:
         return Iter_Ty(ch + len);
     }
 
+    cIter_Ty end() const noexcept
+    {
+        return cIter_Ty(ch + len);
+    }
+
     Ritr_Ty rbegin() noexcept
     {
         return Ritr_Ty(ch + len - 1);
     }
 
+    cRitr_Ty rbegin() const noexcept
+    {
+        return cRitr_Ty(ch + len - 1);
+    }
+
     Ritr_Ty rend() noexcept
     {
         return Ritr_Ty(ch - 1);
+    }
+
+    cRitr_Ty rend() const noexcept
+    {
+        return cRitr_Ty(ch - 1);
     }
 
     cIter_Ty cbegin() noexcept

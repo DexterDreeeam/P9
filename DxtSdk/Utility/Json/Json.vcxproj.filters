@@ -24,6 +24,9 @@
     </ClInclude>
     <ClInclude Include="Utility.h" />
     <ClInclude Include="JsonIndex.h" />
+    <ClInclude Include="JsonType\JsonFloat.h">
+      <Filter>JsonType</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="JsonType">

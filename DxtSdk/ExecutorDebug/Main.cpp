@@ -1,4 +1,4 @@
-#include "../../DxtSdk/DxtSdk.h"
+#include "../DxtSdk/DxtSdk.h"
 
 void myFunc(int a[])
 {
@@ -7,9 +7,6 @@ void myFunc(int a[])
 
 int main()
 {
-    log("123");
-    err("456");
-
     int b[10];
     myFunc(b);
 
@@ -25,20 +22,16 @@ int main()
     //log(buf);
 
     auto j = JsonDeserialize(buf);
-    j->Iterate(
-        [](JsonNs::json_base* json)
-        {
-            log("my json type is %s", json->type_name());
-            log("my json path is %s", json->my_path().data());
-        });
 
     auto cur = json_cursor(j);
-    cur = cur["book"][0]["id"];
+    cur = cur["Actors"][1]["mother"];
     auto ele = *cur;
 
-    log("dexter-test %S", ele);
+    print("\n%s\n", ele.data());
 
-    json_report(j);
+    // log("dexter-test %S", ele);
+
+    // json_report(j);
 
     log("%s", j->type_name());
 

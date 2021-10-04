@@ -59,9 +59,11 @@ public:
         return JsonNs::json_parent_context(type(), this, order, '\"' + _items[order].first + '\"');
     }
 
-    virtual string element_value() const override
+    virtual string value() const override
     {
-        return string();
+        string rst;
+        serialize(rst);
+        return rst;
     }
 
     virtual JsonNs::json_base* clone() const override

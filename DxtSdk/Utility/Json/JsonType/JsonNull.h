@@ -48,7 +48,7 @@ public:
         return JsonNs::json_parent_context();
     }
 
-    virtual string element_value() const override
+    virtual string value() const override
     {
         return Null;
     }

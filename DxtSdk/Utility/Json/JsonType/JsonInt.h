@@ -48,7 +48,7 @@ public:
         return JsonNs::json_parent_context();
     }
 
-    virtual string element_value() const override
+    virtual string value() const override
     {
         char text[32];
         s64 len = s64_to_text(_value, text);
@@ -74,11 +74,7 @@ public:
 
     virtual void serialize_append(OUT string& str) const override
     {
-        char text[32];
-        s64 len = s64_to_text(_value, text);
-        text[len] = 0;
-
-        str += element_value();
+        str += value();
     }
 
 public:

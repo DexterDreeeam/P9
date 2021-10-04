@@ -12,6 +12,8 @@
 #define around(x,mod)                     ( (x + mod - 1) / mod * mod )
 #define floor(x,mod)                      ( (x / mod) * mod )
 #define ceil(x,mod)                       ( around(x,mod) )
+#define power(x,exp)                      ( WindowsMsvcNs::pow(x,exp) )
+
 #define _KB                               (1024ULL)
 #define _MB                               (1024ULL * 1024ULL)
 #define _GB                               (1024ULL * 1024ULL * 1024ULL)
@@ -22,12 +24,12 @@
 #define sqrt_inv(x)                       __sqrt_inv(x)
 #define degree_radian(x)                  __degree_radian(x)
 #define radian_degree(x)                  __radian_degree(x)
-#define tan_radian(x)                     windows_ns::tan(x)
-#define tan_degree(x)                     windows_ns::tan(degree_radian(x))
-#define sin_radian(x)                     windows_ns::sin(x)
-#define sin_degree(x)                     windows_ns::sin(degree_radian(x))
-#define cos_radian(x)                     windows_ns::cos(x)
-#define cos_degree(x)                     windows_ns::cos(degree_radian(x))
+#define tan_radian(x)                     WindowsMsvcNs::tan(x)
+#define tan_degree(x)                     WindowsMsvcNs::tan(degree_radian(x))
+#define sin_radian(x)                     WindowsMsvcNs::sin(x)
+#define sin_degree(x)                     WindowsMsvcNs::sin(degree_radian(x))
+#define cos_radian(x)                     WindowsMsvcNs::cos(x)
+#define cos_degree(x)                     WindowsMsvcNs::cos(degree_radian(x))
 #define atan2_radian(x,y)                 __atan2(x, y)                    //# (x != 0 || y != 0) : (-Pi, +Pi]
 #define atan2_degree(x,y)                 __radian_degree(__atan2(x, y))   //# (x != 0 || y != 0) : (-180, 180]
 #define asin_radian(x)                    __asin(x)                        //# [-1, 1] : [-0.5 * Pi, 0.5 * Pi]

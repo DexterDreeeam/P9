@@ -56,7 +56,7 @@ public:
         return JsonNs::json_parent_context();
     }
 
-    virtual string element_value() const override
+    virtual string value() const override
     {
         return '\"' + _value + '\"';
     }
@@ -80,7 +80,7 @@ public:
     virtual void serialize_append(OUT string& str) const override
     {
         str += '\"';
-        str += str;
+        str += _value;
         str += '\"';
     }
 

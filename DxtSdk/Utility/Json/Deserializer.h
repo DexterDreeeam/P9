@@ -31,13 +31,6 @@ JsonNs::json_base* JsonDeserialize(const string& str, s64 from, s64 to)
         goto L_finish;
     }
 
-    //===================================================== json_int
-    rst = json_int::deserialize(str, from, to);
-    if (rst)
-    {
-        goto L_finish;
-    }
-
     //===================================================== json_boole
     rst = json_boole::deserialize(str, from, to);
     if (rst)
@@ -47,6 +40,20 @@ JsonNs::json_base* JsonDeserialize(const string& str, s64 from, s64 to)
 
     //===================================================== json_null
     rst = json_null::deserialize(str, from, to);
+    if (rst)
+    {
+        goto L_finish;
+    }
+
+    //===================================================== json_float
+    rst = json_float::deserialize(str, from, to);
+    if (rst)
+    {
+        goto L_finish;
+    }
+
+    //===================================================== json_int
+    rst = json_int::deserialize(str, from, to);
     if (rst)
     {
         goto L_finish;

@@ -17,7 +17,7 @@ _INLINE_ void json_report(JsonNs::json_base* json)
                 return;
             }
             string path  = j->my_path();
-            string value = j->element_value();
+            string value = j->value();
             print("%s %s\n", path.data(), value.data());
         });
 #endif
@@ -49,7 +49,7 @@ public:
 
     string operator *()
     {
-        return _json->element_value();
+        return _json->value();
     }
 
 private:

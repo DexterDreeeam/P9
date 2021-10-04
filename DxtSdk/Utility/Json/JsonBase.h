@@ -35,6 +35,7 @@ enum class json_type : u64
     OBJECT,
     ARRAY,
     INT,
+    FLOAT,
     STRING,
     BOOLE,
     JSON_NULL,
@@ -94,7 +95,7 @@ public:
 
     virtual json_parent_context get_parent_context(s64 order) = 0;
 
-    virtual string element_value() const = 0;
+    virtual string value() const = 0;
 
     virtual json_base* clone() const = 0;
 
