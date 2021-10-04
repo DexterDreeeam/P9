@@ -113,6 +113,12 @@ public:
         return new json_string(value);
     }
 
+public:
+    string as_string() const
+    {
+        return _value;
+    }
+
 private:
     string _value;
 };

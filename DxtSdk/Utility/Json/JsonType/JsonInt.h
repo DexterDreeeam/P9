@@ -92,6 +92,12 @@ public:
         }
     }
 
+public:
+    s64 as_s64() const
+    {
+        return _value;
+    }
+
 private:
     s64 _value;
 };

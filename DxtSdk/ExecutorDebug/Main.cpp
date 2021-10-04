@@ -1,15 +1,7 @@
 #include "../DxtSdk/DxtSdk.h"
 
-void myFunc(int a[])
-{
-    a[1] = 0;
-}
-
 int main()
 {
-    int b[10];
-    myFunc(b);
-
     auto f = input_file_create("C:/dxtSDK/test.txt");
     char buf[8000];
     s64 len = input_file_read(f, buf, 8000);

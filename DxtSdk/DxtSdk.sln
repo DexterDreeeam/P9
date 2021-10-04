@@ -29,6 +29,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Json", "Utility\Json\Json.v
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ExecutorDebug", "ExecutorDebug\ExecutorDebug.vcxproj", "{40C5A121-7300-4F21-819E-763DCCB8F60E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JsonFormat", "Utility\JsonFormat\JsonFormat.vcxproj", "{3BDC53E8-F06F-4353-9EB8-A7279368B94D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -71,6 +73,10 @@ Global
 		{40C5A121-7300-4F21-819E-763DCCB8F60E}.Debug|x64.Build.0 = Debug|x64
 		{40C5A121-7300-4F21-819E-763DCCB8F60E}.Release|x64.ActiveCfg = Release|x64
 		{40C5A121-7300-4F21-819E-763DCCB8F60E}.Release|x64.Build.0 = Release|x64
+		{3BDC53E8-F06F-4353-9EB8-A7279368B94D}.Debug|x64.ActiveCfg = Release|x64
+		{3BDC53E8-F06F-4353-9EB8-A7279368B94D}.Debug|x64.Build.0 = Release|x64
+		{3BDC53E8-F06F-4353-9EB8-A7279368B94D}.Release|x64.ActiveCfg = Release|x64
+		{3BDC53E8-F06F-4353-9EB8-A7279368B94D}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -83,6 +89,7 @@ Global
 		{9FE39ED7-0BC2-4D84-940E-9F34661B4E2C} = {21E2E1FC-F488-43C3-8D4D-DAB426032761}
 		{D862B76F-3389-4648-A018-E610C85B092A} = {21E2E1FC-F488-43C3-8D4D-DAB426032761}
 		{5761FDC8-6530-4CE1-8AF2-BB04CFC43C8B} = {567D2493-4142-494D-B550-6C0D34326D4F}
+		{3BDC53E8-F06F-4353-9EB8-A7279368B94D} = {567D2493-4142-494D-B550-6C0D34326D4F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1117CA9C-6B52-40B6-B188-F96F1496AB11}

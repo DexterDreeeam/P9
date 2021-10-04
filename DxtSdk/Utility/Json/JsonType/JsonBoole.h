@@ -97,7 +97,11 @@ public:
         return nullptr;
     }
 
-private:
+public:
+    boole as_boole() const
+    {
+        return _value;
+    }
 
 private:
     boole _value;

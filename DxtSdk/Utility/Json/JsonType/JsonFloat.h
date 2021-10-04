@@ -117,6 +117,13 @@ public:
 public:
     static json_base* deserialize(const string& str, s64 from, s64 to);
 
+public:
+    f64 as_f64() const
+    {
+        f64 f = _integer + _fraction / power(10, json_float_precision);
+        return _sign ? f : -f;
+    }
+
 private:
     string fraction_string() const
     {
@@ -163,7 +170,7 @@ _INLINE_ JsonNs::json_base* json_float::deserialize(const string& str, s64 from,
     }
     s64 stop_pos = -1;
 
-    for (int i = from; i < to; ++i)
+    for (s64 i = from; i < to; ++i)
     {
         char ch = str[i];
         if (is_digit(ch))

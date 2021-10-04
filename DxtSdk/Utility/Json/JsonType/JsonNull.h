@@ -84,6 +84,12 @@ public:
         }
         return nullptr;
     }
+
+public:
+    void* as_null() const
+    {
+        return nullptr;
+    }
 };
 
 _SELECTANY_ const string json_null::Null = string("null");

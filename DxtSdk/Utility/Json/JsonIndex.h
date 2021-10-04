@@ -52,6 +52,30 @@ public:
         return _json->value();
     }
 
+    boole as_boole() const
+    {
+        assert(_json->type() == JsonNs::json_type::BOOLE);
+        return pointer_convert(_json, 0, json_boole*)->as_boole();
+    }
+
+    f64 as_f64() const
+    {
+        assert(_json->type() == JsonNs::json_type::FLOAT);
+        return pointer_convert(_json, 0, json_float*)->as_f64();
+    }
+
+    s64 as_s64() const
+    {
+        assert(_json->type() == JsonNs::json_type::INT);
+        return pointer_convert(_json, 0, json_int*)->as_s64();
+    }
+
+    string as_string() const
+    {
+        assert(_json->type() == JsonNs::json_type::STRING);
+        return pointer_convert(_json, 0, json_string*)->as_string();
+    }
+
 private:
     JsonNs::json_base* _json;
 };
