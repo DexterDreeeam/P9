@@ -1,6 +1,7 @@
 !*placeholder*
 
 *temp/*
+*.output*
 *.vs*
 *x64*
 *.pdb
