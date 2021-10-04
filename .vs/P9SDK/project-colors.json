@@ -1,0 +1,41 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "1cd24c18-980c-4fff-b9a4-e75bdff9320f": {
+      "ProjectGuid": "1cd24c18-980c-4fff-b9a4-e75bdff9320f",
+      "DisplayName": "Interface",
+      "ColorIndex": 0
+    },
+    "40c5a121-7300-4f21-819e-763dccb8f60e": {
+      "ProjectGuid": "40c5a121-7300-4f21-819e-763dccb8f60e",
+      "DisplayName": "ExecutorDebug",
+      "ColorIndex": 1
+    },
+    "b25be4c2-5dc9-4f6f-9fd1-b76c60a41bfd": {
+      "ProjectGuid": "b25be4c2-5dc9-4f6f-9fd1-b76c60a41bfd",
+      "DisplayName": "Environment_Windows_Msvc",
+      "ColorIndex": 2
+    },
+    "a38f5abb-a413-4832-baf8-0042ccfaaef9": {
+      "ProjectGuid": "a38f5abb-a413-4832-baf8-0042ccfaaef9",
+      "DisplayName": "Container",
+      "ColorIndex": 3
+    },
+    "5761fdc8-6530-4ce1-8af2-bb04cfc43c8b": {
+      "ProjectGuid": "5761fdc8-6530-4ce1-8af2-bb04cfc43c8b",
+      "DisplayName": "Json",
+      "ColorIndex": 4
+    },
+    "da4793ef-b9da-4d64-93a0-be1895de4f10": {
+      "ProjectGuid": "da4793ef-b9da-4d64-93a0-be1895de4f10",
+      "DisplayName": "Environment",
+      "ColorIndex": 5
+    },
+    "9fe39ed7-0bc2-4d84-940e-9f34661b4e2c": {
+      "ProjectGuid": "9fe39ed7-0bc2-4d84-940e-9f34661b4e2c",
+      "DisplayName": "Window",
+      "ColorIndex": 6
+    }
+  },
+  "NextColorIndex": 7
+}
