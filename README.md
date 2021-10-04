@@ -1,2 +1,3 @@
-# DxtSdk
-One cross Os development tool kit
+Pavilion 9 project.
+
+Cross OS Set of Projects.
