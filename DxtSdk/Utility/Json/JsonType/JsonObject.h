@@ -34,6 +34,25 @@ public:
         return _items.size();
     }
 
+    virtual json_base* index(const string& key) override
+    {
+        for (auto& p : _items)
+        {
+            if (p.first == key)
+            {
+                return p.second;
+            }
+        }
+        assert_info(0, "index key not found.");
+        return nullptr;
+    }
+
+    virtual json_base* index(s64 order) override
+    {
+        assert(order >= 0 && order < size());
+        return _items[order].second;
+    }
+
     virtual JsonNs::json_parent_context get_parent_context(s64 order) override
     {
         assert(order >= 0 && order < size());

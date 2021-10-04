@@ -737,7 +737,12 @@ private:
                 return false;
             }
         }
-        else if (ch == nullptr)
+        else if (ch == nullptr && len != 0)
+        {
+            assert_info(0, "Invalid string internal state.");
+            return false;
+        }
+        else if (ch != nullptr && cap == 0)
         {
             assert_info(0, "Invalid string internal state.");
             return false;
@@ -747,7 +752,19 @@ private:
             assert_info(0, "Invalid string internal state.");
             return false;
         }
-        else if (ch[len] != 0)
+
+        if (ch == nullptr && cap != 0)
+        {
+            assert_info(0, "Invalid string internal state.");
+            return false;
+        }
+
+        if (ch == nullptr)
+        {
+            return true;
+        }
+
+        if (ch[len] != 0)
         {
             assert_info(0, "String tail charactor should be '\\0'");
             return false;

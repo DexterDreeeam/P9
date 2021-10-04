@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../Utility/Container/Unsafe/String.h"
+
 template<typename ...Args>
 _INLINE_ void log(Args...args);
 
@@ -320,6 +322,11 @@ namespace LoggerNs
         memory_copy(&a, arg_buf[arg_idx], min(sizeof(Ty*), 16));
     }
 
+    _INLINE_ void parse_args(char arg_buf[log_args_max_count][16], s64 arg_idx, const string& a)
+    {
+        memory_copy(&a, arg_buf[arg_idx], min(sizeof(string*), 16));
+    }
+
     template<typename Ty, typename ...Args>
     _INLINE_ void parse_args(char arg_buf[log_args_max_count][16], s64 arg_idx, Ty a, Args...args)
     {
@@ -333,6 +340,14 @@ namespace LoggerNs
         memory_copy(&a, arg_buf[arg_idx], min(sizeof(Ty*), 16));
         parse_args(arg_buf, arg_idx + 1, args...);
     }
+
+    template<typename ...Args>
+    _INLINE_ void parse_args(char arg_buf[log_args_max_count][16], s64 arg_idx, const string& a, Args...args)
+    {
+        memory_copy(&a, arg_buf[arg_idx], min(sizeof(string*), 16));
+        parse_args(arg_buf, arg_idx + 1, args...);
+    }
+
 
     /*
      * %d    s32
@@ -368,13 +383,24 @@ namespace LoggerNs
             }
             if (fmt[idx + 1] == 's')
             {
-                //# string
+                //# cstring
                 char* arg_cursor = arg_buf[arg_idx++];
                 const char* cstr = *pointer_convert(arg_cursor, 0, const char**);
                 u64 cstr_len = str_len(cstr);
                 assert(output_len + cstr_len < log_line_max_length);
                 memory_copy(cstr, output_buf + output_len, str_len(cstr));
                 output_len += cstr_len;
+                idx_start = idx + 2;
+                idx = idx_start;
+            }
+            if (fmt[idx + 1] == 'S')
+            {
+                //# string
+                char* arg_cursor = arg_buf[arg_idx++];
+                string& str = *pointer_convert(arg_cursor, 0, string*);
+                assert(output_len + str.size() < log_line_max_length);
+                memory_copy(str.data(), output_buf + output_len, str.size());
+                output_len += str.size();
                 idx_start = idx + 2;
                 idx = idx_start;
             }
@@ -477,6 +503,17 @@ namespace LoggerNs
                 assert(output_len + cstr_len < log_line_max_length);
                 memory_copy(cstr, output_buf + output_len, str_len(cstr));
                 output_len += cstr_len;
+                idx_start = idx + 2;
+                idx = idx_start;
+            }
+            if (fmt[idx + 1] == 'S')
+            {
+                //# string
+                string* arg_cursor = arg_buf[arg_idx++];
+                string& str = *arg_cursor;
+                assert(output_len + str.size() < log_line_max_length);
+                memory_copy(str.data(), output_buf + output_len, str.size());
+                output_len += str.size();
                 idx_start = idx + 2;
                 idx = idx_start;
             }

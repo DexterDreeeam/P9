@@ -30,6 +30,18 @@ public:
         return 0;
     }
 
+    virtual json_base* index(const string& key) override
+    {
+        assert(0);
+        return nullptr;
+    }
+
+    virtual json_base* index(s64 order) override
+    {
+        assert(0);
+        return nullptr;
+    }
+
     virtual JsonNs::json_parent_context get_parent_context(s64 order) override
     {
         assert(0);

@@ -32,6 +32,12 @@ int main()
             log("my json path is %s", json->my_path().data());
         });
 
+    auto cur = json_cursor(j);
+    cur = cur["book"][0]["id"];
+    auto ele = *cur;
+
+    log("dexter-test %S", ele);
+
     json_report(j);
 
     log("%s", j->type_name());

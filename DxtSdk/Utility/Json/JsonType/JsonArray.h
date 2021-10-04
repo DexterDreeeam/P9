@@ -43,6 +43,19 @@ public:
         return _items.size();
     }
 
+    virtual json_base* index(const string& key) override
+    {
+        s64 order;
+        text_to_s64(key.data(), key.size(), order);
+        return index(order);
+    }
+
+    virtual json_base* index(s64 order) override
+    {
+        assert(order >= 0 && order < size());
+        return _items[order];
+    }
+
     virtual JsonNs::json_parent_context get_parent_context(s64 order) override
     {
         assert(order >= 0 && order < size());

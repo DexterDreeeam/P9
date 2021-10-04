@@ -22,3 +22,36 @@ _INLINE_ void json_report(JsonNs::json_base* json)
         });
 #endif
 }
+
+class json_cursor
+{
+public:
+    json_cursor(JsonNs::json_base* json) :
+        _json(json)
+    {}
+
+    ~json_cursor() = default;
+
+    JsonNs::json_base* operator ->()
+    {
+        return _json;
+    }
+
+    json_cursor operator[](const string& key)
+    {
+        return json_cursor(_json->index(key));
+    }
+
+    json_cursor operator[](s64 order)
+    {
+        return json_cursor(_json->index(order));
+    }
+
+    string operator *()
+    {
+        return _json->element_value();
+    }
+
+private:
+    JsonNs::json_base* _json;
+};

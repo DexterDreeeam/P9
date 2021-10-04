@@ -88,6 +88,10 @@ public:
 
     virtual s64 size() const = 0;
 
+    virtual json_base* index(const string& key) = 0;
+
+    virtual json_base* index(s64 order) = 0;
+
     virtual json_parent_context get_parent_context(s64 order) = 0;
 
     virtual string element_value() const = 0;
