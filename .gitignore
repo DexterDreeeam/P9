@@ -1,8 +1,8 @@
 !/DxtTS/
 !*placeholder*
 
-/DxtSdk/temp/*
-/DxtSdk/.vs/*
+*temp/*
+*.vs/*
 *x64*
 *.pdb
 *.user
