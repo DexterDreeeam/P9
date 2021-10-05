@@ -10,7 +10,7 @@
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{2b0010b0-743e-4d39-9f99-4142fcf01ce5}</ProjectGuid>
-    <RootNamespace>ExecutorRelease</RootNamespace>
+    <RootNamespace>_ExecutorRelease</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />

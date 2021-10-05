@@ -11,16 +11,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Dbms.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Dbms.cpp" />
+    <ClCompile Include="P9DB.Interpreter.ixx" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{4b1b49f4-1c18-46e8-9ad0-2a375e979d51}</ProjectGuid>
-    <RootNamespace>DBMS</RootNamespace>
+    <ProjectGuid>{4b1b49f4-1c18-46e8-9ad0-2a375e979d52}</ProjectGuid>
+    <RootNamespace>Interpreter</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
