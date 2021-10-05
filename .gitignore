@@ -1,6 +1,8 @@
 !*placeholder*
 
 *temp/*
+*.lib*
+*.exe*
 *.output*
 *.vs*
 *x64*

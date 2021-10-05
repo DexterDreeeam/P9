@@ -1,3 +1,3 @@
-export module P9DB.DBMS;
+export module P9DB.Interpreter;
 
 

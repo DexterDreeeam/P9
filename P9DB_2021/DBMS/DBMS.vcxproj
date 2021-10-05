@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="impl\Source.cpp" />
     <ClCompile Include="P9DB.DBMS.ixx" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -48,13 +49,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)\.output\</OutDir>
-    <IntDir>$(SolutionDir)\.output\</IntDir>
+    <OutDir>$(SolutionDir)\.output.dbms\</OutDir>
+    <IntDir>$(SolutionDir)\.output.dbms\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)\.output\</OutDir>
-    <IntDir>$(SolutionDir)\.output\</IntDir>
+    <OutDir>$(SolutionDir)\.output.dbms\</OutDir>
+    <IntDir>$(SolutionDir)\.output.dbms\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
