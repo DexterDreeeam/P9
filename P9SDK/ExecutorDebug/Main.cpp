@@ -27,5 +27,7 @@ int main()
 
     log("%s", j->type_name());
 
+    delete j;
+
     return 0;
 }

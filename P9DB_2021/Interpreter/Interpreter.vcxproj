@@ -11,7 +11,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="P9DB.Interpreter.ixx" />
+    <ClCompile Include="Impl\Interpreter.Standard.cpp" />
+    <ClCompile Include="Impl\Interpreter.Straight.cpp" />
+    <ClCompile Include="Interface.ixx" />
+    <ClCompile Include="Interpreter.Standard.ixx" />
+    <ClCompile Include="Interpreter.Base.ixx" />
+    <ClCompile Include="QueryOperation.ixx" />
+    <ClCompile Include="Interpreter.Straight.ixx" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -49,12 +55,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)\.lib\</OutDir>
-    <IntDir>$(SolutionDir)\.output\</IntDir>
+    <IntDir>$(SolutionDir)\.output.interpreter\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)\.lib\</OutDir>
-    <IntDir>$(SolutionDir)\.output\</IntDir>
+    <IntDir>$(SolutionDir)\.output.interpreter\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -67,6 +73,7 @@
       </PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeaderOutputFile />
+      <ScanSourceForModuleDependencies>true</ScanSourceForModuleDependencies>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -85,6 +92,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <ScanSourceForModuleDependencies>true</ScanSourceForModuleDependencies>
     </ClCompile>
     <Link>
       <SubSystem>

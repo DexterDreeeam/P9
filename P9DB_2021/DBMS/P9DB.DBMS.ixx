@@ -1,11 +1,11 @@
 module;
-
 export module P9DB.DBMS;
 
-export class abc
-{};
+import P9DB.Interpreter;
 
-export void abc_func()
+namespace P9
 {
-    int i = 9;
+
+export void abc_func();
+
 }

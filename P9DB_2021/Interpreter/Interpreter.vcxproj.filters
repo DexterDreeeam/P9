@@ -1,10 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="P9DB.Interpreter.ixx" />
+    <ClCompile Include="Interpreter.Base.ixx" />
+    <ClCompile Include="QueryOperation.ixx" />
+    <ClCompile Include="Impl\Interpreter.Standard.cpp">
+      <Filter>Impl</Filter>
+    </ClCompile>
+    <ClCompile Include="Impl\Interpreter.Straight.cpp">
+      <Filter>Impl</Filter>
+    </ClCompile>
+    <ClCompile Include="Interpreter.Standard.ixx" />
+    <ClCompile Include="Interpreter.Straight.ixx" />
+    <ClCompile Include="Interface.ixx" />
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="impl">
+    <Filter Include="Impl">
       <UniqueIdentifier>{8331dd14-5803-4665-ba49-619335484811}</UniqueIdentifier>
     </Filter>
   </ItemGroup>

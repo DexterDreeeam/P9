@@ -41,6 +41,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <ScanSourceForModuleDependencies>true</ScanSourceForModuleDependencies>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -53,6 +54,9 @@
   <ItemGroup>
     <ProjectReference Include="..\DBMS\DBMS.vcxproj">
       <Project>{4b1b49f4-1c18-46e8-9ad0-2a375e979d51}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Interpreter\Interpreter.vcxproj">
+      <Project>{4b1b49f4-1c18-46e8-9ad0-2a375e979d52}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

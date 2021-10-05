@@ -1,6 +1,6 @@
 #pragma once
 
-JsonNs::json_base* JsonDeserialize(const string& str, s64 from, s64 to)
+_INLINE_ JsonNs::json_base* JsonDeserialize(const string& str, s64 from, s64 to)
 {
     trim_index(str, from, to);
 
@@ -66,7 +66,7 @@ L_finish:
     return rst;
 }
 
-JsonNs::json_base* JsonDeserialize(const string& str)
+_INLINE_ JsonNs::json_base* JsonDeserialize(const string& str)
 {
     return JsonDeserialize(str, 0, str.size());
 }

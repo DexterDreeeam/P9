@@ -28,7 +28,7 @@ struct thrd_windows_cb_input
     void* param;
 };
 
-unsigned long __stdcall thrd_windows_cb(void* p)
+_INLINE_ unsigned long __stdcall thrd_windows_cb(void* p)
 {
     auto* input = (thrd_windows_cb_input*)p;
     (input->fn)(input->param);
