@@ -11,6 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DocumentIdentifier.h" />
+    <ClInclude Include="IndexTable.h" />
     <ClInclude Include="Interface.h" />
     <ClInclude Include="Partition.h" />
   </ItemGroup>

@@ -8,5 +8,7 @@
   <ItemGroup>
     <ClInclude Include="Partition.h" />
     <ClInclude Include="Interface.h" />
+    <ClInclude Include="IndexTable.h" />
+    <ClInclude Include="DocumentIdentifier.h" />
   </ItemGroup>
 </Project>
