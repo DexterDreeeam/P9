@@ -11,3 +11,7 @@
  ********* * ********* * ********* * ********* * ********* */
 
 #pragma once
+
+#include "../Json/Interface.h"
+
+#include "JsonFormat.h"

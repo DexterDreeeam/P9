@@ -23,7 +23,7 @@ int main()
 
     // log("dexter-test %S", ele);
 
-    json_report(j);
+    // json_report(j);
 
     log("%s", j->type_name());
 
