@@ -51,9 +51,9 @@ public:
     virtual ~json_float() override = default;
 
 public:
-    virtual JsonNs::json_type type() const override
+    virtual json_type type() const override
     {
-        return JsonNs::json_type::FLOAT;
+        return json_type::FLOAT;
     }
 
     virtual const char* type_name() const override

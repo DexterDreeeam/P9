@@ -28,9 +28,9 @@ public:
     }
 
 public:
-    virtual JsonNs::json_type type() const override
+    virtual json_type type() const override
     {
-        return JsonNs::json_type::ARRAY;
+        return json_type::ARRAY;
     }
 
     virtual const char* type_name() const override
@@ -46,14 +46,26 @@ public:
     virtual json_base* index(const string& key) override
     {
         s64 order;
-        text_to_s64(key.data(), key.size(), order);
-        return index(order);
+        if (text_to_s64(key.data(), key.size(), order))
+        {
+            return index(order);
+        }
+        else
+        {
+            return nullptr;
+        }
     }
 
     virtual json_base* index(s64 order) override
     {
-        assert(order >= 0 && order < size());
-        return _items[order];
+        if (order >= 0 && order < _items.size())
+        {
+            return _items[order];
+        }
+        else
+        {
+            return nullptr;
+        }
     }
 
     virtual JsonNs::json_parent_context get_parent_context(s64 order) override

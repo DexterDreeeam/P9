@@ -11,13 +11,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Impl\Interpreter.Standard.cpp" />
-    <ClCompile Include="Impl\Interpreter.Straight.cpp" />
-    <ClCompile Include="Interface.ixx" />
-    <ClCompile Include="Interpreter.Standard.ixx" />
-    <ClCompile Include="Interpreter.Base.ixx" />
-    <ClCompile Include="QueryOperation.ixx" />
-    <ClCompile Include="Interpreter.Straight.ixx" />
+    <ClInclude Include="Interface.h" />
+    <ClInclude Include="InterpreterBase.h" />
+    <ClInclude Include="InterpreterStandard.h" />
+    <ClInclude Include="QueryOperation.h" />
+    <ClInclude Include="QuerySyntax.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Impl\InterpreterStandard.cpp" />
+    <ClCompile Include="Impl\QuerySyntax.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

@@ -15,9 +15,9 @@ public:
     virtual ~json_null() override = default;
 
 public:
-    virtual JsonNs::json_type type() const override
+    virtual json_type type() const override
     {
-        return JsonNs::json_type::JSON_NULL;
+        return json_type::JSON_NULL;
     }
 
     virtual const char* type_name() const override

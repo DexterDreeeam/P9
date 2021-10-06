@@ -23,9 +23,9 @@ public:
     virtual ~json_string() override = default;
 
 public:
-    virtual JsonNs::json_type type() const override
+    virtual json_type type() const override
     {
-        return JsonNs::json_type::STRING;
+        return json_type::STRING;
     }
 
     virtual const char* type_name() const override

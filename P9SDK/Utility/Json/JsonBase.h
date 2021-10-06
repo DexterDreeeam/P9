@@ -23,11 +23,6 @@ class json_boole;
 
 JsonNs::json_base* JsonDeserialize(const string& str, s64 from, s64 to);
 
-namespace JsonNs
-{
-
-typedef void JsonIterateFunc(json_base* json);
-
 enum class json_type : u64
 {
     NONE = 9009,
@@ -40,6 +35,11 @@ enum class json_type : u64
     BOOLE,
     JSON_NULL,
 };
+
+namespace JsonNs
+{
+
+typedef void JsonIterateFunc(json_base* json);
 
 class json_parent_context
 {

@@ -19,9 +19,9 @@ public:
     }
 
 public:
-    virtual JsonNs::json_type type() const override
+    virtual json_type type() const override
     {
-        return JsonNs::json_type::OBJECT;
+        return json_type::OBJECT;
     }
 
     virtual const char* type_name() const override
@@ -43,14 +43,19 @@ public:
                 return p.second;
             }
         }
-        assert_info(0, "index key not found.");
         return nullptr;
     }
 
     virtual json_base* index(s64 order) override
     {
-        assert(order >= 0 && order < size());
-        return _items[order].second;
+        if (order >= 0 && order < _items.size())
+        {
+            return _items[order].second;
+        }
+        else
+        {
+            return nullptr;
+        }
     }
 
     virtual JsonNs::json_parent_context get_parent_context(s64 order) override

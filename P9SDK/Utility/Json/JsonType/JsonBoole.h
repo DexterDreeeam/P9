@@ -22,9 +22,9 @@ public:
     virtual ~json_boole() override = default;
 
 public:
-    virtual JsonNs::json_type type() const override
+    virtual json_type type() const override
     {
-        return JsonNs::json_type::BOOLE;
+        return json_type::BOOLE;
     }
 
     virtual const char* type_name() const override
