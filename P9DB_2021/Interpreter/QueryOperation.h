@@ -8,7 +8,9 @@ namespace Interpreter
 
 enum class query_operation_type : s64
 {
-    UPSERT,
+    BASE = 0,
+
+    UPSERT = BASE,
 
     RETRIEVE,
 
@@ -17,6 +19,8 @@ enum class query_operation_type : s64
 
     SOFT_DELETE,
     HARD_DELETE,
+
+    COUNT
 };
 
 class query_operation

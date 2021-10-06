@@ -16,7 +16,7 @@ int main()
     auto j = JsonDeserialize(buf);
 
     auto cur = json_cursor(j);
-    cur = cur["tags"];
+    cur = cur["menu"]["popup"]["menuitem"][2]["onclick"];
     auto ele = *cur;
 
     print("\n%s\n", ele.data());
