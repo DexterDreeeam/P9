@@ -20,6 +20,7 @@
     <ClInclude Include="Unsafe\Map.h" />
     <ClInclude Include="Unsafe\Pair.h" />
     <ClInclude Include="Unsafe\Queue.h" />
+    <ClInclude Include="Unsafe\ReferencePointer.h" />
     <ClInclude Include="Unsafe\Set.h" />
     <ClInclude Include="Unsafe\Stack.h" />
     <ClInclude Include="Unsafe\String.h" />

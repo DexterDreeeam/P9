@@ -5,16 +5,21 @@
 typedef  hndl  outf;
 typedef  hndl  inpf;
 
-_INLINE_ outf  output_file_create(const char* path);
+_INLINE_ outf  output_file_create(const char* path, boole overwrite = boole::False);
 _INLINE_ boole output_file_write(outf f, const char* content);
 _INLINE_ boole output_file_write(outf f, const char* content, s64 write_len);
 _INLINE_ boole output_file_destroy(outf f);
 _INLINE_ inpf  input_file_create(const char* path);
 _INLINE_ s64   input_file_read(inpf f, void* buf, s64 want_read);
 _INLINE_ boole input_file_destroy(inpf f);
+namespace
+{
+_INLINE_ boole create_file(const char* path);
+}
 _INLINE_ boole delete_file(const char* path);
 
-_INLINE_ outf output_file_create(const char *path)
+
+_INLINE_ outf output_file_create(const char *path, boole overwrite)
 {
     char path_buf[512] = {};
     s64 len = str_len(path);
@@ -61,8 +66,12 @@ _INLINE_ outf output_file_create(const char *path)
         last_inexist_directory_idx = idx;
     }
     outf f = (outf)WindowsMsvcNs::CreateFileA(
-        path, STANDARD_RIGHTS_WRITE | FILE_APPEND_DATA, FILE_SHARE_WRITE, nullptr,
-        OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+        path,
+        STANDARD_RIGHTS_WRITE | FILE_APPEND_DATA, FILE_SHARE_WRITE,
+        nullptr,
+        overwrite ? CREATE_ALWAYS : OPEN_ALWAYS,
+        FILE_ATTRIBUTE_NORMAL,
+        nullptr);
     return f;
 }
 
@@ -133,6 +142,26 @@ _INLINE_ boole input_file_destroy(inpf f)
     {
         return boole::False;
     }
+}
+
+namespace
+{
+
+using namespace WindowsMsvcNs;
+_INLINE_ boole create_file(const char* path)
+{
+    auto h = CreateFile(
+        path, STANDARD_RIGHTS_WRITE, FILE_SHARE_WRITE, nullptr,
+        CREATE_NEW, FILE_ATTRIBUTE_NORMAL, nullptr);
+
+    if (h == INVALID_HANDLE_VALUE)
+    {
+        return boole::False;
+    }
+    CloseHandle(h);
+    return boole::True;
+}
+
 }
 
 _INLINE_ boole delete_file(const char *path)

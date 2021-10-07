@@ -16,6 +16,11 @@
     <ClInclude Include="Interface.h" />
     <ClInclude Include="Partition.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Impl\DocumentIdentifier.cpp" />
+    <ClCompile Include="Impl\IndexTable.cpp" />
+    <ClCompile Include="Impl\Partition.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>

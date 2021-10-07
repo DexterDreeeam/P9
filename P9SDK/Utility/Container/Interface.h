@@ -14,6 +14,7 @@
 #include "Unsafe/Map.h"
 #include "Unsafe/Pair.h"
 #include "Unsafe/Queue.h"
+#include "Unsafe/ReferencePointer.h"
 #include "Unsafe/Set.h"
 #include "Unsafe/Stack.h"
 #include "Unsafe/String.h"

@@ -13,6 +13,8 @@ int main()
 
     //log(buf);
 
+    auto r = ref<int>::new_instance(1);
+
     auto j = JsonDeserialize(buf);
 
     auto cur = json_cursor(j);

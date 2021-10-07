@@ -11,4 +11,15 @@
     <ClInclude Include="IndexTable.h" />
     <ClInclude Include="DocumentIdentifier.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Impl\Partition.cpp">
+      <Filter>impl</Filter>
+    </ClCompile>
+    <ClCompile Include="Impl\IndexTable.cpp">
+      <Filter>impl</Filter>
+    </ClCompile>
+    <ClCompile Include="Impl\DocumentIdentifier.cpp">
+      <Filter>impl</Filter>
+    </ClCompile>
+  </ItemGroup>
 </Project>

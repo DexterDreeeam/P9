@@ -59,6 +59,9 @@
     <ClInclude Include="Unsafe\Vector.h">
       <Filter>Unsafe</Filter>
     </ClInclude>
+    <ClInclude Include="Unsafe\ReferencePointer.h">
+      <Filter>Unsafe</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Safe">
