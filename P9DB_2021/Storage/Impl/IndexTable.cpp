@@ -20,7 +20,7 @@ ref<document_identifier> index_table::get_document(const string& document_id)
 
 ref<document_identifier> index_table::insert_document(const string& document_id)
 {
-    auto new_table = ref<document_identifier>::new_instance(_location, document_id);
+    auto new_table = ref<document_identifier>::new_instance(document_id, _location);
     ref<document_identifier> rst;
     rw_lock_wait_write(_op_lock);
     if (document_map.count(document_id) == 0)

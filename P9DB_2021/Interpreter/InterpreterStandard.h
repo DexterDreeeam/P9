@@ -13,7 +13,7 @@ public:
 
     virtual ~standard_interpreter() override;
 
-    virtual query_operation* translate(const string& msg) override;
+    virtual ref<query_operation> translate(const string& msg) override;
 };
 
 }

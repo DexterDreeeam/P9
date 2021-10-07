@@ -15,11 +15,13 @@
     <ClInclude Include="IndexTable.h" />
     <ClInclude Include="Interface.h" />
     <ClInclude Include="Partition.h" />
+    <ClInclude Include="Storage.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Impl\DocumentIdentifier.cpp" />
     <ClCompile Include="Impl\IndexTable.cpp" />
     <ClCompile Include="Impl\Partition.cpp" />
+    <ClCompile Include="Impl\Storage.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -40,7 +42,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">

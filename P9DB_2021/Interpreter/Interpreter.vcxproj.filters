@@ -19,5 +19,8 @@
     <ClCompile Include="Impl\QuerySyntax.cpp">
       <Filter>Impl</Filter>
     </ClCompile>
+    <ClCompile Include="Impl\QueryOperation.cpp">
+      <Filter>Impl</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

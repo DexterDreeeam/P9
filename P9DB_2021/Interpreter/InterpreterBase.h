@@ -24,7 +24,7 @@ public:
         AUTO_TRACE;
     }
 
-    virtual query_operation* translate(const string& msg) = 0;
+    virtual ref<query_operation> translate(const string& msg) = 0;
 };
 
 }

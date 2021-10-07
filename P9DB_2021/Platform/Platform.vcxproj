@@ -10,12 +10,28 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Interface.h" />
+    <ClInclude Include="Platform.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Impl\Platform.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Interpreter\Interpreter.vcxproj">
+      <Project>{4b1b49f4-1c18-46e8-9ad0-2a375e979d52}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Storage\Storage.vcxproj">
+      <Project>{4b1b49f4-1c18-46e8-9ad0-2a375e979d53}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{4b1b49f4-1c18-46e8-9ad0-2a375e979d51}</ProjectGuid>
     <RootNamespace>DBMS</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>Platform</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -29,7 +45,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -45,13 +61,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)\.output.dbms\</OutDir>
-    <IntDir>$(SolutionDir)\.output.dbms\</IntDir>
+    <OutDir>$(SolutionDir)\.lib\</OutDir>
+    <IntDir>$(SolutionDir)\.output.platform\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)\.output.dbms\</OutDir>
-    <IntDir>$(SolutionDir)\.output.dbms\</IntDir>
+    <OutDir>$(SolutionDir)\.lib\</OutDir>
+    <IntDir>$(SolutionDir)\.output.platform\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>

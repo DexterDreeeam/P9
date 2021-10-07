@@ -444,6 +444,11 @@ public:
         return *this;
     }
 
+    boole operator ==(const char* rhs) const noexcept
+    {
+        return str_equal(ch ? ch : "", rhs ? rhs : "");
+    }
+
     boole operator ==(const string& rhs) const noexcept
     {
         return str_equal(ch ? ch : "", rhs.ch ? rhs.ch : "");
@@ -452,6 +457,11 @@ public:
     boole operator !=(const string& rhs) const noexcept
     {
         return !str_equal(ch ? ch : "", rhs.ch ? rhs.ch : "");
+    }
+
+    boole operator !=(const char* rhs) const noexcept
+    {
+        return !str_equal(ch ? ch : "", rhs ? rhs : "");
     }
 
     boole operator <(const string& rhs) const noexcept

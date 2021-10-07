@@ -11,9 +11,9 @@ class partition
 public:
     partition() = delete;
 
-    partition(const string& name, const string& location) :
+    partition(const string& name, const string& parent_location) :
         _name(name),
-        _location(location),
+        _location(parent_location + name + '/'),
         _op_lock(rw_lock_create())
     {}
 

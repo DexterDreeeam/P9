@@ -5,3 +5,4 @@
 #include "DocumentIdentifier.h"
 #include "IndexTable.h"
 #include "Partition.h"
+#include "Storage.h"

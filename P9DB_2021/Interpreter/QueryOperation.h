@@ -150,5 +150,7 @@ public:
     }
 };
 
+string remove_quotation(const string& str);
+
 }
 }
