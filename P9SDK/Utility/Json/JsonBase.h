@@ -21,7 +21,10 @@ class json_int;
 class json_string;
 class json_boole;
 
-JsonNs::json_base* JsonDeserialize(const string& str, s64 from, s64 to);
+template<typename Fn_Ty>
+void json_iterate(JsonNs::json_base* json, Fn_Ty fn, boole leaves_only = boole::False);
+
+JsonNs::json_base* json_deserialize(const string& str, s64 from, s64 to);
 
 enum class json_type : u64
 {
@@ -38,8 +41,6 @@ enum class json_type : u64
 
 namespace JsonNs
 {
-
-typedef void JsonIterateFunc(json_base* json);
 
 class json_parent_context
 {
@@ -74,7 +75,7 @@ public:
 
 class json_base
 {
-    friend json_base* ::JsonDeserialize(const string& str, s64 from, s64 to);
+    friend json_base* ::json_deserialize(const string& str, s64 from, s64 to);
 
 public:
     json_base() :
@@ -99,10 +100,6 @@ public:
 
     virtual json_base* clone() const = 0;
 
-    virtual void iterate(JsonIterateFunc function) = 0;
-
-    virtual void iterate_leaves(JsonIterateFunc function) = 0;
-
     virtual void serialize(OUT string& str) const = 0;
 
     virtual void serialize_append(OUT string& str) const = 0;
@@ -110,7 +107,7 @@ public:
 public:
     static json_base* deserialize(const string& str, s64 from, s64 to)
     {
-        return JsonDeserialize(str, from, to);
+        return json_deserialize(str, from, to);
     }
 
     static void destroy(json_base* j)
@@ -138,6 +135,26 @@ public:
     {
         return _parent.parent_json ?
             _parent.parent_json->my_path() + '[' + _parent.parent_key + ']' : "";
+    }
+
+    string my_path_index_string() const
+    {
+        string rst = _parent.parent_json ?
+            _parent.parent_json->my_path_index_string() : "";
+
+        string parent_key = _parent.parent_key;
+        if (parent_key.size() >= 2 && parent_key.front() == '\"' && parent_key.back() == '\"')
+        {
+            parent_key = parent_key.substr(1, parent_key.size() - 2);
+        }
+
+        return rst + '.' + parent_key;
+    }
+
+    template<typename Fn_Ty>
+    void iterate(Fn_Ty fn, boole leaves_only = boole::False)
+    {
+        json_iterate(this, fn, leaves_only);
     }
 
 private:

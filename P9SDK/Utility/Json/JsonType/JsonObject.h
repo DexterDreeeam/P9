@@ -2,6 +2,9 @@
 
 class json_object : public JsonNs::json_base
 {
+    template<typename Fn_Ty>
+    friend void json_iterate(JsonNs::json_base* json, Fn_Ty fn, boole leaves_only);
+
 public:
     json_object() :
         json_base(),
@@ -79,23 +82,6 @@ public:
             rst->add_item(p.first, p.second->clone());
         }
         return rst;
-    }
-
-    virtual void iterate(JsonNs::JsonIterateFunc function) override
-    {
-        function(this);
-        for (auto p : _items)
-        {
-            p.second->iterate(function);
-        }
-    }
-
-    virtual void iterate_leaves(JsonNs::JsonIterateFunc function) override
-    {
-        for (auto p : _items)
-        {
-            p.second->iterate(function);
-        }
     }
 
     virtual void serialize(OUT string& str) const override

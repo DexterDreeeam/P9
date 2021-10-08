@@ -1,5 +1,51 @@
 #pragma once
 
+template<typename Fn_Ty>
+_INLINE_ void json_iterate(JsonNs::json_base* json, Fn_Ty fn, boole leaves_only)
+{
+    if (json == nullptr)
+    {
+        return;
+    }
+
+    if (!leaves_only)
+    {
+        fn(json);
+    }
+
+    switch (json->type())
+    {
+    case json_type::OBJECT:
+        if (!leaves_only)
+        {
+            fn(json);
+        }
+        for (auto& p : ((json_object*)json)->_items)
+        {
+            json_iterate(p.second, fn, leaves_only);
+        }
+        break;
+    case json_type::ARRAY:
+        if (!leaves_only)
+        {
+            fn(json);
+        }
+        for (auto* i : ((json_array*)json)->_items)
+        {
+            json_iterate(i, fn, leaves_only);
+        }
+        break;
+    case json_type::BOOLE:
+    case json_type::FLOAT:
+    case json_type::INT:
+    case json_type::JSON_NULL:
+    case json_type::STRING:
+        fn(json);
+    default:
+        break;
+    }
+}
+
 _INLINE_ void json_report(JsonNs::json_base* json)
 {
 #if DEBUG_LEVEL >= DEBUG_LEVEL_CALIBRATION_LOG_NONE
@@ -7,7 +53,8 @@ _INLINE_ void json_report(JsonNs::json_base* json)
     {
         return;
     }
-    json->iterate(
+    json_iterate(
+        json,
         [](JsonNs::json_base* j)
         {
             switch (j->type())

@@ -50,6 +50,17 @@ string platform::handle_upsert(ref<Interpreter::query_operation_upsert> op)
     auto index_table = partition->insert_index_table("document_id");
     auto doc = index_table->insert_document(op->document_id);
     doc->overwrite(op->content->value());
+
+    op->content->iterate(
+        [&](JsonNs::json_base* json)
+        {
+            string index_string = json->my_path_index_string();
+            auto table = partition->insert_index_table(index_string);
+            table->insert_index(doc);
+        },
+        // leaves only
+        boole::True);
+
     return "ok";
 }
 

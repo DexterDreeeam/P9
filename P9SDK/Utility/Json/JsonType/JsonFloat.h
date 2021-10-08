@@ -98,16 +98,6 @@ public:
         return new json_float(_sign, _integer, _fraction);
     }
 
-    virtual void iterate(JsonNs::JsonIterateFunc function) override
-    {
-        function(this);
-    }
-
-    virtual void iterate_leaves(JsonNs::JsonIterateFunc function) override
-    {
-        function(this);
-    }
-
     virtual void serialize(OUT string& str) const override
     {
         str.clear();

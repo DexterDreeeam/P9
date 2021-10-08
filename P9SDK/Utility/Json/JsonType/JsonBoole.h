@@ -65,16 +65,6 @@ public:
         return new json_boole(_value);
     }
 
-    virtual void iterate(JsonNs::JsonIterateFunc function) override
-    {
-        function(this);
-    }
-
-    virtual void iterate_leaves(JsonNs::JsonIterateFunc function) override
-    {
-        function(this);
-    }
-
     virtual void serialize(OUT string& str) const override
     {
         str.clear();

@@ -21,7 +21,7 @@ ref<query_operation> standard_interpreter::translate(const string& msg)
 {
     AUTO_TRACE;
 
-    auto* json = JsonDeserialize(msg);
+    auto* json = json_deserialize(msg);
     json_cursor j_base(json);
     json_cursor j_idx;
     ref<query_operation> rst;

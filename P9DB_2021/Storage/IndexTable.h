@@ -13,7 +13,7 @@ public:
 
     index_table(const string& name, const string& parent_location) :
         _name(name),
-        _location(parent_location + name + '/'),
+        _partition_location(parent_location),
         _op_lock(rw_lock_create())
     {}
 
@@ -33,7 +33,7 @@ public:
 
 public:
     string  _name;
-    string  _location;
+    string  _partition_location;
     rw_lock _op_lock;
 
 private:

@@ -15,7 +15,7 @@ int main()
 
     auto r = ref<int>::new_instance(1);
 
-    auto j = JsonDeserialize(buf);
+    auto j = json_deserialize(buf);
 
     auto cur = json_cursor(j);
     cur = cur["menu"]["popup"]["menuitem"][2]["onclick"];

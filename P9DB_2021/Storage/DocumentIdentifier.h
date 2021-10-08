@@ -13,7 +13,7 @@ public:
 
     document_identifier(const string& id, const string& parent_location) :
         _id(id),
-        _location(parent_location + id + ".p9doc"),
+        _location(parent_location + id),
         _op_lock(rw_lock_create()),
         _inited(boole::False)
     {
