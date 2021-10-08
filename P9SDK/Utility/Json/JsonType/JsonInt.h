@@ -61,7 +61,12 @@ public:
         return new json_int(_value);
     }
 
-    virtual void Iterate(JsonNs::JsonIterateFunc function) override
+    virtual void iterate(JsonNs::JsonIterateFunc function) override
+    {
+        function(this);
+    }
+
+    virtual void iterate_leaves(JsonNs::JsonIterateFunc function) override
     {
         function(this);
     }

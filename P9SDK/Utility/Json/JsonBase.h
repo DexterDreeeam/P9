@@ -99,7 +99,9 @@ public:
 
     virtual json_base* clone() const = 0;
 
-    virtual void Iterate(JsonIterateFunc function) = 0;
+    virtual void iterate(JsonIterateFunc function) = 0;
+
+    virtual void iterate_leaves(JsonIterateFunc function) = 0;
 
     virtual void serialize(OUT string& str) const = 0;
 

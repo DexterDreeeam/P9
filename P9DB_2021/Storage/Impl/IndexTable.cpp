@@ -36,6 +36,11 @@ ref<document_identifier> index_table::insert_document(const string& document_id)
     return rst;
 }
 
+void index_table::insert_index(ref<document_identifier> r)
+{
+
+}
+
 void index_table::remove_document(const string& document_id)
 {
     rw_lock_wait_write(_op_lock);

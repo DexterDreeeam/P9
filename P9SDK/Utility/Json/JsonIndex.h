@@ -7,7 +7,7 @@ _INLINE_ void json_report(JsonNs::json_base* json)
     {
         return;
     }
-    json->Iterate(
+    json->iterate(
         [](JsonNs::json_base* j)
         {
             switch (j->type())

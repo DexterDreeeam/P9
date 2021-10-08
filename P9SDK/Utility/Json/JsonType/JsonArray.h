@@ -94,12 +94,20 @@ public:
         return rst;
     }
 
-    virtual void Iterate(JsonNs::JsonIterateFunc function) override
+    virtual void iterate(JsonNs::JsonIterateFunc function) override
     {
         function(this);
         for (auto* i : _items)
         {
-            i->Iterate(function);
+            i->iterate(function);
+        }
+    }
+
+    virtual void iterate_leaves(JsonNs::JsonIterateFunc function) override
+    {
+        for (auto* i : _items)
+        {
+            i->iterate_leaves(function);
         }
     }
 

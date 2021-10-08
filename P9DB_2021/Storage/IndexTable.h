@@ -27,6 +27,8 @@ public:
 
     ref<document_identifier> insert_document(const string& document_id);
 
+    void insert_index(ref<document_identifier> r);
+
     void remove_document(const string& document_id);
 
 public:
