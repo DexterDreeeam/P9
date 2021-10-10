@@ -1,0 +1,18 @@
+{
+  "operation": "upsert",
+  "submit_time": 1324,
+  "user_token": "abc",
+  "partition": "partition-1",
+  "document_id": "document-2",
+  "document_etag": "document-etag",
+  "content":
+  {
+    "Student_Name": "Cindy",
+    "Student_Age": 35,
+    "Student_Family":
+    [
+       { "Mom": "Cindy_Mom" },
+       { "Dad": "Cindy_Dad" },
+    ]
+  }
+}
