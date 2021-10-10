@@ -1,10 +1,36 @@
 #pragma once
 
-template<typename Key_Ty, typename Val_Ty>
-class map : public RBTreeNs::rbtree<Key_Ty, Val_Ty>
+class map_comparer
+{
+public:
+    template<typename Ty>
+    s64 compare(const Ty& v1, const Ty& v2)
+    {
+        if (v1 == v2)
+        {
+            return 0;
+        }
+        else if (v1 < v2)
+        {
+            return -1;
+        }
+        else if (v1 > v2)
+        {
+            return 1;
+        }
+        else
+        {
+            assert(0);
+            return 0;
+        }
+    }
+};
+
+template<typename Key_Ty, typename Val_Ty, typename Cmp_Ty = map_comparer>
+class map : public RBTreeNs::rbtree<Key_Ty, Val_Ty, Cmp_Ty>
 {
     using Self_Ty = map<Key_Ty, Val_Ty>;
-    using Base_Ty = RBTreeNs::rbtree<Key_Ty, Val_Ty>;
+    using Base_Ty = RBTreeNs::rbtree<Key_Ty, Val_Ty, Cmp_Ty>;
     using Node_Ty = typename Base_Ty::Node_Ty;
 
     using Iter_Ty = typename Base_Ty::Iter_Ty;

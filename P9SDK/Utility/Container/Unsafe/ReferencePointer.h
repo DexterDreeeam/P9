@@ -125,6 +125,14 @@ protected:
         return ref_base(mem_data, mem_cnt, data_size, dc);
     }
 
+    template<typename Ty>
+    static ref_base new_instance(Ty* raw_ptr, ref_deconstructor* dc)
+    {
+        s64 data_size = sizeof(Ty);
+        volatile s64* mem_cnt = new volatile s64(1);
+        return ref_base(raw_ptr, mem_cnt, data_size, dc);
+    }
+
 protected:
     void*              _ptr;
     volatile s64*      _cnt;
@@ -149,12 +157,26 @@ public:
     {
     }
 
+    template<typename Ty2>
+    ref(const ref<Ty2>& rhs) :
+        ref_base(rhs)
+    {
+        Ty* check_type_ptr = pointer_convert(rhs._ptr, 0, Ty2*);
+    }
+
     ~ref() = default;
 
     Self_Ty& operator =(const Self_Ty& rhs)
     {
         this->ref_base::operator =(rhs);
         return *this;
+    }
+
+    template<typename Ty2>
+    Self_Ty& operator =(const ref<Ty2>& rhs)
+    {
+        this->ref_base::operator =(rhs);
+        Ty* check_type_ptr = pointer_convert(rhs._ptr, 0, Ty2*);
     }
 
     Ty* operator ->()
@@ -172,6 +194,14 @@ public:
     static Self_Ty new_instance(Args ...args)
     {
         auto base = ref_base::new_instance<Ty, Args...>(&Self_Ty::deconstruct, args...);
+        Self_Ty rst;
+        rst.ref_base::operator =(base);
+        return rst;
+    }
+
+    static Self_Ty new_instance(Ty* raw_ptr)
+    {
+        auto base = ref_base::new_instance<Ty>(raw_ptr, &Self_Ty::deconstruct);
         Self_Ty rst;
         rst.ref_base::operator =(base);
         return rst;

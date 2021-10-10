@@ -6,7 +6,7 @@ namespace P9
 namespace Storage
 {
 
-ref<document_identifier> index_document_id::get_document(const string& document_id)
+ref<document_identifier> index_document_table::get_document(const string& document_id)
 {
     ref<document_identifier> rst;
     rw_lock_wait_read(_op_lock);
@@ -18,7 +18,7 @@ ref<document_identifier> index_document_id::get_document(const string& document_
     return rst;
 }
 
-boole index_document_id::insert_document(
+boole index_document_table::insert_document(
     const string& document_id, ref<document_identifier> r_doc)
 {
     boole rst;
@@ -36,7 +36,7 @@ boole index_document_id::insert_document(
     return rst;
 }
 
-boole index_document_id::remove_document(const string& document_id)
+boole index_document_table::remove_document(const string& document_id)
 {
     boole rst = boole::False;
     rw_lock_wait_write(_op_lock);
@@ -65,28 +65,44 @@ set<string> index_table::get_documents(ref<json_base> key)
 
 boole index_table::insert_document(ref<json_base> key, const string& document_id)
 {
-    auto new_doc = ref<document_identifier>::new_instance(index_string, _partition_location);
-    ref<json_base> r_json_document_id = ref<json_string>::new_instance(index_string).ref_of<json_base>();
-    ref<document_identifier> rst;
+    boole ret = boole::False;
+
+    set<string> insert_set;
+    insert_set.insert(document_id);
+
     rw_lock_wait_write(_op_lock);
-    if (document_map.count(r_json_document_id) == 0)
+    auto& document_id_set = document_map[key];
+    if (document_id_set.count(document_id) == 0)
     {
-        document_map[r_json_document_id] = new_doc;
-        rst = new_doc;
-    }
-    else
-    {
-        rst = document_map[document_id];
+        document_id_set.insert(document_id);
+        ret = boole::True;
     }
     rw_lock_put_write(_op_lock);
-    return rst;
+    return ret;
 }
 
 boole index_table::remove_document(ref<json_base> key, const string& document_id)
 {
+    boole ret = boole::False;
+
     rw_lock_wait_write(_op_lock);
-    document_map.erase(document_id);
+    auto itr = document_map.find(key);
+    if (itr != document_map.end())
+    {
+        auto& document_id_set = itr->second;
+        auto itr_document = document_id_set.find(document_id);
+        if (itr_document != document_id_set.end())
+        {
+            document_id_set.erase(itr_document);
+            ret = boole::True;
+            if (document_id_set.size() == 0)
+            {
+                document_map.erase(itr);
+            }
+        }
+    }
     rw_lock_put_write(_op_lock);
+    return ret;
 }
 
 }

@@ -42,6 +42,13 @@ public:
     query_criteria()
     {}
 
+    query_criteria(const query_criteria& rhs) :
+        path(rhs.path),
+        op(rhs.op),
+        factor(rhs.factor->clone())
+    {
+    }
+
     ~query_criteria()
     {
         if (factor)
@@ -50,7 +57,7 @@ public:
         }
     }
 
-    boole load(json_base * json);
+    boole load(json_base* json);
 
 public:
     string path;

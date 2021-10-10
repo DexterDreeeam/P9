@@ -1,10 +1,36 @@
 #pragma once
 
-template<typename Key_Ty>
-class set : public RBTreeNs::rbtree<Key_Ty>
+class set_comparer
+{
+public:
+    template<typename Ty>
+    s64 compare(const Ty& v1, const Ty& v2)
+    {
+        if (v1 == v2)
+        {
+            return 0;
+        }
+        else if (v1 < v2)
+        {
+            return -1;
+        }
+        else if (v1 > v2)
+        {
+            return 1;
+        }
+        else
+        {
+            assert(0);
+            return 0;
+        }
+    }
+};
+
+template<typename Key_Ty, typename Cmp_Ty = set_comparer>
+class set : public RBTreeNs::rbtree<Key_Ty, RBTreeNs::rbtree_dummy_type, Cmp_Ty>
 {
     using Self_Ty = set<Key_Ty>;
-    using Base_Ty = RBTreeNs::rbtree<Key_Ty>;
+    using Base_Ty = RBTreeNs::rbtree<Key_Ty, RBTreeNs::rbtree_dummy_type, Cmp_Ty>;
     using Node_Ty = typename Base_Ty::Node_Ty;
 
     using Iter_Ty = typename Base_Ty::Iter_Ty;
@@ -18,12 +44,13 @@ public:
     {}
 
     set(const Self_Ty& rhs) :
-        Base_Ty(rhs)
-    {}
-
-    set(Self_Ty&& rhs) :
-        Base_Ty(reinterpret_cast<Base_Ty&&>(rhs))
-    {}
+        Base_Ty()
+    {
+        for (const auto& k : rhs)
+        {
+            this->insert(k);
+        }
+    }
 
     ~set() noexcept
     {}

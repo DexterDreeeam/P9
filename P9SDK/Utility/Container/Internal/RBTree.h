@@ -9,7 +9,9 @@ namespace RBTreeNs
     struct rbtree_dummy_type
     {};
 
-    template<typename Key_Ty, typename Val_Ty = rbtree_dummy_type>
+    class rbtree_comparer;
+
+    template<typename Key_Ty, typename Val_Ty = rbtree_dummy_type, typename Cmp_Ty = rbtree_comparer>
     class rbtree;
 
     typedef boole RB_TREE_COLOR;
@@ -234,14 +236,14 @@ namespace RBTreeNs
         rbtree_base_node* node;
     };
 
-    template<typename Key_Ty, typename Val_Ty>
-    class rbtree_iter<rbtree<Key_Ty, Val_Ty>> : public rbtree_base_iter
+    template<typename Key_Ty, typename Val_Ty, typename Cmp_Ty>
+    class rbtree_iter<rbtree<Key_Ty, Val_Ty, Cmp_Ty>> : public rbtree_base_iter
     {
-        friend class rbtree<Key_Ty, Val_Ty>;
+        friend class rbtree<Key_Ty, Val_Ty, Cmp_Ty>;
         template<typename Key_Ty> friend class set;
         template<typename Key_Ty, typename Val_Ty> friend class map;
 
-        using Container_Ty = rbtree<Key_Ty, Val_Ty>;
+        using Container_Ty = rbtree<Key_Ty, Val_Ty, Cmp_Ty>;
         using Self_Ty = rbtree_iter<Container_Ty>;
         using BaseNode_Ty = typename Container_Ty::BaseNode_Ty;
         using Node_Ty = typename Container_Ty::Node_Ty;
@@ -318,14 +320,14 @@ namespace RBTreeNs
         }
     };
 
-    template<typename Key_Ty, typename Val_Ty>
-    class rbtree_ritr<rbtree<Key_Ty, Val_Ty>> : public rbtree_base_iter
+    template<typename Key_Ty, typename Val_Ty, typename Cmp_Ty>
+    class rbtree_ritr<rbtree<Key_Ty, Val_Ty, Cmp_Ty>> : public rbtree_base_iter
     {
-        friend class rbtree<Key_Ty, Val_Ty>;
+        friend class rbtree<Key_Ty, Val_Ty, Cmp_Ty>;
         template<typename Key_Ty> friend class set;
         template<typename Key_Ty, typename Val_Ty> friend class map;
 
-        using Container_Ty = rbtree<Key_Ty, Val_Ty>;
+        using Container_Ty = rbtree<Key_Ty, Val_Ty, Cmp_Ty>;
         using Self_Ty = rbtree_ritr<Container_Ty>;
         using BaseNode_Ty = typename Container_Ty::BaseNode_Ty;
         using Node_Ty = typename Container_Ty::Node_Ty;
@@ -402,14 +404,14 @@ namespace RBTreeNs
         }
     };
 
-    template<typename Key_Ty, typename Val_Ty>
-    class rbtree_const_iter<rbtree<Key_Ty, Val_Ty>> : public rbtree_base_iter
+    template<typename Key_Ty, typename Val_Ty, typename Cmp_Ty>
+    class rbtree_const_iter<rbtree<Key_Ty, Val_Ty, Cmp_Ty>> : public rbtree_base_iter
     {
-        friend class rbtree<Key_Ty, Val_Ty>;
+        friend class rbtree<Key_Ty, Val_Ty, Cmp_Ty>;
         template<typename Key_Ty> friend class set;
         template<typename Key_Ty, typename Val_Ty> friend class map;
 
-        using Container_Ty = rbtree<Key_Ty, Val_Ty>;
+        using Container_Ty = rbtree<Key_Ty, Val_Ty, Cmp_Ty>;
         using Self_Ty = rbtree_const_iter<Container_Ty>;
         using BaseNode_Ty = typename Container_Ty::BaseNode_Ty;
         using Node_Ty = typename Container_Ty::Node_Ty;
@@ -486,14 +488,14 @@ namespace RBTreeNs
         }
     };
 
-    template<typename Key_Ty, typename Val_Ty>
-    class rbtree_const_ritr<rbtree<Key_Ty, Val_Ty>> : public rbtree_base_iter
+    template<typename Key_Ty, typename Val_Ty, typename Cmp_Ty>
+    class rbtree_const_ritr<rbtree<Key_Ty, Val_Ty, Cmp_Ty>> : public rbtree_base_iter
     {
-        friend class rbtree<Key_Ty, Val_Ty>;
+        friend class rbtree<Key_Ty, Val_Ty, Cmp_Ty>;
         template<typename Key_Ty> friend class set;
         template<typename Key_Ty, typename Val_Ty> friend class map;
 
-        using Container_Ty = rbtree<Key_Ty, Val_Ty>;
+        using Container_Ty = rbtree<Key_Ty, Val_Ty, Cmp_Ty>;
         using Self_Ty = rbtree_const_ritr<Container_Ty>;
         using BaseNode_Ty = typename Container_Ty::BaseNode_Ty;
         using Node_Ty = typename Container_Ty::Node_Ty;
@@ -570,11 +572,37 @@ namespace RBTreeNs
         }
     };
 
-    template<typename Key_Ty, typename Val_Ty>
+    class rbtree_comparer
+    {
+    public:
+        template<typename Ty>
+        s64 compare(const Ty& v1, const Ty& v2)
+        {
+            if (v1 == v2)
+            {
+                return 0;
+            }
+            else if (v1 < v2)
+            {
+                return -1;
+            }
+            else if (v1 > v2)
+            {
+                return 1;
+            }
+            else
+            {
+                assert(0);
+                return 0;
+            }
+        }
+    };
+
+    template<typename Key_Ty, typename Val_Ty, typename Cmp_Ty>
     class rbtree
     {
     public:
-        using Self_Ty = rbtree<Key_Ty, Val_Ty>;
+        using Self_Ty = rbtree<Key_Ty, Val_Ty, Cmp_Ty>;
         using Node_Ty = rbtree_node<Key_Ty, Val_Ty>;
         using BaseNode_Ty = rbtree_base_node;
 
@@ -790,7 +818,8 @@ namespace RBTreeNs
             while (1)
             {
                 assert(ptr);
-                if (k < ptr->mykey())
+                s64 cmp = rbtree_comparer().compare(k, ptr->mykey());
+                if (cmp < 0)
                 {
                     if (ptr->left)
                     {
@@ -805,7 +834,7 @@ namespace RBTreeNs
                         break;
                     }
                 }
-                else if (k > ptr->mykey())
+                else if (cmp > 0)
                 {
                     if (ptr->right)
                     {
@@ -849,7 +878,8 @@ namespace RBTreeNs
             while (1)
             {
                 assert(ptr);
-                if (k < ptr->mykey())
+                s64 cmp = rbtree_comparer().compare(k, ptr->mykey());
+                if (cmp < 0)
                 {
                     if (ptr->left)
                     {
@@ -864,7 +894,7 @@ namespace RBTreeNs
                         break;
                     }
                 }
-                else if (k > ptr->mykey())
+                else if (cmp)
                 {
                     if (ptr->right)
                     {
@@ -908,7 +938,8 @@ namespace RBTreeNs
             while (1)
             {
                 assert(ptr);
-                if (k < ptr->mykey())
+                s64 cmp = rbtree_comparer().compare(k, ptr->mykey());
+                if (cmp < 0)
                 {
                     if (ptr->left)
                     {
@@ -923,7 +954,7 @@ namespace RBTreeNs
                         break;
                     }
                 }
-                else if (k > ptr->mykey())
+                else if (cmp > 0)
                 {
                     if (ptr->right)
                     {
@@ -961,15 +992,16 @@ namespace RBTreeNs
             while (1)
             {
                 assert(ptr);
-                if (k < ptr->mykey() && ptr->left)
+                s64 cmp = rbtree_comparer().compare(k, ptr->mykey());
+                if (cmp < 0 && ptr->left)
                 {
                     ptr = (Node_Ty*)ptr->left;
                 }
-                else if (k > ptr->mykey() && ptr->right)
+                else if (cmp > 0 && ptr->right)
                 {
                     ptr = (Node_Ty*)ptr->right;
                 }
-                else if (k == ptr->mykey())
+                else if (cmp == 0)
                 {
                     return ptr;
                 }

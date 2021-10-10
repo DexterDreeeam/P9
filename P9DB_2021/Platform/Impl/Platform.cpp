@@ -6,6 +6,61 @@ namespace P9
 namespace Platform
 {
 
+static set<string> search_qualified_document(
+    ref<Storage::index_table> table, Interpreter::query_criteria criteria)
+{
+    set<string> rst;
+    auto& table_map = table->get_control();
+    boole insert_item = boole::False;
+    auto factor = ref<json_base>::new_instance(criteria.factor->clone());
+    if (table_map.count(factor) == 0)
+    {
+        table_map.insert(factor, set<string>());
+        insert_item = boole::True;
+    }
+    auto itr = table_map.find(factor);
+    switch (criteria.op)
+    {
+    case Interpreter::query_operator::EQUAL:
+        rst = itr->second;
+        break;
+    case Interpreter::query_operator::GREATER_EQUAL:
+        rst = itr->second;
+    case Interpreter::query_operator::GREATER:
+        {
+            while (++itr != table_map.end())
+            {
+                for (auto& s : itr->second)
+                {
+                    rst.insert(s);
+                }
+            }
+        }
+        break;
+    case Interpreter::query_operator::LESS_EQUAL:
+        rst = itr->second;
+    case Interpreter::query_operator::LESS:
+        {
+            auto left_itr = table_map.begin();
+            while (left_itr != itr)
+            {
+                for (auto& s : left_itr->second)
+                {
+                    rst.insert(s);
+                }
+                ++left_itr;
+            }
+        }
+        break;
+    }
+    if (insert_item)
+    {
+        table_map.erase(factor);
+    }
+    table->put_control();
+    return rst;
+}
+
 void platform::load(const string& location)
 {
     _storage = new Storage::storage(location);
@@ -47,16 +102,19 @@ string platform::handle_upsert(ref<Interpreter::query_operation_upsert> op)
 {
     AUTO_TRACE;
     auto partition = _storage->insert_partition(op->partition);
-    auto index_table = partition->insert_index_table("document_id");
-    auto doc = index_table->insert_document(op->document_id);
-    doc->overwrite(op->content->value());
+    auto document_table = partition->get_document_table();
+    auto r_document = ref<Storage::document_identifier>::new_instance(
+        op->document_id, partition->location());
+    document_table->insert_document(op->document_id, r_document);
+    r_document->overwrite(op->content->value());
 
     op->content->iterate(
         [&](json_base* json)
         {
             string index_string = json->my_path_index_string();
             auto table = partition->insert_index_table(index_string);
-            table->insert_index(doc);
+            auto json_value = ref<json_base>::new_instance(json->clone());
+            table->insert_document(json_value, op->document_id);
         },
         // leaves only
         boole::True);
@@ -72,20 +130,22 @@ string platform::handle_retrieve(ref<Interpreter::query_operation_retrieve> op)
     {
         return string("partition not found");
     }
-    auto index_table = partition->get_index_table("document_id");
-    if (!index_table)
-    {
-        return string("index string not found");
-    }
-    auto doc = index_table->insert_document(op->document_id);
-    if (!doc)
+    auto document_table = partition->get_document_table();
+    auto r_doc = document_table->get_document(op->document_id);
+    if (!r_doc)
     {
         return string("document id not found");
     }
-    return doc->read();
+    return r_doc->read();
 }
 
 string platform::handle_hard_delete(ref<Interpreter::query_operation_hard_delete> op)
+{
+    AUTO_TRACE;
+    return "ok";
+}
+
+string platform::handle_search_single(ref<Interpreter::query_operation_search_single> op)
 {
     AUTO_TRACE;
     auto partition = _storage->get_partition(op->partition);
@@ -93,36 +153,66 @@ string platform::handle_hard_delete(ref<Interpreter::query_operation_hard_delete
     {
         return string("partition not found");
     }
-    auto index_table = partition->get_index_table("document_id");
-    if (!index_table)
+    if (op->syntax.criterion.size() == 0)
     {
-        return string("index string not found");
+        return string("creterion should not be empty");
     }
-    auto doc = index_table->insert_document(op->document_id);
-    if (!doc)
-    {
-        return string("document id not found");
-    }
-    json_base* doc_json = json_deserialize(doc->read());
-    doc_json->iterate(
-        [&](json_base* json)
-        {
-            string index_string = json->my_path_index_string();
-            auto table = partition->insert_index_table(index_string);
-            table->insert_index(doc);
-        },
-        // leaves only
-        boole::True);
-}
-
-string platform::handle_search_single(ref<Interpreter::query_operation_search_single> op)
-{
-    return "";
+    return "no result found";
 }
 
 string platform::handle_search_range(ref<Interpreter::query_operation_search_range> op)
 {
-    return "";
+    AUTO_TRACE;
+    string rst;
+    auto partition = _storage->get_partition(op->partition);
+    if (!partition)
+    {
+        return string("partition not found");
+    }
+    if (op->syntax.criterion.size() == 0)
+    {
+        return string("creterion should not be empty");
+    }
+    set<string> qualified_documents;
+    boole is_first_search = boole::True;
+    auto j_array = json_array();
+    auto docs = partition->get_document_table();
+    for (auto& criteria : op->syntax.criterion)
+    {
+        auto table = partition->get_index_table(criteria.path);
+        set<string> search_documents = search_qualified_document(table, criteria);
+        if (is_first_search)
+        {
+            qualified_documents = search_documents;
+            is_first_search = boole::False;
+        }
+        else
+        {
+            set<string> temp;
+            for (const auto& doc : qualified_documents)
+            {
+                if (search_documents.count(doc))
+                {
+                    temp.insert(doc);
+                }
+            }
+            qualified_documents = temp;
+        }
+        if (qualified_documents.size() == 0)
+        {
+            goto L_no_result;
+        }
+    }
+    for (auto& doc : qualified_documents)
+    {
+        auto* jobject = json_deserialize(docs->get_document(doc)->read());
+        j_array.add_item(jobject);
+    }
+    j_array.serialize(rst);
+    return rst;
+
+L_no_result:
+    return "no result found";
 }
 
 }
