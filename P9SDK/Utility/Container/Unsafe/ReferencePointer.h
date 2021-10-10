@@ -104,6 +104,7 @@ public:
             _ptr = nullptr;
             _cnt = nullptr;
             _data_size = 0;
+            _deconstructor = nullptr;
         }
     }
 
