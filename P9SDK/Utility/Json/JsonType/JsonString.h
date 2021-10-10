@@ -1,6 +1,6 @@
 #pragma once
 
-class json_string : public JsonNs::json_base
+class json_string : public json_base
 {
 public:
     json_string() :
@@ -61,7 +61,7 @@ public:
         return '\"' + _value + '\"';
     }
 
-    virtual JsonNs::json_base* clone() const override
+    virtual json_base* clone() const override
     {
         return new json_string(_value);
     }

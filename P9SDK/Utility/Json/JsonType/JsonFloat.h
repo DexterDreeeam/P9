@@ -11,7 +11,7 @@
 
 const s64 json_float_precision = 18;
 
-class json_float : public JsonNs::json_base
+class json_float : public json_base
 {
 public:
     json_float() = delete;
@@ -93,7 +93,7 @@ public:
         return string(_sign ? "" : "-") + string(text) + '.' + fraction_string();
     }
 
-    virtual JsonNs::json_base* clone() const override
+    virtual json_base* clone() const override
     {
         return new json_float(_sign, _integer, _fraction);
     }
@@ -143,7 +143,7 @@ private:
     u64   _fraction;
 };
 
-_INLINE_ JsonNs::json_base* json_float::deserialize(const string& str, s64 from, s64 to)
+_INLINE_ json_base* json_float::deserialize(const string& str, s64 from, s64 to)
 {
     trim_index(str, from, to);
     if (to - from < 3)

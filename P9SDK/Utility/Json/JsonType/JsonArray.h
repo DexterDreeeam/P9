@@ -1,9 +1,9 @@
 #pragma once
 
-class json_array : public JsonNs::json_base
+class json_array : public json_base
 {
     template<typename Fn_Ty>
-    friend void json_iterate(JsonNs::json_base* json, Fn_Ty fn, boole leaves_only);
+    friend void json_iterate(json_base* json, Fn_Ty fn, boole leaves_only);
 
 public:
     json_array() :
@@ -87,7 +87,7 @@ public:
         return rst;
     }
 
-    virtual JsonNs::json_base* clone() const override
+    virtual json_base* clone() const override
     {
         json_array* rst = new json_array();
         for (auto* i : _items)
@@ -154,7 +154,7 @@ private:
     vector<json_base*> _items;
 };
 
-_INLINE_ JsonNs::json_base* json_array::deserialize(const string& str, s64 from, s64 to)
+_INLINE_ json_base* json_array::deserialize(const string& str, s64 from, s64 to)
 {
     trim_index(str, from, to);
     if (from >= to)
@@ -199,7 +199,7 @@ _INLINE_ JsonNs::json_base* json_array::deserialize(const string& str, s64 from,
             }
             if (from == to)
             {
-                auto* j = JsonNs::json_base::deserialize(str, value_from_pos, from);
+                auto* j = json_base::deserialize(str, value_from_pos, from);
                 if (j == nullptr)
                 {
                     // error
@@ -212,7 +212,7 @@ _INLINE_ JsonNs::json_base* json_array::deserialize(const string& str, s64 from,
             char c = str[from];
             if (c == ',' && curly_brace_cnt == 0 && bracket_cnt == 0)
             {
-                auto* j = JsonNs::json_base::deserialize(str, value_from_pos, from);
+                auto* j = json_base::deserialize(str, value_from_pos, from);
                 if (j == nullptr)
                 {
                     // error

@@ -1,9 +1,9 @@
 #pragma once
 
-class json_object : public JsonNs::json_base
+class json_object : public json_base
 {
     template<typename Fn_Ty>
-    friend void json_iterate(JsonNs::json_base* json, Fn_Ty fn, boole leaves_only);
+    friend void json_iterate(json_base* json, Fn_Ty fn, boole leaves_only);
 
 public:
     json_object() :
@@ -74,7 +74,7 @@ public:
         return rst;
     }
 
-    virtual JsonNs::json_base* clone() const override
+    virtual json_base* clone() const override
     {
         json_object* rst = new json_object();
         for (auto p : _items)
@@ -115,43 +115,43 @@ public:
     }
 
 public:
-    static JsonNs::json_base* deserialize(const string& str, s64 from, s64 to);
+    static json_base* deserialize(const string& str, s64 from, s64 to);
 
 public:
-    void add_item(const string& key, const JsonNs::json_base& value)
+    void add_item(const string& key, const json_base& value)
     {
         assert(
             _items.find(
-                [&](const pair<string, JsonNs::json_base*>& p) -> boole
+                [&](const pair<string, json_base*>& p) -> boole
                 {
                     return p.first == key;
                 }
             ) == _items.end()
         );
 
-        _items.push_back(make_pair<string, JsonNs::json_base*>(key, value.clone()));
+        _items.push_back(make_pair<string, json_base*>(key, value.clone()));
         _items.back().second->my_parent_context() = get_parent_context(_items.size() - 1);
     }
 
-    void add_item(const string& key, JsonNs::json_base* value_ptr)
+    void add_item(const string& key, json_base* value_ptr)
     {
         assert(
             _items.find(
-                [&](const pair<string, JsonNs::json_base*>& p) -> boole
+                [&](const pair<string, json_base*>& p) -> boole
                 {
                     return p.first == key;
                 }
             ) == _items.end());
 
-        _items.push_back(make_pair<string, JsonNs::json_base*>(key, value_ptr));
+        _items.push_back(make_pair<string, json_base*>(key, value_ptr));
         _items.back().second->my_parent_context() = get_parent_context(_items.size() - 1);
     }
 
 private:
-    vector<pair<string, JsonNs::json_base*>> _items;
+    vector<pair<string, json_base*>> _items;
 };
 
-_INLINE_ JsonNs::json_base* json_object::deserialize(const string& str, s64 from, s64 to)
+_INLINE_ json_base* json_object::deserialize(const string& str, s64 from, s64 to)
 {
     trim_index(str, OUT from, OUT to);
 
@@ -233,7 +233,7 @@ _INLINE_ JsonNs::json_base* json_object::deserialize(const string& str, s64 from
         {
             if (from == to)
             {
-                auto* j = JsonNs::json_base::deserialize(str, value_start_from, from);
+                auto* j = json_base::deserialize(str, value_start_from, from);
                 if (j == nullptr)
                 {
                     // error
@@ -245,7 +245,7 @@ _INLINE_ JsonNs::json_base* json_object::deserialize(const string& str, s64 from
             char c = str[from];
             if (c == ',' && curly_brace_cnt == 0 && bracket_cnt == 0)
             {
-                auto* j = JsonNs::json_base::deserialize(str, value_start_from, from);
+                auto* j = json_base::deserialize(str, value_start_from, from);
                 if (j == nullptr)
                 {
                     // error

@@ -1,6 +1,6 @@
 #pragma once
 
-class json_int : public JsonNs::json_base
+class json_int : public json_base
 {
 public:
     json_int() = delete;
@@ -56,7 +56,7 @@ public:
         return string(text);
     }
 
-    virtual JsonNs::json_base* clone() const override
+    virtual json_base* clone() const override
     {
         return new json_int(_value);
     }

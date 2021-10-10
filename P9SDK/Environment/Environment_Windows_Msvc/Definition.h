@@ -16,9 +16,13 @@
 
 #define LOG_FOLDER    "C:/P9_Folder/Log/"
 
-#pragma warning (disable : 4200)
 #pragma warning (disable : 4005)
+#pragma warning (disable : 4200)
+#pragma warning (disable : 4307)
 #pragma warning (disable : 4595)
 #pragma warning (disable : 6385)
 #pragma warning (disable : 6386)
+#pragma warning (disable : 26450)
+#pragma warning (disable : 26454)
 #pragma warning (disable : 26495)
+#pragma warning (disable : 26812)

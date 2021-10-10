@@ -1,6 +1,6 @@
 #pragma once
 
-class json_boole : public JsonNs::json_base
+class json_boole : public json_base
 {
 public:
     static const string True;
@@ -60,7 +60,7 @@ public:
         return _value ? True : False;
     }
 
-    virtual JsonNs::json_base* clone() const override
+    virtual json_base* clone() const override
     {
         return new json_boole(_value);
     }

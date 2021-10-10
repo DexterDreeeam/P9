@@ -28,6 +28,16 @@ public:
     ~set() noexcept
     {}
 
+    Self_Ty& operator =(const Self_Ty& rhs)
+    {
+        this->clear();
+        for (const auto& k : rhs)
+        {
+            this->insert(k);
+        }
+        return *this;
+    }
+
     void insert(const Key_Ty& k) noexcept
     {
         Base_Ty::_insert(k);

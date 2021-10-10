@@ -15,7 +15,7 @@ public:
     ~query_order()
     {}
 
-    boole load(JsonNs::json_base * json);
+    boole load(json_base * json);
 
 public:
     string path;
@@ -50,12 +50,12 @@ public:
         }
     }
 
-    boole load(JsonNs::json_base * json);
+    boole load(json_base * json);
 
 public:
     string path;
     query_operator op;
-    JsonNs::json_base* factor;
+    json_base* factor;
 };
 
 class query_syntax
@@ -67,7 +67,7 @@ public:
     ~query_syntax()
     {}
 
-    boole load(JsonNs::json_base * json);
+    boole load(json_base * json);
 
 public:
     query_order order;

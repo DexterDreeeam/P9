@@ -1,6 +1,6 @@
 #pragma once
 
-_INLINE_ JsonNs::json_base* json_deserialize(const string& str, s64 from, s64 to)
+_INLINE_ json_base* json_deserialize(const string& str, s64 from, s64 to)
 {
     trim_index(str, from, to);
 
@@ -8,7 +8,7 @@ _INLINE_ JsonNs::json_base* json_deserialize(const string& str, s64 from, s64 to
     {
         return nullptr;
     }
-    JsonNs::json_base* rst = nullptr;
+    json_base* rst = nullptr;
 
     //===================================================== json_object
     rst = json_object::deserialize(str, from, to);
@@ -66,7 +66,7 @@ L_finish:
     return rst;
 }
 
-_INLINE_ JsonNs::json_base* json_deserialize(const string& str)
+_INLINE_ json_base* json_deserialize(const string& str)
 {
     return json_deserialize(str, 0, str.size());
 }

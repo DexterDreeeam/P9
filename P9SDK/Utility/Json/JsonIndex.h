@@ -1,7 +1,7 @@
 #pragma once
 
 template<typename Fn_Ty>
-_INLINE_ void json_iterate(JsonNs::json_base* json, Fn_Ty fn, boole leaves_only)
+_INLINE_ void json_iterate(json_base* json, Fn_Ty fn, boole leaves_only)
 {
     if (json == nullptr)
     {
@@ -46,7 +46,7 @@ _INLINE_ void json_iterate(JsonNs::json_base* json, Fn_Ty fn, boole leaves_only)
     }
 }
 
-_INLINE_ void json_report(JsonNs::json_base* json)
+_INLINE_ void json_report(json_base* json)
 {
 #if DEBUG_LEVEL >= DEBUG_LEVEL_CALIBRATION_LOG_NONE
     if (json == nullptr)
@@ -55,7 +55,7 @@ _INLINE_ void json_report(JsonNs::json_base* json)
     }
     json_iterate(
         json,
-        [](JsonNs::json_base* j)
+        [](json_base* j)
         {
             switch (j->type())
             {
@@ -77,13 +77,13 @@ public:
         _json(nullptr)
     {}
 
-    json_cursor(JsonNs::json_base* json) :
+    json_cursor(json_base* json) :
         _json(json)
     {}
 
     ~json_cursor() = default;
 
-    JsonNs::json_base* json()
+    json_base* json()
     {
         return _json;
     }
@@ -103,7 +103,7 @@ public:
         return json_cursor(_json->my_parent());
     }
 
-    JsonNs::json_base* operator ->()
+    json_base* operator ->()
     {
         return _json;
     }
@@ -148,5 +148,5 @@ public:
     }
 
 private:
-    JsonNs::json_base* _json;
+    json_base* _json;
 };

@@ -1,6 +1,6 @@
 #pragma once
 
-class json_null : public JsonNs::json_base
+class json_null : public json_base
 {
 public:
     static const string Null;
@@ -53,7 +53,7 @@ public:
         return Null;
     }
 
-    virtual JsonNs::json_base* clone() const override
+    virtual json_base* clone() const override
     {
         return new json_null();
     }

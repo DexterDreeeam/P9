@@ -102,7 +102,7 @@ ref<query_operation> standard_interpreter::translate(const string& msg)
         upsert->document_id = str_document_id;
         upsert->document_etag = str_document_etag;
         upsert->content = content->clone();
-        rst = upsert;
+        rst = upsert.ref_of<query_operation>();
     }
     else if (str_operation == "retrieve")
     {
@@ -117,7 +117,7 @@ ref<query_operation> standard_interpreter::translate(const string& msg)
 
         auto retrieve = ref<query_operation_retrieve>::new_instance();
         retrieve->document_id = str_document_id;
-        rst = retrieve;
+        rst = retrieve.ref_of<query_operation>();
     }
     else if (str_operation == "hard_delete")
     {
@@ -132,7 +132,7 @@ ref<query_operation> standard_interpreter::translate(const string& msg)
 
         auto hard_delete = ref<query_operation_hard_delete>::new_instance();
         hard_delete->document_id = str_document_id;
-        rst = hard_delete;
+        rst = hard_delete.ref_of<query_operation>();
     }
     else if (str_operation == "search_single" || str_operation == "search_range")
     {
@@ -146,11 +146,11 @@ ref<query_operation> standard_interpreter::translate(const string& msg)
         ref<query_operation_search> search;
         if (str_operation == "search_single")
         {
-            search = ref<query_operation_search_single>::new_instance();
+            search = ref<query_operation_search_single>::new_instance().ref_of<query_operation_search>();
         }
         else if (str_operation == "search_range")
         {
-            search = ref<query_operation_search_range>::new_instance();
+            search = ref<query_operation_search_range>::new_instance().ref_of<query_operation_search>();
         }
         else
         {
@@ -161,7 +161,7 @@ ref<query_operation> standard_interpreter::translate(const string& msg)
             err("%s: search syntax error '%s'.", __FUNCTION__, j_idx->value());
             goto L_error;
         }
-        rst = search;
+        rst = search.ref_of<query_operation>();
     }
     else
     {

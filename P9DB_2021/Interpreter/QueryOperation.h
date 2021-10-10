@@ -57,7 +57,7 @@ public:
 public:
     string  document_id;
     string  document_etag;
-    JsonNs::json_base* content;
+    json_base* content;
 };
 
 class query_operation_retrieve : public query_operation
@@ -109,7 +109,7 @@ public:
     virtual ~query_operation_search() override
     {}
 
-    boole load(JsonNs::json_base* json_syntax)
+    boole load(json_base* json_syntax)
     {
         return syntax.load(json_syntax);
     }

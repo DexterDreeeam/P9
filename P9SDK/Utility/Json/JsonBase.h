@@ -11,10 +11,8 @@
  * 
  */
 
-namespace JsonNs
-{
 class json_base;
-}
+
 class json_object;
 class json_array;
 class json_int;
@@ -22,9 +20,9 @@ class json_string;
 class json_boole;
 
 template<typename Fn_Ty>
-void json_iterate(JsonNs::json_base* json, Fn_Ty fn, boole leaves_only = boole::False);
+void json_iterate(json_base* json, Fn_Ty fn, boole leaves_only = boole::False);
 
-JsonNs::json_base* json_deserialize(const string& str, s64 from, s64 to);
+json_base* json_deserialize(const string& str, s64 from, s64 to);
 
 enum class json_type : u64
 {
@@ -73,9 +71,11 @@ public:
     string     parent_key;
 };
 
+}
+
 class json_base
 {
-    friend json_base* ::json_deserialize(const string& str, s64 from, s64 to);
+    friend json_base* json_deserialize(const string& str, s64 from, s64 to);
 
 public:
     json_base() :
@@ -94,7 +94,7 @@ public:
 
     virtual json_base* index(s64 order) = 0;
 
-    virtual json_parent_context get_parent_context(s64 order) = 0;
+    virtual JsonNs::json_parent_context get_parent_context(s64 order) = 0;
 
     virtual string value() const = 0;
 
@@ -116,7 +116,7 @@ public:
     }
 
 public:
-    json_parent_context& my_parent_context()
+    JsonNs::json_parent_context& my_parent_context()
     {
         return _parent;
     }
@@ -158,7 +158,5 @@ public:
     }
 
 private:
-    json_parent_context _parent;
+    JsonNs::json_parent_context _parent;
 };
-
-}

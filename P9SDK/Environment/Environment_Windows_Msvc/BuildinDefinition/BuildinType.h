@@ -26,12 +26,6 @@ typedef struct
     s32 millisec;
 } date;
 
-#pragma warning (push)
-#pragma warning (disable : 26450)
-#pragma warning (disable : 26454)
-#pragma warning (disable : 26812)
-#pragma warning (disable : 4307)
-
 const u8  u8_max = (u8)0 - 1;
 const u8  u8_min = (u8)0;
 const s8  s8_max = (s8)(((s8)1 << 7) - 1);
@@ -113,5 +107,3 @@ constexpr auto right_value_type(Ty& e) noexcept -> Ty&&
 {
     return static_cast<Ty&&>(e);
 }
-
-#pragma warning (pop)
