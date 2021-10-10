@@ -1,7 +1,37 @@
 #include "../Interface/Interface.h"
 
+class TestClassA
+{
+public:
+    s64 aa;
+
+    TestClassA(s64 a) :
+        aa(a)
+    {}
+
+    ~TestClassA()
+    {
+        s64 aaa = aa;
+        ++aaa;
+        print("%d\n", aaa);
+    }
+};
+
+
 int main()
 {
+    {
+        ref<TestClassA> r3;
+        {
+            ref_base rb;
+            {
+                auto r = ref<TestClassA>::new_instance(3);
+                rb = r;
+            }
+            r3 = rb.ref_of<TestClassA>();
+        }
+    }
+
     auto f = input_file_create("C:/P9_Folder/test.txt");
     char buf[8000];
     s64 len = input_file_read(f, buf, 8000);
@@ -12,7 +42,6 @@ int main()
     string str = buf;
 
     //log(buf);
-
     auto r = ref<int>::new_instance(1);
 
     auto j = json_deserialize(buf);
