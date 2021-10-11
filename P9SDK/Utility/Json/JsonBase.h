@@ -139,15 +139,16 @@ public:
 
     string my_path_index_string() const
     {
-        string rst = _parent.parent_json ?
-            _parent.parent_json->my_path_index_string() : "";
-
+        if (_parent.parent_json == nullptr)
+        {
+            return "";
+        }
+        string rst = _parent.parent_json->my_path_index_string();
         string parent_key = _parent.parent_key;
         if (parent_key.size() >= 2 && parent_key.front() == '\"' && parent_key.back() == '\"')
         {
             parent_key = parent_key.substr(1, parent_key.size() - 2);
         }
-
         return rst + '.' + parent_key;
     }
 

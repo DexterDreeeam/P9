@@ -19,7 +19,7 @@ boole query_order::load(json_base* json)
     {
         return boole::False;
     }
-    path = j_path->value();
+    path = remove_quotation(j_path->value());
 
     auto j_ascend = j["ascend"];
     if (j_ascend.invalid() || j_ascend->type() != json_type::BOOLE)
@@ -44,14 +44,14 @@ boole query_criteria::load(json_base* json)
     {
         return boole::False;
     }
-    path = j_path->value();
+    path = remove_quotation(j_path->value());
 
-    auto j_op = j["operator"];
+    auto j_op = j["op"];
     if (j_op.invalid() || j_op->type() != json_type::STRING)
     {
         return boole::False;
     }
-    string str_op = j_op->value();
+    string str_op = remove_quotation(j_op->value());
     if (str_op == "=")
     {
         op = query_operator::EQUAL;
@@ -120,6 +120,7 @@ boole query_syntax::load(json_base* json)
         {
             return boole::False;
         }
+        criterion.push_back(criteria);
     }
 
     return boole::True;

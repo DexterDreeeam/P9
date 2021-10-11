@@ -171,7 +171,7 @@ string platform::handle_search_range(ref<Interpreter::query_operation_search_ran
     }
     if (op->syntax.criterion.size() == 0)
     {
-        return string("creterion should not be empty");
+        return string("criterion should not be empty");
     }
     set<string> qualified_documents;
     boole is_first_search = boole::True;
@@ -180,6 +180,11 @@ string platform::handle_search_range(ref<Interpreter::query_operation_search_ran
     for (auto& criteria : op->syntax.criterion)
     {
         auto table = partition->get_index_table(criteria.path);
+        if (table.invalid())
+        {
+            err("criteria is error. path: %s.", criteria.path.data());
+            goto L_invalid_criteria;
+        }
         set<string> search_documents = search_qualified_document(table, criteria);
         if (is_first_search)
         {
@@ -210,6 +215,9 @@ string platform::handle_search_range(ref<Interpreter::query_operation_search_ran
     }
     j_array.serialize(rst);
     return rst;
+
+L_invalid_criteria:
+    return "invalid criteria";
 
 L_no_result:
     return "no result found";

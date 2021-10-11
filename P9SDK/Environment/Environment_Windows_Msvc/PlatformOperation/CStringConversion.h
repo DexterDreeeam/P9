@@ -232,7 +232,7 @@ _INLINE_ boole text_to_s64(const char* text, s64 len, OUT s64& rst)
         {
             return boole::False;
         }
-        s64 digit = c - '0';
+        s64 digit = (s64)c - '0';
         if ((s64_max - digit) / 10 < rst)
         {
             return boole::False;

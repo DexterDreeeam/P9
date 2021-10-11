@@ -158,7 +158,7 @@ ref<query_operation> standard_interpreter::translate(const string& msg)
         }
         if (search->load(j_idx.json()) == boole::False)
         {
-            err("%s: search syntax error '%s'.", __FUNCTION__, j_idx->value());
+            err("%s: search syntax error '%s'.", __FUNCTION__, j_idx->value().data());
             goto L_error;
         }
         rst = search.ref_of<query_operation>();

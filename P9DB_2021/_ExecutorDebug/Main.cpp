@@ -11,7 +11,7 @@ void test_db_query(P9::Platform::platform* plt, const char* path)
     auto op1 = plt->parse_operation_message(s1);
     string rst = plt->handle_operation(op1);
 
-    print("result: %s.\n", rst.data());
+    print("result: %s.\n\n", rst.data());
     log("result: %s.", rst.data());
 }
 
@@ -20,12 +20,14 @@ void entry_point()
     tick_start();
 
     auto p = new P9::Platform::platform();
-    p->load("C:/P9_Folder/");
+    p->load("C:/P9_Folder/p1/");
 
-    test_db_query(p, "C:/P9_Folder/upsert-1.txt");
-    test_db_query(p, "C:/P9_Folder/upsert-2.txt");
-    test_db_query(p, "C:/P9_Folder/upsert-3.txt");
-    test_db_query(p, "C:/P9_Folder/retrieve-1.txt");
+    test_db_query(p, "../.tests/01-upsert-1.json");
+    test_db_query(p, "../.tests/02-upsert-2.json");
+    test_db_query(p, "../.tests/03-upsert-3.json");
+    test_db_query(p, "../.tests/04-retrieve-1.json");
+    test_db_query(p, "../.tests/05-search-1.json");
+    test_db_query(p, "../.tests/06-search-2.json");
 }
 
 int main()

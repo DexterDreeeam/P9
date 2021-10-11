@@ -538,6 +538,9 @@ namespace LoggerNs
         }
         output_buf[output_len] = 0;
         global_log_system.write_log(output_buf, output_len);
+        print("\033[1;31m");
+        print(output_buf);
+        print("\n\033[0m");
     }
 
     _INLINE_ void _err(const char* fmt)
@@ -550,6 +553,9 @@ namespace LoggerNs
         output_len += strlen;
         output_buf[output_len] = 0;
         global_log_system.write_log(output_buf, output_len);
+        print("\033[1;31m");
+        print(output_buf);
+        print("\n\033[0m");
     }
 
 }

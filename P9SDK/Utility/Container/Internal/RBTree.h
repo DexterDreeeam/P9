@@ -818,7 +818,7 @@ namespace RBTreeNs
             while (1)
             {
                 assert(ptr);
-                s64 cmp = rbtree_comparer().compare(k, ptr->mykey());
+                s64 cmp = Cmp_Ty().compare(k, ptr->mykey());
                 if (cmp < 0)
                 {
                     if (ptr->left)
@@ -878,7 +878,7 @@ namespace RBTreeNs
             while (1)
             {
                 assert(ptr);
-                s64 cmp = rbtree_comparer().compare(k, ptr->mykey());
+                s64 cmp = Cmp_Ty().compare(k, ptr->mykey());
                 if (cmp < 0)
                 {
                     if (ptr->left)
@@ -938,7 +938,7 @@ namespace RBTreeNs
             while (1)
             {
                 assert(ptr);
-                s64 cmp = rbtree_comparer().compare(k, ptr->mykey());
+                s64 cmp = Cmp_Ty().compare(k, ptr->mykey());
                 if (cmp < 0)
                 {
                     if (ptr->left)
@@ -992,7 +992,7 @@ namespace RBTreeNs
             while (1)
             {
                 assert(ptr);
-                s64 cmp = rbtree_comparer().compare(k, ptr->mykey());
+                s64 cmp = Cmp_Ty().compare(k, ptr->mykey());
                 if (cmp < 0 && ptr->left)
                 {
                     ptr = (Node_Ty*)ptr->left;
@@ -1071,7 +1071,7 @@ namespace RBTreeNs
         {
             assert(myhead()->left);
             assert(nod && nod->color == RB_TREE_RED);
-            assert(nod->prnt);
+            assert(nod && nod->prnt);
             if (nod == myhead()->left)
             {
                 nod->color = RB_TREE_BLACK;

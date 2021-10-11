@@ -66,10 +66,6 @@ set<string> index_table::get_documents(ref<json_base> key)
 boole index_table::insert_document(ref<json_base> key, const string& document_id)
 {
     boole ret = boole::False;
-
-    set<string> insert_set;
-    insert_set.insert(document_id);
-
     rw_lock_wait_write(_op_lock);
     auto& document_id_set = document_map[key];
     if (document_id_set.count(document_id) == 0)
