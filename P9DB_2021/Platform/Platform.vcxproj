@@ -11,8 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Interface.h" />
-    <ClInclude Include="Platform.h" />
+    <ClInclude Include="Interface.hpp" />
+    <ClInclude Include="Platform.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Impl\Platform.cpp" />

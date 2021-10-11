@@ -7,9 +7,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AutoTrace.h" />
-    <ClInclude Include="Interface.h" />
-    <ClInclude Include="Logger.h" />
+    <ClInclude Include="AutoTrace.hpp" />
+    <ClInclude Include="Interface.hpp" />
+    <ClInclude Include="Logger.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

@@ -1,4 +1,4 @@
-#include "../Interface/Interface.h"
+#include "../Interface/Interface.hpp"
 
 void test_db_query(P9::Platform::platform* plt, const char* path)
 {

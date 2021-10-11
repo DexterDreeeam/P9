@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="Definition.h" />
-    <ClInclude Include="Interface.h" />
-    <ClInclude Include="DebugCalibration.h" />
-    <ClInclude Include="DebugCalibrationDefinition.h" />
+    <ClInclude Include="Definition.hpp" />
+    <ClInclude Include="Interface.hpp" />
+    <ClInclude Include="DebugCalibration.hpp" />
+    <ClInclude Include="DebugCalibrationDefinition.hpp" />
   </ItemGroup>
 </Project>

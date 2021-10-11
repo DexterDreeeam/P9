@@ -52,18 +52,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Deserializer.h" />
-    <ClInclude Include="Interface.h" />
-    <ClInclude Include="JsonBase.h" />
-    <ClInclude Include="JsonIndex.h" />
-    <ClInclude Include="JsonType\JsonArray.h" />
-    <ClInclude Include="JsonType\JsonBoole.h" />
-    <ClInclude Include="JsonType\JsonFloat.h" />
-    <ClInclude Include="JsonType\JsonInt.h" />
-    <ClInclude Include="JsonType\JsonNull.h" />
-    <ClInclude Include="JsonType\JsonObject.h" />
-    <ClInclude Include="JsonType\JsonString.h" />
-    <ClInclude Include="Utility.h" />
+    <ClInclude Include="Deserializer.hpp" />
+    <ClInclude Include="Interface.hpp" />
+    <ClInclude Include="JsonBase.hpp" />
+    <ClInclude Include="JsonIndex.hpp" />
+    <ClInclude Include="JsonType\JsonArray.hpp" />
+    <ClInclude Include="JsonType\JsonBoole.hpp" />
+    <ClInclude Include="JsonType\JsonFloat.hpp" />
+    <ClInclude Include="JsonType\JsonInt.hpp" />
+    <ClInclude Include="JsonType\JsonNull.hpp" />
+    <ClInclude Include="JsonType\JsonObject.hpp" />
+    <ClInclude Include="JsonType\JsonString.hpp" />
+    <ClInclude Include="Utility.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

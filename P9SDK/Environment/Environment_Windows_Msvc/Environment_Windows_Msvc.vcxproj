@@ -52,28 +52,28 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="BuildinDefinition\Boole.h" />
-    <ClInclude Include="BuildinDefinition\BuildinType.h" />
-    <ClInclude Include="BuildinDefinition\ComplierDirective.h" />
-    <ClInclude Include="Definition.h" />
-    <ClInclude Include="Interface.h" />
-    <ClInclude Include="PlatformHeader.h" />
-    <ClInclude Include="PlatformOperation\Assert.h" />
-    <ClInclude Include="PlatformOperation\Atomic.h" />
-    <ClInclude Include="PlatformOperation\CString.h" />
-    <ClInclude Include="PlatformOperation\CStringConversion.h" />
-    <ClInclude Include="PlatformOperation\Date.h" />
-    <ClInclude Include="PlatformOperation\Event.h" />
-    <ClInclude Include="PlatformOperation\File.h" />
-    <ClInclude Include="PlatformOperation\Lock.h" />
-    <ClInclude Include="PlatformOperation\Math.h" />
-    <ClInclude Include="PlatformOperation\Memory.h" />
-    <ClInclude Include="PlatformOperation\New.h" />
-    <ClInclude Include="PlatformOperation\Print.h" />
-    <ClInclude Include="PlatformOperation\SIMD.h" />
-    <ClInclude Include="PlatformOperation\Spin.h" />
-    <ClInclude Include="PlatformOperation\Thread.h" />
-    <ClInclude Include="PlatformOperation\Timer.h" />
+    <ClInclude Include="BuildinDefinition\Boole.hpp" />
+    <ClInclude Include="BuildinDefinition\BuildinType.hpp" />
+    <ClInclude Include="BuildinDefinition\ComplierDirective.hpp" />
+    <ClInclude Include="Definition.hpp" />
+    <ClInclude Include="Interface.hpp" />
+    <ClInclude Include="PlatformHeader.hpp" />
+    <ClInclude Include="PlatformOperation\Assert.hpp" />
+    <ClInclude Include="PlatformOperation\Atomic.hpp" />
+    <ClInclude Include="PlatformOperation\CString.hpp" />
+    <ClInclude Include="PlatformOperation\CStringConversion.hpp" />
+    <ClInclude Include="PlatformOperation\Date.hpp" />
+    <ClInclude Include="PlatformOperation\Event.hpp" />
+    <ClInclude Include="PlatformOperation\File.hpp" />
+    <ClInclude Include="PlatformOperation\Lock.hpp" />
+    <ClInclude Include="PlatformOperation\Math.hpp" />
+    <ClInclude Include="PlatformOperation\Memory.hpp" />
+    <ClInclude Include="PlatformOperation\New.hpp" />
+    <ClInclude Include="PlatformOperation\Print.hpp" />
+    <ClInclude Include="PlatformOperation\SIMD.hpp" />
+    <ClInclude Include="PlatformOperation\Spin.hpp" />
+    <ClInclude Include="PlatformOperation\Thread.hpp" />
+    <ClInclude Include="PlatformOperation\Timer.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

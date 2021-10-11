@@ -52,8 +52,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Interface.h" />
-    <ClInclude Include="JsonFormat.h" />
+    <ClInclude Include="Interface.hpp" />
+    <ClInclude Include="JsonFormat.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

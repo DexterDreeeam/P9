@@ -6,11 +6,11 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Partition.h" />
-    <ClInclude Include="Interface.h" />
-    <ClInclude Include="IndexTable.h" />
-    <ClInclude Include="DocumentIdentifier.h" />
-    <ClInclude Include="Storage.h" />
+    <ClInclude Include="Partition.hpp" />
+    <ClInclude Include="Interface.hpp" />
+    <ClInclude Include="IndexTable.hpp" />
+    <ClInclude Include="DocumentIdentifier.hpp" />
+    <ClInclude Include="Storage.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Impl\Partition.cpp">

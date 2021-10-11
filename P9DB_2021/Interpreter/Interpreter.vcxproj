@@ -11,11 +11,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Interface.h" />
-    <ClInclude Include="InterpreterBase.h" />
-    <ClInclude Include="InterpreterStandard.h" />
-    <ClInclude Include="QueryOperation.h" />
-    <ClInclude Include="QuerySyntax.h" />
+    <ClInclude Include="Interface.hpp" />
+    <ClInclude Include="InterpreterBase.hpp" />
+    <ClInclude Include="InterpreterStandard.hpp" />
+    <ClInclude Include="QueryOperation.hpp" />
+    <ClInclude Include="QuerySyntax.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Impl\InterpreterStandard.cpp" />

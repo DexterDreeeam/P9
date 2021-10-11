@@ -1,4 +1,4 @@
-#include "../Interface/Interface.h"
+#include "../Interface/Interface.hpp"
 
 class TestClassA
 {

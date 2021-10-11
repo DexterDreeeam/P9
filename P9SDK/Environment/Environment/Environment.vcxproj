@@ -52,10 +52,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="DebugCalibration.h" />
-    <ClInclude Include="DebugCalibrationDefinition.h" />
-    <ClInclude Include="Definition.h" />
-    <ClInclude Include="Interface.h" />
+    <ClInclude Include="DebugCalibration.hpp" />
+    <ClInclude Include="DebugCalibrationDefinition.hpp" />
+    <ClInclude Include="Definition.hpp" />
+    <ClInclude Include="Interface.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

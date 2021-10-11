@@ -6,8 +6,8 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Platform.h" />
-    <ClInclude Include="Interface.h" />
+    <ClInclude Include="Platform.hpp" />
+    <ClInclude Include="Interface.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Impl\Platform.cpp">

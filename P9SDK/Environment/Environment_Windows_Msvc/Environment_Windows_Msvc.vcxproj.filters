@@ -1,64 +1,64 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="Definition.h" />
-    <ClInclude Include="Interface.h" />
-    <ClInclude Include="BuildinDefinition\ComplierDirective.h">
+    <ClInclude Include="Definition.hpp" />
+    <ClInclude Include="Interface.hpp" />
+    <ClInclude Include="BuildinDefinition\ComplierDirective.hpp">
       <Filter>BuildinDefinition</Filter>
     </ClInclude>
-    <ClInclude Include="BuildinDefinition\BuildinType.h">
+    <ClInclude Include="BuildinDefinition\BuildinType.hpp">
       <Filter>BuildinDefinition</Filter>
     </ClInclude>
-    <ClInclude Include="PlatformOperation\Print.h">
+    <ClInclude Include="PlatformOperation\Print.hpp">
       <Filter>PlatformOperation</Filter>
     </ClInclude>
-    <ClInclude Include="PlatformHeader.h" />
-    <ClInclude Include="PlatformOperation\Assert.h">
+    <ClInclude Include="PlatformHeader.hpp" />
+    <ClInclude Include="PlatformOperation\Assert.hpp">
       <Filter>PlatformOperation</Filter>
     </ClInclude>
-    <ClInclude Include="PlatformOperation\Date.h">
+    <ClInclude Include="PlatformOperation\Date.hpp">
       <Filter>PlatformOperation</Filter>
     </ClInclude>
-    <ClInclude Include="PlatformOperation\Atomic.h">
+    <ClInclude Include="PlatformOperation\Atomic.hpp">
       <Filter>PlatformOperation</Filter>
     </ClInclude>
-    <ClInclude Include="PlatformOperation\Memory.h">
+    <ClInclude Include="PlatformOperation\Memory.hpp">
       <Filter>PlatformOperation</Filter>
     </ClInclude>
-    <ClInclude Include="PlatformOperation\Thread.h">
+    <ClInclude Include="PlatformOperation\Thread.hpp">
       <Filter>PlatformOperation</Filter>
     </ClInclude>
-    <ClInclude Include="PlatformOperation\Lock.h">
+    <ClInclude Include="PlatformOperation\Lock.hpp">
       <Filter>PlatformOperation</Filter>
     </ClInclude>
-    <ClInclude Include="PlatformOperation\Event.h">
+    <ClInclude Include="PlatformOperation\Event.hpp">
       <Filter>PlatformOperation</Filter>
     </ClInclude>
-    <ClInclude Include="PlatformOperation\Timer.h">
+    <ClInclude Include="PlatformOperation\Timer.hpp">
       <Filter>PlatformOperation</Filter>
     </ClInclude>
-    <ClInclude Include="PlatformOperation\File.h">
+    <ClInclude Include="PlatformOperation\File.hpp">
       <Filter>PlatformOperation</Filter>
     </ClInclude>
-    <ClInclude Include="PlatformOperation\Spin.h">
+    <ClInclude Include="PlatformOperation\Spin.hpp">
       <Filter>PlatformOperation</Filter>
     </ClInclude>
-    <ClInclude Include="PlatformOperation\Math.h">
+    <ClInclude Include="PlatformOperation\Math.hpp">
       <Filter>PlatformOperation</Filter>
     </ClInclude>
-    <ClInclude Include="PlatformOperation\SIMD.h">
+    <ClInclude Include="PlatformOperation\SIMD.hpp">
       <Filter>PlatformOperation</Filter>
     </ClInclude>
-    <ClInclude Include="PlatformOperation\New.h">
+    <ClInclude Include="PlatformOperation\New.hpp">
       <Filter>PlatformOperation</Filter>
     </ClInclude>
-    <ClInclude Include="PlatformOperation\CString.h">
+    <ClInclude Include="PlatformOperation\CString.hpp">
       <Filter>PlatformOperation</Filter>
     </ClInclude>
-    <ClInclude Include="PlatformOperation\CStringConversion.h">
+    <ClInclude Include="PlatformOperation\CStringConversion.hpp">
       <Filter>PlatformOperation</Filter>
     </ClInclude>
-    <ClInclude Include="BuildinDefinition\Boole.h">
+    <ClInclude Include="BuildinDefinition\Boole.hpp">
       <Filter>BuildinDefinition</Filter>
     </ClInclude>
   </ItemGroup>

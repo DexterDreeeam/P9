@@ -11,11 +11,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DocumentIdentifier.h" />
-    <ClInclude Include="IndexTable.h" />
-    <ClInclude Include="Interface.h" />
-    <ClInclude Include="Partition.h" />
-    <ClInclude Include="Storage.h" />
+    <ClInclude Include="DocumentIdentifier.hpp" />
+    <ClInclude Include="IndexTable.hpp" />
+    <ClInclude Include="Interface.hpp" />
+    <ClInclude Include="Partition.hpp" />
+    <ClInclude Include="Storage.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Impl\DocumentIdentifier.cpp" />

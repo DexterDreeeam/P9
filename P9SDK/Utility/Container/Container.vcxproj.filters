@@ -1,65 +1,65 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="Interface.h" />
-    <ClInclude Include="Unsafe\Array.h">
+    <ClInclude Include="Interface.hpp" />
+    <ClInclude Include="Unsafe\Array.hpp">
       <Filter>Unsafe</Filter>
     </ClInclude>
-    <ClInclude Include="Algo\Hash.h">
+    <ClInclude Include="Algo\Hash.hpp">
       <Filter>Algo</Filter>
     </ClInclude>
-    <ClInclude Include="Internal\Hashmap.h">
+    <ClInclude Include="Internal\Hashmap.hpp">
       <Filter>Internal</Filter>
     </ClInclude>
-    <ClInclude Include="Internal\RBTree.h">
+    <ClInclude Include="Internal\RBTree.hpp">
       <Filter>Internal</Filter>
     </ClInclude>
-    <ClInclude Include="Internal\SlotAllocator.h">
+    <ClInclude Include="Internal\SlotAllocator.hpp">
       <Filter>Internal</Filter>
     </ClInclude>
-    <ClInclude Include="Unsafe\Deque.h">
+    <ClInclude Include="Unsafe\Deque.hpp">
       <Filter>Unsafe</Filter>
     </ClInclude>
-    <ClInclude Include="Unsafe\List.h">
+    <ClInclude Include="Unsafe\List.hpp">
       <Filter>Unsafe</Filter>
     </ClInclude>
-    <ClInclude Include="Unsafe\Map.h">
+    <ClInclude Include="Unsafe\Map.hpp">
       <Filter>Unsafe</Filter>
     </ClInclude>
-    <ClInclude Include="Unsafe\Pair.h">
+    <ClInclude Include="Unsafe\Pair.hpp">
       <Filter>Unsafe</Filter>
     </ClInclude>
-    <ClInclude Include="Unsafe\Queue.h">
+    <ClInclude Include="Unsafe\Queue.hpp">
       <Filter>Unsafe</Filter>
     </ClInclude>
-    <ClInclude Include="Safe\SafeQueue.h">
+    <ClInclude Include="Safe\SafeQueue.hpp">
       <Filter>Safe</Filter>
     </ClInclude>
-    <ClInclude Include="Safe\Selectee.h">
+    <ClInclude Include="Safe\Selectee.hpp">
       <Filter>Safe</Filter>
     </ClInclude>
-    <ClInclude Include="Unsafe\Set.h">
+    <ClInclude Include="Unsafe\Set.hpp">
       <Filter>Unsafe</Filter>
     </ClInclude>
-    <ClInclude Include="Unsafe\Stack.h">
+    <ClInclude Include="Unsafe\Stack.hpp">
       <Filter>Unsafe</Filter>
     </ClInclude>
-    <ClInclude Include="Unsafe\String.h">
+    <ClInclude Include="Unsafe\String.hpp">
       <Filter>Unsafe</Filter>
     </ClInclude>
-    <ClInclude Include="Unsafe\Triple.h">
+    <ClInclude Include="Unsafe\Triple.hpp">
       <Filter>Unsafe</Filter>
     </ClInclude>
-    <ClInclude Include="Unsafe\Unordered_Map.h">
+    <ClInclude Include="Unsafe\Unordered_Map.hpp">
       <Filter>Unsafe</Filter>
     </ClInclude>
-    <ClInclude Include="Unsafe\Unordered_Set.h">
+    <ClInclude Include="Unsafe\Unordered_Set.hpp">
       <Filter>Unsafe</Filter>
     </ClInclude>
-    <ClInclude Include="Unsafe\Vector.h">
+    <ClInclude Include="Unsafe\Vector.hpp">
       <Filter>Unsafe</Filter>
     </ClInclude>
-    <ClInclude Include="Unsafe\ReferencePointer.h">
+    <ClInclude Include="Unsafe\ReferencePointer.hpp">
       <Filter>Unsafe</Filter>
     </ClInclude>
   </ItemGroup>
