@@ -31,6 +31,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JsonFormat", "Utility\JsonF
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Interface", "Interface\Interface.vcxproj", "{1CD24C18-980C-4FFF-B9A4-E75BDFF9320F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Environment_Linux_Gcc", "Environment\Environment_Linux_Gcc\Environment_Linux_Gcc.vcxproj", "{CBC6738B-BC2C-4CFA-A8BA-9CC295AFB914}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -77,6 +79,10 @@ Global
 		{1CD24C18-980C-4FFF-B9A4-E75BDFF9320F}.Debug|x64.Build.0 = Release|x64
 		{1CD24C18-980C-4FFF-B9A4-E75BDFF9320F}.Release|x64.ActiveCfg = Release|x64
 		{1CD24C18-980C-4FFF-B9A4-E75BDFF9320F}.Release|x64.Build.0 = Release|x64
+		{CBC6738B-BC2C-4CFA-A8BA-9CC295AFB914}.Debug|x64.ActiveCfg = Release|x64
+		{CBC6738B-BC2C-4CFA-A8BA-9CC295AFB914}.Debug|x64.Build.0 = Release|x64
+		{CBC6738B-BC2C-4CFA-A8BA-9CC295AFB914}.Release|x64.ActiveCfg = Release|x64
+		{CBC6738B-BC2C-4CFA-A8BA-9CC295AFB914}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -90,6 +96,7 @@ Global
 		{D862B76F-3389-4648-A018-E610C85B092A} = {21E2E1FC-F488-43C3-8D4D-DAB426032761}
 		{5761FDC8-6530-4CE1-8AF2-BB04CFC43C8B} = {567D2493-4142-494D-B550-6C0D34326D4F}
 		{3BDC53E8-F06F-4353-9EB8-A7279368B94D} = {567D2493-4142-494D-B550-6C0D34326D4F}
+		{CBC6738B-BC2C-4CFA-A8BA-9CC295AFB914} = {EF99CD8B-B41A-4950-8D50-1EB0740C1810}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1117CA9C-6B52-40B6-B188-F96F1496AB11}

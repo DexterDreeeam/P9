@@ -13,11 +13,14 @@
 #pragma once
 
 #include "../Environment_Windows_Msvc/Definition.hpp"
+#include "../Environment_Linux_Gcc/Definition.hpp"
 #include "DebugCalibrationDefinition.hpp"
 
+// I_AM_WINDOWS_MSVC
+// I_AM_LINUX_GCC
 #define \
     WHO_I_AM \
-        I_AM_WINDOWS
+        I_AM_LINUX_GCC
 
 #define \
     DEBUG_CALIBRATION \
