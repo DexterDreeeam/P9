@@ -614,9 +614,9 @@ public:
     void swap(string& rhs) noexcept
     {
         assert(_validation());
-        swap(cap, rhs.cap);
-        swap(len, rhs.len);
-        swap(ch, rhs.ch);
+        ::swap(cap, rhs.cap);
+        ::swap(len, rhs.len);
+        ::swap(ch, rhs.ch);
         assert(_validation());
     }
 
