@@ -462,13 +462,13 @@ public:
         return *this;
     }
 
-    Ty& operator [](s64 pos) noexcept
+    constexpr Ty& operator [](s64 pos) noexcept
     {
         assert(sz > 0 && pos >= 0 && pos < sz&& sz <= cap);
         return elem[pos];
     }
 
-    const Ty& operator [](s64 pos) const noexcept
+    constexpr const Ty& operator [](s64 pos) const noexcept
     {
         assert(sz > 0 && pos >= 0 && pos < sz&& sz <= cap);
         return elem[pos];
@@ -513,7 +513,7 @@ public:
         return elem;
     }
 
-    s64 size() const noexcept
+    constexpr s64 size() const noexcept
     {
         assert(sz >= 0 && sz <= cap);
         return sz;

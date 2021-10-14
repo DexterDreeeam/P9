@@ -39,6 +39,18 @@ protected:
         }
     }
 
+    ref_base(ref_base&& rhs) :
+        _ptr(rhs._ptr),
+        _cnt(rhs._cnt),
+        _data_size(rhs._data_size),
+        _deconstructor(rhs._deconstructor)
+    {
+        rhs._ptr = nullptr;
+        rhs._cnt = nullptr;
+        rhs._data_size = 0;
+        rhs._deconstructor = nullptr;
+    }
+
 public:
     ~ref_base()
     {
@@ -89,9 +101,7 @@ public:
         {
             return ref<Ty2>();
         }
-        ref<Ty2> r;
-        r.ref_base::operator =(*this);
-        return r;
+        return ref<Ty2>(*this);
     }
 
     void clear()
@@ -143,27 +153,59 @@ protected:
 template<typename Ty>
 class ref : public ref_base
 {
+    friend class ref_base;
     template<typename All_Ty> friend class ref;
-
     using Self_Ty = typename ref<Ty>;
 
 public:
     ref() :
         ref_base()
+    #if DEBUG_LEVEL >= DEBUG_LEVEL_CALIBRATION_ALL
+        ,_debug_ptr(pointer_convert(&_ptr, 0, Ty**))
+        ,_debug_value(*_debug_ptr)
+    #endif
     {}
 
     ref(const Self_Ty& rhs) :
         ref_base(rhs)
+    #if DEBUG_LEVEL >= DEBUG_LEVEL_CALIBRATION_ALL
+        ,_debug_ptr(pointer_convert(&_ptr, 0, Ty**))
+        ,_debug_value(*_debug_ptr)
+    #endif
+    {
+    }
+
+    ref(Self_Ty&& rhs) :
+        ref_base(right_value_type(rhs))
+    #if DEBUG_LEVEL >= DEBUG_LEVEL_CALIBRATION_ALL
+        ,_debug_ptr(pointer_convert(&_ptr, 0, Ty**))
+        ,_debug_value(*_debug_ptr)
+    #endif
     {
     }
 
     template<typename Ty2>
     ref(const ref<Ty2>& rhs) :
         ref_base(rhs)
+    #if DEBUG_LEVEL >= DEBUG_LEVEL_CALIBRATION_ALL
+        ,_debug_ptr(pointer_convert(&_ptr, 0, Ty**))
+        ,_debug_value(*_debug_ptr)
+    #endif
     {
         Ty* check_type_ptr = pointer_convert(rhs._ptr, 0, Ty2*);
     }
 
+private:
+    ref(const ref_base& rb) :
+        ref_base(rb)
+    #if DEBUG_LEVEL >= DEBUG_LEVEL_CALIBRATION_ALL
+        ,_debug_ptr(pointer_convert(&_ptr, 0, Ty**))
+        ,_debug_value(*_debug_ptr)
+    #endif
+    {
+    }
+
+public:
     ~ref() = default;
 
     Self_Ty& operator =(const Self_Ty& rhs)
@@ -211,4 +253,12 @@ public:
     {
         pointer_convert(p, 0, Ty*)->~Ty();
     }
+
+#if DEBUG_LEVEL >= DEBUG_LEVEL_CALIBRATION_ALL
+
+private:
+    const Ty* const* _debug_ptr;
+    const Ty* const& _debug_value;
+
+#endif
 };
