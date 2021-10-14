@@ -21,12 +21,12 @@ public:
 int main()
 {
     {
-        sizeof(ref<TestClassA>);
-        ref<TestClassA> r3;
+        sizeof(observer<TestClassA>);
+        observer<TestClassA> r3;
         {
-            ref_base rb;
+            observer_base rb;
             {
-                auto r = ref<TestClassA>::new_instance(3);
+                auto r = observer<TestClassA>::new_instance(3);
                 rb = r;
             }
             r3 = rb.ref_of<TestClassA>();

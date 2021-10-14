@@ -5,48 +5,42 @@ class ref_base;
 template<typename Ty>
 class ref;
 
-class ref_base
+class ref_base : RefNs::context
 {
     template<typename All_Ty> friend class ref;
 
-    typedef void ref_deconstructor(void*);
-
 public:
     ref_base() :
-        _ptr(nullptr),
-        _cnt(nullptr),
-        _data_size(0),
-        _deconstructor(nullptr)
+        context(nullptr, nullptr, 0, nullptr)
     {}
 
 protected:
-    ref_base(void* ptr, volatile s64* cnt, s64 data_size, ref_deconstructor* dc) :
-        _ptr(ptr),
-        _cnt(cnt),
-        _data_size(data_size),
-        _deconstructor(dc)
+    ref_base(void* ptr, volatile RefNs::counter* cnt, s64 data_size, RefNs::deconstructor* dc) :
+        context(ptr, cnt, data_size, dc)
     {}
 
     ref_base(const ref_base& rhs) :
-        _ptr(rhs._ptr),
-        _cnt(rhs._cnt),
-        _data_size(rhs._data_size),
-        _deconstructor(rhs._deconstructor)
+        context(
+            rhs._ptr,
+            rhs._counter,
+            rhs._data_size,
+            rhs._deconstructor)
     {
         if (valid())
         {
-            atom_increment(*_cnt);
+            atom_increment(_counter->_ref_cnt);
         }
     }
 
     ref_base(ref_base&& rhs) :
-        _ptr(rhs._ptr),
-        _cnt(rhs._cnt),
-        _data_size(rhs._data_size),
-        _deconstructor(rhs._deconstructor)
+        context(
+            rhs._ptr,
+            rhs._counter,
+            rhs._data_size,
+            rhs._deconstructor)
     {
         rhs._ptr = nullptr;
-        rhs._cnt = nullptr;
+        rhs._counter = nullptr;
         rhs._data_size = 0;
         rhs._deconstructor = nullptr;
     }
@@ -61,14 +55,33 @@ public:
     ref_base& operator =(const ref_base& rhs)
     {
         clear();
+
         _ptr = rhs._ptr;
-        _cnt = rhs._cnt;
+        _counter = rhs._counter;
         _data_size = rhs._data_size;
         _deconstructor = rhs._deconstructor;
+
         if (valid())
         {
-            atom_increment(*_cnt);
+            atom_increment(_counter->_ref_cnt);
         }
+        return *this;
+    }
+
+    ref_base& operator =(ref_base&& rhs) noexcept
+    {
+        clear();
+
+        _ptr = rhs._ptr;
+        _counter = rhs._counter;
+        _data_size = rhs._data_size;
+        _deconstructor = rhs._deconstructor;
+
+        rhs._ptr = nullptr;
+        rhs._counter = nullptr;
+        rhs._data_size = 0;
+        rhs._deconstructor = nullptr;
+
         return *this;
     }
 
@@ -86,12 +99,12 @@ public:
 
     boole valid() const
     {
-        return _ptr && _cnt;
+        return _ptr;
     }
 
     boole invalid() const
     {
-        return !_ptr || !_cnt;
+        return !_ptr;
     }
 
     template<typename Ty2>
@@ -106,13 +119,18 @@ public:
 
     void clear()
     {
-        if (valid() && atom_decrement(*_cnt) == 0)
+        if (valid() && atom_decrement(_counter->_ref_cnt) == 0)
         {
             _deconstructor(_ptr);
             memory_free(_ptr);
-            delete _cnt;
             _ptr = nullptr;
-            _cnt = nullptr;
+
+            if (atom_decrement(_counter->_observer_cnt) == 0)
+            {
+                delete _counter;
+            }
+            _counter = nullptr;
+
             _data_size = 0;
             _deconstructor = nullptr;
         }
@@ -126,28 +144,22 @@ protected:
     }
 
     template<typename Ty, typename ...Args>
-    static ref_base new_instance(ref_deconstructor* dc, Args... args)
+    static ref_base new_instance(RefNs::deconstructor* dc, Args... args)
     {
         s64 data_size = sizeof(Ty);
         void* mem_data = memory_alloc(data_size);
         new (mem_data) Ty(args...);
-        volatile s64* mem_cnt = new volatile s64(1);
+        volatile RefNs::counter* mem_cnt = new volatile RefNs::counter(1, 1);
         return ref_base(mem_data, mem_cnt, data_size, dc);
     }
 
     template<typename Ty>
-    static ref_base new_instance(Ty* raw_ptr, ref_deconstructor* dc)
+    static ref_base new_instance(Ty* raw_ptr, RefNs::deconstructor* dc)
     {
         s64 data_size = sizeof(Ty);
-        volatile s64* mem_cnt = new volatile s64(1);
+        volatile RefNs::counter* mem_cnt = new volatile RefNs::counter(1, 1);
         return ref_base(raw_ptr, mem_cnt, data_size, dc);
     }
-
-protected:
-    void*              _ptr;
-    volatile s64*      _cnt;
-    s64                _data_size;
-    ref_deconstructor* _deconstructor;
 };
 
 template<typename Ty>
@@ -192,7 +204,9 @@ public:
         ,_debug_value(*_debug_ptr)
     #endif
     {
+    #if DEBUG_LEVEL >= DEBUG_LEVEL_CALIBRATION_ALL
         Ty* check_type_ptr = pointer_convert(rhs._ptr, 0, Ty2*);
+    #endif
     }
 
 private:
@@ -217,8 +231,11 @@ public:
     template<typename Ty2>
     Self_Ty& operator =(const ref<Ty2>& rhs)
     {
-        this->ref_base::operator =(rhs);
+    #if DEBUG_LEVEL >= DEBUG_LEVEL_CALIBRATION_ALL
         Ty* check_type_ptr = pointer_convert(rhs._ptr, 0, Ty2*);
+    #endif
+        this->ref_base::operator =(rhs);
+        return *this;
     }
 
     Ty* operator ->()
@@ -235,17 +252,17 @@ public:
     template<typename ...Args>
     static Self_Ty new_instance(Args ...args)
     {
-        auto base = ref_base::new_instance<Ty, Args...>(&Self_Ty::deconstruct, args...);
         Self_Ty rst;
-        rst.ref_base::operator =(base);
+        rst.ref_base::operator =(
+            ref_base::new_instance<Ty, Args...>(&Self_Ty::deconstruct, args...));
         return rst;
     }
 
     static Self_Ty new_instance(Ty* raw_ptr)
     {
-        auto base = ref_base::new_instance<Ty>(raw_ptr, &Self_Ty::deconstruct);
         Self_Ty rst;
-        rst.ref_base::operator =(base);
+        rst.ref_base::operator =(
+            ref_base::new_instance<Ty>(raw_ptr, &Self_Ty::deconstruct));
         return rst;
     }
 

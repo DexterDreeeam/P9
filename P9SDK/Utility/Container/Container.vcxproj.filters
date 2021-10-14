@@ -59,8 +59,14 @@
     <ClInclude Include="Unsafe\Vector.hpp">
       <Filter>Unsafe</Filter>
     </ClInclude>
-    <ClInclude Include="Unsafe\ReferencePointer.hpp">
-      <Filter>Unsafe</Filter>
+    <ClInclude Include="Reference\Reference.hpp">
+      <Filter>Reference</Filter>
+    </ClInclude>
+    <ClInclude Include="Reference\Context.hpp">
+      <Filter>Reference</Filter>
+    </ClInclude>
+    <ClInclude Include="Reference\Observer.hpp">
+      <Filter>Reference</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -75,6 +81,9 @@
     </Filter>
     <Filter Include="Internal">
       <UniqueIdentifier>{d2892fa0-c8ee-461c-8af0-9dab1c5d61b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Reference">
+      <UniqueIdentifier>{bd1c4397-4564-4645-81ec-3120b661f4e5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
