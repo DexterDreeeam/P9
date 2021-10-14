@@ -36,25 +36,25 @@ _INLINE_ boole lock_try_get(lock lk)
 {
     assert(lk);
     return
-        LinuxGccNs::WaitForSingleObject((LinuxGccNs::HANDLE)lk, 0) == WAIT_OBJECT_0;
+        LinuxGccNs::pthread_mutex_trylock((LinuxGccNs::pthread_mutex_t*)lk) == 0;
 }
 
 _INLINE_ void lock_wait_get(lock lk)
 {
     assert(lk);
-    LinuxGccNs::WaitForSingleObject((LinuxGccNs::HANDLE)lk, INFINITE);
+    LinuxGccNs::pthread_mutex_lock((LinuxGccNs::pthread_mutex_t*)lk);
 }
 
 _INLINE_ void lock_put(lock lk)
 {
     assert(lk);
-    LinuxGccNs::ReleaseMutex((LinuxGccNs::HANDLE)lk);
+    LinuxGccNs::pthread_mutex_unlock((LinuxGccNs::pthread_mutex_t*)lk);
 }
 
 _INLINE_ void lock_destroy(lock lk)
 {
     assert(lk);
-    LinuxGccNs::CloseHandle((LinuxGccNs::HANDLE)lk);
+    LinuxGccNs::pthread_mutex_destroy((LinuxGccNs::pthread_mutex_t*)lk);
 }
 
 _INLINE_ rw_lock rw_lock_create(void)
