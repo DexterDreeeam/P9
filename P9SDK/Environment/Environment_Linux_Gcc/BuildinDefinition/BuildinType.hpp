@@ -12,7 +12,7 @@ typedef                          float  f32;
 typedef                         double  f64;
 typedef                            u64  uint;
 typedef                            s64  sint;
-typedef                            u64  hndl;
+typedef                          void*  hndl;
 
 typedef struct
 {

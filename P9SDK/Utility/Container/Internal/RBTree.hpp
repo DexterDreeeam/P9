@@ -240,8 +240,8 @@ namespace RBTreeNs
     class rbtree_iter<rbtree<Key_Ty, Val_Ty, Cmp_Ty>> : public rbtree_base_iter
     {
         friend class rbtree<Key_Ty, Val_Ty, Cmp_Ty>;
-        template<typename Key_Ty> friend class set;
-        template<typename Key_Ty, typename Val_Ty> friend class map;
+        template<typename All_Key_Ty> friend class set;
+        template<typename All_Key_Ty, typename All_Val_Ty> friend class map;
 
         using Container_Ty = rbtree<Key_Ty, Val_Ty, Cmp_Ty>;
         using Self_Ty = rbtree_iter<Container_Ty>;
@@ -324,8 +324,8 @@ namespace RBTreeNs
     class rbtree_ritr<rbtree<Key_Ty, Val_Ty, Cmp_Ty>> : public rbtree_base_iter
     {
         friend class rbtree<Key_Ty, Val_Ty, Cmp_Ty>;
-        template<typename Key_Ty> friend class set;
-        template<typename Key_Ty, typename Val_Ty> friend class map;
+        template<typename All_Key_Ty> friend class set;
+        template<typename All_Key_Ty, typename All_Val_Ty> friend class map;
 
         using Container_Ty = rbtree<Key_Ty, Val_Ty, Cmp_Ty>;
         using Self_Ty = rbtree_ritr<Container_Ty>;
@@ -408,8 +408,8 @@ namespace RBTreeNs
     class rbtree_const_iter<rbtree<Key_Ty, Val_Ty, Cmp_Ty>> : public rbtree_base_iter
     {
         friend class rbtree<Key_Ty, Val_Ty, Cmp_Ty>;
-        template<typename Key_Ty> friend class set;
-        template<typename Key_Ty, typename Val_Ty> friend class map;
+        template<typename All_Key_Ty> friend class set;
+        template<typename All_Key_Ty, typename All_Val_Ty> friend class map;
 
         using Container_Ty = rbtree<Key_Ty, Val_Ty, Cmp_Ty>;
         using Self_Ty = rbtree_const_iter<Container_Ty>;
@@ -492,8 +492,8 @@ namespace RBTreeNs
     class rbtree_const_ritr<rbtree<Key_Ty, Val_Ty, Cmp_Ty>> : public rbtree_base_iter
     {
         friend class rbtree<Key_Ty, Val_Ty, Cmp_Ty>;
-        template<typename Key_Ty> friend class set;
-        template<typename Key_Ty, typename Val_Ty> friend class map;
+        template<typename All_Key_Ty> friend class set;
+        template<typename All_Key_Ty, typename All_Val_Ty> friend class map;
 
         using Container_Ty = rbtree<Key_Ty, Val_Ty, Cmp_Ty>;
         using Self_Ty = rbtree_const_ritr<Container_Ty>;

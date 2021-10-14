@@ -316,8 +316,8 @@ namespace HashmapNs
     class hashmap_ritr<hashmap<Key_Ty, Val_Ty>> : protected hashmap_base_iter<hashmap<Key_Ty, Val_Ty>>
     {
         friend class hashmap<Key_Ty, Val_Ty>;
-        template<typename Key_Ty> friend class unordered_set;
-        template<typename Key_Ty, typename Val_Ty> friend class unordered_map;
+        template<typename All_Key_Ty> friend class unordered_set;
+        template<typename All_Key_Ty, typename All_Val_Ty> friend class unordered_map;
 
         using Container_Ty = hashmap<Key_Ty, Val_Ty>;
         using Self_Ty = hashmap_ritr<Container_Ty>;
@@ -400,8 +400,8 @@ namespace HashmapNs
     class hashmap_const_iter<hashmap<Key_Ty, Val_Ty>> : protected hashmap_base_iter<hashmap<Key_Ty, Val_Ty>>
     {
         friend class hashmap<Key_Ty, Val_Ty>;
-        template<typename Key_Ty> friend class unordered_set;
-        template<typename Key_Ty, typename Val_Ty> friend class unordered_map;
+        template<typename All_Key_Ty> friend class unordered_set;
+        template<typename All_Key_Ty, typename All_Val_Ty> friend class unordered_map;
 
         using Container_Ty = hashmap<Key_Ty, Val_Ty>;
         using Self_Ty = hashmap_const_iter<Container_Ty>;
@@ -484,8 +484,8 @@ namespace HashmapNs
     class hashmap_const_ritr<hashmap<Key_Ty, Val_Ty>> : protected hashmap_base_iter<hashmap<Key_Ty, Val_Ty>>
     {
         friend class hashmap<Key_Ty, Val_Ty>;
-        template<typename Key_Ty> friend class unordered_set;
-        template<typename Key_Ty, typename Val_Ty> friend class unordered_map;
+        template<typename All_Key_Ty> friend class unordered_set;
+        template<typename All_Key_Ty, typename All_Val_Ty> friend class unordered_map;
 
         using Container_Ty = hashmap<Key_Ty, Val_Ty>;
         using Self_Ty = hashmap_const_ritr<Container_Ty>;

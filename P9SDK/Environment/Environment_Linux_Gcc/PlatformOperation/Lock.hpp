@@ -25,7 +25,9 @@ _INLINE_ void    rw_lock_destroy(rw_lock& lk);
 
 _INLINE_ lock lock_create(void)
 {
-    return (lock)LinuxGccNs::CreateMutex(NULL, FALSE, NULL);
+    auto* lk = new LinuxGccNs::pthread_mutex_t();
+    pthread_mutex_init(lk, nullptr);
+    return (lock)lk;
 }
 
 typedef unsigned long DWORD;

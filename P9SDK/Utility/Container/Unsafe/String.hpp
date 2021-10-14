@@ -24,6 +24,10 @@ namespace StringNs
             ptr(rhs.ptr)
         {}
 
+        string_iter(char* p) :
+            ptr(p)
+        {}
+
         ~string_iter() noexcept = default;
 
         Self_Ty& operator =(const Self_Ty& rhs) noexcept
@@ -80,11 +84,6 @@ namespace StringNs
         }
 
     private:
-        string_iter(char* p) :
-            ptr(p)
-        {}
-
-    private:
         char* ptr;
     };
 
@@ -100,6 +99,10 @@ namespace StringNs
 
         string_ritr(const Self_Ty& rhs) :
             ptr(rhs.ptr)
+        {}
+
+        string_ritr(char* p) :
+            ptr(p)
         {}
 
         ~string_ritr() noexcept = default;
@@ -158,11 +161,6 @@ namespace StringNs
         }
 
     private:
-        string_ritr(char* p) :
-            ptr(p)
-        {}
-
-    private:
         char* ptr;
     };
 
@@ -178,6 +176,10 @@ namespace StringNs
 
         string_const_iter(const Self_Ty& rhs) :
             ptr(rhs.ptr)
+        {}
+
+        string_const_iter(char* p) :
+            ptr(p)
         {}
 
         ~string_const_iter() noexcept = default;
@@ -236,11 +238,6 @@ namespace StringNs
         }
 
     private:
-        string_const_iter(char* p) :
-            ptr(p)
-        {}
-
-    private:
         char* ptr;
     };
 
@@ -256,6 +253,10 @@ namespace StringNs
 
         string_const_ritr(const Self_Ty& rhs) :
             ptr(rhs.ptr)
+        {}
+
+        string_const_ritr(char* p) :
+            ptr(p)
         {}
 
         ~string_const_ritr() noexcept = default;
@@ -312,11 +313,6 @@ namespace StringNs
             s64 diff = reinterpret_cast<s64>(ptr) - reinterpret_cast<s64>(rhs.ptr);
             return diff;
         }
-
-    private:
-        string_const_ritr(char* p) :
-            ptr(p)
-        {}
 
     private:
         char* ptr;
@@ -618,9 +614,9 @@ public:
     void swap(string& rhs) noexcept
     {
         assert(_validation());
-        ::swap(cap, rhs.cap);
-        ::swap(len, rhs.len);
-        ::swap(ch, rhs.ch);
+        swap(cap, rhs.cap);
+        swap(len, rhs.len);
+        swap(ch, rhs.ch);
         assert(_validation());
     }
 
@@ -933,7 +929,7 @@ _INLINE_ bool operator >=(const char* cstr, const string& s) noexcept
 }
 
 template<typename Int_Ty>
-_INLINE_ string to_string(Int_Ty integer);
+_INLINE_ string to_string(Int_Ty integer) noexcept;
 
 template<>
 _INLINE_ string to_string<u64>(u64 integer) noexcept

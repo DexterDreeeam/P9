@@ -33,7 +33,7 @@
 #include "PlatformOperation/Memory.hpp"
 #include "PlatformOperation/New.hpp"
 #include "PlatformOperation/Print.hpp"
-#include "PlatformOperation/SIMD.hpp"
+// #include "PlatformOperation/SIMD.hpp"
 #include "PlatformOperation/Spin.hpp"
 #include "PlatformOperation/Thread.hpp"
 #include "PlatformOperation/Timer.hpp"
