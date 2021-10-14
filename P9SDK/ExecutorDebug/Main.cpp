@@ -20,17 +20,33 @@ public:
 
 int main()
 {
+    boole test;
+    observer<TestClassA> ob1;
+    observer<TestClassA> ob3;
     {
-        sizeof(observer<TestClassA>);
-        observer<TestClassA> r3;
+        sizeof(ref<TestClassA>);
+        ref<TestClassA> r3;
         {
-            observer_base rb;
+            ref_base rb;
             {
-                auto r = observer<TestClassA>::new_instance(3);
+                auto r = ref<TestClassA>::new_instance(3);
                 rb = r;
             }
             r3 = rb.ref_of<TestClassA>();
+            ob1 = r3;
         }
+        auto ob2 = r3.observer();
+        ob3 = ob2;
+        ref<TestClassA> rr1(ob1);
+        if (rr1)
+        {
+            print("111");
+        }
+    }
+    ref<TestClassA> rr2(ob1);
+    if (rr2)
+    {
+        print("222");
     }
 
     array<int, 3> ai = { 1, 2, 3 };

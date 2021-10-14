@@ -3,11 +3,11 @@
 namespace SelecteeNs
 {
 
-    constexpr s64 safe_selectee_layer(u64 cap)
+    _INLINE_ constexpr s64 safe_selectee_layer(u64 cap)
     {
         s64 current_cap = 1LL;
         s64 lay = 1LL;
-        while (current_cap < cap)
+        while (current_cap < (s64)cap)
         {
             ++lay;
             current_cap = current_cap << 1;
@@ -15,29 +15,29 @@ namespace SelecteeNs
         return lay;
     }
 
-    constexpr s64 safe_selectee_length(u64 cap)
+    _INLINE_ constexpr s64 safe_selectee_length(u64 cap)
     {
         s64 lay = safe_selectee_layer(cap);
         return (1LL << lay) - 1;
     }
 
-    constexpr s64 safe_selectee_last_layer_head(u64 cap)
+    _INLINE_ constexpr s64 safe_selectee_last_layer_head(u64 cap)
     {
         s64 lay = safe_selectee_layer(cap);
         return (1LL << (lay - 1)) - 1;
     }
 
-    s64 safe_selectee_myleft(s64 idx)
+    _INLINE_ s64 safe_selectee_myleft(s64 idx)
     {
         return (idx << 1) + 1;
     }
 
-    s64 safe_selectee_myright(s64 idx)
+    _INLINE_ s64 safe_selectee_myright(s64 idx)
     {
         return (idx << 1) + 2;
     }
 
-    s64 safe_selectee_myparent(s64 idx)
+    _INLINE_ s64 safe_selectee_myparent(s64 idx)
     {
         return idx > 0 ? ((idx - 1) >> 1) : -1;
     }

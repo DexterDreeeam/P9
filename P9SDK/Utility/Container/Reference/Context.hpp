@@ -9,19 +9,19 @@ public:
     counter() :
         _ref_cnt(0),
         _observer_cnt(0),
-        _observer_lk(lock_create())
+        _observer_check_busy(0)
     {}
 
     counter(s64 ref, s64 observer) :
         _ref_cnt(ref),
         _observer_cnt(observer),
-        _observer_lk(lock_create())
+        _observer_check_busy(0)
     {}
 
 public:
     volatile s64 _ref_cnt;
     volatile s64 _observer_cnt;
-    lock         _observer_lk;
+    volatile s64 _observer_check_busy;
 };
 
 typedef void deconstructor(void*);

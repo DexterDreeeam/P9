@@ -1,13 +1,18 @@
 #pragma once
 
-class observer_base;
+class ref_base;
 
 template<typename Ty>
-class observer;
+class ref;
 
-class observer_base : RefNs::context
+namespace RefNs
+{
+
+class observer_base : public RefNs::context
 {
     template<typename All_Ty> friend class observer;
+    template<typename All_Ty> friend class ref;
+    friend class ref_base;
 
 public:
     observer_base() :
@@ -28,11 +33,11 @@ protected:
     {
         if (valid())
         {
-            atom_increment(_counter->_ref_cnt);
+            atom_increment(_counter->_observer_cnt);
         }
     }
 
-    observer_base(observer_base&& rhs) :
+    observer_base(observer_base&& rhs) noexcept :
         context(
             rhs._ptr,
             rhs._counter,
@@ -63,7 +68,7 @@ public:
 
         if (valid())
         {
-            atom_increment(_counter->_ref_cnt);
+            atom_increment(_counter->_observer_cnt);
         }
         return *this;
     }
@@ -86,103 +91,55 @@ public:
     }
 
 public:
-    operator boole() const
-    {
-        boole b = valid();
-        return b;
-    }
-
-    operator bool() const
-    {
-        return valid();
-    }
-
     boole valid() const
     {
-        return _ptr;
+        return _counter;
     }
 
     boole invalid() const
     {
-        return !_ptr;
-    }
-
-    template<typename Ty2>
-    observer<Ty2> ref_of()
-    {
-        if (invalid())
-        {
-            return observer<Ty2>();
-        }
-        return observer<Ty2>(*this);
+        return !_counter;
     }
 
     void clear()
     {
-        if (valid() && atom_decrement(_counter->_ref_cnt) == 0)
+        if (valid() && atom_decrement(_counter->_observer_cnt) == 0)
         {
-            _deconstructor(_ptr);
-            memory_free(_ptr);
+            delete _counter;
             _ptr = nullptr;
-
-            if (atom_decrement(_counter->_observer_cnt) == 0)
-            {
-                delete _counter;
-            }
             _counter = nullptr;
-
             _data_size = 0;
             _deconstructor = nullptr;
         }
     }
-
-protected:
-    template<typename Ty>
-    Ty* pointer_of()
-    {
-        return reinterpret_cast<Ty*>(_ptr);
-    }
-
-    template<typename Ty, typename ...Args>
-    static observer_base new_instance(RefNs::deconstructor* dc, Args... args)
-    {
-        s64 data_size = sizeof(Ty);
-        void* mem_data = memory_alloc(data_size);
-        new (mem_data) Ty(args...);
-        volatile RefNs::counter* mem_cnt = new volatile RefNs::counter(1, 1);
-        return observer_base(mem_data, mem_cnt, data_size, dc);
-    }
-
-    template<typename Ty>
-    static observer_base new_instance(Ty* raw_ptr, RefNs::deconstructor* dc)
-    {
-        s64 data_size = sizeof(Ty);
-        volatile RefNs::counter* mem_cnt = new volatile RefNs::counter(1, 1);
-        return observer_base(raw_ptr, mem_cnt, data_size, dc);
-    }
 };
 
+}
+
 template<typename Ty>
-class observer : public observer_base
+class observer : public RefNs::observer_base
 {
-    friend class observer_base;
+    // friend class observer_base;
     template<typename All_Ty> friend class ref;
+
     using Self_Ty = typename observer<Ty>;
+    using Value_Ty = typename Ty;
+    using Value_Ptr_Ty = typename Ty*;
 
 public:
     observer() :
         observer_base()
     #if DEBUG_LEVEL >= DEBUG_LEVEL_CALIBRATION_ALL
-        ,_debug_ptr(pointer_convert(&_ptr, 0, Ty**))
-        ,_debug_value(*_debug_ptr)
+        ,_debug_pptr(pointer_convert(&_ptr, 0, Ty**))
+        ,_debug_ptr(*_debug_pptr)
     #endif
     {}
 
     observer(const Self_Ty& rhs) :
         observer_base(rhs)
     #if DEBUG_LEVEL >= DEBUG_LEVEL_CALIBRATION_ALL
-        ,_debug_ptr(pointer_convert(&_ptr, 0, Ty**))
-        ,_debug_value(*_debug_ptr)
+        ,_debug_pptr(pointer_convert(&_ptr, 0, Ty**))
+        ,_debug_ptr(*_debug_pptr)
     #endif
     {
     }
@@ -190,31 +147,18 @@ public:
     observer(Self_Ty&& rhs) :
         observer_base(right_value_type(rhs))
     #if DEBUG_LEVEL >= DEBUG_LEVEL_CALIBRATION_ALL
-        ,_debug_ptr(pointer_convert(&_ptr, 0, Ty**))
-        ,_debug_value(*_debug_ptr)
+        ,_debug_pptr(pointer_convert(&_ptr, 0, Ty**))
+        ,_debug_ptr(*_debug_pptr)
     #endif
     {
-    }
-
-    template<typename Ty2>
-    observer(const observer<Ty2>& rhs) :
-        observer_base(rhs)
-    #if DEBUG_LEVEL >= DEBUG_LEVEL_CALIBRATION_ALL
-        ,_debug_ptr(pointer_convert(&_ptr, 0, Ty**))
-        ,_debug_value(*_debug_ptr)
-    #endif
-    {
-    #if DEBUG_LEVEL >= DEBUG_LEVEL_CALIBRATION_ALL
-        Ty* check_type_ptr = pointer_convert(rhs._ptr, 0, Ty2*);
-    #endif
     }
 
 private:
     observer(const observer_base& rb) :
         observer_base(rb)
     #if DEBUG_LEVEL >= DEBUG_LEVEL_CALIBRATION_ALL
-        ,_debug_ptr(pointer_convert(&_ptr, 0, Ty**))
-        ,_debug_value(*_debug_ptr)
+        ,_debug_pptr(pointer_convert(&_ptr, 0, Ty**))
+        ,_debug_ptr(*_debug_pptr)
     #endif
     {
     }
@@ -248,34 +192,11 @@ public:
         return *pointer_of<Ty>();
     }
 
-public:
-    template<typename ...Args>
-    static Self_Ty new_instance(Args ...args)
-    {
-        Self_Ty rst;
-        rst.observer_base::operator =(
-            observer_base::new_instance<Ty, Args...>(&Self_Ty::deconstruct, args...));
-        return rst;
-    }
-
-    static Self_Ty new_instance(Ty* raw_ptr)
-    {
-        Self_Ty rst;
-        rst.observer_base::operator =(
-            observer_base::new_instance<Ty>(raw_ptr, &Self_Ty::deconstruct));
-        return rst;
-    }
-
-    static void deconstruct(void* p)
-    {
-        pointer_convert(p, 0, Ty*)->~Ty();
-    }
-
 #if DEBUG_LEVEL >= DEBUG_LEVEL_CALIBRATION_ALL
 
 private:
-    const Ty* const* _debug_ptr;
-    const Ty* const& _debug_value;
+    const Ty* const* _debug_pptr;
+    const Ty* const& _debug_ptr;
 
 #endif
 };
