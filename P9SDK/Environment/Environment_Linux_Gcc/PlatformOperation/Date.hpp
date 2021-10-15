@@ -12,36 +12,36 @@ _INLINE_ void  tick_elapse_print();
 
 _INLINE_ date date_query()
 {
-    LinuxGccNs::SYSTEMTIME sys;
-    LinuxGccNs::GetLocalTime(&sys);
+    LinuxGccNs::time_t timer = LinuxGccNs::time(0);
+    LinuxGccNs::tm* local_time = LinuxGccNs::localtime(&timer);
     date rst =
     {
-        sys.wYear,
-        sys.wMonth,
-        sys.wDay,
-        sys.wDayOfWeek,
-        sys.wHour,
-        sys.wMinute,
-        sys.wSecond,
-        sys.wMilliseconds,
+        local_time->tm_year,
+        local_time->tm_mon,
+	local_time->tm_mday,
+	local_time->tm_wday,
+	local_time->tm_hour,
+	local_time->tm_min,
+	local_time->tm_sec,
+	0,
     };
     return rst;
 }
 
 _INLINE_ date date_query_utc()
 {
-    LinuxGccNs::SYSTEMTIME sys;
-    LinuxGccNs::GetSystemTime(&sys);
+    LinuxGccNs::time_t timer = LinuxGccNs::time(0);
+    LinuxGccNs::tm* local_time = LinuxGccNs::localtime(&timer);
     date rst =
     {
-        sys.wYear,
-        sys.wMonth,
-        sys.wDay,
-        sys.wDayOfWeek,
-        sys.wHour,
-        sys.wMinute,
-        sys.wSecond,
-        sys.wMilliseconds,
+        local_time->tm_year,
+        local_time->tm_mon,
+	local_time->tm_mday,
+	local_time->tm_wday,
+	local_time->tm_hour,
+	local_time->tm_min,
+	local_time->tm_sec,
+	0,
     };
     return rst;
 }

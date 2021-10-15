@@ -12,8 +12,8 @@
 
 #pragma once
 
-// todo
-// #pragma warning (disable : 4005)
+#pragma GCC diagnostic ignored "-Woverflow"
+#pragma GCC diagnostic ignored "-Wattributes"
 
 #include "Definition.hpp"
 #include "PlatformHeader.hpp"
