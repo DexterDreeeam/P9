@@ -19,9 +19,9 @@ public:
     {}
 
 public:
-    volatile s64 _ref_cnt;
-    volatile s64 _observer_cnt;
-    volatile s64 _observer_check_busy;
+    atom<s64> _ref_cnt;
+    atom<s64> _observer_cnt;
+    atom<s64> _observer_check_busy;
 };
 
 typedef void deconstructor(void*);
@@ -33,7 +33,7 @@ public:
 
     context(const context& rhs) = delete;
 
-    context(void* ptr, volatile counter* cnt, s64 data_size, deconstructor* dc) :
+    context(void* ptr, counter* cnt, s64 data_size, deconstructor* dc) :
         _ptr(ptr),
         _counter(cnt),
         _data_size(data_size),
@@ -44,7 +44,7 @@ public:
 
 public:
     void*              _ptr;
-    volatile counter*  _counter;
+    counter*           _counter;
     s64                _data_size;
     deconstructor*     _deconstructor;
 };

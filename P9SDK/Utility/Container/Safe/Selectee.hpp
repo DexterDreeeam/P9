@@ -62,8 +62,8 @@ namespace SelecteeNs
         }
 
     public:
-        volatile s64 signal;
-        Ty* ptr;
+        atom<s64> signal;
+        Ty*       ptr;
     };
 
 }
@@ -108,9 +108,9 @@ public:
 
     s64 get()
     {
-        if (atom_decrement(data[0].signal) < 0)
+        if (--data[0].signal < 0)
         {
-            atom_increment(data[0].signal);
+            ++data[0].signal;
             return -1;
         }
         s64 idx = 0;
@@ -119,23 +119,23 @@ public:
             s64 left = SelecteeNs::safe_selectee_myleft(idx);
             s64 right = SelecteeNs::safe_selectee_myright(idx);
             assert(left < _length() && right < _length());
-            if (atom_decrement(data[left].signal) >= 0)
+            if (--data[left].signal >= 0)
             {
                 idx = left;
                 continue;
             }
             else
             {
-                atom_increment(data[left].signal);
+                ++data[left].signal;
             }
-            if (atom_decrement(data[right].signal) >= 0)
+            if (--data[right].signal >= 0)
             {
                 idx = right;
                 continue;
             }
             else
             {
-                atom_increment(data[right].signal);
+                ++data[right].signal;
             }
             assert(0);
         }
@@ -146,17 +146,17 @@ public:
     {
         assert(ext_idx >= 0 && ext_idx < Cap);
         s64 idx = _ext_to_int(ext_idx);
-        if (atom_increment(data[idx].signal) > 1)
+        if (++data[idx].signal > 1)
         {
             //# error instance, put one idx twice, return immediately
-            atom_decrement(data[idx].signal);
+            --data[idx].signal;
             assert(0);
             return;
         }
         idx = SelecteeNs::safe_selectee_myparent(idx);
         while (idx >= 0)
         {
-            atom_increment(data[idx].signal);
+            ++data[idx].signal;
             idx = SelecteeNs::safe_selectee_myparent(idx);
         }
     }

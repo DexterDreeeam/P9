@@ -20,7 +20,7 @@ public:
     {}
 
 protected:
-    observer_base(void* ptr, volatile RefNs::counter* cnt, s64 data_size, RefNs::deconstructor* dc) :
+    observer_base(void* ptr, RefNs::counter* cnt, s64 data_size, RefNs::deconstructor* dc) :
         context(ptr, cnt, data_size, dc)
     {}
 
@@ -33,7 +33,7 @@ protected:
     {
         if (valid())
         {
-            atom_increment(_counter->_observer_cnt);
+            ++_counter->_observer_cnt;
         }
     }
 
@@ -68,7 +68,7 @@ public:
 
         if (valid())
         {
-            atom_increment(_counter->_observer_cnt);
+            ++_counter->_observer_cnt;
         }
         return *this;
     }
@@ -103,7 +103,7 @@ public:
 
     void clear()
     {
-        if (valid() && atom_decrement(_counter->_observer_cnt) == 0)
+        if (valid() && --_counter->_observer_cnt == 0)
         {
             delete _counter;
             _ptr = nullptr;

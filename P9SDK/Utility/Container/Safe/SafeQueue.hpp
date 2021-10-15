@@ -23,7 +23,7 @@ class safe_queue
             t(0)
         {}
 
-        volatile s32 t;
+        atom<s64> t;
     };
 
 public:
@@ -45,7 +45,7 @@ public:
         {
             return false;
         }
-        u64 holder = atom_increment(*pointer_convert(&tail, 0, s64*)) - 1;
+        u64 holder = tail++;
         new (_at(holder & _mask())) Ty(in);
         tks[holder & _mask()].t = 1;
         return true;
@@ -53,10 +53,10 @@ public:
 
     bool dequeue(Ty* out)
     {
-        u64 holder = head;
-        if (atom_compare_exchange(tks[holder & _mask()].t, 1, 0) == 1)
+        u64 holder = head.get();
+        if (tks[holder & _mask()].t.compare_exchange(1, 0) == 1)
         {
-            while ((holder & _mask()) != (head & _mask()))
+            while ((holder & _mask()) != (head.get() & _mask()))
             {
                 yield();
             }
@@ -73,17 +73,17 @@ public:
 
     void clear()
     {
-        while (head != tail)
+        while (head.get() != tail.get())
         {
-            _at(head & _mask())->~Ty();
-            ++head;
+            _at(head.get() & _mask())->~Ty();
+            head.weak_add(1);
         }
     }
 
 private:
     bool _overload()
     {
-        return (u64)tail - (u64)head >= (s64)_size() - (s64)ExtremeThreadCnt;
+        return (u64)tail.get() - (u64)head.get() >= (s64)_size() - (s64)ExtremeThreadCnt;
     }
 
     Ty* _at(s64 idx)
@@ -102,8 +102,8 @@ private:
     }
 
 private:
-    char data[sizeof(Ty) * ceil_pow2(Cap)];
-    token tks[ceil_pow2(Cap)];
-    u64 head;
-    u64 tail;
+    char      data[sizeof(Ty) * ceil_pow2(Cap)];
+    token     tks[ceil_pow2(Cap)];
+    atom<u64> head;
+    atom<u64> tail;
 };

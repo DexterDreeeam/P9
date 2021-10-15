@@ -1,97 +1,253 @@
 #pragma once
 
 template<typename Ty>
+class atom;
 
-template<typename Ty>
-class atom
+template<>
+class atom<s64>
 {
 public:
     atom() :
-        value()
+        _value()
     {}
 
-    atom(Ty v) :
-        value(v)
+    atom(const atom<s64>& rhs) :
+        _value(rhs._value)
+    {}
+
+    atom(s64 v) :
+        _value(v)
     {}
 
     ~atom() = default;
 
 public:
-    operator Ty()
+    s64 get()
     {
-        return value;
+        return _value;
+    }
+
+    void set(s64 v)
+    {
+        _value = v;
+    }
+
+    operator bool()
+    {
+        return _value != 0;
+    }
+
+    atom<s64>& operator =(const atom<s64>& rhs)
+    {
+        _value = rhs._value;
+        return *this;
+    }
+
+    atom<s64>& operator =(s64 v)
+    {
+        _value = v;
+        return *this;
+    }
+
+    s64 operator ++()
+    {
+        s64 ret = WindowsMsvcNs::InterlockedIncrement(reinterpret_cast<volatile u64*>(&_value));
+        return ret;
+    }
+
+    s64 operator ++(int)
+    {
+        s64 ret = WindowsMsvcNs::InterlockedIncrement(reinterpret_cast<volatile u64*>(&_value));
+        return ret - 1;
+    }
+
+    s64 operator --()
+    {
+        s64 ret = WindowsMsvcNs::InterlockedDecrement(reinterpret_cast<volatile u64*>(&_value));
+        return ret;
+    }
+
+    s64 operator --(int)
+    {
+        s64 ret = WindowsMsvcNs::InterlockedDecrement(reinterpret_cast<volatile u64*>(&_value));
+        return ret + 1;
+    }
+
+    s64 weak_add(s64 v)
+    {
+        return _value += v;
+    }
+
+    s64 exchange(s64 replace)
+    {
+        s64 ret = WindowsMsvcNs::InterlockedExchange(reinterpret_cast<volatile u64*>(&_value), (u64)replace);
+        return ret;
+    }
+
+    s64 compare_exchange(s64 expected, s64 replace)
+    {
+        s64 ret = WindowsMsvcNs::InterlockedCompareExchange(reinterpret_cast<volatile u64*>(&_value), (u64)replace, (u64)expected);
+        return ret;
     }
 
 public:
-    Ty value;
+    volatile s64 _value;
 };
 
-_INLINE_ s32   atom_increment(s32 volatile& x);
-_INLINE_ s64   atom_increment(s64 volatile& x);
-_INLINE_ s32   atom_decrement(s32 volatile& x);
-_INLINE_ s64   atom_decrement(s64 volatile& x);
-_INLINE_ s32   atom_exchange(s32 volatile& x, s32 replace);
-_INLINE_ s64   atom_exchange(s64 volatile& x, s64 replace);
-_INLINE_ void* atom_exchange(void* volatile& x, void* replace);
-_INLINE_ s32   atom_compare_exchange(s32 volatile& x, s32 compare, s32 replace);
-_INLINE_ s64   atom_compare_exchange(s64 volatile& x, s64 compare, s64 replace);
-_INLINE_ void* atom_compare_exchange(void* volatile& x, void* compare, void* replace);
-_INLINE_ u64   random(u64 mod);
-
-#include "Date.hpp"
-
-_INLINE_ u64 random(u64 mod)
+template<>
+class atom<u64>
 {
-    WindowsMsvcNs::srand((u32)(tick_count() % u32_max));
-    return WindowsMsvcNs::rand() % (mod);
-}
+public:
+    atom() :
+        _value()
+    {}
 
-_INLINE_ s32 atom_increment(s32 volatile& x)
-{
-    return WindowsMsvcNs::InterlockedIncrement(&x);
-}
+    atom(const atom<u64>& rhs) :
+        _value(rhs._value)
+    {}
 
-_INLINE_ s64 atom_increment(s64 volatile& x)
-{
-    return WindowsMsvcNs::InterlockedIncrement64(&x);
-}
+    atom(u64 v) :
+        _value(v)
+    {}
 
-_INLINE_ s32 atom_decrement(s32 volatile& x)
-{
-    return WindowsMsvcNs::InterlockedDecrement(&x);
-}
+    ~atom() = default;
 
-_INLINE_ s64 atom_decrement(s64 volatile& x)
-{
-    return WindowsMsvcNs::InterlockedDecrement64(&x);
-}
+public:
+    u64 get()
+    {
+        return _value;
+    }
 
-_INLINE_ s32 atom_exchange(s32 volatile& x, s32 replace)
-{
-    return WindowsMsvcNs::InterlockedExchange(&x, replace);
-}
+    void set(u64 v)
+    {
+        _value = v;
+    }
 
-_INLINE_ s64 atom_exchange(s64 volatile& x, s64 replace)
-{
-    return WindowsMsvcNs::InterlockedExchange64(&x, replace);
-}
+    operator bool()
+    {
+        return _value != 0;
+    }
 
-_INLINE_ void* atom_exchange(void* volatile& x, void* replace)
-{
-    return WindowsMsvcNs::InterlockedExchangePointer(&x, replace);
-}
+    atom<u64>& operator =(const atom<u64>& rhs)
+    {
+        _value = rhs._value;
+        return *this;
+    }
 
-_INLINE_ s32 atom_compare_exchange(s32 volatile& x, s32 compare, s32 replace)
-{
-    return WindowsMsvcNs::InterlockedCompareExchange(&x, replace, compare);
-}
+    atom<u64>& operator =(u64 v)
+    {
+        _value = v;
+        return *this;
+    }
 
-_INLINE_ s64 atom_compare_exchange(s64 volatile& x, s64 compare, s64 replace)
-{
-    return WindowsMsvcNs::InterlockedCompareExchange64(&x, replace, compare);
-}
+    u64 operator ++()
+    {
+        u64 ret = WindowsMsvcNs::InterlockedIncrement(&_value);
+        return ret;
+    }
 
-_INLINE_ void* atom_compare_exchange(void* volatile& x, void* compare, void* replace)
+    u64 operator ++(int)
+    {
+        s64 ret = WindowsMsvcNs::InterlockedIncrement(&_value);
+        return ret - 1;
+    }
+
+    u64 operator --()
+    {
+        u64 ret = WindowsMsvcNs::InterlockedDecrement(&_value);
+        return ret;
+    }
+
+    u64 operator --(int)
+    {
+        u64 ret = WindowsMsvcNs::InterlockedDecrement(&_value);
+        return ret + 1;
+    }
+
+    u64 weak_add(s64 v)
+    {
+        return _value += v;
+    }
+
+    u64 exchange(u64 replace)
+    {
+        u64 ret = WindowsMsvcNs::InterlockedExchange(&_value, replace);
+        return ret;
+    }
+
+    u64 compare_exchange(u64 expected, u64 replace)
+    {
+        u64 ret = WindowsMsvcNs::InterlockedCompareExchange(&_value, replace, expected);
+        return ret;
+    }
+
+public:
+    volatile u64 _value;
+};
+
+template<typename Ty>
+class atom<Ty*>
 {
-    return WindowsMsvcNs::InterlockedCompareExchangePointer(&x, replace, compare);
-}
+public:
+    atom() :
+        _value(nullptr)
+    {}
+
+    atom(const atom<Ty>& rhs) :
+        _value(rhs._value)
+    {}
+
+    atom(Ty* v) :
+        _value(v)
+    {}
+
+    ~atom() = default;
+
+public:
+    Ty* get()
+    {
+        return _value;
+    }
+
+    void set(Ty* v)
+    {
+        _value = v;
+    }
+
+    operator Ty* ()
+    {
+        return _value;
+    }
+
+    operator bool()
+    {
+        return _value != nullptr;
+    }
+
+    atom<Ty*>& operator =(const atom<Ty*>& rhs)
+    {
+        _value = rhs._value;
+        return *this;
+    }
+
+    atom<Ty*>& operator =(Ty* v)
+    {
+        _value = v;
+        return *this;
+    }
+
+    Ty* exchange(Ty* replace)
+    {
+        void* ret = WindowsMsvcNs::InterlockedExchange(&_value, replace);
+        return pointer_convert(ret, 0, Ty*);
+    }
+
+    Ty* compare_exchange(Ty* expected, Ty* replace)
+    {
+        void* ret = WindowsMsvcNs::InterlockedCompareExchange(&_value, replace, expected);
+        return pointer_convert(ret, 0, Ty*);
+    }
+
+public:
+    volatile Ty* _value;
+};

@@ -10,8 +10,8 @@ _INLINE_ void  lock_destroy(lock lk);
 
 struct rw_lock
 {
-    volatile s64 _writing;
-    volatile s64 _reader_count;
+    atom<s64> _writing;
+    atom<s64> _reader_count;
 };
 
 _INLINE_ rw_lock rw_lock_create();
@@ -69,12 +69,12 @@ _INLINE_ boole rw_lock_try_read(rw_lock& lk)
     {
         return boole::False;
     }
-    atom_increment(lk._reader_count);
+    ++lk._reader_count;
     if (lk._writing == 0)
     {
         return boole::True;
     }
-    atom_decrement(lk._reader_count);
+    --lk._reader_count;
     return boole::False;
 }
 
@@ -84,12 +84,12 @@ _INLINE_ void rw_lock_wait_read(rw_lock& lk)
     {
         if (lk._writing == 0)
         {
-            atom_increment(lk._reader_count);
+            ++lk._reader_count;
             if (lk._writing == 0)
             {
                 return;
             }
-            atom_decrement(lk._reader_count);
+            --lk._reader_count;
         }
         tick_sleep(1);
     }
@@ -101,7 +101,7 @@ _INLINE_ boole rw_lock_try_write(rw_lock& lk)
     {
         return boole::False;
     }
-    if (atom_exchange(lk._writing, 1) == 1)
+    if (lk._writing.exchange(1) == 1)
     {
         return boole::False;
     }
@@ -115,7 +115,7 @@ _INLINE_ boole rw_lock_try_write(rw_lock& lk)
 
 _INLINE_ void rw_lock_wait_write(rw_lock& lk)
 {
-    while (atom_exchange(lk._writing, 1) == 1)
+    while (lk._writing.exchange(1) == 1)
     {
         tick_sleep(2);
     }
@@ -127,7 +127,7 @@ _INLINE_ void rw_lock_wait_write(rw_lock& lk)
 
 _INLINE_ void rw_lock_put_read(rw_lock& lk)
 {
-    atom_decrement(lk._reader_count);
+    --lk._reader_count;
 }
 
 _INLINE_ void rw_lock_put_write(rw_lock& lk)

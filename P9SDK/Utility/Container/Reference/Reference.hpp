@@ -15,7 +15,7 @@ public:
     {}
 
 protected:
-    ref_base(void* ptr, volatile RefNs::counter* cnt, s64 data_size, RefNs::deconstructor* dc) :
+    ref_base(void* ptr, RefNs::counter* cnt, s64 data_size, RefNs::deconstructor* dc) :
         context(ptr, cnt, data_size, dc)
     {}
 
@@ -28,7 +28,7 @@ protected:
     {
         if (valid())
         {
-            atom_increment(_counter->_ref_cnt);
+            ++_counter->_ref_cnt;
         }
     }
 
@@ -51,11 +51,11 @@ protected:
     {
         if (ob.valid())
         {
-            while (atom_exchange(ob._counter->_observer_check_busy, 1) != 0)
+            while (ob._counter->_observer_check_busy.exchange(1) != 0)
             {
                 yield();
             }
-            if (atom_increment(ob._counter->_ref_cnt) != 1)
+            if (++ob._counter->_ref_cnt != 1)
             {
                 // greater than 1
                 // generate new ref of typename::Ty
@@ -93,7 +93,7 @@ public:
 
         if (valid())
         {
-            atom_increment(_counter->_ref_cnt);
+            ++_counter->_ref_cnt;
         }
         return *this;
     }
@@ -121,11 +121,11 @@ public:
 
         if (ob.valid())
         {
-            while (atom_exchange(ob._counter->_observer_check_busy, 1) != 0)
+            while (ob._counter->_observer_check_busy.exchange(1) != 0)
             {
                 yield();
             }
-            if (atom_increment(ob._counter->_ref_cnt) != 1)
+            if (++ob._counter->_ref_cnt != 1)
             {
                 // greater than 1
                 // generate new ref of typename::Ty
@@ -180,13 +180,13 @@ public:
 
     void clear()
     {
-        if (valid() && atom_decrement(_counter->_ref_cnt) == 0)
+        if (valid() && --_counter->_ref_cnt == 0)
         {
             _deconstructor(_ptr);
             memory_free(_ptr);
             _ptr = nullptr;
 
-            if (atom_decrement(_counter->_observer_cnt) == 0)
+            if (--_counter->_observer_cnt == 0)
             {
                 delete _counter;
             }
@@ -211,7 +211,7 @@ protected:
         s64 data_size = sizeof(Ty);
         void* mem_data = memory_alloc(data_size);
         new (mem_data) Ty(args...);
-        volatile RefNs::counter* mem_cnt = new volatile RefNs::counter(1, 1);
+        RefNs::counter* mem_cnt = new RefNs::counter(1, 1);
         return ref_base(mem_data, mem_cnt, data_size, dc);
     }
 
@@ -229,7 +229,7 @@ protected:
         if (valid())
         {
             RefNs::observer_base ob(_ptr, _counter, _data_size, _deconstructor);
-            atom_increment(_counter->_observer_cnt);
+            ++_counter->_observer_cnt;
             return ob;
         }
         else

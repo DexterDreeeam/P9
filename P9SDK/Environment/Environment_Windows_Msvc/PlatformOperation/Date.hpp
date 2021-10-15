@@ -1,5 +1,6 @@
 #pragma once
 
+_INLINE_ u64   random(u64 mod);
 _INLINE_ date  date_query();
 _INLINE_ date  date_query_utc();
 _INLINE_ u64   date_timestamp_utc();
@@ -9,6 +10,12 @@ _INLINE_ u64   tick_record(u64 rec);
 _INLINE_ void  tick_start();
 _INLINE_ u64   tick_elapse();
 _INLINE_ void  tick_elapse_print();
+
+_INLINE_ u64 random(u64 mod)
+{
+    WindowsMsvcNs::srand((u32)(tick_count() % u32_max));
+    return WindowsMsvcNs::rand() % (mod);
+}
 
 _INLINE_ date date_query()
 {

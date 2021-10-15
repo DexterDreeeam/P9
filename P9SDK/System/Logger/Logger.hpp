@@ -26,7 +26,7 @@ namespace LoggerNs
 
         void init(const char* base_folder, s64 mynumber)
         {
-            assert(busy);
+            assert(busy.get());
             memory_copy(base_folder, log_file_path, log_path_max_length);
             s64 len = str_len(log_file_path);
             log_file_path[len++] = 'l';
@@ -64,7 +64,7 @@ namespace LoggerNs
 
         boole try_get_control()
         {
-            if (atom_exchange(busy, 1LL) == 0)
+            if (busy.exchange(1) == 0)
             {
                 return boole::True;
             }
@@ -76,7 +76,7 @@ namespace LoggerNs
 
         void put_control()
         {
-            assert(busy);
+            assert(busy.get());
             busy = 0;
         }
 
@@ -113,7 +113,7 @@ namespace LoggerNs
     private:
         char log_file_path[log_path_max_length];
         outf log_file;
-        volatile s64 busy;
+        atom<s64> busy;
     };
 
     template<typename ...Args>
@@ -183,7 +183,7 @@ namespace LoggerNs
     private:
         void write_log(const char* text, s64 text_len)
         {
-            u64 myorder = atom_increment(order_id);
+            u64 myorder = ++order_id;
             s64 i = random(worker_count);
             for (s64 n = 0; n < worker_count * 2; ++n)
             {
@@ -303,7 +303,7 @@ namespace LoggerNs
     private:
         char path_buf[log_path_max_length];
         log_system_worker workers[worker_count];
-        s64 order_id;
+        atom<s64> order_id;
     };
 
     _SELECTANY_ log_system global_log_system;
