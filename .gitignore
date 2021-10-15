@@ -1,5 +1,7 @@
-!*placeholder*
 
+# Windows MSVC ignoring files
+
+!*placeholder*
 *temp/*
 *.lib*
 *.exe*
@@ -11,3 +13,9 @@
 *.ilk
 *.iobj
 *.ipdb
+
+# Linux Gcc ignoring files
+
+.codelite*
+Debug/
+

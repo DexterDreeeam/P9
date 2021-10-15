@@ -12,55 +12,58 @@ _INLINE_ void  tick_elapse_print();
 
 _INLINE_ date date_query()
 {
-    LinuxGccNs::time_t timer = LinuxGccNs::time(0);
-    LinuxGccNs::tm* local_time = LinuxGccNs::localtime(&timer);
+    time_t timer = time(0);
+    tm* local_time = localtime(&timer);
     date rst =
     {
         local_time->tm_year,
         local_time->tm_mon,
-	local_time->tm_mday,
-	local_time->tm_wday,
-	local_time->tm_hour,
-	local_time->tm_min,
-	local_time->tm_sec,
-	0,
+        local_time->tm_mday,
+        local_time->tm_wday,
+        local_time->tm_hour,
+        local_time->tm_min,
+        local_time->tm_sec,
+        0,
     };
     return rst;
 }
 
 _INLINE_ date date_query_utc()
 {
-    LinuxGccNs::time_t timer = LinuxGccNs::time(0);
-    LinuxGccNs::tm* local_time = LinuxGccNs::localtime(&timer);
+    time_t timer = time(0);
+    tm* local_time = localtime(&timer);
     date rst =
     {
         local_time->tm_year,
         local_time->tm_mon,
-	local_time->tm_mday,
-	local_time->tm_wday,
-	local_time->tm_hour,
-	local_time->tm_min,
-	local_time->tm_sec,
-	0,
+        local_time->tm_mday,
+        local_time->tm_wday,
+        local_time->tm_hour,
+        local_time->tm_min,
+        local_time->tm_sec,
+        0,
     };
     return rst;
 }
 
 _INLINE_ u64 date_timestamp_utc()
 {
-    LinuxGccNs::time_t time_utc;
-    LinuxGccNs::time(&time_utc);
+    time_t time_utc;
+    time(&time_utc);
     return time_utc;
 }
 
 _INLINE_ void tick_sleep(u64 ms)
 {
-    LinuxGccNs::Sleep((LinuxGccNs::DWORD)ms);
+    usleep(ms * 1000);
 }
 
 _INLINE_ u64 tick_count()
 {
-    return LinuxGccNs::GetTickCount64();
+    timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    u64 ms = (u64)(ts.tv_nsec / 1000000) + ((u64)ts.tv_sec * 1000ull);
+    return ms;
 }
 
 _INLINE_ u64 tick_record(u64 rec)

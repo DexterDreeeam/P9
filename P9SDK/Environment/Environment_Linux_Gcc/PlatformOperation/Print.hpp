@@ -8,7 +8,7 @@
 
 #if DEBUG_LEVEL >= DEBUG_LEVEL_CALIBRATION_LOG_ERROR
 
-#define print(...) LinuxGccNs::printf(__VA_ARGS__)
+#define print(...) printf(__VA_ARGS__)
 
 #else
 
