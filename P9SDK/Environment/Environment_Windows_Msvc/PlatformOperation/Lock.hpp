@@ -8,20 +8,22 @@ _INLINE_ void  lock_wait_get(lock lk);
 _INLINE_ void  lock_put(lock lk);
 _INLINE_ void  lock_destroy(lock lk);
 
-struct rw_lock
+struct _rw_lock
 {
     atom<s64> _writing;
     atom<s64> _reader_count;
 };
 
+typedef  void* rw_lock;
+
 _INLINE_ rw_lock rw_lock_create();
-_INLINE_ boole   rw_lock_try_read(rw_lock& lk);
-_INLINE_ void    rw_lock_wait_read(rw_lock& lk);
-_INLINE_ boole   rw_lock_try_write(rw_lock& lk);
-_INLINE_ void    rw_lock_wait_write(rw_lock& lk);
-_INLINE_ void    rw_lock_put_read(rw_lock& lk);
-_INLINE_ void    rw_lock_put_write(rw_lock& lk);
-_INLINE_ void    rw_lock_destroy(rw_lock& lk);
+_INLINE_ boole   rw_lock_try_read(rw_lock x);
+_INLINE_ void    rw_lock_wait_read(rw_lock x);
+_INLINE_ boole   rw_lock_try_write(rw_lock x);
+_INLINE_ void    rw_lock_wait_write(rw_lock x);
+_INLINE_ void    rw_lock_put_read(rw_lock x);
+_INLINE_ void    rw_lock_put_write(rw_lock x);
+_INLINE_ void    rw_lock_destroy(rw_lock x);
 
 _INLINE_ lock lock_create(void)
 {
@@ -57,87 +59,100 @@ _INLINE_ void lock_destroy(lock lk)
 
 _INLINE_ rw_lock rw_lock_create(void)
 {
-    rw_lock lk;
-    lk._writing = 0;
-    lk._reader_count = 0;
-    return lk;
+    _rw_lock* lk = new _rw_lock();
+    lk->_writing = 0;
+    lk->_reader_count = 0;
+    return (rw_lock)lk;
 }
 
-_INLINE_ boole rw_lock_try_read(rw_lock& lk)
+_INLINE_ boole rw_lock_try_read(rw_lock x)
 {
-    if (lk._writing == 1)
+    _rw_lock* lk = (_rw_lock*)x;
+    assert(lk);
+    if (lk->_writing.get() == 1)
     {
         return boole::False;
     }
-    ++lk._reader_count;
-    if (lk._writing == 0)
+    ++lk->_reader_count;
+    if (lk->_writing.get() == 0)
     {
         return boole::True;
     }
-    --lk._reader_count;
+    --lk->_reader_count;
     return boole::False;
 }
 
-_INLINE_ void rw_lock_wait_read(rw_lock& lk)
+_INLINE_ void rw_lock_wait_read(rw_lock x)
 {
+    _rw_lock* lk = (_rw_lock*)x;
+    assert(lk);
     while (1)
     {
-        if (lk._writing == 0)
+        if (lk->_writing.get() == 0)
         {
-            ++lk._reader_count;
-            if (lk._writing == 0)
+            ++lk->_reader_count;
+            if (lk->_writing.get() == 0)
             {
                 return;
             }
-            --lk._reader_count;
+            --lk->_reader_count;
         }
         tick_sleep(1);
     }
 }
 
-_INLINE_ boole rw_lock_try_write(rw_lock& lk)
+_INLINE_ boole rw_lock_try_write(rw_lock x)
 {
-    if (lk._reader_count != 0)
+    _rw_lock* lk = (_rw_lock*)x;
+    assert(lk);
+    if (lk->_reader_count.get() != 0)
     {
         return boole::False;
     }
-    if (lk._writing.exchange(1) == 1)
+    if (lk->_writing.exchange(1) == 1)
     {
         return boole::False;
     }
-    if (lk._reader_count != 0)
+    if (lk->_reader_count.get() != 0)
     {
-        lk._writing = 0;
+        lk->_writing.set(0);
         return boole::False;
     }
     return boole::True;
 }
 
-_INLINE_ void rw_lock_wait_write(rw_lock& lk)
+_INLINE_ void rw_lock_wait_write(rw_lock x)
 {
-    while (lk._writing.exchange(1) == 1)
+    _rw_lock* lk = (_rw_lock*)x;
+    assert(lk);
+    while (lk->_writing.exchange(1) == 1)
     {
         tick_sleep(2);
     }
-    while (lk._reader_count != 0)
+    while (lk->_reader_count.get() != 0)
     {
         tick_sleep(1);
     }
 }
 
-_INLINE_ void rw_lock_put_read(rw_lock& lk)
+_INLINE_ void rw_lock_put_read(rw_lock x)
 {
-    --lk._reader_count;
+    _rw_lock* lk = (_rw_lock*)x;
+    assert(lk);
+    --lk->_reader_count;
 }
 
-_INLINE_ void rw_lock_put_write(rw_lock& lk)
+_INLINE_ void rw_lock_put_write(rw_lock x)
 {
-    lk._writing = 0;
+    _rw_lock* lk = (_rw_lock*)x;
+    assert(lk);
+    lk->_writing.set(0);
 
 }
 
-_INLINE_ void rw_lock_destroy(rw_lock& lk)
+_INLINE_ void rw_lock_destroy(rw_lock x)
 {
-    lk._writing = 0;
-    lk._reader_count = 0;
+    _rw_lock* lk = (_rw_lock*)x;
+    assert(lk);
+    delete lk;
 }
