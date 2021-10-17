@@ -14,4 +14,4 @@
 
 #define I_AM_LINUX_GCC           9091
 
-#define LINUX_GCC_LOG_FOLDER     "/P9_Folder/Log/"
+#define LINUX_GCC_LOG_FOLDER     "/etc/P9_Folder/Log/"
