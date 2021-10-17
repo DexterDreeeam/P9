@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../../P9SDK/Interface/Interface.hpp"
-
 #include "../Interpreter/Interface.hpp"
+#include "QueryCommand.hpp"
 
 namespace P9
 {
@@ -27,7 +27,7 @@ public:
 
     ~client() = default;
 
-    
+    list<ref<json_base>> execute_query();
 
 private:
     client_config _config;

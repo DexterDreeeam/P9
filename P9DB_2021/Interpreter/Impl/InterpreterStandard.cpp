@@ -134,7 +134,7 @@ ref<query_operation> standard_interpreter::translate(const string& msg)
         hard_delete->document_id = str_document_id;
         rst = hard_delete.ref_of<query_operation>();
     }
-    else if (str_operation == "search_single" || str_operation == "search_range")
+    else if (str_operation == "search")
     {
         j_idx = j_base["syntax"];
         if (j_idx.invalid() || j_idx->type() != json_type::OBJECT)
@@ -143,19 +143,7 @@ ref<query_operation> standard_interpreter::translate(const string& msg)
             goto L_error;
         }
 
-        ref<query_operation_search> search;
-        if (str_operation == "search_single")
-        {
-            search = ref<query_operation_search_single>::new_instance().ref_of<query_operation_search>();
-        }
-        else if (str_operation == "search_range")
-        {
-            search = ref<query_operation_search_range>::new_instance().ref_of<query_operation_search>();
-        }
-        else
-        {
-            goto L_error;
-        }
+        ref<query_operation_search> search = ref<query_operation_search>::new_instance();
         if (search->load(j_idx.json()) == boole::False)
         {
             err("%s: search syntax error '%s'.", __FUNCTION__, j_idx->value().data());

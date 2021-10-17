@@ -87,10 +87,8 @@ string platform::handle_operation(ref<Interpreter::query_operation> op)
         return handle_retrieve(op.ref_of<Interpreter::query_operation_retrieve>());
     case Interpreter::query_operation_type::HARD_DELETE:
         return handle_hard_delete(op.ref_of<Interpreter::query_operation_hard_delete>());
-    case Interpreter::query_operation_type::SEARCH_SINGLE:
-        return handle_search_single(op.ref_of<Interpreter::query_operation_search_single>());
-    case Interpreter::query_operation_type::SEARCH_RANGE:
-        return handle_search_range(op.ref_of<Interpreter::query_operation_search_range>());
+    case Interpreter::query_operation_type::SEARCH:
+        return handle_search(op.ref_of<Interpreter::query_operation_search>());
     default:
         err("Not expected operation type, %d.", op->type());
         break;
@@ -145,22 +143,7 @@ string platform::handle_hard_delete(ref<Interpreter::query_operation_hard_delete
     return "ok";
 }
 
-string platform::handle_search_single(ref<Interpreter::query_operation_search_single> op)
-{
-    AUTO_TRACE;
-    auto partition = _storage->get_partition(op->partition);
-    if (!partition)
-    {
-        return string("partition not found");
-    }
-    if (op->syntax.criterion.size() == 0)
-    {
-        return string("creterion should not be empty");
-    }
-    return "no result found";
-}
-
-string platform::handle_search_range(ref<Interpreter::query_operation_search_range> op)
+string platform::handle_search(ref<Interpreter::query_operation_search> op)
 {
     AUTO_TRACE;
     string rst;

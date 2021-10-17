@@ -39,9 +39,7 @@ private:
 
     string handle_hard_delete(ref<Interpreter::query_operation_hard_delete> op);
 
-    string handle_search_single(ref<Interpreter::query_operation_search_single> op);
-
-    string handle_search_range(ref<Interpreter::query_operation_search_range> op);
+    string handle_search(ref<Interpreter::query_operation_search> op);
 
 private:
     Storage::storage* _storage;

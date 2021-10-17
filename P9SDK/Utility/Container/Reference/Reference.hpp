@@ -219,7 +219,7 @@ protected:
     static ref_base new_instance(Ty* raw_ptr, RefNs::deconstructor* dc)
     {
         s64 data_size = sizeof(Ty);
-        volatile RefNs::counter* mem_cnt = new volatile RefNs::counter(1, 1);
+        RefNs::counter* mem_cnt = new RefNs::counter(1, 1);
         return ref_base(raw_ptr, mem_cnt, data_size, dc);
     }
 

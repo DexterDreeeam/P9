@@ -13,9 +13,7 @@ enum class query_operation_type : s64
     UPSERT = BASE,
 
     RETRIEVE,
-
-    SEARCH_SINGLE,
-    SEARCH_RANGE,
+    SEARCH,
 
     SOFT_DELETE,
     HARD_DELETE,
@@ -114,40 +112,13 @@ public:
         return syntax.load(json_syntax);
     }
 
+    virtual query_operation_type type() override
+    {
+        return query_operation_type::SEARCH;
+    }
+
 public:
     query_syntax syntax;
-};
-
-class query_operation_search_single : public query_operation_search
-{
-public:
-    query_operation_search_single() :
-        query_operation_search()
-    {}
-
-    virtual ~query_operation_search_single() override
-    {}
-
-    virtual query_operation_type type() override
-    {
-        return query_operation_type::SEARCH_SINGLE;
-    }
-};
-
-class query_operation_search_range : public query_operation_search
-{
-public:
-    query_operation_search_range() :
-        query_operation_search()
-    {}
-
-    virtual ~query_operation_search_range() override
-    {}
-
-    virtual query_operation_type type() override
-    {
-        return query_operation_type::SEARCH_RANGE;
-    }
 };
 
 string remove_quotation(const string& str);

@@ -12,12 +12,8 @@ _INLINE_ boole output_file_destroy(outf f);
 _INLINE_ inpf  input_file_create(const char* path);
 _INLINE_ s64   input_file_read(inpf f, void* buf, s64 want_read);
 _INLINE_ boole input_file_destroy(inpf f);
-namespace
-{
 _INLINE_ boole create_file(const char* path);
-}
 _INLINE_ boole delete_file(const char* path);
-
 
 _INLINE_ outf output_file_create(const char *path, boole overwrite)
 {
@@ -144,9 +140,6 @@ _INLINE_ boole input_file_destroy(inpf f)
     }
 }
 
-namespace
-{
-
 using namespace WindowsMsvcNs;
 _INLINE_ boole create_file(const char* path)
 {
@@ -160,8 +153,6 @@ _INLINE_ boole create_file(const char* path)
     }
     CloseHandle(h);
     return boole::True;
-}
-
 }
 
 _INLINE_ boole delete_file(const char *path)
