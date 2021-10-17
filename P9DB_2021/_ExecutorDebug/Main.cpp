@@ -20,7 +20,7 @@ void entry_point()
     tick_start();
 
     auto p = new P9::Platform::platform();
-    p->load("C:/P9_Folder/p1/");
+    p->load(P9_FOLDER "/p1/");
 
     test_db_query(p, "../.tests/01-upsert-1.json");
     test_db_query(p, "../.tests/02-upsert-2.json");

@@ -17,13 +17,13 @@ struct _rw_lock
 typedef  void* rw_lock;
 
 _INLINE_ rw_lock rw_lock_create();
-_INLINE_ boole   rw_lock_try_read(rw_lock& lk);
-_INLINE_ void    rw_lock_wait_read(rw_lock& lk);
-_INLINE_ boole   rw_lock_try_write(rw_lock& lk);
-_INLINE_ void    rw_lock_wait_write(rw_lock& lk);
-_INLINE_ void    rw_lock_put_read(rw_lock& lk);
-_INLINE_ void    rw_lock_put_write(rw_lock& lk);
-_INLINE_ void    rw_lock_destroy(rw_lock& lk);
+_INLINE_ boole   rw_lock_try_read(rw_lock x);
+_INLINE_ void    rw_lock_wait_read(rw_lock x);
+_INLINE_ boole   rw_lock_try_write(rw_lock x);
+_INLINE_ void    rw_lock_wait_write(rw_lock x);
+_INLINE_ void    rw_lock_put_read(rw_lock x);
+_INLINE_ void    rw_lock_put_write(rw_lock x);
+_INLINE_ void    rw_lock_destroy(rw_lock x);
 
 _INLINE_ lock lock_create(void)
 {

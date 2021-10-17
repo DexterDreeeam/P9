@@ -18,7 +18,7 @@
 #define _NORETURN_      // __declspec(noreturn)     //# for function without return value
 #define _NOTHROW_       // __declspec(nothrow)      //# for function insure that no exception would be throw internally
 #define _NOVTABLE_      // __declspec(novtable)     //# for class that no virtual function table, only used in non-virtual class or pure-virtual class
-#define _SELECTANY_     __attribute__((selectany))  //# for variable definition in header file without causing redefine error
+#define _SELECTANY_     __attribute__((weak))  //# for variable definition in header file without causing redefine error
 
 #define POINTER_BYTES (8)
 #define POINTER_BITS  (64)

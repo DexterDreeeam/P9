@@ -1266,7 +1266,7 @@ namespace RBTreeNs
             assert(nod->color == RB_TREE_BLACK);
             assert(nod->mysibling());
             assert(nod->mysibling()->color == RB_TREE_BLACK);
-            Node_Ty* p = (Node_Ty*)nod->prnt;
+            // Node_Ty* p = (Node_Ty*)nod->prnt;
             Node_Ty* mysibling = (Node_Ty*)nod->mysibling();
             Node_Ty* nephew_left = (Node_Ty*)mysibling->left;
             Node_Ty* nephew_right = (Node_Ty*)mysibling->right;
@@ -1287,7 +1287,7 @@ namespace RBTreeNs
             assert(nod->mysibling()->left || nod->mysibling()->right);
             bool nod_is_left = nod->i_am_left();
             Node_Ty* p = (Node_Ty*)nod->prnt;
-            Node_Ty* pp = (Node_Ty*)nod->prnt->prnt;
+            // Node_Ty* pp = (Node_Ty*)nod->prnt->prnt;
             Node_Ty* mysibling = (Node_Ty*)nod->mysibling();
             Node_Ty* nephew;
             if (nod_is_left)

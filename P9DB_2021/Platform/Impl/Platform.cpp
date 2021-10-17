@@ -52,6 +52,9 @@ static set<string> search_qualified_document(
             }
         }
         break;
+    default:
+        assert_info(0, "unexpected compare operator.");
+        break;
     }
     if (insert_item)
     {
@@ -158,7 +161,7 @@ string platform::handle_search(ref<Interpreter::query_operation_search> op)
     }
     set<string> qualified_documents;
     boole is_first_search = boole::True;
-    auto j_array = json_array();
+    auto* j_array = new json_array();
     auto docs = partition->get_document_table();
     for (auto& criteria : op->syntax.criterion)
     {
@@ -194,9 +197,10 @@ string platform::handle_search(ref<Interpreter::query_operation_search> op)
     for (auto& doc : qualified_documents)
     {
         auto* jobject = json_deserialize(docs->get_document(doc)->read());
-        j_array.add_item(jobject);
+        j_array->add_item(jobject);
     }
-    j_array.serialize(rst);
+    j_array->serialize(rst);
+    delete j_array;
     return rst;
 
 L_invalid_criteria:

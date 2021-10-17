@@ -14,4 +14,4 @@
 
 #define I_AM_WINDOWS_MSVC          9090
 
-#define WINDOWS_MSVC_LOG_FOLDER    "C:/P9_Folder/Log/"
+#define WINDOWS_MSVC_P9_FOLDER    "C:/P9_Folder/"
