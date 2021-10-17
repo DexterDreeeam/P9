@@ -13,7 +13,7 @@ namespace LoggerNs
 
     const s64 worker_count = 16LL;
     const s64 log_args_max_count = 16LL;
-    const s64 log_line_max_length = 256LL;
+    const s64 log_line_max_length = 1024LL;
     const s64 log_path_max_length = 512LL;
 
     class log_system_worker
