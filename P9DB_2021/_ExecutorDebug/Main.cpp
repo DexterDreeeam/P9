@@ -28,6 +28,7 @@ void entry_point()
     test_db_query(p, "../.tests/04-retrieve-1.json");
     test_db_query(p, "../.tests/05-search-1.json");
     test_db_query(p, "../.tests/06-search-2.json");
+    test_db_query(p, "../.tests/07-search-3.json");
 }
 
 int main()
