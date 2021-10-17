@@ -1,31 +1,45 @@
 #pragma once
 
-typedef  hndl  evnt;
+#include "Lock.hpp"
+
+struct _evnt
+{
+    lock _lk;
+};
+
+typedef void* evnt;
 
 _INLINE_ evnt  evnt_create(void);
-_INLINE_ void  evnt_set(evnt ev);
-_INLINE_ void  evnt_wait(evnt ev);
-_INLINE_ void  evnt_destroy(evnt ev);
+_INLINE_ void  evnt_set(evnt x);
+_INLINE_ void  evnt_wait(evnt x);
+_INLINE_ void  evnt_destroy(evnt x);
 
 _INLINE_ evnt evnt_create(void)
 {
-    return (evnt)LinuxGccNs::CreateEvent(NULL, FALSE, NULL, NULL);
+    _evnt* ev = new _evnt();
+    ev->_lk = lock_create();
+    lock_wait_get(ev->_lk);
+    return (evnt)ev;
 }
 
-_INLINE_ void evnt_set(evnt ev)
+_INLINE_ void evnt_set(evnt x)
 {
-    assert(ev);
-    LinuxGccNs::SetEvent((LinuxGccNs::HANDLE)ev);
+    _evnt* ev = (_evnt*)x;
+    assert(ev && ev->_lk);
+    lock_put(ev->_lk);
 }
 
-_INLINE_ void evnt_wait(evnt ev)
+_INLINE_ void evnt_wait(evnt x)
 {
-    assert(ev);
-    LinuxGccNs::WaitForSingleObject((LinuxGccNs::HANDLE)ev, INFINITE);
+    _evnt* ev = (_evnt*)x;
+    assert(ev && ev->_lk);
+    lock_wait_get(ev->_lk);
 }
 
-_INLINE_ void evnt_destroy(evnt ev)
+_INLINE_ void evnt_destroy(evnt x)
 {
-    assert(ev);
-    LinuxGccNs::CloseHandle((LinuxGccNs::HANDLE)ev);
+    _evnt* ev = (_evnt*)x;
+    assert(ev && ev->_lk);
+    lock_destroy(ev->_lk);
+    delete ev;
 }

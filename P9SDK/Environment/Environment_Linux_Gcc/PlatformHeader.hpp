@@ -8,8 +8,6 @@
 #include <time.h>
 #include <pthread.h>
 #include <atomic>
-
-namespace LinuxGccNs
-{
-
-}
+#include <memory.h>
+#include <math.h>
+#include <barrier>

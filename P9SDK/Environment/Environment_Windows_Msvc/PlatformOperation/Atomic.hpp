@@ -32,11 +32,6 @@ public:
         _value = v;
     }
 
-    operator bool()
-    {
-        return _value != 0;
-    }
-
     atom<s64>& operator =(const atom<s64>& rhs)
     {
         _value = rhs._value;
@@ -48,6 +43,9 @@ public:
         _value = v;
         return *this;
     }
+
+    template<typename Convert_Ty>
+    operator Convert_Ty() const = delete;
 
     s64 operator ++()
     {
@@ -123,11 +121,6 @@ public:
         _value = v;
     }
 
-    operator bool()
-    {
-        return _value != 0;
-    }
-
     atom<u64>& operator =(const atom<u64>& rhs)
     {
         _value = rhs._value;
@@ -139,6 +132,9 @@ public:
         _value = v;
         return *this;
     }
+
+    template<typename Convert_Ty>
+    operator Convert_Ty() const = delete;
 
     u64 operator ++()
     {
@@ -219,11 +215,6 @@ public:
         return _value;
     }
 
-    operator bool()
-    {
-        return _value != nullptr;
-    }
-
     atom<Ty*>& operator =(const atom<Ty*>& rhs)
     {
         _value = rhs._value;
@@ -235,6 +226,9 @@ public:
         _value = v;
         return *this;
     }
+
+    template<typename Convert_Ty>
+    operator Convert_Ty() const = delete;
 
     Ty* exchange(Ty* replace)
     {

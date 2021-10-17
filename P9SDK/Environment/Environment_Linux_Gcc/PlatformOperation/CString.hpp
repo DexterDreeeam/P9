@@ -30,7 +30,6 @@ _INLINE_ _NOALIAS_ boole str_equal(const char* s1, const char* s2) noexcept
 
 _INLINE_ _NOALIAS_ s64 str_compare(const char* s1, const char* s2) noexcept
 {
-    s64 i = 0;
     while (*s1 == *s2)
     {
         if (*s1 == 0)
@@ -64,7 +63,7 @@ _INLINE_ _NOALIAS_ boole is_alike_blank_char(char c) noexcept
     return boole::False;
 }
 
-_INLINE_ _NOALIAS_ void str_pick_out_blank(OUT char* s) noexcept
+_INLINE_ _NOALIAS_ void str_pick_out_blank(_OUT_ char* s) noexcept
 {
     s64 len = str_len(s);
     const char* s_from = s;

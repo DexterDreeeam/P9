@@ -1,74 +1,321 @@
 #pragma once
 
-#include "Date.hpp"
+template<typename Ty>
+class atom;
 
-_INLINE_ s32   atom_increment(s32 volatile& x);
-_INLINE_ s64   atom_increment(s64 volatile& x);
-_INLINE_ s32   atom_decrement(s32 volatile& x);
-_INLINE_ s64   atom_decrement(s64 volatile& x);
-_INLINE_ s32   atom_exchange(s32 volatile& x, s32 replace);
-_INLINE_ s64   atom_exchange(s64 volatile& x, s64 replace);
-_INLINE_ void* atom_exchange(void* volatile& x, void* replace);
-_INLINE_ s32   atom_compare_exchange(s32 volatile& x, s32 compare, s32 replace);
-_INLINE_ s64   atom_compare_exchange(s64 volatile& x, s64 compare, s64 replace);
-_INLINE_ void* atom_compare_exchange(void* volatile& x, void* compare, void* replace);
-_INLINE_ u64   random(u64 mod);
-
-_INLINE_ u64 random(u64 mod)
+template<>
+class atom<s64>
 {
-    srand((u32)(tick_count() % u32_max));
-    return rand() % (mod);
-}
+public:
+    atom() :
+        _value()
+    {}
 
-_INLINE_ s32 atom_increment(s32 volatile& x)
-{
-    return __atomic_fetch_add(&x, (s32)1, std::memory_order_relaxed) + 1;
-}
+    atom(const atom<s64>& rhs) :
+        _value(rhs.get())
+    {}
 
-_INLINE_ s64 atom_increment(s64 volatile& x)
-{
-    return __atomic_fetch_add(&x, (s64)1, std::memory_order_relaxed) + 1;
-}
+    atom(s64 v) :
+        _value(v)
+    {}
 
-_INLINE_ s32 atom_decrement(s32 volatile& x)
-{
-    return __atomic_fetch_sub(&x, (s32)1, std::memory_order_relaxed) - 1;
-}
+    ~atom() = default;
 
-_INLINE_ s64 atom_decrement(s64 volatile& x)
-{
-    return __atomic_fetch_sub(&x, (s64)1, std::memory_order_relaxed) - 1;
-}
+public:
+    s64 get() const
+    {
+        return _value.load();
+    }
 
-_INLINE_ s32 atom_exchange(s32 volatile& x, s32 replace)
-{
-    return __atomic_exchange(&x, replace);
-}
+    void set(s64 v)
+    {
+        _value.store(v);
+    }
 
-_INLINE_ s64 atom_exchange(s64 volatile& x, s64 replace)
-{
-    return __atomic_exchange(&x, replace, std::memory_order_relaxed);
-}
+    template<typename Convert_Ty>
+    operator Convert_Ty() const = delete;
 
-_INLINE_ void* atom_exchange(void* volatile& x, void* replace)
-{
-    return __atomic_exchange(&x, replace, std::memory_order_relaxed);
-}
+    atom<s64>& operator =(const atom<s64>& rhs)
+    {
+        set(rhs.get());
+        return *this;
+    }
 
-_INLINE_ s32 atom_compare_exchange(s32 volatile& x, s32 compare, s32 replace)
-{
-    s32 ret = compare;
-    __atomic_compare_exchange_strong(&x, &ret, replace) ? compare : ret;
-}
+    atom<s64>& operator =(s64 v)
+    {
+        set(v);
+        return *this;
+    }
 
-_INLINE_ s64 atom_compare_exchange(s64 volatile& x, s64 compare, s64 replace)
-{
-    s64 ret = compare;
-    __atomic_compare_exchange_strong(&x, &ret, replace) ? compare : ret;
-}
+    bool operator ==(s64 v)
+    {
+        return get() == v;
+    }
 
-_INLINE_ void* atom_compare_exchange(void* volatile& x, void* compare, void* replace)
+    bool operator !=(s64 v)
+    {
+        return get() != v;
+    }
+
+    bool operator >(s64 v)
+    {
+        return get() > v;
+    }
+
+    bool operator <(s64 v)
+    {
+        return get() < v;
+    }
+
+    bool operator >=(s64 v)
+    {
+        return get() >= v;
+    }
+
+    bool operator <=(s64 v)
+    {
+        return get() <= v;
+    }
+
+    s64 operator ++()
+    {
+        s64 ret = ++_value;
+        return ret;
+    }
+
+    s64 operator ++(int)
+    {
+        s64 ret = _value++;
+        return ret;
+    }
+
+    s64 operator --()
+    {
+        s64 ret = --_value;
+        return ret;
+    }
+
+    s64 operator --(int)
+    {
+        s64 ret = _value--;
+        return ret;
+    }
+
+    s64 weak_add(s64 v)
+    {
+        return _value += v;
+    }
+
+    s64 exchange(s64 replace)
+    {
+        s64 ret = _value.exchange(replace);
+        return ret;
+    }
+
+    s64 compare_exchange(s64 expected, s64 replace)
+    {
+        _value.compare_exchange_strong(expected, replace);
+        return expected;
+    }
+
+public:
+    std::atomic<s64> _value;
+};
+
+template<>
+class atom<u64>
 {
-    void* ret = compare;
-    __atomic_compare_exchange_strong(&x, &ret, replace) ? compare : ret;
-}
+public:
+    atom() :
+        _value()
+    {}
+
+    atom(const atom<u64>& rhs) :
+        _value(rhs.get())
+    {}
+
+    atom(u64 v) :
+        _value(v)
+    {}
+
+    ~atom() = default;
+
+public:
+    u64 get() const
+    {
+        return _value.load();
+    }
+
+    void set(u64 v)
+    {
+        _value.store(v);
+    }
+
+    operator bool()
+    {
+        return get() != 0;
+    }
+
+    atom<u64>& operator =(const atom<u64>& rhs)
+    {
+        set(rhs._value);
+        return *this;
+    }
+
+    atom<u64>& operator =(u64 v)
+    {
+        set(v);
+        return *this;
+    }
+
+    bool operator ==(u64 v)
+    {
+        return get() == v;
+    }
+
+    bool operator !=(u64 v)
+    {
+        return get() != v;
+    }
+
+    bool operator >(u64 v)
+    {
+        return get() > v;
+    }
+
+    bool operator <(u64 v)
+    {
+        return get() < v;
+    }
+
+    bool operator >=(u64 v)
+    {
+        return get() >= v;
+    }
+
+    bool operator <=(u64 v)
+    {
+        return get() <= v;
+    }
+
+    u64 operator ++()
+    {
+        u64 ret = ++_value;
+        return ret;
+    }
+
+    u64 operator ++(int)
+    {
+        u64 ret = _value++;
+        return ret;
+    }
+
+    u64 operator --()
+    {
+        u64 ret = --_value;
+        return ret;
+    }
+
+    u64 operator --(int)
+    {
+        u64 ret = _value--;
+        return ret;
+    }
+
+    u64 weak_add(u64 v)
+    {
+        return _value += v;
+    }
+
+    u64 exchange(u64 replace)
+    {
+        u64 ret = _value.exchange(replace);
+        return ret;
+    }
+
+    u64 compare_exchange(u64 expected, u64 replace)
+    {
+        _value.compare_exchange_strong(expected, replace);
+        return expected;
+    }
+
+public:
+    std::atomic<u64> _value;
+};
+
+template<typename Ty>
+class atom<Ty*>
+{
+public:
+    atom() :
+        _value(nullptr)
+    {}
+
+    atom(const atom<Ty>& rhs) :
+        _value(rhs._value.get())
+    {}
+
+    atom(Ty* v) :
+        _value(v)
+    {}
+
+    ~atom() = default;
+
+public:
+    Ty* get() const
+    {
+        return _value.load();
+    }
+
+    void set(Ty* v)
+    {
+        _value.store(v);
+    }
+
+    operator Ty* ()
+    {
+        return get();
+    }
+
+    operator bool()
+    {
+        return get() != nullptr;
+    }
+
+    atom<Ty*>& operator =(const atom<Ty*>& rhs)
+    {
+        _value.set(rhs._value);
+        return *this;
+    }
+
+    atom<Ty*>& operator =(Ty* v)
+    {
+        _value.set(v);
+        return *this;
+    }
+
+    bool operator ==(Ty* v)
+    {
+        return get() == v;
+    }
+
+    bool operator !=(Ty* v)
+    {
+        return get() != v;
+    }
+
+    Ty* exchange(Ty* replace)
+    {
+        Ty* ret = _value.exchange(replace);
+        return ret;
+    }
+
+    Ty* compare_exchange(Ty* expected, Ty* replace)
+    {
+        _value.compare_exchange_strong(expected, replace);
+        return expected;
+    }
+
+public:
+    std::atomic<Ty*> _value;
+};

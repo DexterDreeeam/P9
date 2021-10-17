@@ -1,38 +1,46 @@
 #pragma once
 
-typedef volatile s64* spin;
+typedef atom<s64>  _spin;
+typedef void*      spin;
 
-_INLINE_ spin  spin_create(void);
-_INLINE_ RET   spin_try_get(spin sp);
-_INLINE_ void  spin_wait_get(spin sp);
-_INLINE_ void  spin_put(spin sp);
-_INLINE_ void  spin_destroy(spin sp);
+_INLINE_ spin   spin_create(void);
+_INLINE_ boole  spin_try_get(spin x);
+_INLINE_ void   spin_wait_get(spin x);
+_INLINE_ void   spin_put(spin x);
+_INLINE_ void   spin_destroy(spin x);
 
 _INLINE_ spin spin_create(void)
 {
-    return (spin)new s64(0);
+    return (spin)new atom<s64>(0);
 }
 
-_INLINE_ RET spin_try_get(spin sp)
+_INLINE_ boole spin_try_get(spin x)
 {
-    return atom_exchange(*reinterpret_cast<volatile s64*>(sp), 1LL) == 0 ? RET_SUCCESS : RET_FAILED;
+    _spin* sp = (_spin*)x;
+    assert(sp);
+    return sp->exchange(1) == 0;
 }
 
-_INLINE_ void spin_wait_get(spin sp)
+_INLINE_ void spin_wait_get(spin x)
 {
-    while (spin_try_get(sp) == RET_FAILED)
+    _spin* sp = (_spin*)x;
+    assert(sp);
+    while (!spin_try_get(sp))
     {
         ;
     }
 }
 
-_INLINE_ void spin_put(spin sp)
+_INLINE_ void spin_put(spin x)
 {
-    *reinterpret_cast<volatile s64*>(sp) = 0;
+    _spin* sp = (_spin*)x;
+    assert(sp);
+    sp->set(0);
 }
 
-_INLINE_ void spin_destroy(spin sp)
+_INLINE_ void spin_destroy(spin x)
 {
+    _spin* sp = (_spin*)x;
     assert(sp);
     delete sp;
 }

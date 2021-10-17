@@ -27,7 +27,7 @@
 #include "PlatformOperation/CStringConversion.hpp"
 #include "PlatformOperation/Date.hpp"
 #include "PlatformOperation/Event.hpp"
-#include "PlatformOperation/File.hpp"
+// #include "PlatformOperation/File.hpp"
 #include "PlatformOperation/Lock.hpp"
 #include "PlatformOperation/Math.hpp"
 #include "PlatformOperation/Memory.hpp"

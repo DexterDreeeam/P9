@@ -191,7 +191,7 @@ _INLINE_ s64 u64_to_text_hex(u64 v, char* text)
     {
         --digits;
         s64 rem = v % 16;
-        text[digits] = (v % 16) >= 10 ? (v % 16) - 10 + 'a' : '0' + (v % 16);
+        text[digits] = rem >= 10 ? rem - 10 + 'a' : '0' + rem;
         v /= 16;
     }
     return write_len;
@@ -209,7 +209,7 @@ _INLINE_ s64 u64_to_text_hex_padding(u64 v, char* text, s64 holds)
     return holds;
 }
 
-_INLINE_ boole text_to_s64(const char* text, s64 len, OUT s64& rst)
+_INLINE_ boole text_to_s64(const char* text, s64 len, _OUT_ s64& rst)
 {
     if (len <= 0)
     {

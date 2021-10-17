@@ -13,12 +13,12 @@ _INLINE_ void  thrd_destroy(thrd td);
 
 _INLINE_ void yield()
 {
-    LinuxGccNs::SwitchToThread();
+    pthread_yield();
 }
 
 _INLINE_ void memory_barrier(void)
 {
-    LinuxGccNs::MemoryBarrier();
+    std::experimental::barrier();
 }
 
 struct thrd_windows_cb_input

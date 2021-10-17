@@ -1,5 +1,146 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CodeLite_Project Name="Executor" Version="10.0.0" InternalType="Console">
+  <VirtualDirectory Name="Environment">
+    <VirtualDirectory Name="Environment_Linux_Gcc">
+      <File Name="../Environment/Environment_Linux_Gcc/Definition.hpp"/>
+      <File Name="../Environment/Environment_Linux_Gcc/Interface.hpp"/>
+      <File Name="../Environment/Environment_Linux_Gcc/PlatformHeader.hpp"/>
+      <VirtualDirectory Name="BuildinDefinition">
+        <File Name="../Environment/Environment_Linux_Gcc/BuildinDefinition/BuildinType.hpp"/>
+        <File Name="../Environment/Environment_Linux_Gcc/BuildinDefinition/ComplierDirective.hpp"/>
+        <File Name="../Environment/Environment_Linux_Gcc/BuildinDefinition/Boole.hpp"/>
+      </VirtualDirectory>
+      <VirtualDirectory Name="PlatformOperation">
+        <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/New.hpp"/>
+        <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/CString.hpp"/>
+        <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/Event.hpp"/>
+        <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/Timer.hpp"/>
+        <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/Assert.hpp"/>
+        <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/SIMD.hpp"/>
+        <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/Memory.hpp"/>
+        <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/File.hpp"/>
+        <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/Spin.hpp"/>
+        <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/Date.hpp"/>
+        <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/Print.hpp"/>
+        <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/Lock.hpp"/>
+        <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/Atomic.hpp"/>
+        <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/CStringConversion.hpp"/>
+        <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/Thread.hpp"/>
+        <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/Math.hpp"/>
+      </VirtualDirectory>
+    </VirtualDirectory>
+    <VirtualDirectory Name="Environment">
+      <File Name="../Environment/Environment/Definition.hpp"/>
+      <File Name="../Environment/Environment/DebugCalibration.hpp"/>
+      <File Name="../Environment/Environment/Interface.hpp"/>
+      <File Name="../Environment/Environment/DebugCalibrationDefinition.hpp"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="Environment_Windows_Msvc">
+      <File Name="../Environment/Environment_Windows_Msvc/Definition.hpp"/>
+      <File Name="../Environment/Environment_Windows_Msvc/Interface.hpp"/>
+      <File Name="../Environment/Environment_Windows_Msvc/PlatformHeader.hpp"/>
+      <VirtualDirectory Name="BuildinDefinition">
+        <File Name="../Environment/Environment_Windows_Msvc/BuildinDefinition/BuildinType.hpp"/>
+        <File Name="../Environment/Environment_Windows_Msvc/BuildinDefinition/ComplierDirective.hpp"/>
+        <File Name="../Environment/Environment_Windows_Msvc/BuildinDefinition/Boole.hpp"/>
+      </VirtualDirectory>
+      <VirtualDirectory Name="PlatformOperation">
+        <File Name="../Environment/Environment_Windows_Msvc/PlatformOperation/New.hpp"/>
+        <File Name="../Environment/Environment_Windows_Msvc/PlatformOperation/CString.hpp"/>
+        <File Name="../Environment/Environment_Windows_Msvc/PlatformOperation/Event.hpp"/>
+        <File Name="../Environment/Environment_Windows_Msvc/PlatformOperation/Timer.hpp"/>
+        <File Name="../Environment/Environment_Windows_Msvc/PlatformOperation/Assert.hpp"/>
+        <File Name="../Environment/Environment_Windows_Msvc/PlatformOperation/SIMD.hpp"/>
+        <File Name="../Environment/Environment_Windows_Msvc/PlatformOperation/Memory.hpp"/>
+        <File Name="../Environment/Environment_Windows_Msvc/PlatformOperation/File.hpp"/>
+        <File Name="../Environment/Environment_Windows_Msvc/PlatformOperation/Spin.hpp"/>
+        <File Name="../Environment/Environment_Windows_Msvc/PlatformOperation/Date.hpp"/>
+        <File Name="../Environment/Environment_Windows_Msvc/PlatformOperation/Print.hpp"/>
+        <File Name="../Environment/Environment_Windows_Msvc/PlatformOperation/Lock.hpp"/>
+        <File Name="../Environment/Environment_Windows_Msvc/PlatformOperation/Atomic.hpp"/>
+        <File Name="../Environment/Environment_Windows_Msvc/PlatformOperation/CStringConversion.hpp"/>
+        <File Name="../Environment/Environment_Windows_Msvc/PlatformOperation/Thread.hpp"/>
+        <File Name="../Environment/Environment_Windows_Msvc/PlatformOperation/Math.hpp"/>
+      </VirtualDirectory>
+    </VirtualDirectory>
+  </VirtualDirectory>
+  <VirtualDirectory Name="Interface">
+    <File Name="../Interface/Interface.hpp"/>
+  </VirtualDirectory>
+  <VirtualDirectory Name="System">
+    <VirtualDirectory Name="Logger">
+      <File Name="../System/Logger/Logger.hpp"/>
+      <File Name="../System/Logger/Interface.hpp"/>
+      <File Name="../System/Logger/AutoTrace.hpp"/>
+    </VirtualDirectory>
+  </VirtualDirectory>
+  <VirtualDirectory Name="Utility">
+    <VirtualDirectory Name="JsonFormat">
+      <File Name="../Utility/JsonFormat/JsonFormat.hpp"/>
+      <File Name="../Utility/JsonFormat/Interface.hpp"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="Json">
+      <File Name="../Utility/Json/Deserializer.hpp"/>
+      <File Name="../Utility/Json/JsonIndex.hpp"/>
+      <File Name="../Utility/Json/JsonBase.hpp"/>
+      <File Name="../Utility/Json/Interface.hpp"/>
+      <File Name="../Utility/Json/Utility.hpp"/>
+      <VirtualDirectory Name="JsonType">
+        <File Name="../Utility/Json/JsonType/JsonFloat.hpp"/>
+        <File Name="../Utility/Json/JsonType/JsonInt.hpp"/>
+        <File Name="../Utility/Json/JsonType/JsonString.hpp"/>
+        <File Name="../Utility/Json/JsonType/JsonBoole.hpp"/>
+        <File Name="../Utility/Json/JsonType/JsonObject.hpp"/>
+        <File Name="../Utility/Json/JsonType/JsonNull.hpp"/>
+        <File Name="../Utility/Json/JsonType/JsonArray.hpp"/>
+      </VirtualDirectory>
+    </VirtualDirectory>
+    <VirtualDirectory Name="Container">
+      <File Name="../Utility/Container/Interface.hpp"/>
+      <VirtualDirectory Name="Reference">
+        <File Name="../Utility/Container/Reference/Reference.hpp"/>
+        <File Name="../Utility/Container/Reference/Context.hpp"/>
+        <File Name="../Utility/Container/Reference/Observer.hpp"/>
+      </VirtualDirectory>
+      <VirtualDirectory Name="Safe">
+        <File Name="../Utility/Container/Safe/SafeQueue.hpp"/>
+        <File Name="../Utility/Container/Safe/Selectee.hpp"/>
+      </VirtualDirectory>
+      <VirtualDirectory Name="Algo">
+        <File Name="../Utility/Container/Algo/Hash.hpp"/>
+      </VirtualDirectory>
+      <VirtualDirectory Name="Internal">
+        <File Name="../Utility/Container/Internal/Hashmap.hpp"/>
+        <File Name="../Utility/Container/Internal/SlotAllocator.hpp"/>
+        <File Name="../Utility/Container/Internal/RBTree.hpp"/>
+      </VirtualDirectory>
+      <VirtualDirectory Name="Unsafe">
+        <File Name="../Utility/Container/Unsafe/String.hpp"/>
+        <File Name="../Utility/Container/Unsafe/Deque.hpp"/>
+        <File Name="../Utility/Container/Unsafe/Queue.hpp"/>
+        <File Name="../Utility/Container/Unsafe/Array.hpp"/>
+        <File Name="../Utility/Container/Unsafe/List.hpp"/>
+        <File Name="../Utility/Container/Unsafe/Stack.hpp"/>
+        <File Name="../Utility/Container/Unsafe/Unordered_Set.hpp"/>
+        <File Name="../Utility/Container/Unsafe/Vector.hpp"/>
+        <File Name="../Utility/Container/Unsafe/Set.hpp"/>
+        <File Name="../Utility/Container/Unsafe/Triple.hpp"/>
+        <File Name="../Utility/Container/Unsafe/Map.hpp"/>
+        <File Name="../Utility/Container/Unsafe/Pair.hpp"/>
+        <File Name="../Utility/Container/Unsafe/Unordered_Map.hpp"/>
+      </VirtualDirectory>
+    </VirtualDirectory>
+  </VirtualDirectory>
+  <VirtualDirectory Name="Window">
+    <VirtualDirectory Name="Window">
+      <File Name="../Window/Window/Window.h"/>
+      <File Name="../Window/Window/Interface.h"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="Window_Windows_Msvc">
+      <File Name="../Window/Window_Windows_Msvc/Window.h"/>
+      <File Name="../Window/Window_Windows_Msvc/Interface.h"/>
+    </VirtualDirectory>
+  </VirtualDirectory>
   <VirtualDirectory Name="ExecutorDebug">
     <File Name="Main.cpp"/>
   </VirtualDirectory>
