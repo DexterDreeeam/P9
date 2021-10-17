@@ -14,4 +14,4 @@
 
 #define I_AM_LINUX_GCC           9091
 
-#define LINUX_GCC_LOG_FOLDER     "/home/dexter/P9_Folder/"
+#define LINUX_GCC_P9_FOLDER     "/home/dexter/P9_Folder/"

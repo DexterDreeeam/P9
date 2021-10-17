@@ -14,6 +14,7 @@
 
 #pragma warning (disable : 4005)
 #pragma warning (disable : 4200)
+#pragma warning (disable : 4244)
 #pragma warning (disable : 4307)
 #pragma warning (disable : 4595)
 #pragma warning (disable : 6258)
@@ -40,6 +41,7 @@
 #include "PlatformOperation/Lock.hpp"
 #include "PlatformOperation/Math.hpp"
 #include "PlatformOperation/Memory.hpp"
+#include "PlatformOperation/Network.hpp"
 #include "PlatformOperation/New.hpp"
 #include "PlatformOperation/Print.hpp"
 #include "PlatformOperation/SIMD.hpp"
