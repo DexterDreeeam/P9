@@ -17,6 +17,7 @@
 #pragma GCC diagnostic ignored "-Wnonnull"
 #pragma GCC diagnostic ignored "-Wformat-security"
 #pragma GCC diagnostic ignored "-Wformat="
+#pragma GCC diagnostic ignored "-Wunused-function"
 
 #include "Definition.hpp"
 #include "PlatformHeader.hpp"

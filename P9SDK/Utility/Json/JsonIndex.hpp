@@ -62,6 +62,8 @@ _INLINE_ void json_report(json_base* json)
             case json_type::OBJECT:
             case json_type::ARRAY:
                 return;
+            default:
+                break;
             }
             string path  = j->my_path();
             string value = j->value();
