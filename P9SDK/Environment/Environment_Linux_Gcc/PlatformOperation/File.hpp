@@ -79,6 +79,7 @@ _INLINE_ outf output_file_create(const char *path, boole overwrite)
         flag |= O_APPEND;
     }
     auto f = open(path, flag, S_IRWXU | S_IRWXG | S_IRWXO);
+    assert(f >= 0);
     _outf* ret = new _outf();
     ret->_fp = f;
     return (outf)ret;
@@ -109,6 +110,7 @@ _INLINE_ inpf input_file_create(const char *path)
 {
     auto flag = O_RDONLY;
     auto f = open(path, flag);
+    assert(f >= 0);
     _inpf* ret = new _inpf();
     ret->_fp = f;
     return (inpf)ret;
