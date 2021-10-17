@@ -14,6 +14,9 @@
 
 #pragma GCC diagnostic ignored "-Woverflow"
 #pragma GCC diagnostic ignored "-Wattributes"
+#pragma GCC diagnostic ignored "-Wnonnull"
+#pragma GCC diagnostic ignored "-Wformat-security"
+#pragma GCC diagnostic ignored "-Wformat="
 
 #include "Definition.hpp"
 #include "PlatformHeader.hpp"
@@ -27,7 +30,7 @@
 #include "PlatformOperation/CStringConversion.hpp"
 #include "PlatformOperation/Date.hpp"
 #include "PlatformOperation/Event.hpp"
-// #include "PlatformOperation/File.hpp"
+#include "PlatformOperation/File.hpp"
 #include "PlatformOperation/Lock.hpp"
 #include "PlatformOperation/Math.hpp"
 #include "PlatformOperation/Memory.hpp"

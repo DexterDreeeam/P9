@@ -20,6 +20,7 @@ public:
 
 int main()
 {
+    /*
      boole test;
      observer<TestClassA> ob1;
      observer<TestClassA> ob3;
@@ -79,6 +80,6 @@ int main()
     log("%s", j->type_name());
 
     delete j;
-
+*/
     return 0;
 }

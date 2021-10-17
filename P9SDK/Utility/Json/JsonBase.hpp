@@ -100,9 +100,9 @@ public:
 
     virtual json_base* clone() const = 0;
 
-    virtual void serialize(OUT string& str) const = 0;
+    virtual void serialize(_OUT_ string& str) const = 0;
 
-    virtual void serialize_append(OUT string& str) const = 0;
+    virtual void serialize_append(_OUT_ string& str) const = 0;
 
 public:
     static json_base* deserialize(const string& str, s64 from, s64 to)

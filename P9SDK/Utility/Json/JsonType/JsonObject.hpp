@@ -84,13 +84,13 @@ public:
         return rst;
     }
 
-    virtual void serialize(OUT string& str) const override
+    virtual void serialize(_OUT_ string& str) const override
     {
         str.clear();
         this->json_object::serialize_append(str);
     }
 
-    virtual void serialize_append(OUT string& str) const override
+    virtual void serialize_append(_OUT_ string& str) const override
     {
         str += '{';
         boole not_first = boole::False;
@@ -153,7 +153,7 @@ private:
 
 _INLINE_ json_base* json_object::deserialize(const string& str, s64 from, s64 to)
 {
-    trim_index(str, OUT from, OUT to);
+    trim_index(str, _OUT_ from, _OUT_ to);
 
     if (from == to)
     {

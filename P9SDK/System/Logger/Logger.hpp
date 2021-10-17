@@ -41,13 +41,13 @@ namespace LoggerNs
             log_file_path[len] = 0;
             log_file = output_file_create(log_file_path);
             assert(log_file);
-            busy = 0;
+            busy.set(0);
         }
 
         void uninit()
         {
             s32 cnt = 0;
-            while (busy && cnt < s32_max)
+            while (busy.get() && cnt < s32_max)
             {
                 ++cnt;
                 yield();

@@ -7,9 +7,9 @@ _INLINE_ void  yield();
 _INLINE_ void  memory_barrier(void);
 _INLINE_ thrd  thrd_create(Callback_Func* fn, void* param);
 _INLINE_ u64   thrd_myid();
-_INLINE_ void  thrd_enforce_exit(thrd td);
-_INLINE_ void  thrd_wait_exit(thrd td);
-_INLINE_ void  thrd_destroy(thrd td);
+_INLINE_ void  thrd_enforce_exit(thrd x);
+_INLINE_ void  thrd_wait_exit(thrd x);
+_INLINE_ void  thrd_destroy(thrd x);
 
 _INLINE_ void yield()
 {
@@ -18,50 +18,62 @@ _INLINE_ void yield()
 
 _INLINE_ void memory_barrier(void)
 {
-    std::experimental::barrier();
+    // todo
 }
 
-struct thrd_windows_cb_input
+struct _thrd
 {
-    thrd_windows_cb_input(Callback_Func* f, void* p) : fn(f), param(p) {}
+    pthread_t _thrd_id;
+};
+
+struct thrd_cb_input
+{
+    thrd_cb_input(Callback_Func* f, void* p) : fn(f), param(p) {}
     Callback_Func* fn;
     void* param;
 };
 
-_INLINE_ unsigned long __stdcall thrd_windows_cb(void* p)
+static void* thrd_cb_entrance(void *arg)
 {
-    auto* input = (thrd_windows_cb_input*)p;
+    auto* input = (thrd_cb_input*)arg;
     (input->fn)(input->param);
     delete input;
-    return 0;
+    return nullptr;
 }
 
 _INLINE_ thrd thrd_create(Callback_Func* fn, void* param)
 {
     assert(fn);
-    auto* input = new thrd_windows_cb_input(fn, param);
-    return (thrd)LinuxGccNs::CreateThread(NULL, 0, thrd_windows_cb, input, 0, NULL);
+    auto* input = new thrd_cb_input(fn, param);
+    pthread_t pt;
+    pthread_create(&pt, nullptr, thrd_cb_entrance, input);
+    _thrd* td = new _thrd();
+    td->_thrd_id = pt;
+    return (thrd)td;
 }
 
 _INLINE_ u64 thrd_myid()
 {
-    return static_cast<u64>(LinuxGccNs::GetCurrentThreadId());
+    return (u64)pthread_self();
 }
 
-_INLINE_ void thrd_enforce_exit(thrd td)
+_INLINE_ void thrd_enforce_exit(thrd x)
 {
-    assert(td);
-    LinuxGccNs::TerminateThread((LinuxGccNs::HANDLE)td, 0);
+    _thrd* td = (_thrd*)x;
+    assert(td && td->_thrd_id);
+    pthread_kill(td->_thrd_id, SIGKILL);
 }
 
-_INLINE_ void thrd_wait_exit(thrd td)
+_INLINE_ void thrd_wait_exit(thrd x)
 {
-    assert(td);
-    LinuxGccNs::WaitForSingleObject((LinuxGccNs::HANDLE)td, INFINITE);
+    _thrd* td = (_thrd*)x;
+    assert(td && td->_thrd_id);
+    pthread_join(td->_thrd_id, nullptr);
 }
 
-_INLINE_ void thrd_destroy(thrd td)
+_INLINE_ void thrd_destroy(thrd x)
 {
-    assert(td);
-    LinuxGccNs::CloseHandle((LinuxGccNs::HANDLE)td);
+    _thrd* td = (_thrd*)x;
+    assert(td && td->_thrd_id);
+    delete td;
 }

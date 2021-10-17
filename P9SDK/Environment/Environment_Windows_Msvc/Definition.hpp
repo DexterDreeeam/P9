@@ -12,6 +12,6 @@
 
 #pragma once
 
-#define I_AM_WINDOWS_MSVC  9090
+#define I_AM_WINDOWS_MSVC          9090
 
-#define LOG_FOLDER         "C:/P9_Folder/Log/"
+#define WINDOWS_MSVC_LOG_FOLDER    "C:/P9_Folder/Log/"

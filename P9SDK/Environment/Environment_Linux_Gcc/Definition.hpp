@@ -12,6 +12,6 @@
 
 #pragma once
 
-#define I_AM_LINUX_GCC    9091
+#define I_AM_LINUX_GCC           9091
 
-#define LOG_FOLDER        "C:/P9_Folder/Log/"
+#define LINUX_GCC_LOG_FOLDER     "~/P9_Folder/Log/"

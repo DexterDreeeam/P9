@@ -7,7 +7,7 @@
 #define _around(x,mod)                    ( (x + mod - 1) / mod * mod )
 #define _floor(x,mod)                     ( (x / mod) * mod )
 #define _ceil(x,mod)                      ( _around(x,mod) )
-#define _power(x,exp)                     ( LinuxGccNs::pow(x,exp) )
+#define _power(x,exp)                     ( pow(x,exp) )
 
 #define _KB                               (1024ULL)
 #define _MB                               (1024ULL * 1024ULL)
@@ -17,12 +17,12 @@
 #define _sqrt_inv(x)                      __sqrt_inv(x)
 #define _degree_radian(x)                 __degree_radian(x)
 #define _radian_degree(x)                 __radian_degree(x)
-#define _tan_radian(x)                    LinuxGccNs::tan(x)
-#define _tan_degree(x)                    LinuxGccNs::tan(degree_radian(x))
-#define _sin_radian(x)                    LinuxGccNs::sin(x)
-#define _sin_degree(x)                    LinuxGccNs::sin(degree_radian(x))
-#define _cos_radian(x)                    LinuxGccNs::cos(x)
-#define _cos_degree(x)                    LinuxGccNs::cos(degree_radian(x))
+#define _tan_radian(x)                    tan(x)
+#define _tan_degree(x)                    tan(degree_radian(x))
+#define _sin_radian(x)                    sin(x)
+#define _sin_degree(x)                    sin(degree_radian(x))
+#define _cos_radian(x)                    cos(x)
+#define _cos_degree(x)                    cos(degree_radian(x))
 #define _atan2_radian(x,y)                __atan2(x, y)                    //# (x != 0 || y != 0) : (-Pi, +Pi]
 #define _atan2_degree(x,y)                __radian_degree(__atan2(x, y))   //# (x != 0 || y != 0) : (-180, 180]
 #define _asin_radian(x)                   __asin(x)                        //# [-1, 1] : [-0.5 * Pi, 0.5 * Pi]

@@ -7,7 +7,11 @@
 #include <unistd.h>
 #include <time.h>
 #include <pthread.h>
+#include <signal.h>
 #include <atomic>
 #include <memory.h>
 #include <math.h>
-#include <barrier>
+#include <sys/types.h>
+#include <sys/stat.h> 
+#include <unistd.h>
+#include <fcntl.h>

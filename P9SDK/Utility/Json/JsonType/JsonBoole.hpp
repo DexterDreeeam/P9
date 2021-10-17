@@ -65,13 +65,13 @@ public:
         return new json_boole(_value);
     }
 
-    virtual void serialize(OUT string& str) const override
+    virtual void serialize(_OUT_ string& str) const override
     {
         str.clear();
         this->json_boole::serialize_append(str);
     }
 
-    virtual void serialize_append(OUT string& str) const override
+    virtual void serialize_append(_OUT_ string& str) const override
     {
         str += value();
     }

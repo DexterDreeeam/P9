@@ -3,6 +3,9 @@
 #include "../Unsafe/Pair.hpp"
 #include "SlotAllocator.hpp"
 
+template<typename Key_Ty> class unordered_set;
+template<typename Key_Ty, typename Val_Ty> class unordered_map;
+
 namespace HashmapNs
 {
 
@@ -232,8 +235,8 @@ namespace HashmapNs
     class hashmap_iter<hashmap<Key_Ty, Val_Ty>> : protected hashmap_base_iter<hashmap<Key_Ty, Val_Ty>>
     {
         friend class hashmap<Key_Ty, Val_Ty>;
-        template<typename Key_Ty> friend class unordered_set;
-        template<typename Key_Ty, typename Val_Ty> friend class unordered_map;
+        friend class unordered_set<Key_Ty>;
+        friend class unordered_map<Key_Ty, Val_Ty>;
 
         using Container_Ty = hashmap<Key_Ty, Val_Ty>;
         using Self_Ty = hashmap_iter<Container_Ty>;

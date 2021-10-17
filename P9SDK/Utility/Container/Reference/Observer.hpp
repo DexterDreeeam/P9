@@ -19,7 +19,7 @@ public:
         context(nullptr, nullptr, 0, nullptr)
     {}
 
-protected:
+public:
     observer_base(void* ptr, RefNs::counter* cnt, s64 data_size, RefNs::deconstructor* dc) :
         context(ptr, cnt, data_size, dc)
     {}
@@ -122,9 +122,9 @@ class observer : public RefNs::observer_base
     // friend class observer_base;
     template<typename All_Ty> friend class ref;
 
-    using Self_Ty = typename observer<Ty>;
-    using Value_Ty = typename Ty;
-    using Value_Ptr_Ty = typename Ty*;
+    using Self_Ty = typename::observer<Ty>;
+    using Value_Ty = Ty;
+    using Value_Ptr_Ty = Ty*;
 
 public:
     observer() :
@@ -180,16 +180,6 @@ public:
     #endif
         this->observer_base::operator =(rhs);
         return *this;
-    }
-
-    Ty* operator ->()
-    {
-        return pointer_of<Ty>();
-    }
-
-    Ty& operator *()
-    {
-        return *pointer_of<Ty>();
     }
 
 #if DEBUG_LEVEL >= DEBUG_LEVEL_CALIBRATION_ALL

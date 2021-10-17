@@ -245,7 +245,7 @@ class ref : public ref_base
     friend class ref_base;
     template<typename All_Ty> friend class ref;
 
-    using Self_Ty = typename ref<Ty>;
+    using Self_Ty = typename::ref<Ty>;
     using Observer_Ty = typename::observer<Ty>;
 
 public:
@@ -338,7 +338,7 @@ public:
         Ty* check_type_ptr1 = (Observer_Ty::Value_Ptr_Ty)(nullptr);
         typename Observer_Ty::Value_Ptr_Ty check_type_ptr2 = (Ty*)(nullptr);
     #endif
-        this->~ref_base::operator =(ob);
+        this->ref_base::operator =(ob);
         return *this;
     }
 

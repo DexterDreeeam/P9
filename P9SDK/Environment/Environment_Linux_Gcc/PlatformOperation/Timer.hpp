@@ -28,24 +28,24 @@ static void timr_execute(void* p)
 
 struct timr_cb_desc
 {
-    timr_cb_desc(Callback_Func* f) : fn(f), oplock(spin_create()), running_thread(0), running(false), param(nullptr), delay(0) {}
+    timr_cb_desc(Callback_Func* f) : fn(f), oplock(spin_create()), running_thread(0), running(0), param(nullptr), delay(0) {}
     ~timr_cb_desc() { spin_destroy(oplock); }
     Callback_Func* const fn;
     const spin oplock;
     thrd running_thread;
-    boole running;
+    atom<s64> running;
     void* param;
     u64 delay;
 };
 
 static void timr_cb(void* p)
 {
-    auto* desc = reinterpret_cast<volatile timr_cb_desc*>(p);
+    auto* desc = reinterpret_cast<timr_cb_desc*>(p);
     auto* func = desc->fn;
     void* param = desc->param;
     spin sp = desc->oplock;
     u64 delay = desc->delay;
-    desc->running = boole::True;
+    desc->running = 1;
     spin_put(sp);
 
     tick_sleep(delay);
@@ -69,9 +69,9 @@ _INLINE_ void timr_trigger(timr tm, void* param, u64 ms)
     assert(tm);
     auto* desc = reinterpret_cast<timr_cb_desc*>(tm);
     spin_wait_get(desc->oplock);
-    if (desc->running)
+    if (desc->running.get())
     {
-        desc->running = false;
+        desc->running.set(0);
         thrd_enforce_exit(desc->running_thread);
     }
     if (desc->running_thread)
@@ -91,9 +91,9 @@ _INLINE_ void timr_destroy(timr tm)
     assert(tm);
     auto* desc = reinterpret_cast<timr_cb_desc*>(tm);
     spin_wait_get(desc->oplock);
-    if (desc->running)
+    if (desc->running.get())
     {
-        desc->running = false;
+        desc->running.set(0);
         thrd_enforce_exit(desc->running_thread);
     }
     if (desc->running_thread)

@@ -2,15 +2,15 @@
 
 #include "../../Environment/Environment/Interface.hpp"
 
+#include "Reference/Context.hpp"
+#include "Reference/Observer.hpp"
+#include "Reference/Reference.hpp"
+
 #include "Algo/Hash.hpp"
 
 #include "Internal/Hashmap.hpp"
 #include "Internal/RBTree.hpp"
 #include "Internal/SlotAllocator.hpp"
-
-#include "Reference/Context.hpp"
-#include "Reference/Observer.hpp"
-#include "Reference/Reference.hpp"
 
 #include "Unsafe/Array.hpp"
 #include "Unsafe/Deque.hpp"

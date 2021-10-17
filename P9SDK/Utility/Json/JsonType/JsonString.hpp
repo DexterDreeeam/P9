@@ -66,13 +66,13 @@ public:
         return new json_string(_value);
     }
 
-    virtual void serialize(OUT string& str) const override
+    virtual void serialize(_OUT_ string& str) const override
     {
         str.clear();
         this->json_string::serialize_append(str);
     }
 
-    virtual void serialize_append(OUT string& str) const override
+    virtual void serialize_append(_OUT_ string& str) const override
     {
         str += '\"';
         str += _value;

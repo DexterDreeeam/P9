@@ -1,6 +1,6 @@
 #pragma once
 
-static void trim_index_from(const string& str, OUT s64& from, s64 to)
+static void trim_index_from(const string& str, _OUT_ s64& from, s64 to)
 {
     while (from < to)
     {
@@ -15,7 +15,7 @@ static void trim_index_from(const string& str, OUT s64& from, s64 to)
     }
 }
 
-static void trim_index_to(const string& str, s64 from, OUT s64& to)
+static void trim_index_to(const string& str, s64 from, _OUT_ s64& to)
 {
     while (from < to)
     {
@@ -31,7 +31,7 @@ static void trim_index_to(const string& str, s64 from, OUT s64& to)
 }
 
 // cannot handle case "\\n"
-static void trim_index(const string& str, OUT s64& from, OUT s64& to)
+static void trim_index(const string& str, _OUT_ s64& from, _OUT_ s64& to)
 {
     trim_index_from(str, from, to);
     trim_index_to(str, from, to);
