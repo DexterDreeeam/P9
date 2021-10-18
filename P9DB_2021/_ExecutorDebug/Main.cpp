@@ -59,7 +59,7 @@ void server_entry_point()
 
     print("Init DB server...\n");
     auto r_platfrom = ref<P9::Platform::platform>::new_instance();
-    r_platfrom->load(P9_FOLDER "/p1/");
+    r_platfrom->load(P9_FOLDER "p1/");
 
     auto server = network_server_create(port);
     print("Complete DB init...\n");
@@ -86,6 +86,8 @@ void read_file_send_query(const char* path)
 
     auto client = network_client_create(ip, port);
     network_client_send(client, query.data(), query.size() + 1);
+    len = network_client_wait_receive(client, buf);
+    print("Result: %s.\n", buf);
     network_client_destroy(client);
 }
 
