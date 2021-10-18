@@ -111,10 +111,10 @@ int main(int argc, char* argv[])
         server_entry_point();
         return 0;
     }
-    else if (argc == 3 && str_equal(argv[1], "Client"))
+    else if (argc == 4 && str_equal(argv[1], "Client"))
     {
-        ip = argv[1];
-        client_entry_point(argv[2]);
+        ip = argv[2];
+        client_entry_point(argv[3]);
         return 0;
     }
     print("input parameters: \n \"Server\" or \"Client 20.40.99.127 ./json_query_file.json\"\n");
