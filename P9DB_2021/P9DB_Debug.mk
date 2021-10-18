@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=Dexter
-Date                   :=17/10/21
+Date                   :=18/10/21
 CodeLitePath           :=/home/dexter/.codelite
 LinkerName             :=g++
 SharedObjectLinkerName :=g++ -shared -fPIC
@@ -60,7 +60,7 @@ AS       := as
 ## User defined environment variables
 ##
 CodeLiteDir:=/usr/share/codelite
-Objects0=$(IntermediateDirectory)/Interpreter_Impl_InterpreterStandard.cpp$(ObjectSuffix) $(IntermediateDirectory)/Interpreter_Impl_QuerySyntax.cpp$(ObjectSuffix) $(IntermediateDirectory)/Interpreter_Impl_QueryOperation.cpp$(ObjectSuffix) $(IntermediateDirectory)/_ExecutorDebug_Main.cpp$(ObjectSuffix) $(IntermediateDirectory)/Storage_Impl_Storage.cpp$(ObjectSuffix) $(IntermediateDirectory)/Storage_Impl_Partition.cpp$(ObjectSuffix) $(IntermediateDirectory)/Storage_Impl_IndexTable.cpp$(ObjectSuffix) $(IntermediateDirectory)/Storage_Impl_DocumentIdentifier.cpp$(ObjectSuffix) $(IntermediateDirectory)/Platform_Impl_Platform.cpp$(ObjectSuffix) 
+Objects0=$(IntermediateDirectory)/Storage_Impl_IndexTable.cpp$(ObjectSuffix) $(IntermediateDirectory)/Platform_Impl_Platform.cpp$(ObjectSuffix) $(IntermediateDirectory)/Interpreter_Impl_QueryOperation.cpp$(ObjectSuffix) $(IntermediateDirectory)/Interpreter_Impl_QuerySyntax.cpp$(ObjectSuffix) $(IntermediateDirectory)/Interpreter_Impl_InterpreterStandard.cpp$(ObjectSuffix) $(IntermediateDirectory)/_ExecutorDebug_Main.cpp$(ObjectSuffix) $(IntermediateDirectory)/Storage_Impl_DocumentIdentifier.cpp$(ObjectSuffix) $(IntermediateDirectory)/Storage_Impl_Storage.cpp$(ObjectSuffix) $(IntermediateDirectory)/Storage_Impl_Partition.cpp$(ObjectSuffix) 
 
 
 
@@ -91,21 +91,21 @@ PreBuild:
 ##
 ## Objects
 ##
-$(IntermediateDirectory)/Interpreter_Impl_InterpreterStandard.cpp$(ObjectSuffix): Interpreter/Impl/InterpreterStandard.cpp $(IntermediateDirectory)/Interpreter_Impl_InterpreterStandard.cpp$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/dexter/Desktop/P9/P9DB_2021/Interpreter/Impl/InterpreterStandard.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Interpreter_Impl_InterpreterStandard.cpp$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/Interpreter_Impl_InterpreterStandard.cpp$(DependSuffix): Interpreter/Impl/InterpreterStandard.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Interpreter_Impl_InterpreterStandard.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/Interpreter_Impl_InterpreterStandard.cpp$(DependSuffix) -MM Interpreter/Impl/InterpreterStandard.cpp
+$(IntermediateDirectory)/Storage_Impl_IndexTable.cpp$(ObjectSuffix): Storage/Impl/IndexTable.cpp $(IntermediateDirectory)/Storage_Impl_IndexTable.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/dexter/Desktop/P9/P9DB_2021/Storage/Impl/IndexTable.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Storage_Impl_IndexTable.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Storage_Impl_IndexTable.cpp$(DependSuffix): Storage/Impl/IndexTable.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Storage_Impl_IndexTable.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/Storage_Impl_IndexTable.cpp$(DependSuffix) -MM Storage/Impl/IndexTable.cpp
 
-$(IntermediateDirectory)/Interpreter_Impl_InterpreterStandard.cpp$(PreprocessSuffix): Interpreter/Impl/InterpreterStandard.cpp
-	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Interpreter_Impl_InterpreterStandard.cpp$(PreprocessSuffix) Interpreter/Impl/InterpreterStandard.cpp
+$(IntermediateDirectory)/Storage_Impl_IndexTable.cpp$(PreprocessSuffix): Storage/Impl/IndexTable.cpp
+	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Storage_Impl_IndexTable.cpp$(PreprocessSuffix) Storage/Impl/IndexTable.cpp
 
-$(IntermediateDirectory)/Interpreter_Impl_QuerySyntax.cpp$(ObjectSuffix): Interpreter/Impl/QuerySyntax.cpp $(IntermediateDirectory)/Interpreter_Impl_QuerySyntax.cpp$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/dexter/Desktop/P9/P9DB_2021/Interpreter/Impl/QuerySyntax.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Interpreter_Impl_QuerySyntax.cpp$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/Interpreter_Impl_QuerySyntax.cpp$(DependSuffix): Interpreter/Impl/QuerySyntax.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Interpreter_Impl_QuerySyntax.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/Interpreter_Impl_QuerySyntax.cpp$(DependSuffix) -MM Interpreter/Impl/QuerySyntax.cpp
+$(IntermediateDirectory)/Platform_Impl_Platform.cpp$(ObjectSuffix): Platform/Impl/Platform.cpp $(IntermediateDirectory)/Platform_Impl_Platform.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/dexter/Desktop/P9/P9DB_2021/Platform/Impl/Platform.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Platform_Impl_Platform.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Platform_Impl_Platform.cpp$(DependSuffix): Platform/Impl/Platform.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Platform_Impl_Platform.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/Platform_Impl_Platform.cpp$(DependSuffix) -MM Platform/Impl/Platform.cpp
 
-$(IntermediateDirectory)/Interpreter_Impl_QuerySyntax.cpp$(PreprocessSuffix): Interpreter/Impl/QuerySyntax.cpp
-	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Interpreter_Impl_QuerySyntax.cpp$(PreprocessSuffix) Interpreter/Impl/QuerySyntax.cpp
+$(IntermediateDirectory)/Platform_Impl_Platform.cpp$(PreprocessSuffix): Platform/Impl/Platform.cpp
+	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Platform_Impl_Platform.cpp$(PreprocessSuffix) Platform/Impl/Platform.cpp
 
 $(IntermediateDirectory)/Interpreter_Impl_QueryOperation.cpp$(ObjectSuffix): Interpreter/Impl/QueryOperation.cpp $(IntermediateDirectory)/Interpreter_Impl_QueryOperation.cpp$(DependSuffix)
 	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/dexter/Desktop/P9/P9DB_2021/Interpreter/Impl/QueryOperation.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Interpreter_Impl_QueryOperation.cpp$(ObjectSuffix) $(IncludePath)
@@ -115,6 +115,22 @@ $(IntermediateDirectory)/Interpreter_Impl_QueryOperation.cpp$(DependSuffix): Int
 $(IntermediateDirectory)/Interpreter_Impl_QueryOperation.cpp$(PreprocessSuffix): Interpreter/Impl/QueryOperation.cpp
 	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Interpreter_Impl_QueryOperation.cpp$(PreprocessSuffix) Interpreter/Impl/QueryOperation.cpp
 
+$(IntermediateDirectory)/Interpreter_Impl_QuerySyntax.cpp$(ObjectSuffix): Interpreter/Impl/QuerySyntax.cpp $(IntermediateDirectory)/Interpreter_Impl_QuerySyntax.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/dexter/Desktop/P9/P9DB_2021/Interpreter/Impl/QuerySyntax.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Interpreter_Impl_QuerySyntax.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Interpreter_Impl_QuerySyntax.cpp$(DependSuffix): Interpreter/Impl/QuerySyntax.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Interpreter_Impl_QuerySyntax.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/Interpreter_Impl_QuerySyntax.cpp$(DependSuffix) -MM Interpreter/Impl/QuerySyntax.cpp
+
+$(IntermediateDirectory)/Interpreter_Impl_QuerySyntax.cpp$(PreprocessSuffix): Interpreter/Impl/QuerySyntax.cpp
+	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Interpreter_Impl_QuerySyntax.cpp$(PreprocessSuffix) Interpreter/Impl/QuerySyntax.cpp
+
+$(IntermediateDirectory)/Interpreter_Impl_InterpreterStandard.cpp$(ObjectSuffix): Interpreter/Impl/InterpreterStandard.cpp $(IntermediateDirectory)/Interpreter_Impl_InterpreterStandard.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/dexter/Desktop/P9/P9DB_2021/Interpreter/Impl/InterpreterStandard.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Interpreter_Impl_InterpreterStandard.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Interpreter_Impl_InterpreterStandard.cpp$(DependSuffix): Interpreter/Impl/InterpreterStandard.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Interpreter_Impl_InterpreterStandard.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/Interpreter_Impl_InterpreterStandard.cpp$(DependSuffix) -MM Interpreter/Impl/InterpreterStandard.cpp
+
+$(IntermediateDirectory)/Interpreter_Impl_InterpreterStandard.cpp$(PreprocessSuffix): Interpreter/Impl/InterpreterStandard.cpp
+	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Interpreter_Impl_InterpreterStandard.cpp$(PreprocessSuffix) Interpreter/Impl/InterpreterStandard.cpp
+
 $(IntermediateDirectory)/_ExecutorDebug_Main.cpp$(ObjectSuffix): _ExecutorDebug/Main.cpp $(IntermediateDirectory)/_ExecutorDebug_Main.cpp$(DependSuffix)
 	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/dexter/Desktop/P9/P9DB_2021/_ExecutorDebug/Main.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/_ExecutorDebug_Main.cpp$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/_ExecutorDebug_Main.cpp$(DependSuffix): _ExecutorDebug/Main.cpp
@@ -122,6 +138,14 @@ $(IntermediateDirectory)/_ExecutorDebug_Main.cpp$(DependSuffix): _ExecutorDebug/
 
 $(IntermediateDirectory)/_ExecutorDebug_Main.cpp$(PreprocessSuffix): _ExecutorDebug/Main.cpp
 	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/_ExecutorDebug_Main.cpp$(PreprocessSuffix) _ExecutorDebug/Main.cpp
+
+$(IntermediateDirectory)/Storage_Impl_DocumentIdentifier.cpp$(ObjectSuffix): Storage/Impl/DocumentIdentifier.cpp $(IntermediateDirectory)/Storage_Impl_DocumentIdentifier.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/dexter/Desktop/P9/P9DB_2021/Storage/Impl/DocumentIdentifier.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Storage_Impl_DocumentIdentifier.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Storage_Impl_DocumentIdentifier.cpp$(DependSuffix): Storage/Impl/DocumentIdentifier.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Storage_Impl_DocumentIdentifier.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/Storage_Impl_DocumentIdentifier.cpp$(DependSuffix) -MM Storage/Impl/DocumentIdentifier.cpp
+
+$(IntermediateDirectory)/Storage_Impl_DocumentIdentifier.cpp$(PreprocessSuffix): Storage/Impl/DocumentIdentifier.cpp
+	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Storage_Impl_DocumentIdentifier.cpp$(PreprocessSuffix) Storage/Impl/DocumentIdentifier.cpp
 
 $(IntermediateDirectory)/Storage_Impl_Storage.cpp$(ObjectSuffix): Storage/Impl/Storage.cpp $(IntermediateDirectory)/Storage_Impl_Storage.cpp$(DependSuffix)
 	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/dexter/Desktop/P9/P9DB_2021/Storage/Impl/Storage.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Storage_Impl_Storage.cpp$(ObjectSuffix) $(IncludePath)
@@ -138,30 +162,6 @@ $(IntermediateDirectory)/Storage_Impl_Partition.cpp$(DependSuffix): Storage/Impl
 
 $(IntermediateDirectory)/Storage_Impl_Partition.cpp$(PreprocessSuffix): Storage/Impl/Partition.cpp
 	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Storage_Impl_Partition.cpp$(PreprocessSuffix) Storage/Impl/Partition.cpp
-
-$(IntermediateDirectory)/Storage_Impl_IndexTable.cpp$(ObjectSuffix): Storage/Impl/IndexTable.cpp $(IntermediateDirectory)/Storage_Impl_IndexTable.cpp$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/dexter/Desktop/P9/P9DB_2021/Storage/Impl/IndexTable.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Storage_Impl_IndexTable.cpp$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/Storage_Impl_IndexTable.cpp$(DependSuffix): Storage/Impl/IndexTable.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Storage_Impl_IndexTable.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/Storage_Impl_IndexTable.cpp$(DependSuffix) -MM Storage/Impl/IndexTable.cpp
-
-$(IntermediateDirectory)/Storage_Impl_IndexTable.cpp$(PreprocessSuffix): Storage/Impl/IndexTable.cpp
-	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Storage_Impl_IndexTable.cpp$(PreprocessSuffix) Storage/Impl/IndexTable.cpp
-
-$(IntermediateDirectory)/Storage_Impl_DocumentIdentifier.cpp$(ObjectSuffix): Storage/Impl/DocumentIdentifier.cpp $(IntermediateDirectory)/Storage_Impl_DocumentIdentifier.cpp$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/dexter/Desktop/P9/P9DB_2021/Storage/Impl/DocumentIdentifier.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Storage_Impl_DocumentIdentifier.cpp$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/Storage_Impl_DocumentIdentifier.cpp$(DependSuffix): Storage/Impl/DocumentIdentifier.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Storage_Impl_DocumentIdentifier.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/Storage_Impl_DocumentIdentifier.cpp$(DependSuffix) -MM Storage/Impl/DocumentIdentifier.cpp
-
-$(IntermediateDirectory)/Storage_Impl_DocumentIdentifier.cpp$(PreprocessSuffix): Storage/Impl/DocumentIdentifier.cpp
-	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Storage_Impl_DocumentIdentifier.cpp$(PreprocessSuffix) Storage/Impl/DocumentIdentifier.cpp
-
-$(IntermediateDirectory)/Platform_Impl_Platform.cpp$(ObjectSuffix): Platform/Impl/Platform.cpp $(IntermediateDirectory)/Platform_Impl_Platform.cpp$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/dexter/Desktop/P9/P9DB_2021/Platform/Impl/Platform.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Platform_Impl_Platform.cpp$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/Platform_Impl_Platform.cpp$(DependSuffix): Platform/Impl/Platform.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Platform_Impl_Platform.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/Platform_Impl_Platform.cpp$(DependSuffix) -MM Platform/Impl/Platform.cpp
-
-$(IntermediateDirectory)/Platform_Impl_Platform.cpp$(PreprocessSuffix): Platform/Impl/Platform.cpp
-	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Platform_Impl_Platform.cpp$(PreprocessSuffix) Platform/Impl/Platform.cpp
 
 
 -include $(IntermediateDirectory)/*$(DependSuffix)

@@ -11,6 +11,7 @@
         <File Name="../Environment/Environment_Linux_Gcc/BuildinDefinition/Boole.hpp"/>
       </VirtualDirectory>
       <VirtualDirectory Name="PlatformOperation">
+        <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/Network.hpp"/>
         <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/New.hpp"/>
         <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/CString.hpp"/>
         <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/Event.hpp"/>
