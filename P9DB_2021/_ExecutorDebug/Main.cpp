@@ -1,7 +1,7 @@
 #include "../Interface/Interface.hpp"
 
 const s64 port = 39901;
-const char* ip = "20.40.99.127";
+const char* ip;
 
 struct client_context
 {
@@ -102,9 +102,16 @@ void client_entry_point()
     read_file_send_query("../.tests/07-search-3.json");
 }
 
-int main()
+int main(int argc, char* argv[])
 {
-    server_entry_point();
-    //client_entry_point();
+    if (argc < 2)
+    {
+        server_entry_point();
+    }
+    else
+    {
+        ip = argv[1];
+        client_entry_point();
+    }
     return 0;
 }

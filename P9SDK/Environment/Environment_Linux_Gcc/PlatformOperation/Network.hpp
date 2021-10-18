@@ -196,7 +196,8 @@ _INLINE_ network_connect network_connect_create(network_server x)
     assert(ns && ns->_sock);
 
     _network_connect* connect = new _network_connect();
-    connect->_sock = accept(ns->_sock, &connect->_addr, nullptr);
+    socklen_t addrlen;
+    connect->_sock = accept(ns->_sock, &connect->_addr, &addrlen);
     if (connect->_sock < 0)
     {
         goto L_error;
