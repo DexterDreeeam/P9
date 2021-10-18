@@ -16,7 +16,7 @@ _INLINE_ void             network_server_destroy(network_server x);
 
 _INLINE_ network_connect  network_connect_create(network_server x);
 _INLINE_ boole            network_connect_send(network_connect x, const void* msg, s64 len);
-_INLINE_ s64              network_connect_wait_receive(network_connect x, _OUT_ void* msg, _OUT_ s64& read_len);
+_INLINE_ s64              network_connect_wait_receive(network_connect x, _OUT_ void* msg);
 _INLINE_ void             network_connect_destroy(network_connect x);
 
 struct _network_client
@@ -75,18 +75,16 @@ _INLINE_ network_client network_client_create(const char* server_addr, s64 serve
         goto L_error;
     }
 
-    goto L_finish;
+    L_finish:
+    nc->_lock = lock_create();
+    return (network_client)nc;
 
 L_error:
     if (nc)
     {
         delete nc;
     }
-    nc = nullptr;
-
-L_finish:
-    nc->_lock = lock_create();
-    return (network_client)nc;
+    return (network_client)nullptr;
 }
 
 _INLINE_ boole network_client_send(network_client x, const void* msg, s64 len)
@@ -132,14 +130,12 @@ _INLINE_ s64 network_client_wait_receive(network_client x, _OUT_ void* msg)
         goto L_error;
     }
 
-    goto L_finish;
-
-L_error:
-    content_len = -1;
-L_finish:
     assert(content_len > 0);
     lock_put(nc->_lock);
     return content_len;
+
+L_error:
+    return -1;
 }
 
 _INLINE_ void network_client_destroy(network_client x)
@@ -192,17 +188,14 @@ _INLINE_ network_server network_server_create(s64 server_port)
     {
         goto L_error;
     }
-    goto L_finish;
+    return (network_server)ns;
 
 L_error:
     if (ns)
     {
         delete ns;
     }
-    ns = nullptr;
-
-L_finish:
-    return (network_server)ns;
+    return nullptr;
 }
 
 _INLINE_ void network_server_destroy(network_server x)
@@ -219,24 +212,22 @@ _INLINE_ network_connect network_connect_create(network_server x)
     assert(ns && ns->_sock);
 
     _network_connect* connect = new _network_connect();
-    connect->_sock = WindowsMsvcNs::accept(ns->_sock, &connect->_addr, &connect->_addr_len);
+    s64 addr_len = 0;
+    connect->_sock = WindowsMsvcNs::accept(ns->_sock, &connect->_addr, nullptr);
     if (connect->_sock < 0)
     {
         goto L_error;
     }
 
-    goto L_finish;
+    connect->_lock = lock_create();
+    return (network_connect)connect;
 
 L_error:
     if (connect)
     {
         delete connect;
     }
-    return nullptr;
-
-L_finish:
-    connect->_lock = lock_create();
-    return (network_connect)connect;
+    return (network_connect)nullptr;
 }
 
 _INLINE_ boole network_connect_send(network_connect x, const void* msg, s64 len)
@@ -261,7 +252,7 @@ _INLINE_ boole network_connect_send(network_connect x, const void* msg, s64 len)
     }
 }
 
-_INLINE_ s64 network_connect_wait_receive(network_connect x, _OUT_ void* msg, _OUT_ s64& read_len)
+_INLINE_ s64 network_connect_wait_receive(network_connect x, _OUT_ void* msg)
 {
     _network_connect* connect = (_network_connect*)x;
     assert(connect && connect->_sock && connect->_lock);
@@ -282,14 +273,12 @@ _INLINE_ s64 network_connect_wait_receive(network_connect x, _OUT_ void* msg, _O
         goto L_error;
     }
 
-    goto L_finish;
-
-L_error:
-    content_len = -1;
-L_finish:
     assert(content_len > 0);
     lock_put(connect->_lock);
     return content_len;
+
+L_error:
+    return -1;
 }
 
 _INLINE_ void network_connect_destroy(network_connect x)

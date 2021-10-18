@@ -17,6 +17,7 @@
 #pragma warning (disable : 4244)
 #pragma warning (disable : 4307)
 #pragma warning (disable : 4595)
+#pragma warning (disable : 6011)
 #pragma warning (disable : 6258)
 #pragma warning (disable : 6385)
 #pragma warning (disable : 6386)
