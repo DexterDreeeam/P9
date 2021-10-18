@@ -18,6 +18,7 @@ static void client_handler(void* p)
     char* buf = new char[2048];
     while (1)
     {
+        print("Waiting client query....\n");
         s64 msg_len = network_connect_wait_receive(connect, buf);
         if (msg_len <= 0)
         {
@@ -25,6 +26,7 @@ static void client_handler(void* p)
         }
         string query = buf;
         string rst;
+        print("Received client query, start process...\n");
         try
         {
             auto op1 = r_platform->parse_operation_message(query);
@@ -33,16 +35,19 @@ static void client_handler(void* p)
         catch (...)
         {
             log("error happens when process query.");
-            print("error happens when process query.");
+            print("error happens when process query.\n");
             break;
         }
+        print("Finish client query, send result back to client...\n");
         if (!network_connect_send(connect, rst.data(), rst.size() + 1))
         {
             log("error happens when send result back.");
-            print("error happens when send result back.");
+            print("error happens when send result back.\n");
             break;
         }
+        print("Complete query.\n");
     }
+    print("Client disconnect to server.\n");
     network_connect_destroy(connect);
     delete[] buf;
     delete p_context;
@@ -52,14 +57,18 @@ void server_entry_point()
 {
     tick_start();
 
+    print("Init DB server...\n");
     auto r_platfrom = ref<P9::Platform::platform>::new_instance();
     r_platfrom->load(P9_FOLDER "/p1/");
 
     auto server = network_server_create(port);
+    print("Complete DB init...\n");
+    print("Waiting Client connect...\n");
     while (1)
     {
         client_context* p_context = new client_context();
         p_context->connect = network_connect_create(server);
+        print("Client connected to server.\n");
         p_context->platform = r_platfrom;
         thrd_create(client_handler, p_context);
     }
