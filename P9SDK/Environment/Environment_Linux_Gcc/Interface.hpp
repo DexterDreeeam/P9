@@ -35,6 +35,7 @@
 #include "PlatformOperation/Lock.hpp"
 #include "PlatformOperation/Math.hpp"
 #include "PlatformOperation/Memory.hpp"
+#include "PlatformOperation/Network.hpp"
 #include "PlatformOperation/New.hpp"
 #include "PlatformOperation/Print.hpp"
 // #include "PlatformOperation/SIMD.hpp"
