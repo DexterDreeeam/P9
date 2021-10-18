@@ -23,6 +23,7 @@
     <ClInclude Include="PlatformOperation\Lock.hpp" />
     <ClInclude Include="PlatformOperation\Math.hpp" />
     <ClInclude Include="PlatformOperation\Memory.hpp" />
+    <ClInclude Include="PlatformOperation\Network.hpp" />
     <ClInclude Include="PlatformOperation\New.hpp" />
     <ClInclude Include="PlatformOperation\Print.hpp" />
     <ClInclude Include="PlatformOperation\SIMD.hpp" />

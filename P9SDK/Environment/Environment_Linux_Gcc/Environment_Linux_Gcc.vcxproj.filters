@@ -69,5 +69,8 @@
     <ClInclude Include="Interface.hpp" />
     <ClInclude Include="PlatformHeader.hpp" />
     <ClInclude Include="Definition.hpp" />
+    <ClInclude Include="PlatformOperation\Network.hpp">
+      <Filter>PlatformOperation</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -34,7 +34,6 @@ struct _network_connect
 {
     WindowsMsvcNs::SOCKET _sock;
     WindowsMsvcNs::sockaddr _addr;
-    int _addr_len;
     lock _lock;
 };
 
@@ -75,11 +74,14 @@ _INLINE_ network_client network_client_create(const char* server_addr, s64 serve
         goto L_error;
     }
 
-    L_finish:
     nc->_lock = lock_create();
     return (network_client)nc;
 
 L_error:
+    if (nc->_sock != INVALID_SOCKET)
+    {
+        WindowsMsvcNs::closesocket(nc->_sock);
+    }
     if (nc)
     {
         delete nc;
@@ -191,6 +193,10 @@ _INLINE_ network_server network_server_create(s64 server_port)
     return (network_server)ns;
 
 L_error:
+    if (ns->_sock != INVALID_SOCKET)
+    {
+        WindowsMsvcNs::closesocket(ns->_sock);
+    }
     if (ns)
     {
         delete ns;
