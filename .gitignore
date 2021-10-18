@@ -1,7 +1,6 @@
 
 # Windows MSVC ignoring files
 
-!*placeholder*
 *temp/*
 *.lib*
 *.exe*
@@ -13,6 +12,9 @@
 *.ilk
 *.iobj
 *.ipdb
+
+!*placeholder*
+!P9DB.exe
 
 # Linux Gcc ignoring files
 
