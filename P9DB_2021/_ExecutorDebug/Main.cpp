@@ -34,9 +34,9 @@ static void client_handler(void* p)
         }
         catch (...)
         {
-            log("error happens when process query.");
-            print("error happens when process query.\n");
-            break;
+            rst = "error happens when process query.";
+            log(rst.data());
+            print("%s\n", rst.data());
         }
         print("Finish client query, send result back to client...\n");
         if (!network_connect_send(connect, rst.data(), rst.size() + 1))
@@ -91,27 +91,32 @@ void read_file_send_query(const char* path)
     network_client_destroy(client);
 }
 
-void client_entry_point()
+void client_entry_point(const char* json_file_path)
 {
-    read_file_send_query("../.tests/01-upsert-1.json");
-    read_file_send_query("../.tests/02-upsert-2.json");
-    read_file_send_query("../.tests/03-upsert-3.json");
-    read_file_send_query("../.tests/04-retrieve-1.json");
-    read_file_send_query("../.tests/05-search-1.json");
-    read_file_send_query("../.tests/06-search-2.json");
-    read_file_send_query("../.tests/07-search-3.json");
+    read_file_send_query(json_file_path);
+
+    //read_file_send_query("../.tests/01-upsert-1.json");
+    //read_file_send_query("../.tests/02-upsert-2.json");
+    //read_file_send_query("../.tests/03-upsert-3.json");
+    //read_file_send_query("../.tests/04-retrieve-1.json");
+    //read_file_send_query("../.tests/05-search-1.json");
+    //read_file_send_query("../.tests/06-search-2.json");
+    //read_file_send_query("../.tests/07-search-3.json");
 }
 
 int main(int argc, char* argv[])
 {
-    if (argc < 2)
+    if (argc == 2 && str_equal(argv[1], "Server"))
     {
         server_entry_point();
+        return 0;
     }
-    else
+    else if (argc == 3 && str_equal(argv[1], "Client"))
     {
         ip = argv[1];
-        client_entry_point();
+        client_entry_point(argv[2]);
+        return 0;
     }
-    return 0;
+    print("input parameters: \n \"Server\" or \"Client 20.40.99.127 ./json_query_file.json\"\n");
+    return -1;
 }
