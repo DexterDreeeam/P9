@@ -2,9 +2,18 @@
 
 #include "Print.hpp"
 
-#define ASSERT_EXCEPTION_CODE (0x09090909L)
-
 #if DEBUG_LEVEL >= DEBUG_LEVEL_CALIBRATION_CHECK_BASIC
+
+#define P9_ASSERT_EXCEPTION_CODE (0x09090909L)
+
+struct P9_assert_exception
+{
+    s64 error_code;
+    const char* expect_condition;
+    const char* information;
+    const char* file;
+    s64 line;
+};
 
 namespace LinuxGccNs
 {
@@ -14,17 +23,32 @@ _INLINE_ void p9_assert(const JudgeTy& exp, const char* s, const char* file, s64
 {
     if (!!!(exp))
     {
+        P9_assert_exception ex;
+        ex.error_code = P9_ASSERT_EXCEPTION_CODE;
+        ex.expect_condition = s;
+        ex.information = nullptr;
+        ex.file = file;
+        ex.line = line;
+
         print("[ERROR] Assert Failed. Condition '%s' in file: %s at line: %lld\n", s, file, line);
-        throw (ASSERT_EXCEPTION_CODE);
+        throw ex;
     }
 }
+
 template<typename JudgeTy>
 _INLINE_ void p9_assert(const JudgeTy& exp, const char* s, const char* info, const char* file, s64 line)
 {
     if (!!!(exp))
     {
+        P9_assert_exception ex = {};
+        ex.error_code = P9_ASSERT_EXCEPTION_CODE;
+        ex.expect_condition = s;
+        ex.information = info;
+        ex.file = file;
+        ex.line = line;
+
         print("[ERROR] Assert Failed. Condition '%s', Info '%s' in file: %s at line: %lld\n", s, info, file, line);
-        throw (ASSERT_EXCEPTION_CODE);
+        throw ex;
     }
 }
 
