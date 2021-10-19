@@ -72,21 +72,9 @@ int main()
     //    }
     //}
 
-    network_client nc = network_client_create("10.17.17.153", 39900);
-    print("Health.\n");
-    s64 i = 0;
-    while (1)
+    while (!am_i_terminated())
     {
-        tick_sleep(1000);
-        char buf[16] = {};
-        s64 len = s64_to_text(++i, buf);
-        buf[len] = 0;
-        if (!network_client_send(nc, buf, len + 1))
-        {
-            print("Finish.\n");
-            return 0;
-        }
-        print("Send %d.\n", i);
+        tick_sleep(100);
     }
 
     return 0;

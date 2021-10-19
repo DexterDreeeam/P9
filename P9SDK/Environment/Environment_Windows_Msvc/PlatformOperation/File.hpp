@@ -9,11 +9,14 @@ _INLINE_ outf  output_file_create(const char* path, boole overwrite = boole::Fal
 _INLINE_ boole output_file_write(outf f, const char* content);
 _INLINE_ boole output_file_write(outf f, const char* content, s64 write_len);
 _INLINE_ boole output_file_destroy(outf f);
+
 _INLINE_ inpf  input_file_create(const char* path);
 _INLINE_ s64   input_file_read(inpf f, void* buf, s64 want_read);
 _INLINE_ boole input_file_destroy(inpf f);
+
 _INLINE_ boole create_file(const char* path);
 _INLINE_ boole delete_file(const char* path);
+_INLINE_ boole is_file_exist(const char* path);
 
 _INLINE_ outf output_file_create(const char *path, boole overwrite)
 {
@@ -159,6 +162,22 @@ _INLINE_ boole delete_file(const char *path)
 {
     if (WindowsMsvcNs::DeleteFileA(path))
     {
+        return boole::True;
+    }
+    else
+    {
+        return boole::False;
+    }
+}
+
+_INLINE_ boole is_file_exist(const char* path)
+{
+    WindowsMsvcNs::WIN32_FIND_DATAA FindFileData;
+    WindowsMsvcNs::HANDLE hFind = WindowsMsvcNs::FindFirstFileA(path, &FindFileData);
+    if (hFind != (WindowsMsvcNs::HANDLE)(WindowsMsvcNs::LONG_PTR)-1)
+    {
+        //# not INVALID_HANDLE_VALUE
+        WindowsMsvcNs::FindClose(hFind);
         return boole::True;
     }
     else

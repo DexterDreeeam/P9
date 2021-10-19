@@ -2,8 +2,6 @@
 
 #include "Print.hpp"
 
-#if DEBUG_LEVEL >= DEBUG_LEVEL_CALIBRATION_CHECK_BASIC
-
 #define P9_ASSERT_EXCEPTION_CODE (0x09090909L)
 
 struct P9_assert_exception
@@ -14,6 +12,8 @@ struct P9_assert_exception
     const char* file;
     s64 line;
 };
+
+#if DEBUG_LEVEL >= DEBUG_LEVEL_CALIBRATION_CHECK_BASIC
 
 namespace LinuxGccNs
 {
