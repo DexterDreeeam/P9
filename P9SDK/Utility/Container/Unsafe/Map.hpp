@@ -46,27 +46,27 @@ public:
     ~map() noexcept
     {}
 
-    void insert(const Key_Ty& k) noexcept
+    void insert(const Key_Ty& k)
     {
         Base_Ty::_insert(k);
     }
 
-    void insert(const Key_Ty& k, const Val_Ty& v) noexcept
+    void insert(const Key_Ty& k, const Val_Ty& v)
     {
         Base_Ty::_insert(k, v);
     }
 
-    void insert(const Key_Ty& k, Val_Ty&& v) noexcept
+    void insert(const Key_Ty& k, Val_Ty&& v)
     {
         Base_Ty::_insert(k, v);
     }
 
-    void insert(const pair<Key_Ty, Val_Ty>& p) noexcept
+    void insert(const pair<Key_Ty, Val_Ty>& p)
     {
         Base_Ty::_insert(p.first, p.second);
     }
 
-    void insert(pair<Key_Ty, Val_Ty>&& p) noexcept
+    void insert(pair<Key_Ty, Val_Ty>&& p)
     {
         Base_Ty::_insert(right_value_type(p.first), right_value_type(p.second));
     }
@@ -86,14 +86,14 @@ public:
         Base_Ty::_clear();
     }
 
-    Val_Ty& operator [](const Key_Ty& k) noexcept
+    Val_Ty& operator [](const Key_Ty& k)
     {
         Node_Ty* nod = Base_Ty::_insert_node(k);
         assert(nod);
         return nod->mydata()->second;
     }
 
-    Iter_Ty find(const Key_Ty& k) noexcept
+    Iter_Ty find(const Key_Ty& k)
     {
         Node_Ty* nod = Base_Ty::_peek_node(k);
         if (nod)
@@ -106,7 +106,7 @@ public:
         }
     }
 
-    bool erase(const Key_Ty& k) noexcept
+    bool erase(const Key_Ty& k)
     {
         return Base_Ty::_erase(k);
     }

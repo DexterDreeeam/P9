@@ -10,11 +10,16 @@ ref<document_identifier> index_document_table::get_document(const string& docume
 {
     ref<document_identifier> rst;
     rw_lock_wait_read(_op_lock);
+    escape_function ef =
+        [=]() mutable
+        {
+            rw_lock_put_read(_op_lock);
+        };
+
     if (document_map.count(document_id))
     {
         rst = document_map[document_id];
     }
-    rw_lock_put_read(_op_lock);
     return rst;
 }
 
@@ -23,6 +28,12 @@ boole index_document_table::insert_document(
 {
     boole rst;
     rw_lock_wait_write(_op_lock);
+    escape_function ef =
+        [=]() mutable
+        {
+            rw_lock_put_write(_op_lock);
+        };
+
     if (document_map.count(document_id) == 0)
     {
         document_map[document_id] = r_doc;
@@ -32,7 +43,6 @@ boole index_document_table::insert_document(
     {
         rst = boole::False;
     }
-    rw_lock_put_write(_op_lock);
     return rst;
 }
 
@@ -40,6 +50,12 @@ boole index_document_table::remove_document(const string& document_id)
 {
     boole rst = boole::False;
     rw_lock_wait_write(_op_lock);
+    escape_function ef =
+        [=]() mutable
+        {
+            rw_lock_put_write(_op_lock);
+        };
+
     if (document_map.count(document_id))
     {
         if (document_map.erase(document_id))
@@ -47,7 +63,6 @@ boole index_document_table::remove_document(const string& document_id)
             rst = boole::True;
         }
     }
-    rw_lock_put_write(_op_lock);
     return rst;
 }
 
@@ -55,11 +70,16 @@ set<string> index_table::get_documents(ref<json_base> key)
 {
     set<string> rst;
     rw_lock_wait_read(_op_lock);
+    escape_function ef =
+        [=]() mutable
+        {
+            rw_lock_put_read(_op_lock);
+        };
+
     if (document_map.count(key))
     {
         rst = document_map[key];
     }
-    rw_lock_put_read(_op_lock);
     return rst;
 }
 
@@ -67,21 +87,31 @@ boole index_table::insert_document(ref<json_base> key, const string& document_id
 {
     boole ret = boole::False;
     rw_lock_wait_write(_op_lock);
+    escape_function ef =
+        [=]() mutable
+        {
+            rw_lock_put_write(_op_lock);
+        };
+
     auto& document_id_set = document_map[key];
     if (document_id_set.count(document_id) == 0)
     {
         document_id_set.insert(document_id);
         ret = boole::True;
     }
-    rw_lock_put_write(_op_lock);
     return ret;
 }
 
 boole index_table::remove_document(ref<json_base> key, const string& document_id)
 {
     boole ret = boole::False;
-
     rw_lock_wait_write(_op_lock);
+    escape_function ef =
+        [=]() mutable
+        {
+            rw_lock_put_write(_op_lock);
+        };
+
     auto itr = document_map.find(key);
     if (itr != document_map.end())
     {
@@ -97,7 +127,6 @@ boole index_table::remove_document(ref<json_base> key, const string& document_id
             }
         }
     }
-    rw_lock_put_write(_op_lock);
     return ret;
 }
 

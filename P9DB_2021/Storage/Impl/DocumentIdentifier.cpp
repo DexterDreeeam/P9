@@ -34,6 +34,12 @@ boole document_identifier::uninit()
 string document_identifier::read()
 {
     rw_lock_wait_read(_op_lock);
+    escape_function ef =
+        [=]() mutable
+        {
+            rw_lock_put_read(_op_lock);
+        };
+
     auto f = input_file_create(_location.data());
     char* buf = new char[8192];
     s64 len = input_file_read(f, buf, 8192);
@@ -50,10 +56,15 @@ string document_identifier::read()
 void document_identifier::overwrite(const string& str)
 {
     rw_lock_wait_write(_op_lock);
+    escape_function ef =
+        [=]() mutable
+        {
+            rw_lock_put_write(_op_lock);
+        };
+
     auto f = output_file_create(_location.data(), boole::True);
     output_file_write(f, str.data());
     output_file_destroy(f);
-    rw_lock_put_write(_op_lock);
 }
 
 }
