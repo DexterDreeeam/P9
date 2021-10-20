@@ -35,6 +35,11 @@ int main()
             r3 = rb.ref_of<TestClassA>();
             ob1 = r3;
         }
+        escape_function ef(
+            []()
+        {
+            print("objk");
+        });
         auto ob2 = r3.observer();
         ob3 = ob2;
         ref<TestClassA> rr1(ob1);
@@ -42,7 +47,6 @@ int main()
         {
             print("111");
         }
-        escape_function ef([](){});
     }
     ref<TestClassA> rr2(ob1);
     if (rr2)
