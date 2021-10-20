@@ -42,6 +42,7 @@ int main()
         {
             print("111");
         }
+        escape_function ef([](){});
     }
     ref<TestClassA> rr2(ob1);
     if (rr2)

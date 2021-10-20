@@ -26,24 +26,35 @@ static void client_handler(void* p)
         }
         string query = buf;
         string rst;
+        boole is_error_happens = boole::False;
         print("Received client query, start process...\n");
         try
         {
             auto op1 = r_platform->parse_operation_message(query);
             rst = r_platform->handle_operation(op1);
         }
+        catch (P9_assert_exception ex)
+        {
+            is_error_happens = boole::True;
+            rst = "Assert error happens when process query.";
+            err(rst.data());
+            err("error_code: %ll, expected_condition: %s, information: %s, file: %s, line: ll.",
+                ex.error_code, ex.expect_condition, ex.information, ex.file, ex.line);
+            print("%s\n", rst.data());
+        }
         catch (...)
         {
-            rst = "error happens when process query.";
+            is_error_happens = boole::True;
+            rst = "Unknown error happens when process query.";
             log(rst.data());
             print("%s\n", rst.data());
         }
         print("Finish client query, send result back to client...\n");
-        if (!network_connect_send(connect, rst.data(), rst.size() + 1))
+        if (rst.size() == 0 || !network_connect_send(connect, rst.data(), rst.size() + 1))
         {
-            log("error happens when send result back.");
-            print("error happens when send result back.\n");
-            break;
+            is_error_happens = boole::True;
+            log("Error happens when send result back.");
+            print("Error happens when send result back.\n");
         }
         print("Complete query.\n");
     }
@@ -94,18 +105,11 @@ void read_file_send_query(const char* path)
 void client_entry_point(const char* json_file_path)
 {
     read_file_send_query(json_file_path);
-
-    //read_file_send_query("../.tests/01-upsert-1.json");
-    //read_file_send_query("../.tests/02-upsert-2.json");
-    //read_file_send_query("../.tests/03-upsert-3.json");
-    //read_file_send_query("../.tests/04-retrieve-1.json");
-    //read_file_send_query("../.tests/05-search-1.json");
-    //read_file_send_query("../.tests/06-search-2.json");
-    //read_file_send_query("../.tests/07-search-3.json");
 }
 
 int main(int argc, char* argv[])
 {
+    server_entry_point();
     if (argc == 2 && str_equal(argv[1], "Server"))
     {
         server_entry_point();

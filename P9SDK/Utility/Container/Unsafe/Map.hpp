@@ -76,7 +76,7 @@ public:
         return Base_Ty::_size();
     }
 
-    s64 count(const Key_Ty& k) const noexcept
+    s64 count(const Key_Ty& k) const
     {
         return Base_Ty::_peek_node(k) ? 1 : 0;
     }

@@ -68,6 +68,9 @@
     <ClInclude Include="Reference\Observer.hpp">
       <Filter>Reference</Filter>
     </ClInclude>
+    <ClInclude Include="Safe\EscapeFunction.hpp">
+      <Filter>Safe</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Safe">

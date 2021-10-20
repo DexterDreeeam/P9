@@ -11,6 +11,12 @@ static set<string> search_qualified_document(
 {
     set<string> rst;
     auto& table_map = table->get_control();
+    escape_function(
+        [=]() mutable
+        {
+            table->put_control();
+        });
+
     boole insert_item = boole::False;
     auto factor = ref<json_base>::new_instance(criteria.factor->clone());
     if (table_map.count(factor) == 0)
@@ -60,7 +66,6 @@ static set<string> search_qualified_document(
     {
         table_map.erase(factor);
     }
-    table->put_control();
     return rst;
 }
 
@@ -74,6 +79,7 @@ ref<Interpreter::query_operation> platform::parse_operation_message(const string
 {
     if (!_interpreter)
     {
+        assert_info(0, "P9DB Platform doesn't load interpreter.");
         return ref<Interpreter::query_operation>();
     }
 
@@ -94,6 +100,7 @@ string platform::handle_operation(ref<Interpreter::query_operation> op)
         return handle_search(op.ref_of<Interpreter::query_operation_search>());
     default:
         err("Not expected operation type, %d.", op->type());
+        assert_info(0, "Not expected operation type.");
         break;
     }
     return string("error");

@@ -344,11 +344,13 @@ public:
 
     Ty* operator ->()
     {
+        assert_info(valid(), "Try to access invalid reference pointer.");
         return pointer_of<Ty>();
     }
 
     Ty& operator *()
     {
+        assert_info(valid(), "Try to access invalid reference pointer.");
         return *pointer_of<Ty>();
     }
 

@@ -26,5 +26,6 @@
 #include "Unsafe/Unordered_Set.hpp"
 #include "Unsafe/Vector.hpp"
 
+#include "Safe/EscapeFunction.hpp"
 #include "Safe/SafeQueue.hpp"
 #include "Safe/Selectee.hpp"

@@ -307,13 +307,13 @@ namespace RBTreeNs
             return node != rhs.node;
         }
 
-        NodeData_Ty* operator ->() const noexcept
+        NodeData_Ty* operator ->() const
         {
             assert_info(node->prnt, "Cannot refer to no data iterator.");
             return reinterpret_cast<NodeData_Ty*>(((Node_Ty*)node)->mydata());
         }
 
-        NodeData_Ty& operator *() const noexcept
+        NodeData_Ty& operator *() const
         {
             assert_info(node->prnt, "Cannot refer to no data iterator.");
             return *reinterpret_cast<NodeData_Ty*>(((Node_Ty*)node)->mydata());
@@ -391,13 +391,13 @@ namespace RBTreeNs
             return node != rhs.node;
         }
 
-        NodeData_Ty* operator ->() const noexcept
+        NodeData_Ty* operator ->() const
         {
             assert_info(node->prnt, "Cannot refer to no data iterator.");
             return reinterpret_cast<NodeData_Ty*>(((Node_Ty*)node)->mydata());
         }
 
-        NodeData_Ty& operator *() const noexcept
+        NodeData_Ty& operator *() const
         {
             assert_info(node->prnt, "Cannot refer to no data iterator.");
             return *reinterpret_cast<NodeData_Ty*>(((Node_Ty*)node)->mydata());
@@ -475,13 +475,13 @@ namespace RBTreeNs
             return node != rhs.node;
         }
 
-        const NodeData_Ty* operator ->() const noexcept
+        const NodeData_Ty* operator ->() const
         {
             assert_info(node->prnt, "Cannot refer to no data iterator.");
             return reinterpret_cast<NodeData_Ty*>(((Node_Ty*)node)->mydata());
         }
 
-        const NodeData_Ty& operator *() const noexcept
+        const NodeData_Ty& operator *() const
         {
             assert_info(node->prnt, "Cannot refer to no data iterator.");
             return *reinterpret_cast<NodeData_Ty*>(((Node_Ty*)node)->mydata());
@@ -548,24 +548,24 @@ namespace RBTreeNs
             return ret;
         }
 
-        bool operator ==(const Self_Ty& rhs) const noexcept
+        bool operator ==(const Self_Ty& rhs) const
         {
             //assert(node);
             return node == rhs.node;
         }
 
-        bool operator !=(const Self_Ty& rhs) const noexcept
+        bool operator !=(const Self_Ty& rhs) const
         {
             return node != rhs.node;
         }
 
-        const NodeData_Ty* operator ->() const noexcept
+        const NodeData_Ty* operator ->() const
         {
             assert_info(node->prnt, "Cannot refer to no data iterator.");
             return reinterpret_cast<NodeData_Ty*>(((Node_Ty*)node)->mydata());
         }
 
-        const NodeData_Ty& operator *() const noexcept
+        const NodeData_Ty& operator *() const
         {
             assert_info(node->prnt, "Cannot refer to no data iterator.");
             return *reinterpret_cast<NodeData_Ty*>(((Node_Ty*)node)->mydata());
@@ -625,7 +625,7 @@ namespace RBTreeNs
             return sz;
         }
 
-        bool validation() noexcept
+        bool validation()
         {
             if (sz == 0 && myhead()->left == nullptr)
             {
@@ -650,7 +650,7 @@ namespace RBTreeNs
             _deconstruct_recur(myhead()->left);
         }
 
-        Test_Type _validation_recur(Node_Ty* nod) noexcept
+        Test_Type _validation_recur(Node_Ty* nod)
         {
             Test_Type test_error(-1LL);
             Test_Type empty_branch(s64_min);
@@ -735,22 +735,22 @@ namespace RBTreeNs
             _destroy_node(nod);
         }
 
-        void _insert(const Key_Ty& k) noexcept
+        void _insert(const Key_Ty& k)
         {
             _insert_node(k);
         }
 
-        void _insert(const Key_Ty& k, const Val_Ty& v) noexcept
+        void _insert(const Key_Ty& k, const Val_Ty& v)
         {
             _insert_node(k, v);
         }
 
-        void _insert(const Key_Ty& k, Val_Ty&& v) noexcept
+        void _insert(const Key_Ty& k, Val_Ty&& v)
         {
             _insert_node(k, v);
         }
 
-        bool _erase(const Key_Ty& k) noexcept
+        bool _erase(const Key_Ty& k)
         {
             Node_Ty* nod = _peek_node(k);
             if (nod)
@@ -801,7 +801,7 @@ namespace RBTreeNs
             allocator.put(nod);
         }
 
-        Node_Ty* _insert_node(const Key_Ty& k) noexcept
+        Node_Ty* _insert_node(const Key_Ty& k)
         {
             assert(sz >= 0);
             if (sz == 0)
@@ -861,7 +861,7 @@ namespace RBTreeNs
             return ptr;
         }
 
-        Node_Ty* _insert_node(const Key_Ty& k, const Val_Ty& v) noexcept
+        Node_Ty* _insert_node(const Key_Ty& k, const Val_Ty& v)
         {
             assert(sz >= 0);
             if (sz == 0)
@@ -921,7 +921,7 @@ namespace RBTreeNs
             return ptr;
         }
 
-        Node_Ty* _insert_node(const Key_Ty& k, Val_Ty&& v) noexcept
+        Node_Ty* _insert_node(const Key_Ty& k, Val_Ty&& v)
         {
             assert(sz >= 0);
             if (sz == 0)
@@ -981,7 +981,7 @@ namespace RBTreeNs
             return ptr;
         }
 
-        Node_Ty* _peek_node(const Key_Ty& k) const noexcept
+        Node_Ty* _peek_node(const Key_Ty& k)
         {
             assert(sz >= 0);
             if (sz == 0)
@@ -1011,6 +1011,11 @@ namespace RBTreeNs
                 }
             }
             return nullptr;
+        }
+
+        const Node_Ty* _peek_node(const Key_Ty& k) const
+        {
+            return pointer_convert(this, 0, Self_Ty*)->_peek_node(k);
         }
 
         void _remove_node(Node_Ty* nod) noexcept
@@ -1067,7 +1072,7 @@ namespace RBTreeNs
             left->right = nod;
         }
 
-        void _exam_node(Node_Ty* nod) noexcept
+        void _exam_node(Node_Ty* nod)
         {
             assert(myhead()->left);
             assert(nod && nod->color == RB_TREE_RED);

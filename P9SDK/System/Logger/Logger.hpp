@@ -340,6 +340,7 @@ namespace LoggerNs
      * %ll   s64
      * %ull  u64
      * %p    type*
+     * %x    type*
      * %s    const char*
      */
     template<typename ...Args>
@@ -371,9 +372,12 @@ namespace LoggerNs
                 //# cstring
                 char* arg_cursor = arg_buf[arg_idx++];
                 const char* cstr = *pointer_convert(arg_cursor, 0, const char**);
-                u64 cstr_len = str_len(cstr);
+                u64 cstr_len = cstr ? str_len(cstr) : 0;
                 assert(output_len + cstr_len < log_line_max_length);
-                memory_copy(cstr, output_buf + output_len, str_len(cstr));
+                if (cstr_len > 0)
+                {
+                    memory_copy(cstr, output_buf + output_len, str_len(cstr));
+                }
                 output_len += cstr_len;
                 idx_start = idx + 2;
                 idx = idx_start;
@@ -473,9 +477,12 @@ namespace LoggerNs
                 //# string
                 char* arg_cursor = arg_buf[arg_idx++];
                 const char* cstr = *pointer_convert(arg_cursor, 0, const char**);
-                u64 cstr_len = str_len(cstr);
+                u64 cstr_len = cstr ? str_len(cstr) : 0;
                 assert(output_len + cstr_len < log_line_max_length);
-                memory_copy(cstr, output_buf + output_len, str_len(cstr));
+                if (cstr_len > 0)
+                {
+                    memory_copy(cstr, output_buf + output_len, str_len(cstr));
+                }
                 output_len += cstr_len;
                 idx_start = idx + 2;
                 idx = idx_start;
@@ -562,6 +569,15 @@ namespace LoggerNs
 
 #endif
 
+/*
+ * %d    s32
+ * %u    u32
+ * %ll   s64
+ * %ull  u64
+ * %p    type*
+ * %x    type*
+ * %s    const char*
+ */
 template<typename ...Args>
 _INLINE_ void log(Args...args)
 {
@@ -572,7 +588,15 @@ _INLINE_ void log(Args...args)
     #endif
 }
 
-
+/*
+ * %d    s32
+ * %u    u32
+ * %ll   s64
+ * %ull  u64
+ * %p    type*
+ * %x    type*
+ * %s    const char*
+ */
 template<typename ...Args>
 _INLINE_ void err(Args...args)
 {
