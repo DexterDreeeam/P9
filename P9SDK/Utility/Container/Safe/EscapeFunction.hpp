@@ -68,6 +68,7 @@ public:
             delete _release;
         }
         _release = new internal_release<Fn_Ty>(fn);
+        return *this;
     }
 
 private:

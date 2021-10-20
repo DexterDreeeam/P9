@@ -11,11 +11,11 @@ static set<string> search_qualified_document(
 {
     set<string> rst;
     auto& table_map = table->get_control();
-    escape_function(
+    escape_function ef =
         [=]() mutable
         {
             table->put_control();
-        });
+        };
 
     boole insert_item = boole::False;
     auto factor = ref<json_base>::new_instance(criteria.factor->clone());

@@ -26,6 +26,8 @@ _INLINE_ boole input_file_destroy(inpf x);
 
 _INLINE_ boole create_file(const char* path);
 _INLINE_ boole delete_file(const char* path);
+_INLINE_ boole is_file_exist(const char* path);
+
 _INLINE_ boole is_directory_exist(const char* path);
 _INLINE_ boole create_directory(const char* path);
 
@@ -155,6 +157,11 @@ _INLINE_ boole delete_file(const char *path)
     {
         return boole::False;
     }
+}
+
+_INLINE_ boole is_file_exist(const char* path)
+{
+    return !access(path, F_OK);
 }
 
 _INLINE_ boole is_directory_exist(const char* path)
