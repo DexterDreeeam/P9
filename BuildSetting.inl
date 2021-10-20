@@ -6,7 +6,7 @@
 
 #define \
     SERVICE_NAME \
-        "P9DB_Client"
+        "P9DB"
 
 /*
  *  Debug Level
