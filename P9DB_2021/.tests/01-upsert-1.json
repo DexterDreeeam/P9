@@ -8,7 +8,7 @@
   "content":
   {
     "Student_Name": "Dexter",
-    "Student_Age": 25,
+    "Student_Age": 25.12,
     "Student_Family":
     [
        { "Mom": "Dexter_Mom" },

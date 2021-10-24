@@ -46,14 +46,7 @@ _INLINE_ json_base* json_deserialize(const string& str, s64 from, s64 to)
     }
 
     //===================================================== json_float
-    rst = json_float::deserialize(str, from, to);
-    if (rst)
-    {
-        goto L_finish;
-    }
-
-    //===================================================== json_int
-    rst = json_int::deserialize(str, from, to);
+    rst = json_number::deserialize(str, from, to);
     if (rst)
     {
         goto L_finish;

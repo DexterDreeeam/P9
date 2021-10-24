@@ -28,7 +28,7 @@ ref<query_operation> standard_interpreter::translate(const string& msg)
     json_cursor j_idx;
     ref<query_operation> rst;
     string str_operation;
-    s64 s64_submit_time;
+    number s64_submit_time;
     string str_user_token;
     string str_partition;
 
@@ -49,13 +49,13 @@ ref<query_operation> standard_interpreter::translate(const string& msg)
     log("operation is %s", str_operation.data());
 
     j_idx = j_base["submit_time"];
-    if (j_idx.invalid() || j_idx->type() != json_type::INT)
+    if (j_idx.invalid() || j_idx->type() != json_type::NUMBER)
     {
         err("Query submit_time parsing error.");
         assert_info(0, "Query submit_time parsing error.");
         goto L_error;
     }
-    s64_submit_time = j_idx.as_s64();
+    s64_submit_time = j_idx.as_number();
 
     j_idx = j_base["user_token"];
     if (j_idx.invalid() || j_idx->type() != json_type::STRING)
@@ -171,7 +171,7 @@ ref<query_operation> standard_interpreter::translate(const string& msg)
         goto L_error;
     }
 
-    rst->submit_time = (u64)s64_submit_time;
+    rst->submit_time = s64_submit_time;
     rst->user_token = str_user_token;
     rst->partition = str_partition;
     rst->time = date_timestamp_utc();

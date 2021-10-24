@@ -53,17 +53,11 @@ public:
             {
                 return str_compare(j1->value().data(), j2->value().data());
             }
-        case json_type::FLOAT:
+        case json_type::NUMBER:
             {
-                f64 f1 = j1.ref_of<json_float>()->as_f64();
-                f64 f2 = j2.ref_of<json_float>()->as_f64();
+                number f1 = j1.ref_of<json_number>()->as_number();
+                number f2 = j2.ref_of<json_number>()->as_number();
                 return f1 == f2 ? 0 : f1 < f2 ? -1 : 1;
-            }
-        case json_type::INT:
-            {
-                s64 i1 = j1.ref_of<json_int>()->as_s64();
-                s64 i2 = j2.ref_of<json_int>()->as_s64();
-                return i1 == i2 ? 0 : i1 < i2 ? -1 : 1;
             }
         default:
             break;

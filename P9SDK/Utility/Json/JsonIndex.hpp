@@ -36,8 +36,7 @@ _INLINE_ void json_iterate(json_base* json, Fn_Ty fn, boole leaves_only)
         }
         break;
     case json_type::BOOLE:
-    case json_type::FLOAT:
-    case json_type::INT:
+    case json_type::NUMBER:
     case json_type::JSON_NULL:
     case json_type::STRING:
         fn(json);
@@ -131,16 +130,10 @@ public:
         return pointer_convert(_json, 0, json_boole*)->as_boole();
     }
 
-    f64 as_f64() const
+    number as_number() const
     {
-        assert(_json->type() == json_type::FLOAT);
-        return pointer_convert(_json, 0, json_float*)->as_f64();
-    }
-
-    s64 as_s64() const
-    {
-        assert(_json->type() == json_type::INT);
-        return pointer_convert(_json, 0, json_int*)->as_s64();
+        assert(_json->type() == json_type::NUMBER);
+        return pointer_convert(_json, 0, json_number*)->as_number();
     }
 
     string as_string() const

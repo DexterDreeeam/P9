@@ -26,4 +26,4 @@
 
 #endif
 
-#define LOG_FOLDER     P9_FOLDER "LOG/"
+#define LOG_FOLDER     P9_FOLDER "Log/"

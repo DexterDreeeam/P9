@@ -31,7 +31,7 @@ public:
     virtual query_operation_type type() = 0;
 
 public:
-    u64     submit_time;
+    number  submit_time;
     u64     time;
     string  user_token;
     string  partition;

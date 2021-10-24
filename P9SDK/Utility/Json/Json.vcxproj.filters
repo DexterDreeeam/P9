@@ -9,9 +9,6 @@
     <ClInclude Include="JsonType\JsonObject.hpp">
       <Filter>JsonType</Filter>
     </ClInclude>
-    <ClInclude Include="JsonType\JsonInt.hpp">
-      <Filter>JsonType</Filter>
-    </ClInclude>
     <ClInclude Include="JsonType\JsonString.hpp">
       <Filter>JsonType</Filter>
     </ClInclude>
@@ -24,7 +21,7 @@
     </ClInclude>
     <ClInclude Include="Utility.hpp" />
     <ClInclude Include="JsonIndex.hpp" />
-    <ClInclude Include="JsonType\JsonFloat.hpp">
+    <ClInclude Include="JsonType\JsonNumber.hpp">
       <Filter>JsonType</Filter>
     </ClInclude>
   </ItemGroup>

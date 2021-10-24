@@ -20,8 +20,7 @@
 
 #include "JsonType/JsonArray.hpp"
 #include "JsonType/JsonBoole.hpp"
-#include "JsonType/JsonFloat.hpp"
-#include "JsonType/JsonInt.hpp"
+#include "JsonType/JsonNumber.hpp"
 #include "JsonType/JsonNull.hpp"
 #include "JsonType/JsonObject.hpp"
 #include "JsonType/JsonString.hpp"

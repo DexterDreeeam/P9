@@ -5,9 +5,10 @@
  * |
  * |_ json_object
  * |_ json_array
- * |_ json_int
+ * |_ json_number
  * |_ json_string
  * |_ json_boole
+ * |_ json_null
  * 
  */
 
@@ -15,7 +16,6 @@ class json_base;
 
 class json_object;
 class json_array;
-class json_int;
 class json_string;
 class json_boole;
 
@@ -30,8 +30,7 @@ enum class json_type : u64
 
     OBJECT,
     ARRAY,
-    INT,
-    FLOAT,
+    NUMBER,
     STRING,
     BOOLE,
     JSON_NULL,
