@@ -1,6 +1,7 @@
 #pragma once
 
-_INLINE_ u64   random(u64 mod, boole generate_seed = boole::False);
+_INLINE_ u64   random();
+_INLINE_ u64   random(u64 mod);
 _INLINE_ date  date_query();
 _INLINE_ date  date_query_utc();
 _INLINE_ u64   date_timestamp_utc();
@@ -11,13 +12,49 @@ _INLINE_ void  tick_start();
 _INLINE_ u64   tick_elapse();
 _INLINE_ void  tick_elapse_print();
 
-_INLINE_ u64 random(u64 mod, boole generate_seed)
+namespace RandomNs
 {
-    if (generate_seed)
+
+class random_initializer
+{
+public:
+    random_initializer()
     {
-        WindowsMsvcNs::srand((u32)(tick_count() % u32_max));
+        u32 seed = (u32)(date_timestamp_utc() % u32_max);
+        WindowsMsvcNs::srand(seed);
     }
-    return WindowsMsvcNs::rand() % (mod);
+
+    ~random_initializer() = default;
+};
+
+_SELECTANY_ random_initializer __random_initializer;
+
+}
+
+_INLINE_ u64 random()
+{
+    u8 _u8_0 = (u8)(u32)WindowsMsvcNs::rand();
+    u8 _u8_1 = (u8)(u32)WindowsMsvcNs::rand();
+    u8 _u8_2 = (u8)(u32)WindowsMsvcNs::rand();
+    u8 _u8_3 = (u8)(u32)WindowsMsvcNs::rand();
+    u8 _u8_4 = (u8)(u32)WindowsMsvcNs::rand();
+    u8 _u8_5 = (u8)(u32)WindowsMsvcNs::rand();
+    u8 _u8_6 = (u8)(u32)WindowsMsvcNs::rand();
+    u8 _u8_7 = (u8)(u32)WindowsMsvcNs::rand();
+    return
+        ((u64)_u8_0) |
+        (((u64)_u8_1) << 8) |
+        (((u64)_u8_2) << 16) |
+        (((u64)_u8_3) << 24) |
+        (((u64)_u8_4) << 32) |
+        (((u64)_u8_5) << 40) |
+        (((u64)_u8_6) << 48) |
+        (((u64)_u8_7) << 56);
+}
+
+_INLINE_ u64 random(u64 mod)
+{
+    return random() % mod;
 }
 
 _INLINE_ date date_query()

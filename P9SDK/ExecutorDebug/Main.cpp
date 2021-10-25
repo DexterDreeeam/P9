@@ -20,7 +20,6 @@ public:
 
 int main()
 {
-    boole test;
     observer<TestClassA> ob1;
     observer<TestClassA> ob3;
     {

@@ -35,6 +35,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Environment_Linux_Gcc", "En
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Terminator", "System\Terminator\Terminator.vcxproj", "{88A0BC68-1D0E-4828-94FD-2E1C135F99CB}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Identifier", "Utility\Identifier\Identifier.vcxproj", "{F85D6035-E703-4EC2-91B0-B4B49CDB0BCF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -89,6 +91,10 @@ Global
 		{88A0BC68-1D0E-4828-94FD-2E1C135F99CB}.Debug|x64.Build.0 = Release|x64
 		{88A0BC68-1D0E-4828-94FD-2E1C135F99CB}.Release|x64.ActiveCfg = Release|x64
 		{88A0BC68-1D0E-4828-94FD-2E1C135F99CB}.Release|x64.Build.0 = Release|x64
+		{F85D6035-E703-4EC2-91B0-B4B49CDB0BCF}.Debug|x64.ActiveCfg = Release|x64
+		{F85D6035-E703-4EC2-91B0-B4B49CDB0BCF}.Debug|x64.Build.0 = Release|x64
+		{F85D6035-E703-4EC2-91B0-B4B49CDB0BCF}.Release|x64.ActiveCfg = Release|x64
+		{F85D6035-E703-4EC2-91B0-B4B49CDB0BCF}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -104,6 +110,7 @@ Global
 		{3BDC53E8-F06F-4353-9EB8-A7279368B94D} = {567D2493-4142-494D-B550-6C0D34326D4F}
 		{CBC6738B-BC2C-4CFA-A8BA-9CC295AFB914} = {EF99CD8B-B41A-4950-8D50-1EB0740C1810}
 		{88A0BC68-1D0E-4828-94FD-2E1C135F99CB} = {C508EE5F-3901-4FEC-81B7-1474A7A8C788}
+		{F85D6035-E703-4EC2-91B0-B4B49CDB0BCF} = {567D2493-4142-494D-B550-6C0D34326D4F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1117CA9C-6B52-40B6-B188-F96F1496AB11}
