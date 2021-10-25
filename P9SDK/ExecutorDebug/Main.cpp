@@ -1,6 +1,6 @@
 #include "../Interface/Interface.hpp"
 
-class TestClassA
+class TestClassA : public object
 {
 public:
     s64 aa;
@@ -75,6 +75,9 @@ int main()
     //        print(".\n=========================== receive msg.\n");
     //    }
     //}
+
+    auto* need_release = new TestClassA(1);
+    delete need_release;
 
     while (!am_i_terminated())
     {
