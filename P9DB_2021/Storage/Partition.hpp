@@ -6,7 +6,7 @@ namespace P9
 namespace Storage
 {
 
-class partition
+class partition : object
 {
 public:
     partition() = delete;
@@ -47,7 +47,7 @@ private:
 
 private:
     ref<index_document_table> _document_map;
-    map<string, ref<index_table>> _index_table_map;
+    unordered_map<string, ref<index_table>> _index_table_map;
 };
 
 }

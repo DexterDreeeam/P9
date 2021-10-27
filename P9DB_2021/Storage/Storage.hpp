@@ -6,7 +6,7 @@ namespace P9
 namespace Storage
 {
 
-class storage
+class storage : object
 {
 public:
     storage() = delete;

@@ -6,7 +6,7 @@ namespace P9
 namespace Platform
 {
 
-class platform
+class platform : object
 {
 public:
     platform() :

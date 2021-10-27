@@ -6,38 +6,63 @@ namespace P9
 namespace Storage
 {
 
-class document_identifier
+enum class document_identifier_status : s64
+{
+    CREATING,
+    NORMAL,
+    UPDATING,
+    IMMIGRATING,
+    DELETING,
+};
+
+class document_identifier : object
 {
 public:
     document_identifier() = delete;
 
-    document_identifier(const string& id, const string& parent_location) :
+    document_identifier(const string& id, const string& parent_location, const string& content) :
         _guid(guid::new_instance().as_string()),
-        _location(),
-        _op_lock(rw_lock_create()),
-        _inited(boole::False)
+        _location(parent_location + _guid),
+        _op_lock(lock_create()),
+        _status(document_identifier_status::CREATING)
     {
-        _location = parent_location + _guid;
+        auto f = output_file_create(_location.data(), boole::True);
+        output_file_write(f, content.data());
+        output_file_destroy(f);
     }
 
     ~document_identifier()
     {
-        rw_lock_destroy(_op_lock);
+        lock_destroy(_op_lock);
     }
-
-    boole init();
-
-    boole uninit();
 
     string read();
 
-    void overwrite(const string& str);
+    boole is_status(document_identifier_status s)
+    {
+        return _status == s;
+    }
+
+    boole transform(document_identifier_status from, document_identifier_status to)
+    {
+        boole rst = boole::False;
+        lock_wait_get(_op_lock);
+        if (_status == from)
+        {
+            _status = to;
+            rst = boole::True;
+        }
+        lock_put(_op_lock);
+    }
 
 public:
-    string  _guid;
-    string  _location;
-    rw_lock _op_lock;
-    boole   _inited;
+    string                      _guid;
+    string                      _location;
+    lock                        _op_lock;
+    string                      _etag;
+
+private:
+    document_identifier_status  _status;
 };
 
 }

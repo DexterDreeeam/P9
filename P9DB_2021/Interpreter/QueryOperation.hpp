@@ -21,7 +21,7 @@ enum class query_operation_type : s64
     COUNT
 };
 
-class query_operation
+class query_operation : object
 {
 public:
     query_operation() = default;

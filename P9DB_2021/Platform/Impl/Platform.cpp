@@ -6,10 +6,10 @@ namespace P9
 namespace Platform
 {
 
-static set<string> search_qualified_document(
+static Storage::index_table::Set_Ty search_qualified_document(
     ref<Storage::index_table> table, Interpreter::query_criteria criteria)
 {
-    set<string> rst;
+    Storage::index_table::Set_Ty rst;
     auto& table_map = table->get_control();
     escape_function ef =
         [=]() mutable
@@ -21,7 +21,7 @@ static set<string> search_qualified_document(
     auto factor = ref<json_base>::new_instance(criteria.factor->clone());
     if (table_map.count(factor) == 0)
     {
-        table_map.insert(factor, set<string>());
+        table_map.insert(factor, Storage::index_table::Set_Ty());
         insert_item = boole::True;
     }
     auto itr = table_map.find(factor);
@@ -112,9 +112,10 @@ string platform::handle_upsert(ref<Interpreter::query_operation_upsert> op)
     auto partition = _storage->insert_partition(op->partition);
     auto document_table = partition->get_document_table();
     auto r_document = ref<Storage::document_identifier>::new_instance(
-        op->document_id, partition->location());
+        op->document_id, partition->location(), op->content->value());
+
+    r_document->_status = Storage::document_identifier_status::CREATING;
     document_table->insert_document(op->document_id, r_document);
-    r_document->overwrite(op->content->value());
 
     op->content->iterate(
         [&](json_base* json)

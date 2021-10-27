@@ -11,7 +11,7 @@ enum class interpreter_type : s64
     STANDARD,
 };
 
-class base_interpreter
+class base_interpreter : object
 {
 public:
     base_interpreter()
