@@ -1,0 +1,32 @@
+storage
+\_ partition
+   \_ index_table
+      \_ set<document_identifier>
+
+
+document_identifier status:
+  'creating', 'normal', 'updating', 'immigrating', 'deleting'
+
+upsert flow:
+\=> build: partition, index_table
+ \=> find there is yet no this document id
+ |\=> build document_local_file, document_identifier, mark identifier as 'creating', assign etag 
+ | \=> insert document_identifier to document_id table
+ |  \=> insert document_identifier to every index_table
+ |   \=> mark identifier as 'normal'
+ |    \=> succeed
+ |
+ |=> find there is this document id, identifier with 'normal'
+ |\=> mark identifier as 'updating'
+   \=> find etag conflict
+   |\=> mark identifier as 'normal'
+   | \=> fail
+   |
+   |=> find etag consistent
+    \=> build new document_local_file, document_identifier, mark identifier as 'immigrating', assign etag
+
+delete flow:
+\=> find document_id don't exist
+|\=> return
+|
+|=> find document_id  

@@ -12,7 +12,6 @@ public:
     document_identifier() = delete;
 
     document_identifier(const string& id, const string& parent_location) :
-        _id(id),
         _guid(guid::new_instance().as_string()),
         _location(),
         _op_lock(rw_lock_create()),
@@ -35,7 +34,6 @@ public:
     void overwrite(const string& str);
 
 public:
-    string  _id;
     string  _guid;
     string  _location;
     rw_lock _op_lock;
