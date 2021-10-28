@@ -15,6 +15,13 @@ enum class document_identifier_status : s64
     DELETING,
 };
 
+enum class document_identifier_transform_result : s64
+{
+    SUCCEED,
+    WRONG_STATUS,
+    ETAG_CONFLICT,
+};
+
 class document_identifier : object
 {
 public:
@@ -43,16 +50,37 @@ public:
         return _status == s;
     }
 
-    boole transform(document_identifier_status from, document_identifier_status to)
+    document_identifier_transform_result transform(document_identifier_status from, document_identifier_status to)
     {
-        boole rst = boole::False;
+        document_identifier_transform_result rst = document_identifier_transform_result::WRONG_STATUS;
         lock_wait_get(_op_lock);
         if (_status == from)
         {
             _status = to;
-            rst = boole::True;
+            rst = document_identifier_transform_result::SUCCEED;
         }
         lock_put(_op_lock);
+        return rst;
+    }
+
+    document_identifier_transform_result transform_if_etag_identical(document_identifier_status from, document_identifier_status to, const string& etag)
+    {
+        document_identifier_transform_result rst = document_identifier_transform_result::WRONG_STATUS;
+        lock_wait_get(_op_lock);
+        if (_status == from)
+        {
+            if (_etag == etag)
+            {
+                _status = to;
+                rst = document_identifier_transform_result::SUCCEED;
+            }
+            else
+            {
+                rst = document_identifier_transform_result::ETAG_CONFLICT;
+            }
+        }
+        lock_put(_op_lock);
+        return rst;
     }
 
 public:

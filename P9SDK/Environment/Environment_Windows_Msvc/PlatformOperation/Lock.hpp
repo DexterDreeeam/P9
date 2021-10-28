@@ -1,17 +1,26 @@
 #pragma once
 
-typedef  hndl  lock;
+#include "Thread.hpp"
+
+struct _lock
+{
+    WindowsMsvcNs::HANDLE _hdnl;
+    u64                   _thrd_id;
+    atom<u64>             _lock_cnt;
+};
+
+typedef  void* lock;
 
 _INLINE_ lock  lock_create(void);
-_INLINE_ boole lock_try_get(lock lk);
-_INLINE_ void  lock_wait_get(lock lk);
-_INLINE_ void  lock_put(lock lk);
-_INLINE_ void  lock_destroy(lock lk);
+_INLINE_ boole lock_try_get(lock x);
+_INLINE_ void  lock_wait_get(lock x);
+_INLINE_ void  lock_put(lock x);
+_INLINE_ void  lock_destroy(lock x);
 
 struct _rw_lock
 {
     atom<s64> _writing;
-    atom<s64> _reader_count;
+    atom<s64> _reader_count; 
 };
 
 typedef  void* rw_lock;
@@ -27,34 +36,82 @@ _INLINE_ void    rw_lock_destroy(rw_lock x);
 
 _INLINE_ lock lock_create(void)
 {
-    return (lock)WindowsMsvcNs::CreateMutex(NULL, FALSE, NULL);
+    using namespace WindowsMsvcNs;
+
+    _lock* lk = new _lock();
+    lk->_hdnl = CreateMutex(NULL, FALSE, NULL);
+    lk->_thrd_id = 0;
+    lk->_lock_cnt.set(0);
+    return (lock)lk;
 }
 
-typedef unsigned long DWORD;
-
-_INLINE_ boole lock_try_get(lock lk)
+_INLINE_ boole lock_try_get(lock x)
 {
+    using namespace WindowsMsvcNs;
+
+    _lock* lk = (_lock*)x;
     assert(lk);
-    return
-        WindowsMsvcNs::WaitForSingleObject((WindowsMsvcNs::HANDLE)lk, 0) == WAIT_OBJECT_0;
+
+    u64 myid = thrd_myid();
+
+    if (lk->_thrd_id == myid)
+    {
+        ++lk->_lock_cnt;
+        return boole::True;
+    }
+
+    if (lk->_thrd_id == 0 && WaitForSingleObject((HANDLE)lk->_hdnl, 0) == WAIT_OBJECT_0)
+    {
+        lk->_thrd_id = myid;
+        lk->_lock_cnt.set(1);
+        return boole::True;
+    }
+
+    return boole::False;
 }
 
-_INLINE_ void lock_wait_get(lock lk)
+_INLINE_ void lock_wait_get(lock x)
 {
+    using namespace WindowsMsvcNs;
+
+    _lock* lk = (_lock*)x;
     assert(lk);
-    WindowsMsvcNs::WaitForSingleObject((WindowsMsvcNs::HANDLE)lk, INFINITE);
+
+    u64 myid = thrd_myid();
+
+    if (lk->_thrd_id == myid)
+    {
+        ++lk->_lock_cnt;
+    }
+    else
+    {
+        WaitForSingleObject((HANDLE)lk->_hdnl, INFINITE);
+        lk->_thrd_id = myid;
+        lk->_lock_cnt.set(1);
+    }
 }
 
-_INLINE_ void lock_put(lock lk)
+_INLINE_ void lock_put(lock x)
 {
+    using namespace WindowsMsvcNs;
+
+    _lock* lk = (_lock*)x;
     assert(lk);
-    WindowsMsvcNs::ReleaseMutex((WindowsMsvcNs::HANDLE)lk);
+
+    if (--lk->_lock_cnt == 0)
+    {
+        ReleaseMutex((HANDLE)lk->_hdnl);
+    }
 }
 
-_INLINE_ void lock_destroy(lock lk)
+_INLINE_ void lock_destroy(lock x)
 {
+    using namespace WindowsMsvcNs;
+
+    _lock* lk = (_lock*)x;
     assert(lk);
-    WindowsMsvcNs::CloseHandle((WindowsMsvcNs::HANDLE)lk);
+    CloseHandle((HANDLE)lk->_hdnl);
+    delete lk;
 }
 
 _INLINE_ rw_lock rw_lock_create(void)

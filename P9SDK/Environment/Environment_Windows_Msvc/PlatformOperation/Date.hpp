@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Thread.hpp"
+
 _INLINE_ u64   random();
 _INLINE_ u64   random(u64 mod);
 _INLINE_ date  date_query();
@@ -18,6 +20,7 @@ _INLINE_ u64 random()
     WindowsMsvcNs::LARGE_INTEGER ticks;
     for (s64 i = 0; i < 16; ++i)
     {
+        yield();
         WindowsMsvcNs::QueryPerformanceCounter(&ticks);
         rst = rst << 4;
         rst |= ticks.QuadPart & 0b00001111;

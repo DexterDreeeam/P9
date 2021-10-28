@@ -146,6 +146,11 @@ public:
         return *this;
     }
 
+    bool operator ==(const ref_base& rhs) const noexcept
+    {
+        return _ptr == rhs._ptr;
+    }
+
 public:
     operator boole() const
     {
@@ -340,6 +345,16 @@ public:
     #endif
         this->ref_base::operator =(ob);
         return *this;
+    }
+
+    bool operator ==(const ref<Ty>& rhs) const noexcept
+    {
+        return this->ref_base::operator ==(rhs);
+    }
+
+    bool operator !=(const ref<Ty>& rhs) const noexcept
+    {
+        return !this->ref_base::operator ==(rhs);
     }
 
     Ty* operator ->()

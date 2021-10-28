@@ -65,17 +65,20 @@ public:
 
     ref<document_identifier> get_document(const string& document_id);
 
-    boole insert_document(const string& document_id, ref<document_identifier> r_doc);
+    ref<document_identifier> insert_document(const string& document_id, ref<document_identifier> r_doc);
+
+    void insert_or_replace_document(const string& document_id, ref<document_identifier> r_doc);
 
     boole remove_document(const string& document_id);
 
-    boole upsert_process(const string& document_id, ref<document_identifier> r_doc);
+    template<typename Fn_Ty>
+    boole find_or_insert_do(const string& document_id, ref<document_identifier> r_doc, Fn_Ty fn);
 
 public:
     rw_lock _op_lock;
 
 private:
-    map<string, ref<document_identifier>> document_map;
+    map<string, ref<document_identifier>> _document_map;
 };
 
 class index_table : object

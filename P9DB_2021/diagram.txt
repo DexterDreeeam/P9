@@ -5,7 +5,7 @@ storage
 
 
 document_identifier status:
-  'creating', 'normal', 'updating', 'immigrating', 'deleting'
+  'creating', 'normal', 'updating', 'deleting'
 
 upsert flow:
 \=> build: partition, index_table
@@ -25,11 +25,11 @@ upsert flow:
   | |
   | |=> find etag consistent
   |  \=> build new document_local_file, identifier
-  |   \=> mark identifier as 'immigrating', assign etag
+  |   \=> mark identifier as 'creating', assign etag
   |    \=> insert identifier to document_id table
   |     \=> insert identifier to every index_table
   |      \=> record identifier pair
-  |       \=> mark new identifier from 'immigrating' to 'normal'
+  |       \=> mark new identifier from 'creating' to 'normal'
   |        \=> remove old identifier
   |         \=> succeed
   |

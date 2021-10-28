@@ -110,23 +110,10 @@ string platform::handle_upsert(ref<Interpreter::query_operation_upsert> op)
 {
     AUTO_TRACE;
     auto partition = _storage->insert_partition(op->partition);
-    auto document_table = partition->get_document_table();
     auto r_document = ref<Storage::document_identifier>::new_instance(
         op->document_id, partition->location(), op->content->value());
 
-    r_document->_status = Storage::document_identifier_status::CREATING;
-    document_table->insert_document(op->document_id, r_document);
-
-    op->content->iterate(
-        [&](json_base* json)
-        {
-            string index_string = json->my_path_index_string();
-            auto table = partition->insert_index_table(index_string);
-            auto json_value = ref<json_base>::new_instance(json->clone());
-            table->insert_document(json_value, op->document_id);
-        },
-        // leaves only
-        boole::True);
+    partition->upsert(op->document_id, op->document_etag, op->content, r_document);
 
     return "ok";
 }
@@ -151,6 +138,8 @@ string platform::handle_retrieve(ref<Interpreter::query_operation_retrieve> op)
 string platform::handle_hard_delete(ref<Interpreter::query_operation_hard_delete> op)
 {
     AUTO_TRACE;
+    auto partition = _storage->get_partition(op->partition);
+    partition->hard_delete(op->document_id);
     return "ok";
 }
 
