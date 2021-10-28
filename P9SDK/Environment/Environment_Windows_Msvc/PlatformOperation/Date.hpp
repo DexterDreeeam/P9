@@ -12,44 +12,17 @@ _INLINE_ void  tick_start();
 _INLINE_ u64   tick_elapse();
 _INLINE_ void  tick_elapse_print();
 
-namespace RandomNs
-{
-
-class random_initializer
-{
-public:
-    random_initializer()
-    {
-        u32 seed = (u32)(date_timestamp_utc() % u32_max);
-        WindowsMsvcNs::srand(seed);
-    }
-
-    ~random_initializer() = default;
-};
-
-_SELECTANY_ random_initializer __random_initializer;
-
-}
-
 _INLINE_ u64 random()
 {
-    u8 _u8_0 = (u8)(u32)WindowsMsvcNs::rand();
-    u8 _u8_1 = (u8)(u32)WindowsMsvcNs::rand();
-    u8 _u8_2 = (u8)(u32)WindowsMsvcNs::rand();
-    u8 _u8_3 = (u8)(u32)WindowsMsvcNs::rand();
-    u8 _u8_4 = (u8)(u32)WindowsMsvcNs::rand();
-    u8 _u8_5 = (u8)(u32)WindowsMsvcNs::rand();
-    u8 _u8_6 = (u8)(u32)WindowsMsvcNs::rand();
-    u8 _u8_7 = (u8)(u32)WindowsMsvcNs::rand();
-    return
-        ((u64)_u8_0) |
-        (((u64)_u8_1) << 8) |
-        (((u64)_u8_2) << 16) |
-        (((u64)_u8_3) << 24) |
-        (((u64)_u8_4) << 32) |
-        (((u64)_u8_5) << 40) |
-        (((u64)_u8_6) << 48) |
-        (((u64)_u8_7) << 56);
+    u64 rst = 0;
+    WindowsMsvcNs::LARGE_INTEGER ticks;
+    for (s64 i = 0; i < 16; ++i)
+    {
+        WindowsMsvcNs::QueryPerformanceCounter(&ticks);
+        rst = rst << 4;
+        rst |= ticks.QuadPart & 0b00001111;
+    }
+    return rst;
 }
 
 _INLINE_ u64 random(u64 mod)

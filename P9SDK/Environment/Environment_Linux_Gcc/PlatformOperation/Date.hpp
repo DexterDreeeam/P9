@@ -1,5 +1,6 @@
 #pragma once
 
+_INLINE_ u64   random();
 _INLINE_ u64   random(u64 mod);
 _INLINE_ date  date_query();
 _INLINE_ date  date_query_utc();
@@ -11,9 +12,21 @@ _INLINE_ void  tick_start();
 _INLINE_ u64   tick_elapse();
 _INLINE_ void  tick_elapse_print();
 
+_INLINE_ u64   random()
+{
+    u64 rst = 0;
+    timespec ts;
+    for (s64 i = 0; i < 16; ++i)
+    {
+        clock_gettime(CLOCK_REALTIME, &ts);
+        rst = rst << 4;
+        rst |= (ts.tv_nsec & (0b00001111 << 4)) >> 4;
+    }
+    return rst;
+}
+
 _INLINE_ u64 random(u64 mod)
 {
-    srand((u32)(tick_count() % u32_max));
     return rand() % (mod);
 }
 

@@ -20,6 +20,7 @@ public:
 
 int main()
 {
+    auto rdm = random();
     observer<TestClassA> ob1;
     observer<TestClassA> ob3;
     {
