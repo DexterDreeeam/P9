@@ -67,9 +67,9 @@ _INLINE_ _NOTHROW_ _NOALIAS_ f32 __sqrt(f32 n) { assert(__sqrt_inv(n) > f32_pos_
 _INLINE_ _NOTHROW_ _NOALIAS_ f64 __sq(f64 n) { return n * n; }
 _INLINE_ _NOTHROW_ _NOALIAS_ f64 __sqrt(f64 n) { assert(__sqrt_inv(n) > f64_pos_min); return 1.0 / __sqrt_inv(n); }
 
-_INLINE_ _NOALIAS_ f32 __acos(f32 n) { return acosf(n); }
-_INLINE_ _NOALIAS_ f32 __asin(f32 n) { return asinf(n); }
-_INLINE_ _NOALIAS_ f32 __atan2(f32 x, f32 y) { return atan2f(x, y); }
-_INLINE_ _NOALIAS_ f64 __acos(f64 n) { return acos(n); }
-_INLINE_ _NOALIAS_ f64 __asin(f64 n) { return asin(n); }
-_INLINE_ _NOALIAS_ f64 __atan2(f64 x, f64 y) { return atan2(x, y); }
+_INLINE_ _NOALIAS_ f32 __acos(f32 n) { return WindowsMsvcNs::acosf(n); }
+_INLINE_ _NOALIAS_ f32 __asin(f32 n) { return WindowsMsvcNs::asinf(n); }
+_INLINE_ _NOALIAS_ f32 __atan2(f32 x, f32 y) { return WindowsMsvcNs::atan2f(x, y); }
+_INLINE_ _NOALIAS_ f64 __acos(f64 n) { return WindowsMsvcNs::acos(n); }
+_INLINE_ _NOALIAS_ f64 __asin(f64 n) { return WindowsMsvcNs::asin(n); }
+_INLINE_ _NOALIAS_ f64 __atan2(f64 x, f64 y) { return WindowsMsvcNs::atan2(x, y); }

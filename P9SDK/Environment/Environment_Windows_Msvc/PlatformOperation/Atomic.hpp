@@ -123,13 +123,13 @@ public:
 
     atom<u64>& operator =(const atom<u64>& rhs)
     {
-        _value = rhs._value;
+        set(rhs._value);
         return *this;
     }
 
     atom<u64>& operator =(u64 v)
     {
-        _value = v;
+        set(v);
         return *this;
     }
 
