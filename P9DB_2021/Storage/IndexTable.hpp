@@ -64,14 +64,14 @@ public:
 
     ref<document_identifier> get_document(const string& document_id);
 
-    ref<document_identifier> try_insert_document(const string& document_id, ref<document_identifier> r_doc);
+    ref<document_identifier> try_insert_document(ref<document_identifier> r_doc);
 
-    void insert_or_replace_document(const string& document_id, ref<document_identifier> r_doc);
+    void insert_or_replace_document(ref<document_identifier> r_doc);
 
     boole remove_document(const string& document_id);
 
     template<typename Fn_Ty>
-    boole find_or_insert_do(const string& document_id, ref<document_identifier> r_doc, Fn_Ty fn);
+    boole find_or_insert_do(ref<document_identifier> r_doc, Fn_Ty fn);
 
 public:
     rw_lock _op_lock;

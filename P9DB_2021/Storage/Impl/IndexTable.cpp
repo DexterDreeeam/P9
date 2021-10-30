@@ -27,7 +27,7 @@ ref<document_identifier> index_document_table::get_document(const string& docume
 }
 
 ref<document_identifier> index_document_table::try_insert_document(
-    const string& document_id, ref<document_identifier> r_doc)
+    ref<document_identifier> r_doc)
 {
     AUTO_TRACE;
 
@@ -39,19 +39,19 @@ ref<document_identifier> index_document_table::try_insert_document(
             rw_lock_put_write(_op_lock);
         };
 
-    auto itr = _document_map.find(document_id);
+    auto itr = _document_map.find(r_doc->_document_id);
     if (itr != _document_map.end())
     {
         return itr->second;
     }
     else
     {
-        _document_map[document_id] = r_doc;
+        _document_map[r_doc->_document_id] = r_doc;
         return r_doc;
     }
 }
 
-void index_document_table::insert_or_replace_document(const string& document_id, ref<document_identifier> r_doc)
+void index_document_table::insert_or_replace_document(ref<document_identifier> r_doc)
 {
     AUTO_TRACE;
 
@@ -63,7 +63,7 @@ void index_document_table::insert_or_replace_document(const string& document_id,
         rw_lock_put_write(_op_lock);
     };
 
-    _document_map[document_id] = r_doc;
+    _document_map[r_doc->_document_id] = r_doc;
 }
 
 boole index_document_table::remove_document(const string& document_id)
@@ -90,7 +90,7 @@ boole index_document_table::remove_document(const string& document_id)
 }
 
 template<typename Fn_Ty>
-boole index_document_table::find_or_insert_do(const string& document_id, ref<document_identifier> r_doc, Fn_Ty fn)
+boole index_document_table::find_or_insert_do(ref<document_identifier> r_doc, Fn_Ty fn)
 {
     AUTO_TRACE;
 
@@ -103,7 +103,7 @@ boole index_document_table::find_or_insert_do(const string& document_id, ref<doc
         rw_lock_put_write(_op_lock);
     };
 
-    auto itr = _document_map.find(document_id);
+    auto itr = _document_map.find(r_doc->_document_id);
     if (itr != _document_map.end())
     {
         fn(itr->second);
@@ -111,7 +111,7 @@ boole index_document_table::find_or_insert_do(const string& document_id, ref<doc
     }
     else
     {
-        _document_map[document_id] = r_doc;
+        _document_map[r_doc->_document_id] = r_doc;
         fn(r_doc);
         return boole::False;
     }

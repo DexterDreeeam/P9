@@ -30,6 +30,8 @@ public:
     document_identifier(const string& id, const string& parent_location, const string& content) :
         _guid(guid::new_instance().as_string()),
         _location(parent_location + _guid),
+        _document_id(id),
+        _etag(guid::new_instance().as_string()),
         _op_lock(lock_create()),
         _status(document_identifier_status::CREATING)
     {
@@ -54,12 +56,18 @@ public:
     {
         document_identifier_transform_result rst = document_identifier_transform_result::WRONG_STATUS;
         lock_wait_get(_op_lock);
+        escape_function ef =
+            [=]()
+            {
+                lock_put(_op_lock);
+            };
+
         if (_status == from)
         {
             _status = to;
             rst = document_identifier_transform_result::SUCCEED;
         }
-        lock_put(_op_lock);
+
         return rst;
     }
 
@@ -67,6 +75,12 @@ public:
     {
         document_identifier_transform_result rst = document_identifier_transform_result::WRONG_STATUS;
         lock_wait_get(_op_lock);
+        escape_function ef =
+            [=]()
+            {
+                lock_put(_op_lock);
+            };
+
         if (_status == from)
         {
             if (_etag == etag)
@@ -79,15 +93,15 @@ public:
                 rst = document_identifier_transform_result::ETAG_CONFLICT;
             }
         }
-        lock_put(_op_lock);
         return rst;
     }
 
 public:
-    string                      _guid;
-    string                      _location;
+    const string                _guid;
+    const string                _location;
+    const string                _document_id;
+    const string                _etag;
     lock                        _op_lock;
-    string                      _etag;
 
 private:
     document_identifier_status  _status;

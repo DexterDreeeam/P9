@@ -1,0 +1,15 @@
+{
+  "operation": "upsert",
+  "submit_time": 1324,
+  "user_token": "abc",
+  "partition": "partition-1",
+
+  "document_id": "document-4",
+  "document_etag": "0368bf257acf169bf2479e1368bd047a",
+  "content":
+  {
+    "Student_Name": "Faker",
+    "Student_Age": 29,
+    "Student_Career": "8 years"
+  }
+}

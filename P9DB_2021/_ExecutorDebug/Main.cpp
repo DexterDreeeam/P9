@@ -109,15 +109,15 @@ void client_entry_point(const char* json_file_path)
 
 int main(int argc, char* argv[])
 {
-    if (argc == 2 && str_equal(argv[1], "Server"))
+    if (argc == 2 && str_equal_case_insensitive(argv[1], "host"))
     {
         server_entry_point();
         return 0;
     }
-    else if (argc == 4 && str_equal(argv[1], "Client"))
+    else if (argc == 3)
     {
-        ip = argv[2];
-        client_entry_point(argv[3]);
+        ip = argv[1];
+        client_entry_point(argv[2]);
         return 0;
     }
     print("input parameters: \n \"Server\" or \"Client 20.40.99.127 ./json_query_file.json\"\n");

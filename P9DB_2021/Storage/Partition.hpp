@@ -40,9 +40,9 @@ public:
 
     void remove_index_table(const string& index_table_name);
 
-    boole upsert(const string& document_id, const string& etag, json_base* content, ref<document_identifier> r_doc);
+    boole upsert(ref<document_identifier> r_doc, const string& op_etag, json_base* content);
 
-    void build_document_index(json_base* content, ref<document_identifier> r_doc);
+    void build_document_index(ref<document_identifier> r_doc, json_base* content);
 
     void clear_document_index(ref<document_identifier> r_doc);
 

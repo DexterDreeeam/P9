@@ -41,6 +41,8 @@ private:
 
     string handle_search(ref<Interpreter::query_operation_search> op);
 
+    string transform_result(const vector<ref<Storage::document_identifier>>& vrdi);
+
 private:
     Storage::storage* _storage;
     Interpreter::base_interpreter* _interpreter;

@@ -119,9 +119,14 @@ string platform::handle_upsert(ref<Interpreter::query_operation_upsert> op)
     auto r_document = ref<Storage::document_identifier>::new_instance(
         op->document_id, partition->location(), op->content->value());
 
-    partition->upsert(op->document_id, op->document_etag, op->content, r_document);
-
-    return "ok";
+    if (partition->upsert(r_document, op->document_etag, op->content))
+    {
+        return "ok";
+    }
+    else
+    {
+        return "etag-conflict";
+    }
 }
 
 string platform::handle_retrieve(ref<Interpreter::query_operation_retrieve> op)
@@ -138,7 +143,7 @@ string platform::handle_retrieve(ref<Interpreter::query_operation_retrieve> op)
     {
         return string("document id not found");
     }
-    return r_doc->read();
+    return transform_result({ r_doc });
 }
 
 string platform::handle_hard_delete(ref<Interpreter::query_operation_hard_delete> op)
@@ -152,7 +157,6 @@ string platform::handle_hard_delete(ref<Interpreter::query_operation_hard_delete
 string platform::handle_search(ref<Interpreter::query_operation_search> op)
 {
     AUTO_TRACE;
-    string rst;
     auto partition = _storage->get_partition(op->partition);
     if (!partition)
     {
@@ -163,10 +167,12 @@ string platform::handle_search(ref<Interpreter::query_operation_search> op)
         return string("criterion should not be empty");
     }
 
+    vector<ref<Storage::document_identifier>> vrdi;
     Storage::index_table::Set_Ty qualified_documents;
     boole is_first_search = boole::True;
     auto* j_array = new json_array();
     auto docs = partition->get_document_table();
+
     for (auto& criteria : op->syntax.criterion)
     {
         auto table = partition->get_index_table(criteria.path);
@@ -201,20 +207,44 @@ string platform::handle_search(ref<Interpreter::query_operation_search> op)
             goto L_no_result;
         }
     }
+
     for (auto doc : qualified_documents)
     {
-        auto* jobject = json_deserialize(doc->read());
-        j_array->add_item(jobject);
+        vrdi.push_back(doc);
     }
-    j_array->serialize(rst);
-    delete j_array;
-    return rst;
+    return transform_result(vrdi);
 
 L_invalid_criteria:
     return "invalid criteria";
 
 L_no_result:
     return "no result found";
+}
+
+json_base* transform_document_identifier(ref<Storage::document_identifier> rdi)
+{
+    auto* jobject = new json_object();
+    jobject->add_item("document_id", new json_string(rdi->_document_id));
+    jobject->add_item("document_etag", new json_string(rdi->_etag));
+    jobject->add_item("document_content", new json_string(rdi->read()));
+    return jobject;
+}
+
+string platform::transform_result(const vector<ref<Storage::document_identifier>>& vrdi)
+{
+    auto* jarray = new json_array();
+    escape_function ef =
+        [=]() mutable
+        {
+            delete jarray;
+        };
+
+    for (auto& rdi : vrdi)
+    {
+        jarray->add_item(transform_document_identifier(rdi));
+    }
+
+    return jarray->value();
 }
 
 }
