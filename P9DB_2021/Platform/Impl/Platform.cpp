@@ -9,6 +9,8 @@ namespace Platform
 static Storage::index_table::Set_Ty search_qualified_document(
     ref<Storage::index_table> table, Interpreter::query_criteria criteria)
 {
+    AUTO_TRACE;
+
     Storage::index_table::Set_Ty rst;
     auto& table_map = table->get_control();
     escape_function ef =
@@ -77,6 +79,8 @@ void platform::load(const string& location)
 
 ref<Interpreter::query_operation> platform::parse_operation_message(const string& str)
 {
+    AUTO_TRACE;
+
     if (!_interpreter)
     {
         assert_info(0, "P9DB Platform doesn't load interpreter.");
@@ -88,6 +92,8 @@ ref<Interpreter::query_operation> platform::parse_operation_message(const string
 
 string platform::handle_operation(ref<Interpreter::query_operation> op)
 {
+    AUTO_TRACE;
+
     switch (op->type())
     {
     case Interpreter::query_operation_type::UPSERT:
@@ -156,7 +162,8 @@ string platform::handle_search(ref<Interpreter::query_operation_search> op)
     {
         return string("criterion should not be empty");
     }
-    set<string> qualified_documents;
+
+    Storage::index_table::Set_Ty qualified_documents;
     boole is_first_search = boole::True;
     auto* j_array = new json_array();
     auto docs = partition->get_document_table();
@@ -168,7 +175,7 @@ string platform::handle_search(ref<Interpreter::query_operation_search> op)
             err("criteria is error. path: %s.", criteria.path.data());
             goto L_invalid_criteria;
         }
-        set<string> search_documents = search_qualified_document(table, criteria);
+        auto search_documents = search_qualified_document(table, criteria);
         if (is_first_search)
         {
             qualified_documents = search_documents;
@@ -176,10 +183,13 @@ string platform::handle_search(ref<Interpreter::query_operation_search> op)
         }
         else
         {
-            set<string> temp;
-            for (const auto& doc : qualified_documents)
+            Storage::index_table::Set_Ty temp;
+            auto &small_set = search_documents.size() < qualified_documents.size() ? search_documents : qualified_documents;
+            auto &big_set = search_documents.size() < qualified_documents.size() ? qualified_documents : search_documents;
+
+            for (const auto& doc : small_set)
             {
-                if (search_documents.count(doc))
+                if (big_set.count(doc))
                 {
                     temp.insert(doc);
                 }
@@ -191,9 +201,9 @@ string platform::handle_search(ref<Interpreter::query_operation_search> op)
             goto L_no_result;
         }
     }
-    for (auto& doc : qualified_documents)
+    for (auto doc : qualified_documents)
     {
-        auto* jobject = json_deserialize(docs->get_document(doc)->read());
+        auto* jobject = json_deserialize(doc->read());
         j_array->add_item(jobject);
     }
     j_array->serialize(rst);

@@ -3,6 +3,19 @@
 #include "Date.hpp"
 #include "Thread.hpp"
 
+struct _mutex
+{
+    WindowsMsvcNs::HANDLE _hdnl;
+};
+
+typedef  void* mutex;
+
+_INLINE_ mutex mutex_create(void);
+_INLINE_ boole mutex_try_get(mutex x);
+_INLINE_ void  mutex_wait_get(mutex x);
+_INLINE_ void  mutex_put(mutex x);
+_INLINE_ void  mutex_destroy(mutex x);
+
 struct _lock
 {
     WindowsMsvcNs::HANDLE _hdnl;
@@ -36,6 +49,54 @@ _INLINE_ void    rw_lock_wait_write(rw_lock x);
 _INLINE_ void    rw_lock_put_read(rw_lock x);
 _INLINE_ void    rw_lock_put_write(rw_lock x);
 _INLINE_ void    rw_lock_destroy(rw_lock x);
+
+_INLINE_ mutex mutex_create(void)
+{
+    _mutex* mt = new _mutex();
+    mt->_hdnl = WindowsMsvcNs::CreateMutex(NULL, FALSE, NULL);
+    return (mutex)mt;
+}
+
+_INLINE_ boole mutex_try_get(mutex x)
+{
+    using namespace WindowsMsvcNs;
+
+    _mutex* mt = (_mutex*)x;
+    assert(mt);
+
+    return WaitForSingleObject(mt->_hdnl, 0) == WAIT_OBJECT_0;
+}
+
+_INLINE_ void  mutex_wait_get(mutex x)
+{
+    using namespace WindowsMsvcNs;
+
+    _mutex* mt = (_mutex*)x;
+    assert(mt);
+
+    WaitForSingleObject(mt->_hdnl, INFINITE);
+}
+
+_INLINE_ void  mutex_put(mutex x)
+{
+    using namespace WindowsMsvcNs;
+
+    _mutex* mt = (_mutex*)x;
+    assert(mt);
+
+    ReleaseMutex(mt->_hdnl);
+}
+
+_INLINE_ void  mutex_destroy(mutex x)
+{
+    using namespace WindowsMsvcNs;
+
+    _mutex* mt = (_mutex*)x;
+    assert(mt);
+
+    CloseHandle(mt->_hdnl);
+    delete mt;
+}
 
 _INLINE_ lock lock_create(void)
 {

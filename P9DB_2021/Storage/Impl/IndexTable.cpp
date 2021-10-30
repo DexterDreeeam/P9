@@ -26,7 +26,7 @@ ref<document_identifier> index_document_table::get_document(const string& docume
     return rst;
 }
 
-ref<document_identifier> index_document_table::insert_document(
+ref<document_identifier> index_document_table::try_insert_document(
     const string& document_id, ref<document_identifier> r_doc)
 {
     AUTO_TRACE;

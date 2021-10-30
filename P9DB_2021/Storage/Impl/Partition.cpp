@@ -65,7 +65,7 @@ boole partition::upsert(const string& document_id, const string& etag, json_base
     boole check_rst;
     document_identifier_transform_result transform_rst;
 
-    auto ret_doc = _document_map->insert_document(document_id, r_doc);
+    auto ret_doc = _document_map->try_insert_document(document_id, r_doc);
     check_rst = r_doc->is_status(document_identifier_status::CREATING);
     assert(check_rst);
 

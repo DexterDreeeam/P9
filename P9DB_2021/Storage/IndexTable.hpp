@@ -59,13 +59,12 @@ public:
 
     ~index_document_table()
     {
-        assert(document_map.size() == 0);
         rw_lock_destroy(_op_lock);
     }
 
     ref<document_identifier> get_document(const string& document_id);
 
-    ref<document_identifier> insert_document(const string& document_id, ref<document_identifier> r_doc);
+    ref<document_identifier> try_insert_document(const string& document_id, ref<document_identifier> r_doc);
 
     void insert_or_replace_document(const string& document_id, ref<document_identifier> r_doc);
 

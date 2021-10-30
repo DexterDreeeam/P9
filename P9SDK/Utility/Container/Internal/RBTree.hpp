@@ -307,13 +307,13 @@ namespace RBTreeNs
             return node != rhs.node;
         }
 
-        NodeData_Ty* operator ->() const
+        NodeData_Ty* operator ->()
         {
             assert_info(node->prnt, "Cannot refer to no data iterator.");
             return reinterpret_cast<NodeData_Ty*>(((Node_Ty*)node)->mydata());
         }
 
-        NodeData_Ty& operator *() const
+        NodeData_Ty& operator *()
         {
             assert_info(node->prnt, "Cannot refer to no data iterator.");
             return *reinterpret_cast<NodeData_Ty*>(((Node_Ty*)node)->mydata());
@@ -391,13 +391,13 @@ namespace RBTreeNs
             return node != rhs.node;
         }
 
-        NodeData_Ty* operator ->() const
+        NodeData_Ty* operator ->()
         {
             assert_info(node->prnt, "Cannot refer to no data iterator.");
             return reinterpret_cast<NodeData_Ty*>(((Node_Ty*)node)->mydata());
         }
 
-        NodeData_Ty& operator *() const
+        NodeData_Ty& operator *()
         {
             assert_info(node->prnt, "Cannot refer to no data iterator.");
             return *reinterpret_cast<NodeData_Ty*>(((Node_Ty*)node)->mydata());
@@ -475,13 +475,13 @@ namespace RBTreeNs
             return node != rhs.node;
         }
 
-        const NodeData_Ty* operator ->() const
+        const NodeData_Ty* operator ->()
         {
             assert_info(node->prnt, "Cannot refer to no data iterator.");
             return reinterpret_cast<NodeData_Ty*>(((Node_Ty*)node)->mydata());
         }
 
-        const NodeData_Ty& operator *() const
+        const NodeData_Ty& operator *()
         {
             assert_info(node->prnt, "Cannot refer to no data iterator.");
             return *reinterpret_cast<NodeData_Ty*>(((Node_Ty*)node)->mydata());
@@ -559,13 +559,13 @@ namespace RBTreeNs
             return node != rhs.node;
         }
 
-        const NodeData_Ty* operator ->() const
+        const NodeData_Ty* operator ->()
         {
             assert_info(node->prnt, "Cannot refer to no data iterator.");
             return reinterpret_cast<NodeData_Ty*>(((Node_Ty*)node)->mydata());
         }
 
-        const NodeData_Ty& operator *() const
+        const NodeData_Ty& operator *()
         {
             assert_info(node->prnt, "Cannot refer to no data iterator.");
             return *reinterpret_cast<NodeData_Ty*>(((Node_Ty*)node)->mydata());

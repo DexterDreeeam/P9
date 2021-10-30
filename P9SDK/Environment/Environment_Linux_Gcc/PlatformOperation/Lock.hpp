@@ -1,12 +1,30 @@
 #pragma once
 
+struct _mutex
+{
+    pthread_mutex_t _mt;
+};
+
+typedef  void* mutex;
+
+_INLINE_ mutex mutex_create(void);
+_INLINE_ boole mutex_try_get(mutex x);
+_INLINE_ void  mutex_wait_get(mutex x);
+_INLINE_ void  mutex_put(mutex x);
+_INLINE_ void  mutex_destroy(mutex x);
+
+struct _lock
+{
+    pthread_mutex_t _lk;
+};
+
 typedef  void* lock;
 
 _INLINE_ lock  lock_create(void);
-_INLINE_ boole lock_try_get(lock lk);
-_INLINE_ void  lock_wait_get(lock lk);
-_INLINE_ void  lock_put(lock lk);
-_INLINE_ void  lock_destroy(lock lk);
+_INLINE_ boole lock_try_get(lock x);
+_INLINE_ void  lock_wait_get(lock x);
+_INLINE_ void  lock_put(lock x);
+_INLINE_ void  lock_destroy(lock x);
 
 struct _rw_lock
 {
@@ -25,6 +43,39 @@ _INLINE_ void    rw_lock_put_read(rw_lock x);
 _INLINE_ void    rw_lock_put_write(rw_lock x);
 _INLINE_ void    rw_lock_destroy(rw_lock x);
 
+_INLINE_ mutex mutex_create(void)
+{
+    _mutex* mt = new _mutex();
+    pthread_mutex_init(&mt->_mt nullptr);
+    return (mutex)mt;
+}
+
+_INLINE_ boole mutex_try_get(mutex x)
+{
+    assert(lk);
+    return
+        pthread_mutex_trylock((pthread_mutex_t*)lk) == 0;
+}
+
+_INLINE_ void mutex_wait_get(mutex x)
+{
+    assert(lk);
+    pthread_mutex_lock((pthread_mutex_t*)lk);
+}
+
+_INLINE_ void mutex_put(mutex x)
+{
+    assert(lk);
+    pthread_mutex_unlock((pthread_mutex_t*)lk);
+}
+
+_INLINE_ void mutex_destroy(mutex x)
+{
+    assert(lk);
+    pthread_mutex_destroy((pthread_mutex_t*)lk);
+    delete (pthread_mutex_t*)lk;
+}
+
 _INLINE_ lock lock_create(void)
 {
     auto* lk = new pthread_mutex_t();
@@ -32,28 +83,26 @@ _INLINE_ lock lock_create(void)
     return (lock)lk;
 }
 
-typedef unsigned long DWORD;
-
-_INLINE_ boole lock_try_get(lock lk)
+_INLINE_ boole lock_try_get(lock x)
 {
     assert(lk);
     return
         pthread_mutex_trylock((pthread_mutex_t*)lk) == 0;
 }
 
-_INLINE_ void lock_wait_get(lock lk)
+_INLINE_ void lock_wait_get(lock x)
 {
     assert(lk);
     pthread_mutex_lock((pthread_mutex_t*)lk);
 }
 
-_INLINE_ void lock_put(lock lk)
+_INLINE_ void lock_put(lock x)
 {
     assert(lk);
     pthread_mutex_unlock((pthread_mutex_t*)lk);
 }
 
-_INLINE_ void lock_destroy(lock lk)
+_INLINE_ void lock_destroy(lock x)
 {
     assert(lk);
     pthread_mutex_destroy((pthread_mutex_t*)lk);
