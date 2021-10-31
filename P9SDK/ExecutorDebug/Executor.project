@@ -11,13 +11,13 @@
         <File Name="../Environment/Environment_Linux_Gcc/BuildinDefinition/Boole.hpp"/>
       </VirtualDirectory>
       <VirtualDirectory Name="PlatformOperation">
-        <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/Network.hpp"/>
         <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/New.hpp"/>
         <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/CString.hpp"/>
         <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/Event.hpp"/>
         <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/Timer.hpp"/>
         <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/Assert.hpp"/>
         <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/SIMD.hpp"/>
+        <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/Network.hpp"/>
         <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/Memory.hpp"/>
         <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/File.hpp"/>
         <File Name="../Environment/Environment_Linux_Gcc/PlatformOperation/Spin.hpp"/>
@@ -52,6 +52,7 @@
         <File Name="../Environment/Environment_Windows_Msvc/PlatformOperation/Timer.hpp"/>
         <File Name="../Environment/Environment_Windows_Msvc/PlatformOperation/Assert.hpp"/>
         <File Name="../Environment/Environment_Windows_Msvc/PlatformOperation/SIMD.hpp"/>
+        <File Name="../Environment/Environment_Windows_Msvc/PlatformOperation/Network.hpp"/>
         <File Name="../Environment/Environment_Windows_Msvc/PlatformOperation/Memory.hpp"/>
         <File Name="../Environment/Environment_Windows_Msvc/PlatformOperation/File.hpp"/>
         <File Name="../Environment/Environment_Windows_Msvc/PlatformOperation/Spin.hpp"/>
@@ -65,14 +66,26 @@
       </VirtualDirectory>
     </VirtualDirectory>
   </VirtualDirectory>
+  <VirtualDirectory Name="ExecutorDebug">
+    <File Name="Main.cpp"/>
+  </VirtualDirectory>
   <VirtualDirectory Name="Interface">
     <File Name="../Interface/Interface.hpp"/>
   </VirtualDirectory>
   <VirtualDirectory Name="System">
+    <VirtualDirectory Name="Object">
+      <File Name="../System/Object/U128Counter.hpp"/>
+      <File Name="../System/Object/Interface.hpp"/>
+      <File Name="../System/Object/Object.hpp"/>
+    </VirtualDirectory>
     <VirtualDirectory Name="Logger">
       <File Name="../System/Logger/Logger.hpp"/>
       <File Name="../System/Logger/Interface.hpp"/>
       <File Name="../System/Logger/AutoTrace.hpp"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="Terminator">
+      <File Name="../System/Terminator/Terminator.hpp"/>
+      <File Name="../System/Terminator/Interface.hpp"/>
     </VirtualDirectory>
   </VirtualDirectory>
   <VirtualDirectory Name="Utility">
@@ -87,13 +100,12 @@
       <File Name="../Utility/Json/Interface.hpp"/>
       <File Name="../Utility/Json/Utility.hpp"/>
       <VirtualDirectory Name="JsonType">
-        <File Name="../Utility/Json/JsonType/JsonFloat.hpp"/>
-        <File Name="../Utility/Json/JsonType/JsonInt.hpp"/>
         <File Name="../Utility/Json/JsonType/JsonString.hpp"/>
         <File Name="../Utility/Json/JsonType/JsonBoole.hpp"/>
         <File Name="../Utility/Json/JsonType/JsonObject.hpp"/>
         <File Name="../Utility/Json/JsonType/JsonNull.hpp"/>
         <File Name="../Utility/Json/JsonType/JsonArray.hpp"/>
+        <File Name="../Utility/Json/JsonType/JsonNumber.hpp"/>
       </VirtualDirectory>
     </VirtualDirectory>
     <VirtualDirectory Name="Container">
@@ -105,6 +117,7 @@
       </VirtualDirectory>
       <VirtualDirectory Name="Safe">
         <File Name="../Utility/Container/Safe/SafeQueue.hpp"/>
+        <File Name="../Utility/Container/Safe/EscapeFunction.hpp"/>
         <File Name="../Utility/Container/Safe/Selectee.hpp"/>
       </VirtualDirectory>
       <VirtualDirectory Name="Algo">
@@ -131,6 +144,10 @@
         <File Name="../Utility/Container/Unsafe/Unordered_Map.hpp"/>
       </VirtualDirectory>
     </VirtualDirectory>
+    <VirtualDirectory Name="Identifier">
+      <File Name="../Utility/Identifier/Interface.hpp"/>
+      <File Name="../Utility/Identifier/Guid.hpp"/>
+    </VirtualDirectory>
   </VirtualDirectory>
   <VirtualDirectory Name="Window">
     <VirtualDirectory Name="Window">
@@ -142,9 +159,15 @@
       <File Name="../Window/Window_Windows_Msvc/Interface.h"/>
     </VirtualDirectory>
   </VirtualDirectory>
-  <VirtualDirectory Name="ExecutorDebug">
-    <File Name="Main.cpp"/>
-  </VirtualDirectory>
+  <Reconciliation>
+    <Regexes/>
+    <Excludepaths/>
+    <Ignorefiles/>
+    <Extensions>
+      <![CDATA[*.cpp;*.c;*.h;*.hpp;*.xrc;*.wxcp;*.fbp]]>
+    </Extensions>
+    <Topleveldir>/home/dexter/Desktop/P9/P9SDK/ExecutorDebug</Topleveldir>
+  </Reconciliation>
   <Description/>
   <Dependencies/>
   <Settings Type="Executable">

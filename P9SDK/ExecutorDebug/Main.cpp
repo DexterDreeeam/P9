@@ -21,6 +21,11 @@ public:
 int main()
 {
     auto rdm = u64_random();
+    while (1)
+    {
+        print("guid: %s.\n", guid::new_instance().as_string().data());
+    };
+    
     observer<TestClassA> ob1;
     observer<TestClassA> ob3;
     {

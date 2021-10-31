@@ -106,8 +106,8 @@ public:
     static guid new_instance() noexcept
     {
         guid g;
-        g._u64_0 = random();
-        g._u64_1 = random();
+        g._u64_0 = u64_random();
+        g._u64_1 = u64_random();
         return g;
     }
 
