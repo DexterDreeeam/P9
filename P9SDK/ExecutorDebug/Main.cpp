@@ -20,7 +20,7 @@ public:
 
 int main()
 {
-    auto rdm = random();
+    auto rdm = u64_random();
     observer<TestClassA> ob1;
     observer<TestClassA> ob3;
     {

@@ -120,6 +120,6 @@ int main(int argc, char* argv[])
         client_entry_point(argv[2]);
         return 0;
     }
-    print("input parameters: \n \"Server\" or \"Client 20.40.99.127 ./json_query_file.json\"\n");
+    print("input parameters: \n \"Host\" or \"20.40.99.127 ./json_query_file.json\"\n");
     return -1;
 }

@@ -67,7 +67,7 @@ _INLINE_ boole mutex_try_get(mutex x)
     return WaitForSingleObject(mt->_hdnl, 0) == WAIT_OBJECT_0;
 }
 
-_INLINE_ void  mutex_wait_get(mutex x)
+_INLINE_ void mutex_wait_get(mutex x)
 {
     using namespace WindowsMsvcNs;
 
@@ -77,7 +77,7 @@ _INLINE_ void  mutex_wait_get(mutex x)
     WaitForSingleObject(mt->_hdnl, INFINITE);
 }
 
-_INLINE_ void  mutex_put(mutex x)
+_INLINE_ void mutex_put(mutex x)
 {
     using namespace WindowsMsvcNs;
 
@@ -87,7 +87,7 @@ _INLINE_ void  mutex_put(mutex x)
     ReleaseMutex(mt->_hdnl);
 }
 
-_INLINE_ void  mutex_destroy(mutex x)
+_INLINE_ void mutex_destroy(mutex x)
 {
     using namespace WindowsMsvcNs;
 

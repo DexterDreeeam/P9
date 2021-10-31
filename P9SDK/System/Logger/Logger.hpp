@@ -184,7 +184,7 @@ namespace LoggerNs
         void write_log(const char* text, s64 text_len)
         {
             u64 myorder = ++order_id;
-            s64 i = random(worker_count);
+            s64 i = u64_random(worker_count);
             for (s64 n = 0; n < worker_count * 2; ++n)
             {
                 s64 select = (i + n) % worker_count;

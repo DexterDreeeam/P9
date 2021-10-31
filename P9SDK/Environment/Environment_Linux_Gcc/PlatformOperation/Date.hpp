@@ -1,20 +1,24 @@
 #pragma once
 
+#include "Math.hpp"
 #include "Thread.hpp"
 
-_INLINE_ u64   random();
-_INLINE_ u64   random(u64 mod);
+_INLINE_ u64   u64_random();
+_INLINE_ u64   u64_random(u64 mod);
+
 _INLINE_ date  date_query();
 _INLINE_ date  date_query_utc();
 _INLINE_ u64   date_timestamp_utc();
+
 _INLINE_ void  tick_sleep(u64 ms);
+_INLINE_ u64   tick_sleep_cycle(u64& counter);
 _INLINE_ u64   tick_count();
 _INLINE_ u64   tick_record(u64 rec);
 _INLINE_ void  tick_start();
 _INLINE_ u64   tick_elapse();
 _INLINE_ void  tick_elapse_print();
 
-_INLINE_ u64   random()
+_INLINE_ u64 u64_random()
 {
     u64 rst = 0;
     timespec ts;
@@ -28,9 +32,9 @@ _INLINE_ u64   random()
     return rst;
 }
 
-_INLINE_ u64 random(u64 mod)
+_INLINE_ u64 u64_random(u64 mod)
 {
-    return rand() % (mod);
+    return u64_random() % (mod);
 }
 
 _INLINE_ date date_query()
@@ -79,6 +83,24 @@ _INLINE_ u64 date_timestamp_utc()
 _INLINE_ void tick_sleep(u64 ms)
 {
     usleep(ms * 1000);
+}
+
+_INLINE_ u64 tick_sleep_cycle(u64& counter)
+{
+    static u64 sleep_intervals[32] =
+    {
+        1, 1, 1, 1, 2, 2, 2, 2,
+        4, 4, 4, 4, 8, 8, 8, 8,
+        16, 16, 16, 16, 32, 32, 32, 32,
+        64, 64, 64, 64, 128, 128, 256, 256
+    };
+
+    u64 cnt = counter;
+    assert(cnt >= 0 && cnt < 32);
+    tick_sleep(sleep_intervals[cnt]);
+    cnt = _max(cnt + 1, 31);
+    counter = cnt;
+    return cnt;
 }
 
 _INLINE_ u64 tick_count()

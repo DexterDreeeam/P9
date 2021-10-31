@@ -12,12 +12,16 @@
 
 #pragma once
 
-#pragma GCC diagnostic ignored "-Woverflow"
 #pragma GCC diagnostic ignored "-Wattributes"
-#pragma GCC diagnostic ignored "-Wnonnull"
-#pragma GCC diagnostic ignored "-Wformat-security"
 #pragma GCC diagnostic ignored "-Wformat="
+#pragma GCC diagnostic ignored "-Wformat-security"
+#pragma GCC diagnostic ignored "-Wnonnull"
+#pragma GCC diagnostic ignored "-Woverflow"
+#pragma GCC diagnostic ignored "-Wsign-compare"
 #pragma GCC diagnostic ignored "-Wunused-function"
+#pragma GCC diagnostic ignored "-Wunused-value"
+#pragma GCC diagnostic ignored "-Wunused-variable"
+
 
 #include "Definition.hpp"
 #include "PlatformHeader.hpp"

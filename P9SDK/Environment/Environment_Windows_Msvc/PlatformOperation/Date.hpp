@@ -3,8 +3,8 @@
 #include "Math.hpp"
 #include "Thread.hpp"
 
-_INLINE_ u64   random();
-_INLINE_ u64   random(u64 mod);
+_INLINE_ u64   u64_random();
+_INLINE_ u64   u64_random(u64 mod);
 
 _INLINE_ date  date_query();
 _INLINE_ date  date_query_utc();
@@ -18,7 +18,7 @@ _INLINE_ void  tick_start();
 _INLINE_ u64   tick_elapse();
 _INLINE_ void  tick_elapse_print();
 
-_INLINE_ u64 random()
+_INLINE_ u64 u64_random()
 {
     u64 rst = 0;
     WindowsMsvcNs::LARGE_INTEGER ticks;
@@ -32,9 +32,9 @@ _INLINE_ u64 random()
     return rst;
 }
 
-_INLINE_ u64 random(u64 mod)
+_INLINE_ u64 u64_random(u64 mod)
 {
-    return random() % mod;
+    return u64_random() % mod;
 }
 
 _INLINE_ date date_query()
