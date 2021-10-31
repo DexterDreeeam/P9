@@ -20,6 +20,11 @@ public:
 
 int main()
 {
+    traverse_folders_files(
+        "C:/2021Q1/New folder1/",
+        [](const string& path) { print("%s\n", path.data()); },
+        [](const string& path) { print("%s\n", path.data()); });
+
     auto rdm = u64_random();
     while (1)
     {

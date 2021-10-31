@@ -681,6 +681,18 @@ public:
         return string(data() + pos, sublen);
     }
 
+    boole contains(const string& str) const noexcept
+    {
+        for (s64 i = 0; size() - i >= str.size(); ++i)
+        {
+            if (*this == substr(i, str.size()))
+            {
+                return boole::True;
+            }
+        }
+        return boole::False;
+    }
+
     string reverse() const noexcept
     {
         string rst = "";

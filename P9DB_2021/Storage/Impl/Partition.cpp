@@ -107,6 +107,10 @@ void partition::build_document_index(ref<document_identifier> r_doc, json_base* 
         [&](json_base* json)
         {
             string index_string = json->my_path_index_string();
+            if (index_string.contains(".*"))
+            {
+                return;
+            }
             auto table = insert_index_table(index_string);
             auto json_value = ref<json_base>::new_instance(json->clone());
             table->insert_document(json_value, r_doc);
@@ -130,6 +134,10 @@ void partition::clear_document_index(ref<document_identifier> r_doc)
         [&](json_base* json)
         {
             string index_string = json->my_path_index_string();
+            if (index_string.contains(".*"))
+            {
+                return;
+            }
             auto table = _index_table_map[index_string];
             table->remove_document(ref<json_base>::new_instance(json->clone()), r_doc);
         },

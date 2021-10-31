@@ -7,7 +7,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Algo\FileExtension.hpp" />
     <ClInclude Include="Algo\Hash.hpp" />
+    <ClInclude Include="Algo\StringExtension.hpp" />
     <ClInclude Include="Interface.hpp" />
     <ClInclude Include="Internal\Hashmap.hpp" />
     <ClInclude Include="Internal\RBTree.hpp" />

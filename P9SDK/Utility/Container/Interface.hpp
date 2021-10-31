@@ -6,7 +6,9 @@
 #include "Reference/Observer.hpp"
 #include "Reference/Reference.hpp"
 
+#include "Algo/FileExtension.hpp"
 #include "Algo/Hash.hpp"
+#include "Algo/StringExtension.hpp"
 
 #include "Internal/Hashmap.hpp"
 #include "Internal/RBTree.hpp"

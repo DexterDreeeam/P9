@@ -71,6 +71,12 @@
     <ClInclude Include="Safe\EscapeFunction.hpp">
       <Filter>Safe</Filter>
     </ClInclude>
+    <ClInclude Include="Algo\StringExtension.hpp">
+      <Filter>Algo</Filter>
+    </ClInclude>
+    <ClInclude Include="Algo\FileExtension.hpp">
+      <Filter>Algo</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Safe">

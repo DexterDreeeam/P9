@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Array.hpp"
+
 template<typename Ty>
 class vector;
 
