@@ -2,6 +2,25 @@
 
 #include "Memory.hpp"
 
+_INLINE_ _NOALIAS_ boole char_equal_case_insensitive(char c1, char c2) noexcept
+{
+    s64 diff = (s64)c1 - (s64)c2;
+    constexpr s64 lower_upper_diff = (s64)'a' - (s64)'A';
+    constexpr s64 upper_lower_diff = (s64)'A' - (s64)'a';
+
+    switch (diff)
+    {
+    case 0:
+        return boole::True;
+    case lower_upper_diff:
+        return c1 >= 'a' && c1 <= 'z';
+    case upper_lower_diff:
+        return c1 >= 'A' && c1 <= 'Z';
+    default:
+        return boole::False;
+    }
+}
+
 _INLINE_ _NOALIAS_ s64 str_len(const char* s) noexcept
 {
     s64 i = 0;
@@ -17,6 +36,22 @@ _INLINE_ _NOALIAS_ boole str_equal(const char* s1, const char* s2) noexcept
     assert(s1);
     assert(s2);
     while (*s1 == *s2)
+    {
+        if (*s1 == '\0')
+        {
+            return boole::True;
+        }
+        ++s1;
+        ++s2;
+    }
+    return boole::False;
+}
+
+_INLINE_ _NOALIAS_ boole str_equal_case_insensitive(const char* s1, const char* s2) noexcept
+{
+    assert(s1);
+    assert(s2);
+    while (char_equal_case_insensitive(*s1, *s2))
     {
         if (*s1 == '\0')
         {
