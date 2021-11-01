@@ -20,10 +20,12 @@ public:
 
 int main()
 {
-    traverse_folders_files(
-        "C:/2021Q1/New folder1/",
+    s64 traverse_cnt = traverse_folders_files(
+        "/home/dexter/Desktop/P9/P9SDK/System/",
         [](const string& path) { print("%s\n", path.data()); },
         [](const string& path) { print("%s\n", path.data()); });
+
+    print("traverse folders and files counter: %d\n", traverse_cnt);
 
     auto rdm = u64_random();
     while (1)

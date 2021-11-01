@@ -121,6 +121,8 @@
         <File Name="../Utility/Container/Safe/Selectee.hpp"/>
       </VirtualDirectory>
       <VirtualDirectory Name="Algo">
+        <File Name="../Utility/Container/Algo/FileExtension.hpp"/>
+        <File Name="../Utility/Container/Algo/StringExtension.hpp"/>
         <File Name="../Utility/Container/Algo/Hash.hpp"/>
       </VirtualDirectory>
       <VirtualDirectory Name="Internal">

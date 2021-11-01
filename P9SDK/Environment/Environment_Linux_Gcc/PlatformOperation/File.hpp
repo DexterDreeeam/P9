@@ -15,6 +15,15 @@ struct _inpf
     decltype(open(nullptr, 0)) _fp;
 };
 
+struct _file_cursor
+{
+    DIR*     _dir;
+    dirent*  _dir_ptr;
+    char*    _folder;
+};
+
+typedef void*  file_cursor;
+
 _INLINE_ outf  output_file_create(const char* path, boole overwrite = boole::False);
 _INLINE_ boole output_file_write(outf x, const char* content);
 _INLINE_ boole output_file_write(outf x, const char* content, s64 write_len);
@@ -30,6 +39,16 @@ _INLINE_ boole is_file_exist(const char* path);
 
 _INLINE_ boole is_directory_exist(const char* path);
 _INLINE_ boole create_directory(const char* path);
+
+_INLINE_ file_cursor  file_cursor_create(const char* directory_path);
+_INLINE_ file_cursor  file_cursor_create(file_cursor x);
+_INLINE_ const char*  file_cursor_name(file_cursor x);
+_INLINE_ const char*  file_cursor_folder_name(file_cursor x);
+_INLINE_ boole        file_cursor_is_end(file_cursor x);
+_INLINE_ boole        file_cursor_is_file(file_cursor x);
+_INLINE_ boole        file_cursor_is_folder(file_cursor x);
+_INLINE_ file_cursor  file_cursor_next(file_cursor x);
+_INLINE_ void         file_cursor_destroy(file_cursor x);
 
 _INLINE_ outf output_file_create(const char *path, boole overwrite)
 {
@@ -180,4 +199,115 @@ _INLINE_ boole is_directory_exist(const char* path)
 _INLINE_ boole create_directory(const char* path)
 {
     return mkdir(path, S_IRWXU | S_IRWXG | S_IRWXO) == 0;
+}
+
+_INLINE_ file_cursor file_cursor_create(const char* directory_path)
+{
+    DIR* dir = opendir(directory_path);
+    if (dir == nullptr)
+    {
+        return (file_cursor)nullptr;
+    }
+
+    _file_cursor* cursor = new _file_cursor();
+    cursor->_dir = dir;
+    cursor->_dir_ptr = readdir(dir);
+    if (cursor->_dir_ptr == nullptr)
+    {
+        closedir(dir);
+        delete cursor;
+        return (file_cursor)nullptr;
+    }
+
+    s64 path_len = str_len(directory_path);
+    cursor->_folder = (char*)memory_alloc_copy(
+        directory_path, path_len + 1, path_len + 1);
+
+    return (file_cursor)cursor;
+}
+
+_INLINE_ file_cursor file_cursor_create(file_cursor x)
+{
+    _file_cursor* cursor = (_file_cursor*)x;
+    assert(cursor && cursor->_dir_ptr != nullptr);
+    assert(file_cursor_is_folder(x));
+
+    s64 parent_folder_len = str_len(cursor->_folder);
+    s64 folder_len = str_len(cursor->_dir_ptr->d_name);
+
+    char* buf = new char[parent_folder_len + folder_len + 2];
+    memory_copy(cursor->_folder, buf, parent_folder_len);
+    memory_copy(cursor->_dir_ptr->d_name, buf + parent_folder_len, folder_len);
+    buf[parent_folder_len + folder_len] = '/';
+    buf[parent_folder_len + folder_len + 1] = 0;
+
+    file_cursor sub_cursor = file_cursor_create(buf);
+    delete[] buf;
+    return sub_cursor;
+}
+
+_INLINE_ const char*  file_cursor_name(file_cursor x)
+{
+    _file_cursor* cursor = (_file_cursor*)x;
+    assert(cursor && cursor->_dir_ptr != nullptr);
+
+    return cursor->_dir_ptr->d_name;
+}
+
+_INLINE_ const char*  file_cursor_folder_name(file_cursor x)
+{
+    _file_cursor* cursor = (_file_cursor*)x;
+    assert(cursor && cursor->_dir_ptr != nullptr);
+
+    return cursor->_folder;
+}
+
+_INLINE_ boole file_cursor_is_end(file_cursor x)
+{
+    _file_cursor* cursor = (_file_cursor*)x;
+
+    return cursor != nullptr && cursor->_dir_ptr != nullptr;
+}
+
+_INLINE_ boole file_cursor_is_file(file_cursor x)
+{
+    _file_cursor* cursor = (_file_cursor*)x;
+    assert(cursor && cursor->_dir_ptr != nullptr);
+
+    return cursor->_dir_ptr->d_type == DT_REG;
+}
+
+_INLINE_ boole file_cursor_is_folder(file_cursor x)
+{
+    _file_cursor* cursor = (_file_cursor*)x;
+    assert(cursor && cursor->_dir_ptr != nullptr);
+
+    if (str_equal(cursor->_dir_ptr->d_name, ".") ||
+        str_equal(cursor->_dir_ptr->d_name, ".."))
+    {
+        return boole::False;
+    }
+    else
+    {
+        return cursor->_dir_ptr->d_type == DT_DIR;
+    }
+}
+
+_INLINE_ file_cursor file_cursor_next(file_cursor x)
+{
+    _file_cursor* cursor = (_file_cursor*)x;
+    assert(cursor && cursor->_dir_ptr != nullptr);
+
+    cursor->_dir_ptr = readdir(cursor->_dir);
+    return x;
+}
+
+_INLINE_ void file_cursor_destroy(file_cursor x)
+{
+    _file_cursor* cursor = (_file_cursor*)x;
+    assert(cursor);
+
+    memory_free(cursor->_folder);
+    closedir(cursor->_dir);
+    delete cursor;
 }

@@ -32,7 +32,7 @@ _INLINE_ file_cursor  file_cursor_create(const char* directory_path);
 _INLINE_ file_cursor  file_cursor_create(file_cursor x);
 _INLINE_ const char*  file_cursor_name(file_cursor x);
 _INLINE_ const char*  file_cursor_folder_name(file_cursor x);
-_INLINE_ boole        file_cursor_is_valid(file_cursor x);
+_INLINE_ boole        file_cursor_is_end(file_cursor x);
 _INLINE_ boole        file_cursor_is_file(file_cursor x);
 _INLINE_ boole        file_cursor_is_folder(file_cursor x);
 _INLINE_ file_cursor  file_cursor_next(file_cursor x);
@@ -273,7 +273,7 @@ _INLINE_ const char*  file_cursor_folder_name(file_cursor x)
     return cursor->_folder;
 }
 
-_INLINE_ boole file_cursor_is_valid(file_cursor x)
+_INLINE_ boole file_cursor_is_end(file_cursor x)
 {
     _file_cursor* cursor = (_file_cursor*)x;
 

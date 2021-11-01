@@ -3,6 +3,7 @@
 #include <arpa/inet.h>
 #include <atomic>
 #include <cstddef>
+#include <dirent.h>
 #include <fcntl.h>
 #include <math.h>
 #include <memory.h>
