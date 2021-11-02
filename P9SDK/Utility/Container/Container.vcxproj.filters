@@ -1,98 +1,31 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <ClInclude Include="Algo\FileExtension.hpp" />
+    <ClInclude Include="Algo\Hash.hpp" />
+    <ClInclude Include="Algo\StringExtension.hpp" />
+    <ClInclude Include="Internal\Hashmap.hpp" />
+    <ClInclude Include="Internal\RBTree.hpp" />
+    <ClInclude Include="Internal\SlotAllocator.hpp" />
+    <ClInclude Include="Reference\Context.hpp" />
+    <ClInclude Include="Reference\Observer.hpp" />
+    <ClInclude Include="Reference\Reference.hpp" />
+    <ClInclude Include="Safe\EscapeFunction.hpp" />
+    <ClInclude Include="Safe\SafeQueue.hpp" />
+    <ClInclude Include="Safe\Selectee.hpp" />
+    <ClInclude Include="Unsafe\Array.hpp" />
+    <ClInclude Include="Unsafe\Deque.hpp" />
+    <ClInclude Include="Unsafe\List.hpp" />
+    <ClInclude Include="Unsafe\Map.hpp" />
+    <ClInclude Include="Unsafe\Pair.hpp" />
+    <ClInclude Include="Unsafe\Queue.hpp" />
+    <ClInclude Include="Unsafe\Set.hpp" />
+    <ClInclude Include="Unsafe\Stack.hpp" />
+    <ClInclude Include="Unsafe\String.hpp" />
+    <ClInclude Include="Unsafe\Triple.hpp" />
+    <ClInclude Include="Unsafe\Unordered_Map.hpp" />
+    <ClInclude Include="Unsafe\Unordered_Set.hpp" />
+    <ClInclude Include="Unsafe\Vector.hpp" />
     <ClInclude Include="Interface.hpp" />
-    <ClInclude Include="Unsafe\Array.hpp">
-      <Filter>Unsafe</Filter>
-    </ClInclude>
-    <ClInclude Include="Algo\Hash.hpp">
-      <Filter>Algo</Filter>
-    </ClInclude>
-    <ClInclude Include="Internal\Hashmap.hpp">
-      <Filter>Internal</Filter>
-    </ClInclude>
-    <ClInclude Include="Internal\RBTree.hpp">
-      <Filter>Internal</Filter>
-    </ClInclude>
-    <ClInclude Include="Internal\SlotAllocator.hpp">
-      <Filter>Internal</Filter>
-    </ClInclude>
-    <ClInclude Include="Unsafe\Deque.hpp">
-      <Filter>Unsafe</Filter>
-    </ClInclude>
-    <ClInclude Include="Unsafe\List.hpp">
-      <Filter>Unsafe</Filter>
-    </ClInclude>
-    <ClInclude Include="Unsafe\Map.hpp">
-      <Filter>Unsafe</Filter>
-    </ClInclude>
-    <ClInclude Include="Unsafe\Pair.hpp">
-      <Filter>Unsafe</Filter>
-    </ClInclude>
-    <ClInclude Include="Unsafe\Queue.hpp">
-      <Filter>Unsafe</Filter>
-    </ClInclude>
-    <ClInclude Include="Safe\SafeQueue.hpp">
-      <Filter>Safe</Filter>
-    </ClInclude>
-    <ClInclude Include="Safe\Selectee.hpp">
-      <Filter>Safe</Filter>
-    </ClInclude>
-    <ClInclude Include="Unsafe\Set.hpp">
-      <Filter>Unsafe</Filter>
-    </ClInclude>
-    <ClInclude Include="Unsafe\Stack.hpp">
-      <Filter>Unsafe</Filter>
-    </ClInclude>
-    <ClInclude Include="Unsafe\String.hpp">
-      <Filter>Unsafe</Filter>
-    </ClInclude>
-    <ClInclude Include="Unsafe\Triple.hpp">
-      <Filter>Unsafe</Filter>
-    </ClInclude>
-    <ClInclude Include="Unsafe\Unordered_Map.hpp">
-      <Filter>Unsafe</Filter>
-    </ClInclude>
-    <ClInclude Include="Unsafe\Unordered_Set.hpp">
-      <Filter>Unsafe</Filter>
-    </ClInclude>
-    <ClInclude Include="Unsafe\Vector.hpp">
-      <Filter>Unsafe</Filter>
-    </ClInclude>
-    <ClInclude Include="Reference\Reference.hpp">
-      <Filter>Reference</Filter>
-    </ClInclude>
-    <ClInclude Include="Reference\Context.hpp">
-      <Filter>Reference</Filter>
-    </ClInclude>
-    <ClInclude Include="Reference\Observer.hpp">
-      <Filter>Reference</Filter>
-    </ClInclude>
-    <ClInclude Include="Safe\EscapeFunction.hpp">
-      <Filter>Safe</Filter>
-    </ClInclude>
-    <ClInclude Include="Algo\StringExtension.hpp">
-      <Filter>Algo</Filter>
-    </ClInclude>
-    <ClInclude Include="Algo\FileExtension.hpp">
-      <Filter>Algo</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Filter Include="Safe">
-      <UniqueIdentifier>{000e16f3-4c77-4393-a4e3-15026deeb078}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Unsafe">
-      <UniqueIdentifier>{98b88d16-efd1-451d-92dc-8fd54100d64c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Algo">
-      <UniqueIdentifier>{48920e0f-505c-4608-a926-278635c6d964}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Internal">
-      <UniqueIdentifier>{d2892fa0-c8ee-461c-8af0-9dab1c5d61b5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Reference">
-      <UniqueIdentifier>{bd1c4397-4564-4645-81ec-3120b661f4e5}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
 </Project>

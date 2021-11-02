@@ -11,17 +11,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Impl\DocumentIdentifier.cpp" />
+    <ClCompile Include="Impl\IndexTable.cpp" />
+    <ClCompile Include="Impl\Partition.cpp" />
+    <ClCompile Include="Impl\Storage.cpp" />
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="DocumentIdentifier.hpp" />
     <ClInclude Include="IndexTable.hpp" />
     <ClInclude Include="Interface.hpp" />
     <ClInclude Include="Partition.hpp" />
     <ClInclude Include="Storage.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Impl\DocumentIdentifier.cpp" />
-    <ClCompile Include="Impl\IndexTable.cpp" />
-    <ClCompile Include="Impl\Partition.cpp" />
-    <ClCompile Include="Impl\Storage.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -58,13 +58,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)\.lib\</OutDir>
-    <IntDir>$(SolutionDir)\.output.storage\</IntDir>
+    <OutDir>$(SolutionDir).lib\</OutDir>
+    <IntDir>$(SolutionDir).output\.$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)\.lib\</OutDir>
-    <IntDir>$(SolutionDir)\.output.storage\</IntDir>
+    <OutDir>$(SolutionDir).lib\</OutDir>
+    <IntDir>$(SolutionDir).output\.$(ProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>

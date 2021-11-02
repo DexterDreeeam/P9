@@ -4,7 +4,7 @@
  */
 #define \
     WHO_I_AM \
-        I_AM_LINUX_GCC
+        I_AM_WINDOWS_MSVC
 
 #define \
     SERVICE_NAME \

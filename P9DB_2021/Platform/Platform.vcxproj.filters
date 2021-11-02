@@ -1,17 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="impl">
-      <UniqueIdentifier>{8331dd14-5803-4665-ba49-619335484810}</UniqueIdentifier>
-    </Filter>
+    <ClCompile Include="Impl\Platform.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Platform.hpp" />
     <ClInclude Include="Interface.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Impl\Platform.cpp">
-      <Filter>impl</Filter>
-    </ClCompile>
+    <ClInclude Include="Platform.hpp" />
   </ItemGroup>
 </Project>

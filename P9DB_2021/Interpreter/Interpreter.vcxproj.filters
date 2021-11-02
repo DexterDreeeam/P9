@@ -1,26 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="InterpreterBase.hpp" />
+    <ClCompile Include="Impl\InterpreterStandard.cpp" />
+    <ClCompile Include="Impl\QueryOperation.cpp" />
+    <ClCompile Include="Impl\QuerySyntax.cpp" />
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="Interface.hpp" />
-    <ClInclude Include="QueryOperation.hpp" />
+    <ClInclude Include="InterpreterBase.hpp" />
     <ClInclude Include="InterpreterStandard.hpp" />
+    <ClInclude Include="QueryOperation.hpp" />
     <ClInclude Include="QuerySyntax.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Filter Include="Impl">
-      <UniqueIdentifier>{2cda4d27-1a19-4565-8162-9ad9f335dfdd}</UniqueIdentifier>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Impl\InterpreterStandard.cpp">
-      <Filter>Impl</Filter>
-    </ClCompile>
-    <ClCompile Include="Impl\QuerySyntax.cpp">
-      <Filter>Impl</Filter>
-    </ClCompile>
-    <ClCompile Include="Impl\QueryOperation.cpp">
-      <Filter>Impl</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

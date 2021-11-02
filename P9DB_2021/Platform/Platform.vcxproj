@@ -11,19 +11,19 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Interface.hpp" />
-    <ClInclude Include="Platform.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Impl\Platform.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Interpreter\Interpreter.vcxproj">
       <Project>{4b1b49f4-1c18-46e8-9ad0-2a375e979d52}</Project>
     </ProjectReference>
     <ProjectReference Include="..\Storage\Storage.vcxproj">
       <Project>{4b1b49f4-1c18-46e8-9ad0-2a375e979d53}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Impl\Platform.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Interface.hpp" />
+    <ClInclude Include="Platform.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -61,13 +61,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)\.lib\</OutDir>
-    <IntDir>$(SolutionDir)\.output.platform\</IntDir>
+    <OutDir>$(SolutionDir).lib\</OutDir>
+    <IntDir>$(SolutionDir).output\.$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)\.lib\</OutDir>
-    <IntDir>$(SolutionDir)\.output.platform\</IntDir>
+    <OutDir>$(SolutionDir).lib\</OutDir>
+    <IntDir>$(SolutionDir).output\.$(ProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>

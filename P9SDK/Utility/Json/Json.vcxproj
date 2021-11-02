@@ -6,6 +6,19 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Deserializer.hpp" />
+    <ClInclude Include="Interface.hpp" />
+    <ClInclude Include="JsonBase.hpp" />
+    <ClInclude Include="JsonIndex.hpp" />
+    <ClInclude Include="JsonType\JsonArray.hpp" />
+    <ClInclude Include="JsonType\JsonBoole.hpp" />
+    <ClInclude Include="JsonType\JsonNull.hpp" />
+    <ClInclude Include="JsonType\JsonNumber.hpp" />
+    <ClInclude Include="JsonType\JsonObject.hpp" />
+    <ClInclude Include="JsonType\JsonString.hpp" />
+    <ClInclude Include="Utility.hpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -33,6 +46,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <IntDir>$(SolutionDir).output\.$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir).lib\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -51,19 +66,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="Deserializer.hpp" />
-    <ClInclude Include="Interface.hpp" />
-    <ClInclude Include="JsonBase.hpp" />
-    <ClInclude Include="JsonIndex.hpp" />
-    <ClInclude Include="JsonType\JsonArray.hpp" />
-    <ClInclude Include="JsonType\JsonBoole.hpp" />
-    <ClInclude Include="JsonType\JsonNumber.hpp" />
-    <ClInclude Include="JsonType\JsonNull.hpp" />
-    <ClInclude Include="JsonType\JsonObject.hpp" />
-    <ClInclude Include="JsonType\JsonString.hpp" />
-    <ClInclude Include="Utility.hpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

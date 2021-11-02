@@ -1,29 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="impl">
-      <UniqueIdentifier>{8331dd14-5803-4665-ba49-619335484813}</UniqueIdentifier>
-    </Filter>
+    <ClCompile Include="Impl\DocumentIdentifier.cpp" />
+    <ClCompile Include="Impl\IndexTable.cpp" />
+    <ClCompile Include="Impl\Partition.cpp" />
+    <ClCompile Include="Impl\Storage.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Partition.hpp" />
-    <ClInclude Include="Interface.hpp" />
-    <ClInclude Include="IndexTable.hpp" />
     <ClInclude Include="DocumentIdentifier.hpp" />
+    <ClInclude Include="IndexTable.hpp" />
+    <ClInclude Include="Interface.hpp" />
+    <ClInclude Include="Partition.hpp" />
     <ClInclude Include="Storage.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Impl\Partition.cpp">
-      <Filter>impl</Filter>
-    </ClCompile>
-    <ClCompile Include="Impl\IndexTable.cpp">
-      <Filter>impl</Filter>
-    </ClCompile>
-    <ClCompile Include="Impl\DocumentIdentifier.cpp">
-      <Filter>impl</Filter>
-    </ClCompile>
-    <ClCompile Include="Impl\Storage.cpp">
-      <Filter>impl</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>
