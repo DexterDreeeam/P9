@@ -109,12 +109,6 @@ void client_entry_point(const char* json_file_path)
 
 int main(int argc, char* argv[])
 {
-    escape_function ef =
-        []()
-        {
-            getchar();
-        };
-
     if (argc == 2 && str_equal_case_insensitive(argv[1], "host"))
     {
         server_entry_point();
