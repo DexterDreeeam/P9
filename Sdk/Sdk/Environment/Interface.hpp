@@ -18,3 +18,8 @@
 #include "Operation/Memory.hpp"
 #include "Operation/New.hpp"
 #include "Operation/Print.hpp"
+#include "Operation/Thread.hpp"
+
+#include "Reference/Context.hpp"
+#include "Reference/Observer.hpp"
+#include "Reference/Ref.hpp"

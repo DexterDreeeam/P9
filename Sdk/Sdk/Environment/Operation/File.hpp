@@ -2,28 +2,27 @@
 
 class file final
 {
-    static const u64 _mem_sz = 32;
+    static const u64 _mem_sz = 48;
 
 public:
     file();
 
-    file(const file& rhs)
-    {
-        memory::copy(rhs._mem, _mem, _mem_sz);
-    }
+    file(const file& rhs);
 
     ~file();
 
 public:
-    static file new_output(const char* path);
+    static void build_directory(char* path, s64 len);
+
+    static void build_directory(const char* path);
+
+    static file new_output(const char* path, boole overwrite = boole::False);
 
     static file new_input(const char* path);
 
-    static boole exist_file(const char* path);
+    static boole exist(const char* path);
 
-    static boole new_file_if_not_exist(const char* path);
-
-    static boole delete_file(const char* path);
+    static boole remove(const char* path);
 
 public:
     void write(const char*);
@@ -41,10 +40,7 @@ class directory_cursor
 public:
     directory_cursor();
 
-    directory_cursor(const directory_cursor& rhs)
-    {
-        memory::copy(rhs._mem, _mem, _mem_sz);
-    }
+    directory_cursor(const directory_cursor& rhs);
 
     ~directory_cursor();
 

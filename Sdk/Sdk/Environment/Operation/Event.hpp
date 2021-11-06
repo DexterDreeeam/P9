@@ -2,6 +2,8 @@
 
 class event final
 {
+    static const u64 _mem_sz = 16;
+
 public:
     event();
 
@@ -12,5 +14,5 @@ public:
     void set();
 
 private:
-    char _mem[16];
+    char _mem[_mem_sz];
 };

@@ -105,10 +105,18 @@
     <ClInclude Include="Environment\Operation\Memory.hpp" />
     <ClInclude Include="Environment\Operation\New.hpp" />
     <ClInclude Include="Environment\Operation\Print.hpp" />
+    <ClInclude Include="Environment\Operation\Thread.hpp" />
+    <ClInclude Include="Environment\Reference\Context.hpp" />
+    <ClInclude Include="Environment\Reference\Observer.hpp" />
+    <ClInclude Include="Environment\Reference\Ref.hpp" />
     <ClInclude Include="Interface.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Atom.cpp" />
+    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Date.cpp" />
+    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Event.cpp" />
+    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\File.cpp" />
+    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Math.cpp" />
     <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Memory.cpp" />
     <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Print.cpp" />
   </ItemGroup>

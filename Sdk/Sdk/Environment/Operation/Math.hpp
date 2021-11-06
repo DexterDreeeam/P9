@@ -39,8 +39,7 @@ public:
         return x / mod * mod;
     }
 
-    template<typename Ty1, typename Ty2>
-    static Ty1 power(Ty1 x, Ty2 exp);
+    static f64 power(f64 x, f64 exp);
 
     template<typename Ty>
     static Ty square(Ty x)
