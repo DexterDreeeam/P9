@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="Environment\Interface.hpp" />
+    <ClInclude Include="Environment\BuildinType.hpp" />
+    <ClInclude Include="Environment\EnvironmentLinuxGcc\CompilerDirective.hpp" />
+    <ClInclude Include="Environment\EnvironmentWindowsMsvc\CompilerDirective.hpp" />
+    <ClInclude Include="Environment\EnvironmentLinuxGcc\Definition.hpp" />
+    <ClInclude Include="Environment\EnvironmentWindowsMsvc\Definition.hpp" />
+    <ClInclude Include="Environment\Operation\Assert.hpp" />
+    <ClInclude Include="Environment\Operation\Print.hpp" />
+    <ClInclude Include="Environment\Operation\Atom.hpp" />
+    <ClInclude Include="Environment\Operation\Memory.hpp" />
+    <ClInclude Include="Environment\Operation\CString.hpp" />
+    <ClInclude Include="Environment\Operation\CStringConversion.hpp" />
+    <ClInclude Include="Environment\Operation\Date.hpp" />
+    <ClInclude Include="Environment\Operation\Event.hpp" />
+    <ClInclude Include="Environment\Operation\File.hpp" />
+    <ClInclude Include="Interface.hpp" />
+    <ClInclude Include="Environment\EnvironmentWindowsMsvc\EnvironmentHeader.hpp" />
+    <ClInclude Include="Environment\CompilerDirective.hpp" />
+    <ClInclude Include="Environment\EnvironmentDefinition.hpp" />
+    <ClInclude Include="Environment\Operation\Math.hpp" />
+    <ClInclude Include="Environment\Operation\New.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Print.cpp" />
+    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Atom.cpp" />
+    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Memory.cpp" />
+  </ItemGroup>
+</Project>
