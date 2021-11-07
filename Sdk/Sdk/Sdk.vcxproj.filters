@@ -26,6 +26,8 @@
     <ClInclude Include="Environment\Reference\Observer.hpp" />
     <ClInclude Include="Environment\Reference\Context.hpp" />
     <ClInclude Include="Environment\Operation\Thread.hpp" />
+    <ClInclude Include="Environment\Operation\Directory.hpp" />
+    <ClInclude Include="Environment\Operation\Basic.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Print.cpp" />
@@ -35,5 +37,6 @@
     <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Date.cpp" />
     <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Event.cpp" />
     <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\File.cpp" />
+    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Directory.cpp" />
   </ItemGroup>
 </Project>

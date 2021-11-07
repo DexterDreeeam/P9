@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../Operation/Atom.hpp"
+
 namespace RefNs
 {
 

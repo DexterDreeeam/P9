@@ -96,9 +96,11 @@
     <ClInclude Include="Environment\Interface.hpp" />
     <ClInclude Include="Environment\Operation\Assert.hpp" />
     <ClInclude Include="Environment\Operation\Atom.hpp" />
+    <ClInclude Include="Environment\Operation\Basic.hpp" />
     <ClInclude Include="Environment\Operation\CString.hpp" />
     <ClInclude Include="Environment\Operation\CStringConversion.hpp" />
     <ClInclude Include="Environment\Operation\Date.hpp" />
+    <ClInclude Include="Environment\Operation\Directory.hpp" />
     <ClInclude Include="Environment\Operation\Event.hpp" />
     <ClInclude Include="Environment\Operation\File.hpp" />
     <ClInclude Include="Environment\Operation\Math.hpp" />
@@ -114,6 +116,7 @@
   <ItemGroup>
     <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Atom.cpp" />
     <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Date.cpp" />
+    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Directory.cpp" />
     <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Event.cpp" />
     <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\File.cpp" />
     <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Math.cpp" />

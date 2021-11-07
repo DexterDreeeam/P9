@@ -2,50 +2,38 @@
 
 class file final
 {
-    static const u64 _mem_sz = 48;
+    static const u64 _mem_sz = sizeof(ref<int>);
 
 public:
     file();
 
     file(const file& rhs);
 
+    file& operator =(const file& rhs);
+
     ~file();
 
 public:
-    static void build_directory(char* path, s64 len);
+    static boole exist(const char* path);
 
-    static void build_directory(const char* path);
+    static boole create(const char* path);
+
+    static boole remove(const char* path);
 
     static file new_output(const char* path, boole overwrite = boole::False);
 
     static file new_input(const char* path);
 
-    static boole exist(const char* path);
-
-    static boole remove(const char* path);
-
 public:
-    void write(const char*);
+    boole valid() const;
 
-    void read(void* buf, u64 read_len);
+    void clear();
 
-private:
-    char _mem[_mem_sz];
-};
+    boole write(const char* content, s64 write_len);
 
-class directory_cursor
-{
-    static const u64 _mem_sz = 32;
+    boole write(const char* content);
 
-public:
-    directory_cursor();
-
-    directory_cursor(const directory_cursor& rhs);
-
-    ~directory_cursor();
-
-public:
-    static directory_cursor create(const char* path);
+    s64 read(void* buf, s64 want_read_len);
 
 private:
     char _mem[_mem_sz];

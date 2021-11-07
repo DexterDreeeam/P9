@@ -1,5 +1,9 @@
 #pragma once
 
+#include "../Operation/Assert.hpp"
+#include "../Operation/Basic.hpp"
+#include "../Operation/Memory.hpp"
+
 class ref_base;
 
 template<typename Ty>
@@ -53,7 +57,7 @@ protected:
         {
             while (ob._counter->_observer_check_busy.exchange(1) != 0)
             {
-                thread::yield();
+                yield();
             }
             if (++ob._counter->_ref_cnt != 1)
             {
@@ -123,7 +127,7 @@ public:
         {
             while (ob._counter->_observer_check_busy.exchange(1) != 0)
             {
-                thread::yield();
+                yield();
             }
             if (++ob._counter->_ref_cnt != 1)
             {
@@ -214,7 +218,7 @@ protected:
     static ref_base new_instance(RefNs::deconstructor* dc, Args... args)
     {
         s64 data_size = sizeof(Ty);
-        void* mem_data = memory_alloc(data_size);
+        void* mem_data = memory::alloc(data_size);
         new (mem_data) Ty(args...);
         RefNs::counter* mem_cnt = new RefNs::counter(1, 1);
         return ref_base(mem_data, mem_cnt, data_size, dc);
