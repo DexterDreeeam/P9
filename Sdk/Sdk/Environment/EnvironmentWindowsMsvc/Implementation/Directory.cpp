@@ -81,6 +81,8 @@ boole directory_cursor::init(const char* directory_path)
     HANDLE h = ::FindFirstFileA(
         buf, &ctx->_wfd);
 
+    buf[path_len] = 0;
+
     if (h != INVALID_HANDLE_VALUE)
     {
         ctx->_hndl = h;
@@ -116,6 +118,7 @@ boole directory_cursor::uninit()
     {
         memory::free(ctx->_folder);
         delete ctx;
+        _ctx = nullptr;
         return boole::True;
     }
     else

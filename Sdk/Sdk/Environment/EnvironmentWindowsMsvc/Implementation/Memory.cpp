@@ -3,16 +3,14 @@
 #include "../../Interface.hpp"
 #include "../EnvironmentHeader.hpp"
 
-template<typename Ty>
-Ty* memory::alloc(u64 sz)
+void* memory::alloc(u64 sz)
 {
     void* p = ::malloc(sz);
     assert(p);
-    return pointer_convert(p, 0, Ty*);
+    return p;
 }
 
-template<typename Ty>
-Ty* memory::alloc_zero(u64 sz)
+void* memory::alloc_zero(u64 sz)
 {
     auto* p = alloc(sz);
     if (p)
@@ -22,11 +20,10 @@ Ty* memory::alloc_zero(u64 sz)
     return p;
 }
 
-template<typename Ty>
-Ty* memory::alloc_copy(const void* src, u64 alloc_sz, u64 copy_sz)
+void* memory::alloc_copy(const void* src, u64 alloc_sz, u64 copy_sz)
 {
     auto* p = alloc(alloc_sz);
-    if (p)
+    if (p && copy_sz > 0)
     {
         copy(src, p, copy_sz);
     }

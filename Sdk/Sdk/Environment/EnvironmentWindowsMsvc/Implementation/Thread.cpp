@@ -11,7 +11,7 @@ struct thread_call_back_context
     void* _par;
 };
 
-unsigned long __stdcall thread_windows_call_back_fn(void* p)
+static unsigned long __stdcall thread_windows_call_back_fn(void* p)
 {
     auto* cb_ctx = pointer_convert(p, 0, thread_call_back_context*);
 
@@ -104,9 +104,4 @@ boole thread::force_stop()
     {
         return boole::False;
     }
-}
-
-u64 thread::id()
-{
-    return (u64)::GetCurrentThreadId();
 }

@@ -3,8 +3,7 @@
 namespace _InternalNs
 {
 
-template<typename ...Args>
-void p9_print(const char* const format, Args ...args);
+void _C_CALL_ p9_print(const char* const format, ...);
 
 }
 

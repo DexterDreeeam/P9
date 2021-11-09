@@ -7,10 +7,7 @@ class random final
 public:
     static u64 new_u64() noexcept;
 
-    static u64 new_u64_with_mod(u64 m) noexcept
-    {
-        return new_u64() % m;
-    }
+    static u64 new_u64_with_mod(u64 m) noexcept { return new_u64() % m; }
 };
 
 class date final
@@ -19,6 +16,8 @@ public:
     date() = default;
 
     date(const date&) = default;
+
+    date& operator =(const date&) = default;
 
     ~date() = default;
 

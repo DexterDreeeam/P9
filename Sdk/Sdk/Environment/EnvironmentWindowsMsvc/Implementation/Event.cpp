@@ -34,6 +34,8 @@ boole event::uninit()
 
     if (::CloseHandle(ctx->_event_handle))
     {
+        delete ctx;
+        _ctx = nullptr;
         return boole::True;
     }
     else

@@ -1,0 +1,106 @@
+#pragma once
+
+class json_boole : public json_base
+{
+public:
+    static const string True;
+    static const string False;
+
+public:
+    json_boole() :
+        json_base(),
+        _value(boole::False)
+    {}
+
+    json_boole(boole b) :
+        json_base(),
+        _value(b)
+    {}
+
+    json_boole(const json_boole& rhs) = delete;
+
+    virtual ~json_boole() override = default;
+
+public:
+    virtual json_type type() const override
+    {
+        return json_type::BOOLE;
+    }
+
+    virtual const char* type_name() const override
+    {
+        return "json_boole";
+    }
+
+    virtual s64 size() const override
+    {
+        return 0;
+    }
+
+    virtual json_base* index(const string& key) override
+    {
+        assert(0);
+        return nullptr;
+    }
+
+    virtual json_base* index(s64 order) override
+    {
+        assert(0);
+        return nullptr;
+    }
+
+    virtual JsonNs::json_parent_context get_parent_context(s64 order) override
+    {
+        assert(0);
+        return JsonNs::json_parent_context();
+    }
+
+    virtual string value() const override
+    {
+        return _value ? True : False;
+    }
+
+    virtual json_base* clone() const override
+    {
+        return new json_boole(_value);
+    }
+
+    virtual void serialize(_OUT_ string& str) const override
+    {
+        str.clear();
+        this->json_boole::serialize_append(str);
+    }
+
+    virtual void serialize_append(_OUT_ string& str) const override
+    {
+        str += value();
+    }
+
+public:
+    static json_base* deserialize(const string& str, s64 from, s64 to)
+    {
+        trim_index(str, from, to);
+        string sub = str.substr(from, to - from);
+        if (to - from == True.size() && str.substr(from, to - from) == True)
+        {
+            return new json_boole(boole::True);
+        }
+        if (to - from == False.size() && str.substr(from, to - from) == False)
+        {
+            return new json_boole(boole::False);
+        }
+        return nullptr;
+    }
+
+public:
+    boole as_boole() const
+    {
+        return _value;
+    }
+
+private:
+    boole _value;
+};
+
+_SELECTANY_ const string json_boole::True  = string("true");
+_SELECTANY_ const string json_boole::False = string("false");

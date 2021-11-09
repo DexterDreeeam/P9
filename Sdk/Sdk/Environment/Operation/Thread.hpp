@@ -6,26 +6,18 @@ public:
     typedef void thread_call_back_function(void* par);
 
 public:
-    thread() :
-        _ctx(nullptr)
-    {
-    }
+    thread();
 
-    thread(const thread& rhs) :
-        _ctx(rhs._ctx)
-    {
-    }
+    thread(const thread& rhs);
 
-    thread& operator =(const thread& rhs)
-    {
-        _ctx = rhs._ctx;
-        return *this;
-    }
+    thread& operator =(const thread& rhs);
 
     ~thread() = default;
 
 public:
     boole init(thread_call_back_function* fn);
+
+    boole is_init();
 
     boole uninit();
 
@@ -35,9 +27,28 @@ public:
 
     boole force_stop();
 
-public:
-    static u64 id();
-
 private:
     void* _ctx;
 };
+
+
+_INLINE_ thread::thread() :
+    _ctx(nullptr)
+{
+}
+
+_INLINE_ thread::thread(const thread& rhs) :
+    _ctx(rhs._ctx)
+{
+}
+
+_INLINE_ thread& thread::operator =(const thread& rhs)
+{
+    _ctx = rhs._ctx;
+    return *this;
+}
+
+_INLINE_ boole thread::is_init()
+{
+    return _ctx != nullptr;
+}

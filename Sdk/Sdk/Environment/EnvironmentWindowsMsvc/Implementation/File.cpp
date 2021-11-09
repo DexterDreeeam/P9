@@ -155,6 +155,8 @@ boole file::uninit()
     {
         ctx->_type = file_context::__type::None;
         ctx->_hndl = nullptr;
+        delete ctx;
+        _ctx = nullptr;
         return boole::True;
     }
     else
