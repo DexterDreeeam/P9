@@ -106,3 +106,21 @@ private:
         u64 _launch_tick;
     };
 };
+
+namespace _InternalNs
+{
+
+class tick_initializer
+{
+public:
+    tick_initializer()
+    {
+        ::tick::elapse_init();
+    }
+
+    ~tick_initializer() = default;
+};
+
+_SELECTANY_ tick_initializer global_tick_initializer;
+
+}

@@ -36,45 +36,10 @@ public:
     }
 
 public:
-    const __type _type;
+    __type _type;
 
-    const HANDLE _hndl;
+    HANDLE _hndl;
 };
-
-class shadow_class
-{
-public:
-    ref<file_context> _context;
-};
-
-file::file()
-{
-    assert(_mem_sz >= sizeof(shadow_class));
-    auto& shadow_self = *pointer_convert(_mem, 0, shadow_class*);
-    shadow_self._context = ref<file_context>();
-}
-
-file::file(const file& rhs) :
-    file()
-{
-    assert(_mem_sz >= sizeof(shadow_class));
-    auto& shadow_self = *pointer_convert(_mem, 0, shadow_class*);
-    auto& shadow_rhs = *pointer_convert(rhs._mem, 0, shadow_class*);
-    shadow_self._context = shadow_rhs._context;
-}
-
-file& file::operator =(const file& rhs)
-{
-    auto& shadow_self = *pointer_convert(_mem, 0, shadow_class*);
-    auto& shadow_rhs = *pointer_convert(rhs._mem, 0, shadow_class*);
-    shadow_self._context = shadow_rhs._context;
-    return *this;
-}
-
-file::~file()
-{
-    pointer_convert(_mem, 0, shadow_class*)->~shadow_class();
-}
 
 boole file::exist(const char* path)
 {
@@ -117,11 +82,14 @@ boole file::remove(const char* path)
     }
 }
 
-file file::new_output(const char* path, boole overwrite)
+boole file::init_output(const char* path, boole overwrite)
 {
+    assert(_ctx == nullptr);
     assert(path);
+
     s64 len = str_len(path);
     assert(len < 512);
+
     char path_buf[512] = {};
     memory::copy(path, path_buf, len);
 
@@ -135,7 +103,6 @@ file file::new_output(const char* path, boole overwrite)
         }
     }
 
-    file f;
     HANDLE h = ::CreateFileA(
         path,
         STANDARD_RIGHTS_WRITE | FILE_APPEND_DATA, FILE_SHARE_WRITE,
@@ -146,50 +113,67 @@ file file::new_output(const char* path, boole overwrite)
 
     if (h)
     {
-        auto& shadow = *pointer_convert(f._mem, 0, shadow_class*);
-        shadow._context = ref<file_context>::new_instance(
-            file_context::__type::Output, h);
+        auto* ctx = new file_context(file_context::__type::Output, h);
+        _ctx = ctx;
+        return boole::True;
     }
-    return f;
+    else
+    {
+        return boole::False;
+    }
 }
 
-file file::new_input(const char* path)
+boole file::init_input(const char* path)
 {
-    file f;
+    assert(_ctx == nullptr);
+    assert(path);
+
     HANDLE h = ::CreateFileA(
         path, FILE_GENERIC_READ, FILE_SHARE_READ, nullptr,
         OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 
     if (h)
     {
-        auto& shadow = *pointer_convert(f._mem, 0, shadow_class*);
-        shadow._context = ref<file_context>::new_instance(
-            file_context::__type::Input, h);
+        auto* ctx = new file_context(file_context::__type::Input, h);
+        _ctx = ctx;
+        return boole::True;
     }
-    return f;
+    else
+    {
+        return boole::False;
+    }
 }
 
-boole file::valid() const
+boole file::uninit()
 {
-    auto& shadow = *pointer_convert(_mem, 0, shadow_class*);
-    return shadow._context.valid();
+    auto* ctx = pointer_convert(_ctx, 0, file_context*);
+    assert(ctx);
+    assert(ctx->_type == file_context::__type::Output || ctx->_type == file_context::__type::Input);
+    assert(ctx->_hndl);
+
+    if (::CloseHandle(ctx->_hndl))
+    {
+        ctx->_type = file_context::__type::None;
+        ctx->_hndl = nullptr;
+        return boole::True;
+    }
+    else
+    {
+        return boole::False;
+    }
+
 }
 
-void file::clear()
+boole file::output(const char* content, s64 write_len)
 {
-    auto& shadow = *pointer_convert(_mem, 0, shadow_class*);
-    return shadow._context.clear();
-}
-
-boole file::write(const char* content, s64 write_len)
-{
-    auto& shadow = *pointer_convert(_mem, 0, shadow_class*);
+    auto* ctx = pointer_convert(_ctx, 0, file_context*);
+    assert(ctx);
+    assert(ctx->_type == file_context::__type::Output);
+    assert(ctx->_hndl);
     assert(content);
-    assert(shadow._context.valid());
-    assert(shadow._context->_type == file_context::__type::Output);
 
     if (::WriteFile(
-        shadow._context->_hndl, content, write_len, nullptr, nullptr))
+        ctx->_hndl, content, write_len, nullptr, nullptr))
     {
         return boole::True;
     }
@@ -199,22 +183,30 @@ boole file::write(const char* content, s64 write_len)
     }
 }
 
-boole file::write(const char* content)
+boole file::output(const char* content)
 {
     assert(content);
-    return write(content, str_len(content));
+    return output(content, str_len(content));
 }
 
-s64 file::read(void* buf, s64 want_read_len)
+boole file::input(void* buf, s64 want_read_len, s64& actual_read_len)
 {
-    auto& shadow = *pointer_convert(_mem, 0, shadow_class*);
+    auto* ctx = pointer_convert(_ctx, 0, file_context*);
+    assert(ctx);
+    assert(ctx->_type == file_context::__type::Input);
+    assert(ctx->_hndl);
     assert(buf);
-    assert(shadow._context.valid());
-    assert(shadow._context->_type == file_context::__type::Input);
 
-    u32 actual_read_len = 0;
-    ::ReadFile(
-        shadow._context->_hndl, buf, want_read_len, &actual_read_len, nullptr);
+    u32 read_len = 0;
 
-    return (s64)actual_read_len;
+    if (::ReadFile(
+        ctx->_hndl, buf, want_read_len, &read_len, nullptr))
+    {
+        actual_read_len = (s64)read_len;
+        return boole::True;
+    }
+    else
+    {
+        return boole::False;
+    }
 }

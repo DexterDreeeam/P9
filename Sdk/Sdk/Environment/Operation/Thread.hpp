@@ -2,15 +2,42 @@
 
 class thread final
 {
-    static const s64 _mem_sz = sizeof(ref<int>);
+public:
+    typedef void thread_call_back_function(void* par);
 
 public:
-    template<typename Fn_Ty, typename ...Args>
-    static thread create(Fn_Ty fn, Args... args);
+    thread() :
+        _ctx(nullptr)
+    {
+    }
+
+    thread(const thread& rhs) :
+        _ctx(rhs._ctx)
+    {
+    }
+
+    thread& operator =(const thread& rhs)
+    {
+        _ctx = rhs._ctx;
+        return *this;
+    }
+
+    ~thread() = default;
 
 public:
+    boole init(thread_call_back_function* fn);
 
+    boole uninit();
+
+    boole start(void* par);
+
+    boole wait();
+
+    boole force_stop();
+
+public:
+    static u64 id();
 
 private:
-    char _mem[_mem_sz];
+    void* _ctx;
 };

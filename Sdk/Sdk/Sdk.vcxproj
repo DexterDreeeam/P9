@@ -115,6 +115,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Atom.cpp" />
+    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Basic.cpp" />
     <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Date.cpp" />
     <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Directory.cpp" />
     <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Event.cpp" />
@@ -122,6 +123,7 @@
     <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Math.cpp" />
     <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Memory.cpp" />
     <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Print.cpp" />
+    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Thread.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

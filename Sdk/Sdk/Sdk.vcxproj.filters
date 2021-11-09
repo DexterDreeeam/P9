@@ -38,5 +38,7 @@
     <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Event.cpp" />
     <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\File.cpp" />
     <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Directory.cpp" />
+    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Basic.cpp" />
+    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Thread.cpp" />
   </ItemGroup>
 </Project>

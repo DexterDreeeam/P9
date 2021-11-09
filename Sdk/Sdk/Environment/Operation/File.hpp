@@ -2,16 +2,24 @@
 
 class file final
 {
-    static const u64 _mem_sz = sizeof(ref<int>);
-
 public:
-    file();
+    file() :
+        _ctx(nullptr)
+    {
+    }
 
-    file(const file& rhs);
+    file(const file& rhs) :
+        _ctx(rhs._ctx)
+    {
+    }
 
-    file& operator =(const file& rhs);
+    file& operator =(const file& rhs)
+    {
+        _ctx = rhs._ctx;
+        return *this;
+    }
 
-    ~file();
+    ~file() = default;
 
 public:
     static boole exist(const char* path);
@@ -20,21 +28,20 @@ public:
 
     static boole remove(const char* path);
 
-    static file new_output(const char* path, boole overwrite = boole::False);
+public:
+    boole init_output(const char* path, boole overwrite = boole::False);
 
-    static file new_input(const char* path);
+    boole init_input(const char* path);
+
+    boole uninit();
 
 public:
-    boole valid() const;
+    boole output(const char* content, s64 write_len);
 
-    void clear();
+    boole output(const char* content);
 
-    boole write(const char* content, s64 write_len);
-
-    boole write(const char* content);
-
-    s64 read(void* buf, s64 want_read_len);
+    boole input(void* buf, s64 want_read_len, s64& actual_read_len);
 
 private:
-    char _mem[_mem_sz];
+    void* _ctx;
 };

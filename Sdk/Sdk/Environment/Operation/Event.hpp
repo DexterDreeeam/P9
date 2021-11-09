@@ -2,17 +2,31 @@
 
 class event final
 {
-    static const u64 _mem_sz = 16;
-
 public:
-    event();
+    event() :
+        _ctx(nullptr)
+    {}
 
-    ~event();
+    event(const event& rhs) :
+        _ctx(rhs._ctx)
+    {}
 
-    void wait();
+    event& operator =(const event& rhs)
+    {
+        _ctx = rhs._ctx;
+        return *this;
+    }
 
-    void set();
+    ~event() = default;
+
+    boole init();
+
+    boole uninit();
+
+    boole wait();
+
+    boole set();
 
 private:
-    char _mem[_mem_sz];
+    void* _ctx;
 };

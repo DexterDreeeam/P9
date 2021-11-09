@@ -2,37 +2,74 @@
 #include "../../Interface.hpp"
 #include "../EnvironmentHeader.hpp"
 
-static class shadow_class
+class event_context
 {
 public:
     HANDLE _event_handle;
 };
 
-event::event()
+boole event::init()
 {
-    assert(_mem_sz >= sizeof(shadow_class));
+    assert(_ctx == nullptr);
 
-    auto& shadow_self = *pointer_convert(_mem, 0, shadow_class*);
-    shadow_self._event_handle = ::CreateEventA(NULL, FALSE, NULL, NULL);
+    HANDLE h = ::CreateEventA(NULL, FALSE, NULL, NULL);
+    if (h)
+    {
+        auto* ctx = new event_context();
+        ctx->_event_handle = h;
+        _ctx = ctx;
+        return boole::True;
+    }
+    else
+    {
+        return boole::False;
+    }
 }
 
-event::~event()
+boole event::uninit()
 {
-    auto& shadow_self = *pointer_convert(_mem, 0, shadow_class*);
+    auto* ctx = pointer_convert(_ctx, 0, event_context*);
+    assert(ctx);
+    assert(ctx->_event_handle);
 
-    ::CloseHandle(shadow_self._event_handle);
+    if (::CloseHandle(ctx->_event_handle))
+    {
+        return boole::True;
+    }
+    else
+    {
+        return boole::False;
+    }
 }
 
-void event::wait()
+boole event::wait()
 {
-    auto& shadow_self = *pointer_convert(_mem, 0, shadow_class*);
+    auto* ctx = pointer_convert(_ctx, 0, event_context*);
+    assert(ctx);
+    assert(ctx->_event_handle);
 
-    ::WaitForSingleObject(shadow_self._event_handle, INFINITE);
+    if (::WaitForSingleObject(ctx->_event_handle, INFINITE) == WAIT_OBJECT_0)
+    {
+        return boole::True;
+    }
+    else
+    {
+        return boole::False;
+    }
 }
 
-void event::set()
+boole event::set()
 {
-    auto& shadow_self = *pointer_convert(_mem, 0, shadow_class*);
+    auto* ctx = pointer_convert(_ctx, 0, event_context*);
+    assert(ctx);
+    assert(ctx->_event_handle);
 
-    ::SetEvent(shadow_self._event_handle);
+    if (::SetEvent(ctx->_event_handle))
+    {
+        return boole::True;
+    }
+    else
+    {
+        return boole::False;
+    }
 }
