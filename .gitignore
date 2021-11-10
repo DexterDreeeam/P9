@@ -1,10 +1,10 @@
 
 # Windows MSVC ignoring files
 
-*temp/*
-*.lib*
-*.exe*
-*.output*
+temp/*
+.lib*
+.exe*
+.out*
 *.vs*
 *x64*
 *.pdb
