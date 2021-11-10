@@ -49,13 +49,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IntDir>$(SolutionDir)..\.out\$(ProjectName)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)..\.out\$(SolutionName)_$(ProjectName)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)..\.exe.$(Configuration)\</OutDir>
     <TargetName>$(SolutionName)_$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IntDir>$(SolutionDir)..\.out\$(ProjectName)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)..\.out\$(SolutionName)_$(ProjectName)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)..\.exe.$(Configuration)\</OutDir>
     <TargetName>$(SolutionName)_$(ProjectName)</TargetName>
   </PropertyGroup>

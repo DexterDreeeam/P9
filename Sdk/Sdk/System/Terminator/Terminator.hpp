@@ -12,7 +12,7 @@
 
 #pragma once
 
-namespace TerminatorNs
+namespace _InternalNs
 {
 
 #define SERVICE_TERMINATE_SYMBOL_FILE_EXTENSION  ".terminating"
@@ -22,18 +22,60 @@ const char* const service_terminate_symbol_file = P9_FOLDER SERVICE_NAME SERVICE
 class terminator
 {
 public:
-    terminator()
+    terminator() :
+        _check_running(0),
+        _need_terminate(0),
+        _thrd()
     {
+        print("Terminate progress using \'%s\' symbol file.\n", service_terminate_symbol_file);
     }
 
     ~terminator()
     {
-        file::remove(service_terminate_symbol_file);
+        if (_check_running.get())
+        {
+            _thrd.uninit();
+            file::remove(service_terminate_symbol_file);
+        }
     }
 
+    static void check_loop(void* p)
+    {
+        p;
+        while (1)
+        {
+            tick::sleep(500);
+            if (file::exist(service_terminate_symbol_file))
+            {
+                global_terminator._need_terminate.set(1);
+                break;
+            }
+        }
+    }
+
+    boole check()
+    {
+        if (_check_running.exchange(1) == 1)
+        {
+            return _need_terminate.get() != 0;
+        }
+        else
+        {
+            _thrd.init(terminator::check_loop);
+            _thrd.start(nullptr);
+            return boole::False;
+        }
+    }
+
+    static terminator global_terminator;
+
+private:
+    atom<s64> _check_running;
+    atom<s64> _need_terminate;
+    thread    _thrd;
 };
 
-_SELECTANY_ terminator global_terminator;
+_SELECTANY_ terminator terminator::global_terminator = terminator();
 
 }
 
@@ -59,5 +101,5 @@ _INLINE_ void terminate(const char* service_name)
 
 _INLINE_ boole am_i_terminated()
 {
-    return file::exist(TerminatorNs::service_terminate_symbol_file);
+    return _InternalNs::terminator::global_terminator.check();
 }

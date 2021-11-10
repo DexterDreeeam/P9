@@ -27,20 +27,10 @@ public:
 
     ~_object_manager()
     {
-        while (1)
+        u128_counter record_release = _release_counter.get();
+        if (record_release != _allot_counter.get())
         {
-            u128_counter record_release = _release_counter.get();
-            if (record_release == _allot_counter.get())
-            {
-                break;
-            }
-            tick::sleep(500);
-            if (record_release == _release_counter.get())
-            {
-                // sleep 500ms but no object released
-                assert_info(0, "There are non-released objects");
-                break;
-            }
+            assert_info(0, "There are non-released objects");
         }
     }
 

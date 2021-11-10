@@ -49,7 +49,7 @@
     <ClInclude Include="System\Logger\Logger.hpp" />
     <ClInclude Include="System\Object\Object.hpp" />
     <ClInclude Include="System\Object\U128Counter.hpp" />
-    <ClInclude Include="System\Terminator\Terminatorr.hpp" />
+    <ClInclude Include="System\Terminator\Terminator.hpp" />
     <ClInclude Include="Utility\Container\Algo\FileExtension.hpp" />
     <ClInclude Include="Utility\Container\Algo\Hash.hpp" />
     <ClInclude Include="Utility\Container\Algo\StringExtension.hpp" />

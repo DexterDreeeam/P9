@@ -6,7 +6,7 @@ namespace P9
 namespace Interpreter
 {
 
-class query_order : object
+class query_order //: object
 {
 public:
     query_order()
@@ -36,7 +36,7 @@ enum class query_operator : s64
     COUNT
 };
 
-class query_criteria : object
+class query_criteria //: object
 {
 public:
     query_criteria()
@@ -65,7 +65,7 @@ public:
     json_base* factor;
 };
 
-class query_syntax : object
+class query_syntax //: object
 {
 public:
     query_syntax()

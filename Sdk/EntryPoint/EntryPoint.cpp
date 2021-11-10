@@ -18,4 +18,9 @@ int main()
             print("%s\n", s.data());
         });
 
+    while (!am_i_terminated())
+    {
+        yield();
+    }
+    return 0;
 }

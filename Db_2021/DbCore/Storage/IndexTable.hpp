@@ -48,7 +48,7 @@ public:
     }
 };
 
-class index_document_table : object
+class index_document_table //: object
 {
 public:
     index_document_table() = delete;
@@ -82,7 +82,7 @@ private:
     map<string, ref<document_identifier>> _document_map;
 };
 
-class index_table : object
+class index_table //: object
 {
 public:
     using Map_Ty = map<ref<json_base>, set<ref<document_identifier>, index_table_identifier_comparer>, index_table_json_comparer>;

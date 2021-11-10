@@ -6,7 +6,7 @@ namespace P9
 namespace Storage
 {
 
-class partition : object
+class partition //: object
 {
 public:
     partition() = delete;

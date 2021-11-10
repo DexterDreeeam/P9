@@ -22,7 +22,7 @@ enum class document_identifier_transform_result : s64
     ETAG_CONFLICT,
 };
 
-class document_identifier : object
+class document_identifier //: object
 {
 public:
     document_identifier() = delete;

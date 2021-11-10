@@ -8,4 +8,4 @@
 #include "Object/Object.hpp"
 #include "Object/U128Counter.hpp"
 
-#include "Terminator/Terminatorr.hpp"
+#include "Terminator/Terminator.hpp"
