@@ -364,6 +364,7 @@ _INLINE_ boole rw_lock::wait_write()
 
     assert(_write_thrd_lock_cnt.get() == 0);
     _write_thrd_lock_cnt.set(1);
+    return boole::True;
 }
 
 _INLINE_ boole rw_lock::read_release()

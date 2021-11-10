@@ -37,6 +37,7 @@ boole thread::init(thread_call_back_function* fn)
     ctx = new thread_context();
     ctx->_fn = fn;
     ctx->_hndl = nullptr;
+    _ctx = ctx;
     return boole::True;
 }
 

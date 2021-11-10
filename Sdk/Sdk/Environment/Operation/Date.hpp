@@ -26,7 +26,7 @@ public:
 
     static date now_utc();
 
-    u64 timestamp();
+    static u64 timestamp();
 
 public:
     s32 year;
@@ -60,8 +60,16 @@ public:
 
     static u64 elapse()
     {
-        assert_info(record(0), "call tick::start() first before tick_elapse()");
-        return count() - record(0);
+        u64 rec = record(0);
+        if (rec)
+        {
+            return count() - rec;
+        }
+        else
+        {
+            elapse_init();
+            return elapse();
+        }
     }
 
     static void elapse_print()
@@ -74,6 +82,7 @@ public:
         tick t;
         t._sleep_cycle = 0;
         sleep(0);
+        return t;
     }
 
     void sleep_cycle()
@@ -105,21 +114,3 @@ private:
         u64 _launch_tick;
     };
 };
-
-namespace _InternalNs
-{
-
-class tick_initializer
-{
-public:
-    tick_initializer()
-    {
-        ::tick::elapse_init();
-    }
-
-    ~tick_initializer() = default;
-};
-
-_SELECTANY_ tick_initializer global_tick_initializer;
-
-}

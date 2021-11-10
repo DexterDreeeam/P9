@@ -2,6 +2,8 @@
 #include "../../Interface.hpp"
 #include "../EnvironmentHeader.hpp"
 
+#pragma comment(lib, "ws2_32.lib")
+
 struct network_client_context
 {
     SOCKET _sk;

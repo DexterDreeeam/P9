@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Interpreter\Implementation\InterpreterStandard.cpp" />
+    <ClCompile Include="Interpreter\Implementation\QueryOperation.cpp" />
+    <ClCompile Include="Interpreter\Implementation\QuerySyntax.cpp" />
+    <ClCompile Include="Platform\Implementation\Platform.cpp" />
+    <ClCompile Include="Storage\Implementation\DocumentIdentifier.cpp" />
+    <ClCompile Include="Storage\Implementation\IndexTable.cpp" />
+    <ClCompile Include="Storage\Implementation\Partition.cpp" />
+    <ClCompile Include="Storage\Implementation\Storage.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Interpreter\InterpreterBase.hpp" />
+    <ClInclude Include="Interpreter\InterpreterStandard.hpp" />
+    <ClInclude Include="Interpreter\QueryOperation.hpp" />
+    <ClInclude Include="Interpreter\QuerySyntax.hpp" />
+    <ClInclude Include="Platform\Platform.hpp" />
+    <ClInclude Include="Storage\DocumentIdentifier.hpp" />
+    <ClInclude Include="Storage\IndexTable.hpp" />
+    <ClInclude Include="Storage\Partition.hpp" />
+    <ClInclude Include="Storage\Storage.hpp" />
+    <ClInclude Include="Interface.hpp" />
+  </ItemGroup>
+</Project>

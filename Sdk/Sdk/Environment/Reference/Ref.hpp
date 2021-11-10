@@ -214,7 +214,7 @@ protected:
     static ref_base new_instance(RefNs::deconstructor* dc, Args... args)
     {
         s64 data_size = sizeof(Ty);
-        void* mem_data = memory::alloc(data_size);
+        void* mem_data = memory::alloc<void>(data_size);
         new (mem_data) Ty(args...);
         RefNs::counter* mem_cnt = new RefNs::counter(1, 1);
         return ref_base(mem_data, mem_cnt, data_size, dc);

@@ -1,0 +1,22 @@
+{
+  "operation": "search",
+  "submit_time": 1324,
+  "user_token": "abc",
+  "partition": "partition-1",
+  "syntax":
+  {
+    "order":
+    {
+      "path": ".Student_Age",
+      "ascend": true
+    },
+    "criterion":
+    [
+      {
+        "path": ".Student_Age",
+        "op": ">=",
+        "factor": 25
+      }
+    ]
+  }
+}
