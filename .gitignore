@@ -1,4 +1,8 @@
 
+# common
+
+BuildSetting.inl
+
 # Windows MSVC ignoring files
 
 temp/*

@@ -8,5 +8,4 @@ Copy-Item -Path "./_BuildSettings_WindowsMsvc/Db_2021.inl" -Destination "./Build
 msbuild  ./Db_2021/Db_2021.sln     /p:configuration="debug"   /p:Platform="x64" /t:Rebuild
 msbuild  ./Db_2021/Db_2021.sln     /p:configuration="release" /p:Platform="x64" /t:Rebuild
 
-
 Copy-Item -Path "./.exe.release/*.exe" -Destination "./_Release/" -Recurse
