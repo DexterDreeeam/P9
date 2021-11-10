@@ -2,11 +2,16 @@
 
 class json_boole : public json_base
 {
+    friend class ref_base;
+
+    template<typename Ty>
+    friend class ref;
+
 public:
     static const string True;
     static const string False;
 
-public:
+private:
     json_boole() :
         json_base(),
         _value(boole::False)
@@ -19,7 +24,16 @@ public:
 
     json_boole(const json_boole& rhs) = delete;
 
+public:
     virtual ~json_boole() override = default;
+
+public:
+    static ref<json_boole> new_instance(boole b)
+    {
+        auto rst = ref<json_boole>::new_instance(b);
+        rst->setup_self(rst.observer());
+        return rst;
+    }
 
 public:
     virtual json_type type() const override
@@ -37,19 +51,19 @@ public:
         return 0;
     }
 
-    virtual json_base* index(const string& key) override
+    virtual ref<json_base> index(const string& key) override
     {
         assert(0);
-        return nullptr;
+        return ref<json_base>();
     }
 
-    virtual json_base* index(s64 order) override
+    virtual ref<json_base> index(s64 order) override
     {
         assert(0);
-        return nullptr;
+        return ref<json_base>();
     }
 
-    virtual JsonNs::json_parent_context get_parent_context(s64 order) override
+    virtual JsonNs::json_parent_context get_parent_context(const string&) override
     {
         assert(0);
         return JsonNs::json_parent_context();
@@ -60,9 +74,11 @@ public:
         return _value ? True : False;
     }
 
-    virtual json_base* clone() const override
+    virtual ref<json_base> clone() const override
     {
-        return new json_boole(_value);
+        auto rst = new_instance(_value);
+        rst->setup_self(rst.observer());
+        return rst;
     }
 
     virtual void serialize(_OUT_ string& str) const override
@@ -77,19 +93,19 @@ public:
     }
 
 public:
-    static json_base* deserialize(const string& str, s64 from, s64 to)
+    static ref<json_base> deserialize(const string& str, s64 from, s64 to)
     {
         trim_index(str, from, to);
         string sub = str.substr(from, to - from);
         if (to - from == True.size() && str.substr(from, to - from) == True)
         {
-            return new json_boole(boole::True);
+            return new_instance(boole::True);
         }
         if (to - from == False.size() && str.substr(from, to - from) == False)
         {
-            return new json_boole(boole::False);
+            return new_instance(boole::False);
         }
-        return nullptr;
+        return ref<json_base>();
     }
 
 public:

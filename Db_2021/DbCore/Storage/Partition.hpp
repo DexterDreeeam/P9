@@ -6,7 +6,7 @@ namespace P9
 namespace Storage
 {
 
-class partition //: object
+class partition : object
 {
 public:
     partition() = delete;
@@ -42,9 +42,9 @@ public:
 
     void remove_index_table(const string& index_table_name);
 
-    boole upsert(ref<document_identifier> r_doc, const string& op_etag, json_base* content);
+    boole upsert(ref<document_identifier> r_doc, const string& op_etag, ref<json_base> content);
 
-    void build_document_index(ref<document_identifier> r_doc, json_base* content);
+    void build_document_index(ref<document_identifier> r_doc, ref<json_base> content);
 
     void clear_document_index(ref<document_identifier> r_doc);
 

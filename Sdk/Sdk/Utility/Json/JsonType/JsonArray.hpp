@@ -3,9 +3,14 @@
 class json_array : public json_base
 {
     template<typename Fn_Ty>
-    friend void json_iterate(json_base* json, Fn_Ty fn, boole leaves_only);
+    friend void json_iterate(ref<json_base> json, Fn_Ty fn, boole leaves_only);
 
-public:
+    friend class ref_base;
+
+    template<typename Ty>
+    friend class ref;
+
+private:
     json_array() :
         json_base(),
         _items()
@@ -22,12 +27,17 @@ public:
         constructor_iterator(args...);
     }
 
+public:
     virtual ~json_array() override
     {
-        for (auto* item : _items)
-        {
-            destroy(item);
-        }
+    }
+
+public:
+    static ref<json_array> new_instance()
+    {
+        auto rst = ref<json_array>::new_instance();
+        rst->setup_self(rst.observer());
+        return rst;
     }
 
 public:
@@ -46,7 +56,7 @@ public:
         return _items.size();
     }
 
-    virtual json_base* index(const string& key) override
+    virtual ref<json_base> index(const string& key) override
     {
         s64 order;
         if (text_to_s64(key.data(), key.size(), order))
@@ -55,11 +65,11 @@ public:
         }
         else
         {
-            return nullptr;
+            return ref<json_base>();
         }
     }
 
-    virtual json_base* index(s64 order) override
+    virtual ref<json_base> index(s64 order) override
     {
         if (order >= 0 && order < _items.size())
         {
@@ -67,17 +77,22 @@ public:
         }
         else
         {
-            return nullptr;
+            return ref<json_base>();
         }
     }
 
-    virtual JsonNs::json_parent_context get_parent_context(s64 order) override
+    virtual JsonNs::json_parent_context get_parent_context(const string& str = "") override
     {
-        assert(order >= 0 && order < size());
         char buf[32];
-        s64 text_len = s64_to_text(order, buf);
+        s64 text_len = s64_to_text(size(), buf);
         buf[text_len] = 0;
-        return JsonNs::json_parent_context(type(), this, order, string(buf));
+
+        JsonNs::json_parent_context ctx;
+        ctx.parent_type = type();
+        ctx.parent_json = _self;
+        ctx.parent_order = size();
+        ctx.parent_key = string(buf);
+        return ctx;
     }
 
     virtual string value() const override
@@ -87,14 +102,14 @@ public:
         return rst;
     }
 
-    virtual json_base* clone() const override
+    virtual ref<json_base> clone() const override
     {
-        json_array* rst = new json_array();
-        for (auto* i : _items)
+        auto copy = new_instance();
+        for (auto r : _items)
         {
-            rst->add_item(i->clone());
+            copy->add_item(r->clone());
         }
-        return rst;
+        return copy;
     }
 
     virtual void serialize(_OUT_ string& str) const override
@@ -122,55 +137,49 @@ public:
         str += ']';
     }
 
-    static json_base* deserialize(const string& str, s64 from, s64 to);
+    static ref<json_base> deserialize(const string& str, s64 from, s64 to);
 
 public:
-    void add_item(const json_base& json)
+    void add_item(ref<json_base> json)
     {
-        _items.push_back(json.clone());
-        _items.back()->my_parent_context() = get_parent_context(_items.size() - 1);
-    }
-
-    void add_item(json_base* json)
-    {
+        json->setup_parent(get_parent_context());
         _items.push_back(json);
-        _items.back()->my_parent_context() = get_parent_context(_items.size() - 1);
     }
 
 private:
     template<typename ...Args>
-    void constructor_iterator(const json_base& jo, Args ...args)
+    void constructor_iterator(ref<json_base> jo, Args ...args)
     {
-        _items.push_back(jo.clone());
+        _items.push_back(jo);
         constructor_iterator(args...);
     }
 
-    void constructor_iterator(const json_base& jo)
+    void constructor_iterator(ref<json_base> jo)
     {
-        _items.push_back(jo.clone());
+        _items.push_back(jo);
     }
 
 private:
-    vector<json_base*> _items;
+    vector<ref<json_base>> _items;
 };
 
-_INLINE_ json_base* json_array::deserialize(const string& str, s64 from, s64 to)
+_INLINE_ ref<json_base> json_array::deserialize(const string& str, s64 from, s64 to)
 {
     trim_index(str, from, to);
     if (from >= to)
     {
         // error
-        return nullptr;
+        return ref<json_base>();
     }
     if (str[from] != '[' || str[to - 1] != ']')
     {
         // error
-        return nullptr;
+        return ref<json_base>();
     }
     ++from;
     --to;
 
-    json_array* rst = new json_array();
+    auto rst = json_array::new_instance();
     while (1)
     {
         trim_index_from(str, from, to);
@@ -199,8 +208,8 @@ _INLINE_ json_base* json_array::deserialize(const string& str, s64 from, s64 to)
             }
             if (from == to)
             {
-                auto* j = json_base::deserialize(str, value_from_pos, from);
-                if (j == nullptr)
+                auto j = json_base::deserialize(str, value_from_pos, from);
+                if (j.invalid())
                 {
                     // error
                     goto L_process_error;
@@ -212,8 +221,8 @@ _INLINE_ json_base* json_array::deserialize(const string& str, s64 from, s64 to)
             char c = str[from];
             if (c == ',' && curly_brace_cnt == 0 && bracket_cnt == 0)
             {
-                auto* j = json_base::deserialize(str, value_from_pos, from);
-                if (j == nullptr)
+                auto j = json_base::deserialize(str, value_from_pos, from);
+                if (j.invalid())
                 {
                     // error
                     goto L_process_error;
@@ -254,12 +263,7 @@ _INLINE_ json_base* json_array::deserialize(const string& str, s64 from, s64 to)
     }
 
 L_process_error:
-    if (rst)
-    {
-        delete rst;
-        rst = nullptr;
-    }
-    return nullptr;
+    return ref<json_base>();
 
 L_process_finish:
     return rst;

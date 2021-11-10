@@ -2,17 +2,33 @@
 
 class json_null : public json_base
 {
+    friend class ref_base;
+
+    template<typename Ty>
+    friend class ref;
+
 public:
     static const string Null;
 
-public:
+private:
     json_null() :
         json_base()
     {}
 
     json_null(const json_null& rhs) = delete;
 
+    json_null& operator =(const json_null& rhs) = delete;
+
+public:
     virtual ~json_null() override = default;
+
+public:
+    static ref<json_null> new_instance()
+    {
+        auto rst = ref<json_null>::new_instance();
+        rst->setup_self(rst.observer());
+        return rst;
+    }
 
 public:
     virtual json_type type() const override
@@ -30,19 +46,19 @@ public:
         return 0;
     }
 
-    virtual json_base* index(const string& key) override
+    virtual ref<json_base> index(const string& key) override
     {
         assert(0);
-        return nullptr;
+        return ref<json_base>();
     }
 
-    virtual json_base* index(s64 order) override
+    virtual ref<json_base> index(s64 order) override
     {
         assert(0);
-        return nullptr;
+        return ref<json_base>();
     }
 
-    virtual JsonNs::json_parent_context get_parent_context(s64 order) override
+    virtual JsonNs::json_parent_context get_parent_context(const string&) override
     {
         assert(0);
         return JsonNs::json_parent_context();
@@ -53,9 +69,11 @@ public:
         return Null;
     }
 
-    virtual json_base* clone() const override
+    virtual ref<json_base> clone() const override
     {
-        return new json_null();
+        auto rst = new_instance();
+        rst->setup_self(rst.observer());
+        return rst;
     }
 
     virtual void serialize(_OUT_ string& str) const override
@@ -70,14 +88,14 @@ public:
     }
 
 public:
-    static json_base* deserialize(const string& str, s64 from, s64 to)
+    static ref<json_base> deserialize(const string& str, s64 from, s64 to)
     {
         trim_index(str, from, to);
         if (to - from == Null.size() && str.substr(from, to - from) == Null)
         {
-            return new json_null();
+            return new_instance();
         }
-        return nullptr;
+        return ref<json_base>();
     }
 
 public:

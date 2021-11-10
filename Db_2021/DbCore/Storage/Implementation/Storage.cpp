@@ -8,6 +8,8 @@ namespace Storage
 
 ref<partition> storage::get_partition(const string& partition_name)
 {
+    AUTO_TRACE;
+
     ref<partition> rst;
     _op_lock.wait_read();
     escape_function ef =
@@ -25,6 +27,8 @@ ref<partition> storage::get_partition(const string& partition_name)
 
 ref<partition> storage::insert_partition(const string& partition_name)
 {
+    AUTO_TRACE;
+
     auto new_table = ref<partition>::new_instance(
         partition_name, _location);
     ref<partition> rst;
@@ -49,6 +53,8 @@ ref<partition> storage::insert_partition(const string& partition_name)
 
 void storage::remove_partition(const string& partition_name)
 {
+    AUTO_TRACE;
+
     _op_lock.wait_write();
     escape_function ef =
         [=]() mutable

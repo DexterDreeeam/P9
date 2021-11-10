@@ -1,9 +1,9 @@
 #pragma once
 
 template<typename Fn_Ty>
-_INLINE_ void json_iterate(json_base* json, Fn_Ty fn, boole leaves_only)
+_INLINE_ void json_iterate(ref<json_base> json, Fn_Ty fn, boole leaves_only)
 {
-    if (json == nullptr)
+    if (json.invalid())
     {
         return;
     }
@@ -20,7 +20,7 @@ _INLINE_ void json_iterate(json_base* json, Fn_Ty fn, boole leaves_only)
         {
             fn(json);
         }
-        for (auto& p : ((json_object*)json)->_items)
+        for (auto& p : json.ref_of<json_object>()->_items)
         {
             json_iterate(p.second, fn, leaves_only);
         }
@@ -30,7 +30,7 @@ _INLINE_ void json_iterate(json_base* json, Fn_Ty fn, boole leaves_only)
         {
             fn(json);
         }
-        for (auto* i : ((json_array*)json)->_items)
+        for (auto i : json.ref_of<json_array>()->_items)
         {
             json_iterate(i, fn, leaves_only);
         }
@@ -45,16 +45,16 @@ _INLINE_ void json_iterate(json_base* json, Fn_Ty fn, boole leaves_only)
     }
 }
 
-_INLINE_ void json_report(json_base* json)
+_INLINE_ void json_report(ref<json_base> json)
 {
 #if DEBUG_LEVEL >= DEBUG_LEVEL_CALIBRATION_LOG_NONE
-    if (json == nullptr)
+    if (json.invalid())
     {
         return;
     }
     json_iterate(
         json,
-        [](json_base* j)
+        [](ref<json_base> j)
         {
             switch (j->type())
             {
@@ -75,28 +75,28 @@ class json_cursor
 {
 public:
     json_cursor() :
-        _json(nullptr)
+        _json()
     {}
 
-    json_cursor(json_base* json) :
+    json_cursor(ref<json_base> json) :
         _json(json)
     {}
 
     ~json_cursor() = default;
 
-    json_base* json()
+    ref<json_base> json()
     {
         return _json;
     }
 
     boole valid() const
     {
-        return _json != nullptr;
+        return _json.valid();
     }
 
     boole invalid() const
     {
-        return _json == nullptr;
+        return _json.invalid();
     }
 
     json_cursor parent()
@@ -104,7 +104,7 @@ public:
         return json_cursor(_json->my_parent());
     }
 
-    json_base* operator ->()
+    ref<json_base> operator ->()
     {
         return _json;
     }
@@ -124,24 +124,24 @@ public:
         return _json->value();
     }
 
-    boole as_boole() const
+    boole as_boole()
     {
         assert(_json->type() == json_type::BOOLE);
-        return pointer_convert(_json, 0, json_boole*)->as_boole();
+        return _json.ref_of<json_boole>()->as_boole();
     }
 
-    number as_number() const
+    number as_number()
     {
         assert(_json->type() == json_type::NUMBER);
-        return pointer_convert(_json, 0, json_number*)->as_number();
+        return _json.ref_of<json_number>()->as_number();
     }
 
-    string as_string() const
+    string as_string()
     {
         assert(_json->type() == json_type::STRING);
-        return pointer_convert(_json, 0, json_string*)->as_string();
+        return _json.ref_of<json_string>()->as_string();
     }
 
 private:
-    json_base* _json;
+    ref<json_base> _json;
 };

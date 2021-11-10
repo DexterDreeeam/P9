@@ -9,6 +9,8 @@
 // fraction precision
 // 1e-18
 
+const s64 json_float_precision = 18;
+
 class number
 {
 public:
@@ -27,6 +29,28 @@ public:
         {
             _sign = boole::True;
         }
+    }
+
+    number(f64 f) :
+        _sign(boole::True),
+        _integer(0),
+        _fraction(0)
+    {
+        if (f >= 0.0)
+        {
+            _sign = boole::True;
+        }
+        else
+        {
+            f = -f;
+            _sign = boole::False;
+        }
+        assert_info(f < (f64)u64_max, "out of range.");
+        _integer = (u64)f;
+        f -= _integer;
+
+        f *= math::power(10, json_float_precision);
+        _fraction = (u64)f;
     }
 
     number(const number& rhs) :
@@ -120,46 +144,41 @@ public:
     u64   _fraction;
 };
 
-const s64 json_float_precision = 18;
-
 class json_number : public json_base
 {
-public:
-    json_number() = delete;
+    friend class ref_base;
+
+    template<typename Ty>
+    friend class ref;
+
+private:
+    json_number() :
+        json_base(),
+        _num()
+    {}
 
     json_number(f64 f) :
         json_base(),
-        _sign(boole::True),
-        _integer(0),
-        _fraction(0)
-    {
-        if (f >= 0.0)
-        {
-            _sign = boole::True;
-        }
-        else
-        {
-            f = -f;
-            _sign = boole::False;
-        }
-        assert_info(f < (f64)u64_max, "out of range.");
-        _integer = (u64)f;
-        f -= _integer;
+        _num(f)
+    {}
 
-        f *= math::power(10, json_float_precision);
-        _fraction = (u64)f;
-    }
-
-    json_number(boole sign, u64 integer, u64 fraction) :
+    json_number(const number& n) :
         json_base(),
-        _sign(sign),
-        _integer(integer),
-        _fraction(fraction)
+        _num(n)
     {}
 
     json_number(const json_number& rhs) = delete;
 
+public:
     virtual ~json_number() override = default;
+
+public:
+    static ref<json_number> new_instance(const number& n)
+    {
+        auto rst = ref<json_number>::new_instance(n);
+        rst->setup_self(rst.observer());
+        return rst;
+    }
 
 public:
     virtual json_type type() const override
@@ -177,19 +196,19 @@ public:
         return 0;
     }
 
-    virtual json_base* index(const string& key) override
+    virtual ref<json_base> index(const string& key) override
     {
         assert(0);
-        return nullptr;
+        return ref<json_base>();
     }
 
-    virtual json_base* index(s64 order) override
+    virtual ref<json_base> index(s64 order) override
     {
         assert(0);
-        return nullptr;
+        return ref<json_base>();
     }
 
-    virtual JsonNs::json_parent_context get_parent_context(s64 order) override
+    virtual JsonNs::json_parent_context get_parent_context(const string&) override
     {
         assert(0);
         return JsonNs::json_parent_context();
@@ -198,15 +217,15 @@ public:
     virtual string value() const override
     {
         char text[32];
-        s64 len = s64_to_text(_integer, text);
+        s64 len = s64_to_text(_num._integer, text);
         text[len] = 0;
 
-        return string(_sign ? "" : "-") + string(text) + '.' + fraction_string();
+        return string(_num._sign ? "" : "-") + string(text) + '.' + fraction_string();
     }
 
-    virtual json_base* clone() const override
+    virtual ref<json_base> clone() const override
     {
-        return new json_number(_sign, _integer, _fraction);
+        return new_instance(_num);
     }
 
     virtual void serialize(_OUT_ string& str) const override
@@ -221,19 +240,19 @@ public:
     }
 
 public:
-    static json_base* deserialize(const string& str, s64 from, s64 to);
+    static ref<json_base> deserialize(const string& str, s64 from, s64 to);
 
 public:
     number as_number() const
     {
-        return number(_sign, _integer, _fraction);
+        return _num;
     }
 
 private:
     string fraction_string() const
     {
         string r_fraction_string = "";
-        u64 frc = _fraction;
+        u64 frc = _num._fraction;
         for (s64 b = 0; b < json_float_precision; ++b)
         {
             r_fraction_string += '0' + frc % 10;
@@ -248,12 +267,10 @@ private:
     }
 
 private:
-    boole _sign;
-    u64   _integer;
-    u64   _fraction;
+    number _num;
 };
 
-_INLINE_ json_base* json_number::deserialize(const string& str, s64 from, s64 to)
+_INLINE_ ref<json_base> json_number::deserialize(const string& str, s64 from, s64 to)
 {
     trim_index(str, from, to);
     boole sign = boole::True;
@@ -267,7 +284,7 @@ _INLINE_ json_base* json_number::deserialize(const string& str, s64 from, s64 to
     }
     if (to - from < 1)
     {
-        return nullptr;
+        return ref<json_base>();
     }
     s64 stop_pos = to;
 
@@ -285,13 +302,13 @@ _INLINE_ json_base* json_number::deserialize(const string& str, s64 from, s64 to
         else
         {
             // error
-            return nullptr;
+            return ref<json_base>();
         }
     }
     if (to - from == 1 && stop_pos != to)
     {
         // only stop sign, error
-        return nullptr;
+        return ref<json_base>();
     }
 
     s64 v;
@@ -306,7 +323,7 @@ _INLINE_ json_base* json_number::deserialize(const string& str, s64 from, s64 to
     else
     {
         // error
-        return nullptr;
+        return ref<json_base>();
     }
 
     s64 fraction_len = to - stop_pos - 1;
@@ -321,12 +338,12 @@ _INLINE_ json_base* json_number::deserialize(const string& str, s64 from, s64 to
     else
     {
         // error
-        return nullptr;
+        return ref<json_base>();
     }
 
     while (fraction_len++ < json_float_precision)
     {
         fraction *= 10;
     }
-    return new json_number(sign, integer, fraction);
+    return json_number::new_instance(number(sign, integer, fraction));
 }

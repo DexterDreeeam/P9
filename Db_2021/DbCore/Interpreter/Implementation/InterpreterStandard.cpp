@@ -21,8 +21,8 @@ ref<query_operation> standard_interpreter::translate(const string& msg)
 {
     AUTO_TRACE;
 
-    auto* json = json_deserialize(msg);
-    assert_info(json, "Translate message is not a correct Json format.");
+    auto json = json_deserialize(msg);
+    assert_info(json.valid(), "Translate message is not a correct Json format.");
 
     json_cursor j_base(json);
     json_cursor j_idx;
@@ -183,10 +183,6 @@ L_error:
     rst.clear();
 
 L_finish:
-    if (json)
-    {
-        delete json;
-    }
     return rst;
 }
 

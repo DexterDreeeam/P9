@@ -8,6 +8,8 @@ namespace Storage
 
 ref<index_table> partition::get_index_table(const string& index_table_name)
 {
+    AUTO_TRACE;
+
     ref<index_table> rst;
     _op_lock.wait_read();
     escape_function ef =
@@ -25,6 +27,8 @@ ref<index_table> partition::get_index_table(const string& index_table_name)
 
 ref<index_table> partition::insert_index_table(const string& index_table_name)
 {
+    AUTO_TRACE;
+
     auto new_table = ref<index_table>::new_instance();
     ref<index_table> rst;
     _op_lock.wait_write();
@@ -48,6 +52,8 @@ ref<index_table> partition::insert_index_table(const string& index_table_name)
 
 void partition::remove_index_table(const string& index_table_name)
 {
+    AUTO_TRACE;
+
     _op_lock.wait_write();
     escape_function ef =
         [=]() mutable
@@ -58,7 +64,7 @@ void partition::remove_index_table(const string& index_table_name)
     _index_table_map.erase(index_table_name);
 }
 
-boole partition::upsert(ref<document_identifier> r_doc, const string& op_etag, json_base* content)
+boole partition::upsert(ref<document_identifier> r_doc, const string& op_etag, ref<json_base> content)
 {
     AUTO_TRACE;
 
@@ -94,8 +100,10 @@ boole partition::upsert(ref<document_identifier> r_doc, const string& op_etag, j
     return boole::False;
 }
 
-void partition::build_document_index(ref<document_identifier> r_doc, json_base* content)
+void partition::build_document_index(ref<document_identifier> r_doc, ref<json_base> content)
 {
+    AUTO_TRACE;
+
     _op_lock.wait_write();
     escape_function ef =
         [=]() mutable
@@ -104,7 +112,7 @@ void partition::build_document_index(ref<document_identifier> r_doc, json_base* 
     };
 
     content->iterate(
-        [&](json_base* json)
+        [&](ref<json_base> json)
         {
             string index_string = json->my_path_index_string();
             if (index_string.contains(".*"))
@@ -112,7 +120,7 @@ void partition::build_document_index(ref<document_identifier> r_doc, json_base* 
                 return;
             }
             auto table = insert_index_table(index_string);
-            auto json_value = ref<json_base>::new_instance(json->clone());
+            auto json_value = json->clone();
             table->insert_document(json_value, r_doc);
         },
         // leaves only
@@ -121,8 +129,10 @@ void partition::build_document_index(ref<document_identifier> r_doc, json_base* 
 
 void partition::clear_document_index(ref<document_identifier> r_doc)
 {
+    AUTO_TRACE;
+
     string content_str = r_doc->read();
-    json_base* content = json_deserialize(content_str);
+    ref<json_base> content = json_deserialize(content_str);
     _op_lock.wait_read();
     escape_function ef =
         [=]() mutable
@@ -131,7 +141,7 @@ void partition::clear_document_index(ref<document_identifier> r_doc)
         };
 
     content->iterate(
-        [&](json_base* json)
+        [&](ref<json_base> json)
         {
             string index_string = json->my_path_index_string();
             if (index_string.contains(".*"))
@@ -139,7 +149,7 @@ void partition::clear_document_index(ref<document_identifier> r_doc)
                 return;
             }
             auto table = _index_table_map[index_string];
-            table->remove_document(ref<json_base>::new_instance(json->clone()), r_doc);
+            table->remove_document(json->clone(), r_doc);
         },
         // leaves only
         boole::True);
@@ -147,6 +157,8 @@ void partition::clear_document_index(ref<document_identifier> r_doc)
 
 boole partition::hard_delete(const string& document_id)
 {
+    AUTO_TRACE;
+
     auto r_doc = _document_map->get_document(document_id);
 
     _op_lock.wait_read();

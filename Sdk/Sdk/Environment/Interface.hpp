@@ -32,3 +32,5 @@
 #include "Reference/Context.hpp"
 #include "Reference/Observer.hpp"
 #include "Reference/Ref.hpp"
+#include "Reference/ObserverImplementation.inl"
+#include "Reference/RefImplementation.inl"

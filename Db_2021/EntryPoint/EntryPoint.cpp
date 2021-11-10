@@ -14,8 +14,16 @@ static void client_handler(void* p)
     client_context* p_context = (client_context*)p;
     network_connect connect = p_context->connect;
     auto r_platform = p_context->platform;
-
     char* buf = new char[2048];
+
+    escape_function ef = [=]() mutable
+    {
+        delete[] buf;
+        delete p_context;
+        connect.destroy();
+        print("Client disconnect to server.\n");
+    };
+
     while (1)
     {
         print("Waiting client query....\n");
@@ -26,6 +34,7 @@ static void client_handler(void* p)
         {
             break;
         }
+
         string query = buf;
         string rst;
         boole is_error_happens = boole::False;
@@ -60,10 +69,6 @@ static void client_handler(void* p)
         }
         print("Complete query.\n");
     }
-    print("Client disconnect to server.\n");
-    connect.destroy();
-    delete[] buf;
-    delete p_context;
 }
 
 void server_entry_point()
@@ -77,7 +82,7 @@ void server_entry_point()
     print("Complete DB init...\n");
     print("Waiting Client connect...\n");
 
-    while (1)
+    while (!am_i_terminated())
     {
         client_context* p_context = new client_context();
 
@@ -89,6 +94,8 @@ void server_entry_point()
         t.init(client_handler);
         t.start(p_context);
         t.uninit();
+
+        object::report();
     }
 
     ns.uninit();

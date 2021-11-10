@@ -22,7 +22,7 @@ enum class document_identifier_transform_result : s64
     ETAG_CONFLICT,
 };
 
-class document_identifier //: object
+class document_identifier : object
 {
 public:
     document_identifier() = delete;
@@ -45,6 +45,7 @@ public:
 
     ~document_identifier()
     {
+        file::remove(_location.data());
         _op_lock.uninit();
     }
 
@@ -57,6 +58,8 @@ public:
 
     document_identifier_transform_result transform(document_identifier_status from, document_identifier_status to)
     {
+        AUTO_TRACE;
+
         document_identifier_transform_result rst = document_identifier_transform_result::WRONG_STATUS;
         _op_lock.wait_acquire();
         escape_function ef =
@@ -76,6 +79,8 @@ public:
 
     document_identifier_transform_result transform_if_etag_identical(document_identifier_status from, document_identifier_status to, const string& etag)
     {
+        AUTO_TRACE;
+
         document_identifier_transform_result rst = document_identifier_transform_result::WRONG_STATUS;
         _op_lock.wait_acquire();
         escape_function ef =

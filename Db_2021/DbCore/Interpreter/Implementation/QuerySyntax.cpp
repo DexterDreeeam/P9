@@ -6,7 +6,7 @@ namespace P9
 namespace Interpreter
 {
 
-boole query_order::load(json_base* json)
+boole query_order::load(ref<json_base> json)
 {
     auto j = json_cursor(json);
     if (j.invalid() || j->type() != json_type::OBJECT)
@@ -31,7 +31,7 @@ boole query_order::load(json_base* json)
     return boole::True;
 }
 
-boole query_criteria::load(json_base* json)
+boole query_criteria::load(ref<json_base> json)
 {
     auto j = json_cursor(json);
     if (j.invalid() || j->type() != json_type::OBJECT)
@@ -88,7 +88,7 @@ boole query_criteria::load(json_base* json)
     return boole::True;
 }
 
-boole query_syntax::load(json_base* json)
+boole query_syntax::load(ref<json_base> json)
 {
     AUTO_TRACE;
 

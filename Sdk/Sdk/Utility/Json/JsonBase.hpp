@@ -18,11 +18,13 @@ class json_object;
 class json_array;
 class json_string;
 class json_boole;
+class json_number;
+class json_null;
 
 template<typename Fn_Ty>
-void json_iterate(json_base* json, Fn_Ty fn, boole leaves_only = boole::False);
+void json_iterate(ref<json_base> json, Fn_Ty fn, boole leaves_only = boole::False);
 
-json_base* json_deserialize(const string& str, s64 from, s64 to);
+ref<json_base> json_deserialize(const string& str, s64 from, s64 to);
 
 enum class json_type : u64
 {
@@ -44,17 +46,26 @@ class json_parent_context
 public:
     json_parent_context() :
         parent_type(json_type::NONE),
-        parent_json(nullptr),
+        parent_json(),
         parent_order(-1),
         parent_key()
     {}
 
-    json_parent_context(json_type type, json_base* parent, s64 order, string parent_key) :
-        parent_type(type),
-        parent_json(parent),
-        parent_order(order),
-        parent_key(parent_key)
+    json_parent_context(const json_parent_context& rhs) :
+        parent_type(rhs.parent_type),
+        parent_json(rhs.parent_json),
+        parent_order(rhs.parent_order),
+        parent_key(rhs.parent_key)
     {}
+
+    json_parent_context& operator =(const json_parent_context& rhs)
+    {
+        parent_type = rhs.parent_type;
+        parent_json = rhs.parent_json;
+        parent_order = rhs.parent_order;
+        parent_key = rhs.parent_key;
+        return *this;
+    }
 
     ~json_parent_context() = default;
 
@@ -64,23 +75,41 @@ public:
     }
 
 public:
-    json_type  parent_type;
-    json_base* parent_json;
-    s64        parent_order;
-    string     parent_key;
+    json_type            parent_type;
+    observer<json_base>  parent_json;
+    s64                  parent_order;
+    string               parent_key;
 };
 
 }
 
 class json_base
 {
-    friend json_base* json_deserialize(const string& str, s64 from, s64 to);
+    friend class json_object;
+    friend class json_array;
+    friend class json_string;
+    friend class json_boole;
+    friend class json_number;
+    friend class json_null;
+    friend ref<json_base> json_deserialize(const string& str, s64 from, s64 to);
 
-public:
+private:
     json_base() :
-        _parent()
+        _parent(),
+        _self()
     {}
 
+    void setup_self(observer<json_base> self)
+    {
+        _self = self;
+    }
+
+    void setup_parent(const JsonNs::json_parent_context& prnt)
+    {
+        _parent = prnt;
+    }
+
+public:
     virtual ~json_base() = default;
 
     virtual json_type type() const = 0;
@@ -89,29 +118,24 @@ public:
 
     virtual s64 size() const = 0;
 
-    virtual json_base* index(const string& key) = 0;
+    virtual ref<json_base> index(const string& key) = 0;
 
-    virtual json_base* index(s64 order) = 0;
+    virtual ref<json_base> index(s64 order) = 0;
 
-    virtual JsonNs::json_parent_context get_parent_context(s64 order) = 0;
+    virtual JsonNs::json_parent_context get_parent_context(const string& key = "") = 0;
 
     virtual string value() const = 0;
 
-    virtual json_base* clone() const = 0;
+    virtual ref<json_base> clone() const = 0;
 
     virtual void serialize(_OUT_ string& str) const = 0;
 
     virtual void serialize_append(_OUT_ string& str) const = 0;
 
 public:
-    static json_base* deserialize(const string& str, s64 from, s64 to)
+    static ref<json_base> deserialize(const string& str, s64 from, s64 to)
     {
         return json_deserialize(str, from, to);
-    }
-
-    static void destroy(json_base* j)
-    {
-        delete j;
     }
 
 public:
@@ -120,9 +144,9 @@ public:
         return _parent;
     }
 
-    json_base* my_parent()
+    ref<json_base> my_parent()
     {
-        return _parent.parent_json;
+        return _parent.parent_json.try_ref();
     }
 
     string my_parent_key() const
@@ -130,19 +154,19 @@ public:
         return _parent.parent_key;
     }
 
-    string my_path() const
+    string my_path()
     {
-        return _parent.parent_json ?
-            _parent.parent_json->my_path() + '[' + _parent.parent_key + ']' : "";
+        return _parent.parent_json.valid() ?
+            _parent.parent_json.try_ref()->my_path() + '[' + _parent.parent_key + ']' : "";
     }
 
-    string my_path_index_string() const
+    string my_path_index_string()
     {
-        if (_parent.parent_json == nullptr)
+        if (_parent.parent_json.invalid())
         {
             return "";
         }
-        string rst = _parent.parent_json->my_path_index_string();
+        string rst = _parent.parent_json.try_ref()->my_path_index_string();
         string parent_key = _parent.parent_key;
         if (parent_key.size() >= 2 && parent_key.front() == '\"' && parent_key.back() == '\"')
         {
@@ -154,9 +178,10 @@ public:
     template<typename Fn_Ty>
     void iterate(Fn_Ty fn, boole leaves_only = boole::False)
     {
-        json_iterate(this, fn, leaves_only);
+        json_iterate(_self.try_ref(), fn, leaves_only);
     }
 
 private:
     JsonNs::json_parent_context _parent;
+    observer<json_base>         _self;
 };

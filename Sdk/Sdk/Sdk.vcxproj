@@ -99,6 +99,10 @@
     <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Print.cpp" />
     <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Thread.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Environment\Reference\ObserverImplementation.inl" />
+    <None Include="Environment\Reference\RefImplementation.inl" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>

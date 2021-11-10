@@ -2,7 +2,12 @@
 
 class json_string : public json_base
 {
-public:
+    friend class ref_base;
+
+    template<typename Ty>
+    friend class ref;
+
+private:
     json_string() :
         json_base(),
         _value()
@@ -20,7 +25,16 @@ public:
 
     json_string(const json_string& rhs) = delete;
 
+public:
     virtual ~json_string() override = default;
+
+public:
+    static ref<json_string> new_instance(const string& str)
+    {
+        auto rst = ref<json_string>::new_instance(str);
+        rst->setup_self(rst.observer());
+        return rst;
+    }
 
 public:
     virtual json_type type() const override
@@ -38,19 +52,19 @@ public:
         return 0;
     }
 
-    virtual json_base* index(const string& key) override
+    virtual ref<json_base> index(const string& key) override
     {
         assert(0);
-        return nullptr;
+        return ref<json_base>();
     }
 
-    virtual json_base* index(s64 order) override
+    virtual ref<json_base> index(s64 order) override
     {
         assert(0);
-        return nullptr;
+        return ref<json_base>();
     }
 
-    virtual JsonNs::json_parent_context get_parent_context(s64 order) override
+    virtual JsonNs::json_parent_context get_parent_context(const string&) override
     {
         assert(0);
         return JsonNs::json_parent_context();
@@ -61,9 +75,9 @@ public:
         return '\"' + _value + '\"';
     }
 
-    virtual json_base* clone() const override
+    virtual ref<json_base> clone() const override
     {
-        return new json_string(_value);
+        return new_instance(_value);
     }
 
     virtual void serialize(_OUT_ string& str) const override
@@ -80,12 +94,13 @@ public:
     }
 
 public:
-    static json_base* deserialize(const string& str, s64 from, s64 to)
+    static ref<json_base> deserialize(const string& str, s64 from, s64 to)
     {
         trim_index(str, from, to);
         if (to - from < 2 || str[from] != '\"' || str[to - 1] != '\"')
         {
-            return nullptr;
+            // error
+            return ref<json_base>();
         }
 
         string value = "";
@@ -102,10 +117,10 @@ public:
         if (tail != to - 1)
         {
             // error
-            return nullptr;
+            return ref<json_base>();
         }
 
-        return new json_string(value);
+        return ref<json_string>::new_instance(value);
     }
 
 public:

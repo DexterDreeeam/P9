@@ -20,7 +20,7 @@ static Storage::index_table::Set_Ty search_qualified_document(
         };
 
     boole insert_item = boole::False;
-    auto factor = ref<json_base>::new_instance(criteria.factor->clone());
+    auto factor = criteria.factor->clone();
     if (table_map.count(factor) == 0)
     {
         table_map.insert(factor, Storage::index_table::Set_Ty());
@@ -73,6 +73,8 @@ static Storage::index_table::Set_Ty search_qualified_document(
 
 void platform::load(const string& location)
 {
+    AUTO_TRACE;
+
     _storage = new Storage::storage(location);
     _interpreter = new Interpreter::standard_interpreter();
 }
@@ -170,7 +172,6 @@ string platform::handle_search(ref<Interpreter::query_operation_search> op)
     vector<ref<Storage::document_identifier>> vrdi;
     Storage::index_table::Set_Ty qualified_documents;
     boole is_first_search = boole::True;
-    auto* j_array = new json_array();
     auto docs = partition->get_document_table();
 
     for (auto& criteria : op->syntax.criterion)
@@ -221,23 +222,22 @@ L_no_result:
     return "no result found";
 }
 
-json_base* transform_document_identifier(ref<Storage::document_identifier> rdi)
+ref<json_object> transform_document_identifier(ref<Storage::document_identifier> rdi)
 {
-    auto* jobject = new json_object();
-    jobject->add_item("document_id", new json_string(rdi->_document_id));
-    jobject->add_item("document_etag", new json_string(rdi->_etag));
-    jobject->add_item("document_content", new json_string(rdi->read()));
+    AUTO_TRACE;
+
+    auto jobject = ref<json_object>::new_instance();
+    jobject->add_item("document_id", json_string::new_instance(rdi->_document_id));
+    jobject->add_item("document_etag", json_string::new_instance(rdi->_etag));
+    jobject->add_item("document_content", json_string::new_instance(rdi->read()));
     return jobject;
 }
 
 string platform::transform_result(const vector<ref<Storage::document_identifier>>& vrdi)
 {
-    auto* jarray = new json_array();
-    escape_function ef =
-        [=]() mutable
-        {
-            delete jarray;
-        };
+    AUTO_TRACE;
+
+    auto jarray = ref<json_array>::new_instance();
 
     for (auto& rdi : vrdi)
     {

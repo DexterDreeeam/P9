@@ -45,6 +45,14 @@ public:
         ++_release_counter;
     }
 
+    void report()
+    {
+        auto allot = _allot_counter.get();
+        auto release = _release_counter.get();
+
+        print("\nobject report:\n  allot  \t%llu\n  release\t%llu\n  diff   \t%lld\n", allot._u64_1, release._u64_1, (s64)allot._u64_1 - (s64)release._u64_1);
+    }
+
 private:
     atom<u128_counter> _allot_counter;
     atom<u128_counter> _release_counter;
@@ -65,6 +73,12 @@ public:
     ~object()
     {
         ObjectNs::__global_object_manager.recycle(_counter);
+    }
+
+public:
+    static void report()
+    {
+        ObjectNs::__global_object_manager.report();
     }
 
 private:
