@@ -105,7 +105,7 @@ string platform::handle_operation(ref<Interpreter::query_operation> op)
     case Interpreter::query_operation_type::HARD_DELETE:
         return handle_hard_delete(op.ref_of<Interpreter::query_operation_hard_delete>());
     case Interpreter::query_operation_type::SEARCH:
-        return handle_search(op.ref_of<Interpreter::query_operation_search>());
+        return "good";//handle_search(op.ref_of<Interpreter::query_operation_search>());
     default:
         err("Not expected operation type, %d.", op->type());
         assert_info(0, "Not expected operation type.");
@@ -117,9 +117,11 @@ string platform::handle_operation(ref<Interpreter::query_operation> op)
 string platform::handle_upsert(ref<Interpreter::query_operation_upsert> op)
 {
     AUTO_TRACE;
+
     auto partition = _storage->insert_partition(op->partition);
-    auto r_document = ref<Storage::document_identifier>::new_instance(
-        op->document_id, partition->location(), op->content->value());
+    auto r_document = 
+        ref<Storage::document_identifier>::new_instance(
+            op->document_id, partition->location(), op->content->value());
 
     if (partition->upsert(r_document, op->document_etag, op->content))
     {
@@ -135,13 +137,13 @@ string platform::handle_retrieve(ref<Interpreter::query_operation_retrieve> op)
 {
     AUTO_TRACE;
     auto partition = _storage->get_partition(op->partition);
-    if (!partition)
+    if (partition.empty())
     {
         return string("partition not found");
     }
     auto document_table = partition->get_document_table();
     auto r_doc = document_table->get_document(op->document_id);
-    if (!r_doc)
+    if (r_doc.empty())
     {
         return string("document id not found");
     }
@@ -160,7 +162,7 @@ string platform::handle_search(ref<Interpreter::query_operation_search> op)
 {
     AUTO_TRACE;
     auto partition = _storage->get_partition(op->partition);
-    if (!partition)
+    if (partition.empty())
     {
         return string("partition not found");
     }
@@ -177,7 +179,7 @@ string platform::handle_search(ref<Interpreter::query_operation_search> op)
     for (auto& criteria : op->syntax.criterion)
     {
         auto table = partition->get_index_table(criteria.path);
-        if (table.invalid())
+        if (table.empty())
         {
             err("criteria is error. path: %s.", criteria.path.data());
             goto L_invalid_criteria;

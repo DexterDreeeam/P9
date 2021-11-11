@@ -20,7 +20,7 @@ public:
     ~atom();
 
 public:
-    s64 get();
+    s64 get() const;
 
     void set(s64 v);
 
@@ -64,7 +64,7 @@ public:
     ~atom();
 
 public:
-    u64 get();
+    u64 get() const;
 
     void set(u64 v);
 
@@ -108,7 +108,7 @@ public:
     ~atom();
 
 public:
-    void* get();
+    void* get() const;
 
     void set(void* v);
 
@@ -142,7 +142,7 @@ public:
     ~atom() = default;
 
 public:
-    Ty* get();
+    Ty* get() const;
 
     void set(Ty* v);
 

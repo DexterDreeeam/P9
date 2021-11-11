@@ -30,9 +30,6 @@
     <ClInclude Include="Environment\DebugCalibration.hpp" />
     <ClInclude Include="Environment\DebugLevel.hpp" />
     <ClInclude Include="Environment\EnvironmentDefinition.hpp" />
-    <ClInclude Include="Environment\EnvironmentLinuxGcc\CompilerDirective.hpp" />
-    <ClInclude Include="Environment\EnvironmentLinuxGcc\Definition.hpp" />
-    <ClInclude Include="Environment\EnvironmentLinuxGcc\EnvironmentHeader.hpp" />
     <ClInclude Include="Environment\EnvironmentWindowsMsvc\CompilerDirective.hpp" />
     <ClInclude Include="Environment\EnvironmentWindowsMsvc\Definition.hpp" />
     <ClInclude Include="Environment\EnvironmentWindowsMsvc\EnvironmentHeader.hpp" />
@@ -56,7 +53,7 @@
     <ClInclude Include="Environment\Operation\Thread.hpp" />
     <ClInclude Include="Environment\Operation\Timer.hpp" />
     <ClInclude Include="Environment\Reference\Context.hpp" />
-    <ClInclude Include="Environment\Reference\Observer.hpp" />
+    <ClInclude Include="Environment\Reference\Obs.hpp" />
     <ClInclude Include="Environment\Reference\Ref.hpp" />
     <ClInclude Include="Interface.hpp" />
     <ClInclude Include="System\Interface.hpp" />
@@ -109,7 +106,8 @@
     <None Include="Environment\Operation\Network_Implementation.inl" />
     <None Include="Environment\Operation\Spin_Implementation.inl" />
     <None Include="Environment\Operation\Thread_Implementation.inl" />
-    <None Include="Environment\Reference\Observer_Implementation.inl" />
+    <None Include="Environment\Reference\Context_Implementation.inl" />
+    <None Include="Environment\Reference\Obs_Implementation.inl" />
     <None Include="Environment\Reference\Ref_Implementation.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -5,8 +5,6 @@ class json_array : public json_base
     template<typename Fn_Ty>
     friend void json_iterate(ref<json_base> json, Fn_Ty fn, boole leaves_only);
 
-    friend class ref_base;
-
     template<typename Ty>
     friend class ref;
 
@@ -36,7 +34,7 @@ public:
     static ref<json_array> new_instance()
     {
         auto rst = ref<json_array>::new_instance();
-        rst->setup_self(rst.observer());
+        rst->setup_self(rst);
         return rst;
     }
 
@@ -209,7 +207,7 @@ _INLINE_ ref<json_base> json_array::deserialize(const string& str, s64 from, s64
             if (from == to)
             {
                 auto j = json_base::deserialize(str, value_from_pos, from);
-                if (j.invalid())
+                if (j.empty())
                 {
                     // error
                     goto L_process_error;
@@ -222,7 +220,7 @@ _INLINE_ ref<json_base> json_array::deserialize(const string& str, s64 from, s64
             if (c == ',' && curly_brace_cnt == 0 && bracket_cnt == 0)
             {
                 auto j = json_base::deserialize(str, value_from_pos, from);
-                if (j.invalid())
+                if (j.empty())
                 {
                     // error
                     goto L_process_error;

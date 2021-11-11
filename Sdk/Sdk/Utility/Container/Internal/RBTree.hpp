@@ -576,7 +576,7 @@ namespace RBTreeNs
     {
     public:
         template<typename Ty>
-        s64 compare(const Ty& v1, const Ty& v2)
+        s64 operator ()(const Ty& v1, const Ty& v2)
         {
             if (v1 == v2)
             {
@@ -818,7 +818,7 @@ namespace RBTreeNs
             while (1)
             {
                 assert(ptr);
-                s64 cmp = Cmp_Ty().compare(k, ptr->mykey());
+                s64 cmp = Cmp_Ty()(k, ptr->mykey());
                 if (cmp < 0)
                 {
                     if (ptr->left)
@@ -878,7 +878,7 @@ namespace RBTreeNs
             while (1)
             {
                 assert(ptr);
-                s64 cmp = Cmp_Ty().compare(k, ptr->mykey());
+                s64 cmp = Cmp_Ty()(k, ptr->mykey());
                 if (cmp < 0)
                 {
                     if (ptr->left)
@@ -938,7 +938,7 @@ namespace RBTreeNs
             while (1)
             {
                 assert(ptr);
-                s64 cmp = Cmp_Ty().compare(k, ptr->mykey());
+                s64 cmp = Cmp_Ty()(k, ptr->mykey());
                 if (cmp < 0)
                 {
                     if (ptr->left)
@@ -992,7 +992,7 @@ namespace RBTreeNs
             while (1)
             {
                 assert(ptr);
-                s64 cmp = Cmp_Ty().compare(k, ptr->mykey());
+                s64 cmp = Cmp_Ty()(k, ptr->mykey());
                 if (cmp < 0 && ptr->left)
                 {
                     ptr = (Node_Ty*)ptr->left;

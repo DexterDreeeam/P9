@@ -213,6 +213,7 @@ boole network_connect::destroy()
 
     if (::closesocket(ctx->_sk) == 0)
     {
+        ctx->_mt.uninit();
         delete ctx;
         _ctx = nullptr;
         return boole::True;

@@ -2,8 +2,6 @@
 
 class json_boole : public json_base
 {
-    friend class ref_base;
-
     template<typename Ty>
     friend class ref;
 
@@ -31,7 +29,7 @@ public:
     static ref<json_boole> new_instance(boole b)
     {
         auto rst = ref<json_boole>::new_instance(b);
-        rst->setup_self(rst.observer());
+        rst->setup_self(rst);
         return rst;
     }
 
@@ -77,7 +75,7 @@ public:
     virtual ref<json_base> clone() const override
     {
         auto rst = new_instance(_value);
-        rst->setup_self(rst.observer());
+        rst->setup_self(rst);
         return rst;
     }
 

@@ -1,10 +1,5 @@
 #pragma once
 
-namespace _InternalNs
-{
-    
-}
-
 class memory final
 {
 public:
@@ -40,4 +35,9 @@ public:
     static void set(void* addr, u8 v, u64 sz);
 
     static void copy(const void* src, void* dst, u64 sz);
+
+private:
+    static atom<u64> unreleased_memory;
 };
+
+_SELECTANY_ atom<u64> memory::unreleased_memory = 0;

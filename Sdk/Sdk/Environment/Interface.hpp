@@ -30,8 +30,8 @@
 #include "Operation/Timer.hpp"
 
 #include "Reference/Context.hpp"
-#include "Reference/Observer.hpp"
 #include "Reference/Ref.hpp"
+#include "Reference/Obs.hpp"
 
 
 // inline implementation
@@ -45,5 +45,6 @@
 #include "Operation/Spin_Implementation.inl"
 #include "Operation/Thread_Implementation.inl"
 
-#include "Reference/Observer_Implementation.inl"
+#include "Reference/Context_Implementation.inl"
 #include "Reference/Ref_Implementation.inl"
+#include "Reference/Obs_Implementation.inl"

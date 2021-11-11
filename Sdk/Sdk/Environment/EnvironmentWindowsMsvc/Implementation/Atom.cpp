@@ -36,7 +36,7 @@ atom<s64>::~atom()
 {
 }
 
-s64 atom<s64>::get()
+s64 atom<s64>::get() const
 {
     auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<s64>*);
 
@@ -143,7 +143,7 @@ atom<u64>::~atom()
 {
 }
 
-u64 atom<u64>::get()
+u64 atom<u64>::get() const
 {
     auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<u64>*);
 
@@ -250,7 +250,7 @@ atom<void*>::~atom()
 {
 }
 
-void* atom<void*>::get()
+void* atom<void*>::get() const
 {
     auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<void*>*);
 

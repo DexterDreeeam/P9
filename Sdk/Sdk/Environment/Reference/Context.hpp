@@ -1,52 +1,69 @@
 #pragma once
 
-namespace RefNs
+namespace _RefNs
 {
 
-class counter
+typedef void deconstructor_cb(void*);
+
+class context_base
 {
 public:
-    counter() :
-        _ref_cnt(0),
-        _observer_cnt(0),
-        _observer_check_busy(0)
-    {}
+    context_base() = delete;
 
-    counter(s64 ref, s64 observer) :
-        _ref_cnt(ref),
-        _observer_cnt(observer),
-        _observer_check_busy(0)
-    {}
+    context_base(const context_base&) = delete;
+
+    context_base(deconstructor_cb* dc);
+
+    ~context_base() = default;
+
+    context_base& operator =(const context_base&) = delete;
 
 public:
-    atom<s64> _ref_cnt;
-    atom<s64> _observer_cnt;
-    atom<s64> _observer_check_busy;
+    deconstructor_cb*  _deconstructor;
+    atom<s64>          _ref_cnt;
+    atom<s64>          _obs_cnt;
+    atom<s64>          _obs_lock;
 };
 
-typedef void deconstructor(void*);
-
-class context
+template<typename Ty>
+class context : context_base
 {
-public:
+private:
     context() = delete;
 
-    context(const context& rhs) = delete;
+    context(const context&) = delete;
 
-    context(void* ptr, counter* cnt, s64 data_size, deconstructor* dc) :
-        _ptr(ptr),
-        _counter(cnt),
-        _data_size(data_size),
-        _deconstructor(dc)
-    {}
+    context(Ty* ptr);
 
-    ~context() = default;
+    context& operator =(const context& rhs) = delete;
 
 public:
-    void*              _ptr;
-    counter*           _counter;
-    s64                _data_size;
-    deconstructor*     _deconstructor;
+    ~context();
+
+public:
+    static context<Ty>* new_instance_with_ptr(Ty* raw_ptr);
+
+public:
+    // ref<Ty> call add_ref() to copy another ref<Ty>
+    void  add_ref();
+
+    // ref<Ty> call remove_ref() when deconstruct, if return value is true, delete this context is expected
+    boole remove_ref();
+
+    // ref<Ty> or obs<Ty> call add_obs() to create an obs<Ty>
+    void  add_obs();
+
+    // obs<Ty> call remove_obs() when deconstruct, if return value is true, delete this context is expected
+    boole remove_obs();
+
+    // obs<Ty> call try_ref() when try to get a copy of ref(), if return value is true, try_ref() succeed, no need add_ref() again
+    boole try_ref();
+
+private:
+    static void deconstructor(void* p);
+
+public:
+    Ty* _ptr;
 };
 
 }

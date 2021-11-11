@@ -71,7 +71,7 @@ boole partition::upsert(ref<document_identifier> r_doc, const string& op_etag, r
     boole check_rst;
     document_identifier_transform_result transform_rst;
 
-    auto ret_doc = _document_map->try_insert_document(r_doc);
+    ref<document_identifier> ret_doc = _document_map->try_insert_document(r_doc);
     check_rst = r_doc->is_status(document_identifier_status::CREATING);
     assert(check_rst);
 

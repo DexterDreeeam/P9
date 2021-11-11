@@ -4,7 +4,7 @@ class map_comparer
 {
 public:
     template<typename Ty>
-    s64 compare(const Ty& v1, const Ty& v2)
+    s64 operator ()(const Ty& v1, const Ty& v2)
     {
         if (v1 == v2)
         {

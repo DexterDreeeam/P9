@@ -3,7 +3,7 @@
 template<typename Fn_Ty>
 _INLINE_ void json_iterate(ref<json_base> json, Fn_Ty fn, boole leaves_only)
 {
-    if (json.invalid())
+    if (json.empty())
     {
         return;
     }
@@ -48,7 +48,7 @@ _INLINE_ void json_iterate(ref<json_base> json, Fn_Ty fn, boole leaves_only)
 _INLINE_ void json_report(ref<json_base> json)
 {
 #if DEBUG_LEVEL >= DEBUG_LEVEL_CALIBRATION_LOG_NONE
-    if (json.invalid())
+    if (json.empty())
     {
         return;
     }
@@ -91,12 +91,12 @@ public:
 
     boole valid() const
     {
-        return _json.valid();
+        return _json.has_value();
     }
 
     boole invalid() const
     {
-        return _json.invalid();
+        return _json.empty();
     }
 
     json_cursor parent()

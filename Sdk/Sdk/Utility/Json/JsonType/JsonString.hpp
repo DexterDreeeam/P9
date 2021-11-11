@@ -2,8 +2,6 @@
 
 class json_string : public json_base
 {
-    friend class ref_base;
-
     template<typename Ty>
     friend class ref;
 
@@ -32,7 +30,7 @@ public:
     static ref<json_string> new_instance(const string& str)
     {
         auto rst = ref<json_string>::new_instance(str);
-        rst->setup_self(rst.observer());
+        rst->setup_self(rst);
         return rst;
     }
 

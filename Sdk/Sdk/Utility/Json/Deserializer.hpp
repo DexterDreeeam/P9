@@ -12,42 +12,42 @@ _INLINE_ ref<json_base> json_deserialize(const string& str, s64 from, s64 to)
 
     //===================================================== json_object
     rst = json_object::deserialize(str, from, to);
-    if (rst.valid())
+    if (rst.has_value())
     {
         goto L_finish;
     }
 
     //===================================================== json_array
     rst = json_array::deserialize(str, from, to);
-    if (rst.valid())
+    if (rst.has_value())
     {
         goto L_finish;
     }
 
     //===================================================== json_string
     rst = json_string::deserialize(str, from, to);
-    if (rst.valid())
+    if (rst.has_value())
     {
         goto L_finish;
     }
 
     //===================================================== json_boole
     rst = json_boole::deserialize(str, from, to);
-    if (rst.valid())
+    if (rst.has_value())
     {
         goto L_finish;
     }
 
     //===================================================== json_null
     rst = json_null::deserialize(str, from, to);
-    if (rst.valid())
+    if (rst.has_value())
     {
         goto L_finish;
     }
 
     //===================================================== json_float
     rst = json_number::deserialize(str, from, to);
-    if (rst.valid())
+    if (rst.has_value())
     {
         goto L_finish;
     }

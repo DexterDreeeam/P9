@@ -2,8 +2,6 @@
 
 class json_null : public json_base
 {
-    friend class ref_base;
-
     template<typename Ty>
     friend class ref;
 
@@ -26,7 +24,7 @@ public:
     static ref<json_null> new_instance()
     {
         auto rst = ref<json_null>::new_instance();
-        rst->setup_self(rst.observer());
+        rst->setup_self(rst);
         return rst;
     }
 
@@ -72,7 +70,7 @@ public:
     virtual ref<json_base> clone() const override
     {
         auto rst = new_instance();
-        rst->setup_self(rst.observer());
+        rst->setup_self(rst);
         return rst;
     }
 

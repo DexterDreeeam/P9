@@ -9,9 +9,9 @@ namespace Storage
 class index_table_json_comparer
 {
 public:
-    s64 compare(ref<json_base> j1, ref<json_base> j2)
+    s64 operator ()(ref<json_base> j1, ref<json_base> j2)
     {
-        assert(j1.valid() && j2.valid());
+        assert(j1.has_value() && j2.has_value());
         assert(j1->type() == j2->type());
         assert(j1->type() != json_type::ARRAY && j1->type() != json_type::OBJECT);
         assert(j2->type() != json_type::ARRAY && j2->type() != json_type::OBJECT);
@@ -41,7 +41,7 @@ public:
 class index_table_identifier_comparer
 {
 public:
-    s64 compare(ref<document_identifier> i1, ref<document_identifier> i2)
+    s64 operator ()(ref<document_identifier> i1, ref<document_identifier> i2)
     {
         assert(i1->_guid.data() && i2->_guid.data());
         return str_compare(i1->_guid.data(), i2->_guid.data());
@@ -85,8 +85,8 @@ private:
 class index_table : object
 {
 public:
-    using Map_Ty = map<ref<json_base>, set<ref<document_identifier>, index_table_identifier_comparer>, index_table_json_comparer>;
     using Set_Ty = set<ref<document_identifier>, index_table_identifier_comparer>;
+    using Map_Ty = map<ref<json_base>, Set_Ty, index_table_json_comparer>;
 
 public:
     index_table() :

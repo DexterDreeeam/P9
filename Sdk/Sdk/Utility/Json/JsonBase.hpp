@@ -75,10 +75,10 @@ public:
     }
 
 public:
-    json_type            parent_type;
-    observer<json_base>  parent_json;
-    s64                  parent_order;
-    string               parent_key;
+    json_type       parent_type;
+    obs<json_base>  parent_json;
+    s64             parent_order;
+    string          parent_key;
 };
 
 }
@@ -99,7 +99,7 @@ private:
         _self()
     {}
 
-    void setup_self(observer<json_base> self)
+    void setup_self(obs<json_base> self)
     {
         _self = self;
     }
@@ -156,13 +156,13 @@ public:
 
     string my_path()
     {
-        return _parent.parent_json.valid() ?
+        return _parent.parent_json.has_value() ?
             _parent.parent_json.try_ref()->my_path() + '[' + _parent.parent_key + ']' : "";
     }
 
     string my_path_index_string()
     {
-        if (_parent.parent_json.invalid())
+        if (_parent.parent_json.has_value() == boole::False)
         {
             return "";
         }
@@ -183,5 +183,5 @@ public:
 
 private:
     JsonNs::json_parent_context _parent;
-    observer<json_base>         _self;
+    obs<json_base>         _self;
 };

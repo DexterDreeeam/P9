@@ -19,7 +19,7 @@ _INLINE_ atom<Ty*>::atom(Ty* v) :
 }
 
 template<typename Ty>
-_INLINE_ Ty* atom<Ty*>::get()
+_INLINE_ Ty* atom<Ty*>::get() const
 {
     return (Ty*)_shadow.get();
 }

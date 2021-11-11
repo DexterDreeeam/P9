@@ -146,8 +146,6 @@ public:
 
 class json_number : public json_base
 {
-    friend class ref_base;
-
     template<typename Ty>
     friend class ref;
 
@@ -176,7 +174,7 @@ public:
     static ref<json_number> new_instance(const number& n)
     {
         auto rst = ref<json_number>::new_instance(n);
-        rst->setup_self(rst.observer());
+        rst->setup_self(rst);
         return rst;
     }
 

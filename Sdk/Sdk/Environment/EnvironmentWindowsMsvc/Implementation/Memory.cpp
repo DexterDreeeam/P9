@@ -5,6 +5,14 @@
 
 void* memory::alloc(u64 sz)
 {
+    static u64 highest_unreleased = 0;
+    auto current = ++unreleased_memory;
+    if (highest_unreleased < current)
+    {
+        highest_unreleased = current;
+    }
+    print("\n ------ highest unreleased memory number ------\n   %llu\n", highest_unreleased);
+
     void* p = ::malloc(sz);
     assert(p);
     return p;
@@ -32,6 +40,8 @@ void* memory::alloc_copy(const void* src, u64 alloc_sz, u64 copy_sz)
 
 void memory::free(void* addr)
 {
+    --unreleased_memory;
+
     ::free(addr);
 }
 
