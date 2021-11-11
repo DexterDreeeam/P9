@@ -23,16 +23,12 @@
 #define POINTER_BYTES (8)
 #define POINTER_BITS  (64)
 
-#pragma warning (disable : 4005)
-#pragma warning (disable : 4200)
-#pragma warning (disable : 4244)
-#pragma warning (disable : 4307)
-#pragma warning (disable : 4595)
-#pragma warning (disable : 6011)
-#pragma warning (disable : 6258)
-#pragma warning (disable : 6385)
-#pragma warning (disable : 6386)
-#pragma warning (disable : 26450)
-#pragma warning (disable : 26454)
-#pragma warning (disable : 26495)
-#pragma warning (disable : 26812)
+#pragma GCC diagnostic ignored "-Wattributes"
+#pragma GCC diagnostic ignored "-Wformat="
+#pragma GCC diagnostic ignored "-Wformat-security"
+#pragma GCC diagnostic ignored "-Wnonnull"
+#pragma GCC diagnostic ignored "-Woverflow"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#pragma GCC diagnostic ignored "-Wunused-function"
+#pragma GCC diagnostic ignored "-Wunused-value"
+#pragma GCC diagnostic ignored "-Wunused-variable"

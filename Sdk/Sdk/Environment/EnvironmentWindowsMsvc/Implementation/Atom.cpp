@@ -14,7 +14,7 @@ public:
 atom<s64>::atom()
 {
     assert(_mem_sz >= sizeof(shadow_class<s64>));
-    new (_mem) volatile s64();
+    new (_mem) volatile s64(0);
 }
 
 atom<s64>::atom(const atom<s64>& rhs)
@@ -121,7 +121,7 @@ s64 atom<s64>::compare_exchange(s64 expected, s64 replace)
 atom<u64>::atom()
 {
     assert(_mem_sz >= sizeof(shadow_class<u64>));
-    new (_mem) volatile u64();
+    new (_mem) volatile u64(0);
 }
 
 atom<u64>::atom(const atom<u64>& rhs)
@@ -225,84 +225,74 @@ u64 atom<u64>::compare_exchange(u64 expected, u64 replace)
     return ret;
 }
 
-template<typename Ty>
-atom<Ty*>::atom()
+atom<void*>::atom()
 {
-    assert(_mem_sz >= sizeof(shadow_class<Ty*>));
-    new (_mem) volatile Ty*();
+    assert(_mem_sz >= sizeof(shadow_class<void*>));
+    new (_mem) volatile void*(nullptr);
 }
 
-template<typename Ty>
-atom<Ty*>::atom(const atom<Ty*>& rhs)
+atom<void*>::atom(const atom<void*>& rhs)
 {
-    auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<Ty*>*);
-    auto& shadow_rhs = *pointer_convert(rhs._mem, 0, shadow_class<Ty*>*);
+    auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<void*>*);
+    auto& shadow_rhs = *pointer_convert(rhs._mem, 0, shadow_class<void*>*);
 
     shadow_self._data = shadow_rhs._data;
 }
 
-template<typename Ty>
-atom<Ty*>::atom(Ty* v)
+atom<void*>::atom(void* v)
 {
-    auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<Ty*>*);
+    auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<void*>*);
 
     shadow_self._data = v;
 }
 
-template<typename Ty>
-atom<Ty*>::~atom()
+atom<void*>::~atom()
 {
 }
 
-template<typename Ty>
-Ty* atom<Ty*>::get()
+void* atom<void*>::get()
 {
-    auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<Ty*>*);
+    auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<void*>*);
 
     return shadow_self._data;
 }
 
-template<typename Ty>
-void atom<Ty*>::set(Ty* v)
+void atom<void*>::set(void* v)
 {
-    auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<Ty*>*);
+    auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<void*>*);
 
     shadow_self._data = v;
 }
 
-template<typename Ty>
-atom<Ty*>& atom<Ty*>::operator =(const atom<Ty*>& rhs)
+atom<void*>& atom<void*>::operator =(const atom<void*>& rhs)
 {
-    auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<Ty*>*);
-    auto& shadow_rhs = *pointer_convert(rhs._mem, 0, shadow_class<Ty*>*);
+    auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<void*>*);
+    auto& shadow_rhs = *pointer_convert(rhs._mem, 0, shadow_class<void*>*);
 
     shadow_self._data = shadow_rhs._data;
     return *this;
 }
 
-template<typename Ty>
-atom<Ty*>& atom<Ty*>::operator =(Ty* v)
+atom<void*>& atom<void*>::operator =(void* v)
 {
-    auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<Ty*>*);
+    auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<void*>*);
 
     shadow_self._data = v;
     return *this;
 }
 
-template<typename Ty>
-Ty* atom<Ty*>::exchange(Ty* replace)
+void* atom<void*>::exchange(void* replace)
 {
-    auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<Ty*>*);
+    auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<void*>*);
 
-    void* ret = InterlockedExchange(&shadow_self._data, replace);
-    return (Ty*)ret;
+    void* ret = InterlockedExchangePointer(&shadow_self._data, replace);
+    return (void*)ret;
 }
 
-template<typename Ty>
-Ty* atom<Ty*>::compare_exchange(Ty* expected, Ty* replace)
+void* atom<void*>::compare_exchange(void* expected, void* replace)
 {
-    auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<Ty*>*);
+    auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<void*>*);
 
-    void* ret = InterlockedCompareExchange(&shadow_self._data, replace, expected);
-    return (Ty*)ret;
+    void* ret = InterlockedCompareExchangePointer(&shadow_self._data, replace, expected);
+    return (void*)ret;
 }

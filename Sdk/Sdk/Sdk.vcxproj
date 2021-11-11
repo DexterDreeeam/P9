@@ -11,6 +11,20 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Atom.cpp" />
+    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Basic.cpp" />
+    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Date.cpp" />
+    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Directory.cpp" />
+    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Event.cpp" />
+    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\File.cpp" />
+    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Lock.cpp" />
+    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Math.cpp" />
+    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Memory.cpp" />
+    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Network.cpp" />
+    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Print.cpp" />
+    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Thread.cpp" />
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="Environment\BuildinType.hpp" />
     <ClInclude Include="Environment\CompilerDirective.hpp" />
     <ClInclude Include="Environment\DebugCalibration.hpp" />
@@ -18,6 +32,7 @@
     <ClInclude Include="Environment\EnvironmentDefinition.hpp" />
     <ClInclude Include="Environment\EnvironmentLinuxGcc\CompilerDirective.hpp" />
     <ClInclude Include="Environment\EnvironmentLinuxGcc\Definition.hpp" />
+    <ClInclude Include="Environment\EnvironmentLinuxGcc\EnvironmentHeader.hpp" />
     <ClInclude Include="Environment\EnvironmentWindowsMsvc\CompilerDirective.hpp" />
     <ClInclude Include="Environment\EnvironmentWindowsMsvc\Definition.hpp" />
     <ClInclude Include="Environment\EnvironmentWindowsMsvc\EnvironmentHeader.hpp" />
@@ -85,20 +100,7 @@
     <ClInclude Include="Utility\Json\JsonType\JsonString.hpp" />
     <ClInclude Include="Utility\Json\Utility.hpp" />
   </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Atom.cpp" />
     <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Basic.cpp" />
-    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Date.cpp" />
-    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Directory.cpp" />
-    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Event.cpp" />
-    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\File.cpp" />
-    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Lock.cpp" />
-    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Math.cpp" />
-    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Memory.cpp" />
-    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Network.cpp" />
-    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Print.cpp" />
-    <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Thread.cpp" />
-  </ItemGroup>
   <ItemGroup>
     <None Include="Environment\Reference\ObserverImplementation.inl" />
     <None Include="Environment\Reference\RefImplementation.inl" />
