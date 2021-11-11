@@ -91,7 +91,15 @@
     <ClInclude Include="Interface.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Environment\Reference\ObserverImplementation.inl" />
-    <None Include="Environment\Reference\RefImplementation.inl" />
+    <None Include="Environment\Operation\Atom_Implementation.inl" />
+    <None Include="Environment\Operation\CString_Implementation.inl" />
+    <None Include="Environment\Operation\CStringConversion_Implementation.inl" />
+    <None Include="Environment\Operation\Lock_Implementation.inl" />
+    <None Include="Environment\Operation\Math_Implementation.inl" />
+    <None Include="Environment\Operation\Network_Implementation.inl" />
+    <None Include="Environment\Operation\Spin_Implementation.inl" />
+    <None Include="Environment\Operation\Thread_Implementation.inl" />
+    <None Include="Environment\Reference\Observer_Implementation.inl" />
+    <None Include="Environment\Reference\Ref_Implementation.inl" />
   </ItemGroup>
 </Project>

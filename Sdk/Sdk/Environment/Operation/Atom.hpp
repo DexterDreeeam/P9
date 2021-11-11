@@ -133,63 +133,31 @@ template<typename Ty>
 class atom<Ty*>
 {
 public:
-    atom() :
-        _shadow()
-    {
-    }
+    atom();
 
-    atom(const atom<Ty*>& rhs) :
-        _shadow(rhs._shadow)
-    {
-    }
+    atom(const atom<Ty*>& rhs);
 
-    atom(Ty* v) :
-        _shadow(v)
-    {
-    }
+    atom(Ty* v);
 
     ~atom() = default;
 
 public:
-    Ty* get()
-    {
-        return (Ty*)_shadow.get();
-    }
+    Ty* get();
 
-    void set(Ty* v)
-    {
-        _shadow.set(v);
-    }
+    void set(Ty* v);
 
-    operator Ty* ()
-    {
-        return (Ty*)_shadow.operator void*();
-    }
+    operator Ty* ();
 
-    atom<Ty*>& operator =(const atom<Ty*>& rhs)
-    {
-        _shadow.operator =(rhs._shadow);
-        return *this;
-    }
+    atom<Ty*>& operator =(const atom<Ty*>& rhs);
 
-    atom<Ty*>& operator =(Ty* v)
-    {
-        _shadow.operator =(v);
-        return *this;
-    }
+    atom<Ty*>& operator =(Ty* v);
 
     template<typename Convert_Ty>
     operator Convert_Ty() const = delete;
 
-    Ty* exchange(Ty* replace)
-    {
-        return (Ty*)_shadow.exchange(replace);
-    }
+    Ty* exchange(Ty* replace);
 
-    Ty* compare_exchange(Ty* expected, Ty* replace)
-    {
-        return (Ty*)_shadow.compare_exchange(expected, replace);
-    }
+    Ty* compare_exchange(Ty* expected, Ty* replace);
 
 private:
     atom<void*> _shadow;

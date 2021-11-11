@@ -91,6 +91,7 @@ boole directory_cursor::init(const char* directory_path)
 
         if (move_next_if_invalid())
         {
+            // valid or move
             return boole::True;
         }
         else

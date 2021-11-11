@@ -33,6 +33,8 @@ public:
 public:
     boole init(const char* directory_path);
 
+    boole is_init() { return _ctx != nullptr; }
+
     boole uninit();
 
     const char* directory_name() const;

@@ -33,6 +33,8 @@ public:
 
     boole init_input(const char* path);
 
+    boole is_init() { return _ctx != nullptr; }
+
     boole uninit();
 
 public:

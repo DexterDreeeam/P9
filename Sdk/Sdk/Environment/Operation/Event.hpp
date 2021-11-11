@@ -21,6 +21,8 @@ public:
 
     boole init();
 
+    boole is_init() { return _ctx != nullptr; }
+
     boole uninit();
 
     boole wait();

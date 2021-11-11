@@ -32,5 +32,18 @@
 #include "Reference/Context.hpp"
 #include "Reference/Observer.hpp"
 #include "Reference/Ref.hpp"
-#include "Reference/ObserverImplementation.inl"
-#include "Reference/RefImplementation.inl"
+
+
+// inline implementation
+
+#include "Operation/Atom_Implementation.inl"
+#include "Operation/CString_Implementation.inl"
+#include "Operation/CStringConversion_Implementation.inl"
+#include "Operation/Lock_Implementation.inl"
+#include "Operation/Math_Implementation.inl"
+#include "Operation/Network_Implementation.inl"
+#include "Operation/Spin_Implementation.inl"
+#include "Operation/Thread_Implementation.inl"
+
+#include "Reference/Observer_Implementation.inl"
+#include "Reference/Ref_Implementation.inl"
