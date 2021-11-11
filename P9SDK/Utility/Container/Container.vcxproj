@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Algo\FileExtension.hpp" />
+    <ClInclude Include="Algo\Hash.hpp" />
+    <ClInclude Include="Algo\StringExtension.hpp" />
+    <ClInclude Include="Interface.hpp" />
+    <ClInclude Include="Internal\Hashmap.hpp" />
+    <ClInclude Include="Internal\RBTree.hpp" />
+    <ClInclude Include="Internal\SlotAllocator.hpp" />
+    <ClInclude Include="Reference\Context.hpp" />
+    <ClInclude Include="Reference\Observer.hpp" />
+    <ClInclude Include="Reference\Reference.hpp" />
+    <ClInclude Include="Safe\EscapeFunction.hpp" />
+    <ClInclude Include="Safe\SafeQueue.hpp" />
+    <ClInclude Include="Safe\Selectee.hpp" />
+    <ClInclude Include="Unsafe\Array.hpp" />
+    <ClInclude Include="Unsafe\Deque.hpp" />
+    <ClInclude Include="Unsafe\List.hpp" />
+    <ClInclude Include="Unsafe\Map.hpp" />
+    <ClInclude Include="Unsafe\Pair.hpp" />
+    <ClInclude Include="Unsafe\Queue.hpp" />
+    <ClInclude Include="Unsafe\Set.hpp" />
+    <ClInclude Include="Unsafe\Stack.hpp" />
+    <ClInclude Include="Unsafe\String.hpp" />
+    <ClInclude Include="Unsafe\Triple.hpp" />
+    <ClInclude Include="Unsafe\Unordered_Map.hpp" />
+    <ClInclude Include="Unsafe\Unordered_Set.hpp" />
+    <ClInclude Include="Unsafe\Vector.hpp" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{a38f5abb-a413-4832-baf8-0042ccfaaef9}</ProjectGuid>
+    <RootNamespace>Container</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>Container</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <IntDir>$(SolutionDir).output\.$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir).lib\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

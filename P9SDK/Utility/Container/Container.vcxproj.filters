@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="Algo\FileExtension.hpp" />
+    <ClInclude Include="Algo\Hash.hpp" />
+    <ClInclude Include="Algo\StringExtension.hpp" />
+    <ClInclude Include="Internal\Hashmap.hpp" />
+    <ClInclude Include="Internal\RBTree.hpp" />
+    <ClInclude Include="Internal\SlotAllocator.hpp" />
+    <ClInclude Include="Reference\Context.hpp" />
+    <ClInclude Include="Reference\Observer.hpp" />
+    <ClInclude Include="Reference\Reference.hpp" />
+    <ClInclude Include="Safe\EscapeFunction.hpp" />
+    <ClInclude Include="Safe\SafeQueue.hpp" />
+    <ClInclude Include="Safe\Selectee.hpp" />
+    <ClInclude Include="Unsafe\Array.hpp" />
+    <ClInclude Include="Unsafe\Deque.hpp" />
+    <ClInclude Include="Unsafe\List.hpp" />
+    <ClInclude Include="Unsafe\Map.hpp" />
+    <ClInclude Include="Unsafe\Pair.hpp" />
+    <ClInclude Include="Unsafe\Queue.hpp" />
+    <ClInclude Include="Unsafe\Set.hpp" />
+    <ClInclude Include="Unsafe\Stack.hpp" />
+    <ClInclude Include="Unsafe\String.hpp" />
+    <ClInclude Include="Unsafe\Triple.hpp" />
+    <ClInclude Include="Unsafe\Unordered_Map.hpp" />
+    <ClInclude Include="Unsafe\Unordered_Set.hpp" />
+    <ClInclude Include="Unsafe\Vector.hpp" />
+    <ClInclude Include="Interface.hpp" />
+  </ItemGroup>
+</Project>
