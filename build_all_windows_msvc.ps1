@@ -1,6 +1,6 @@
-
 $mspaths =@(
 'C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\amd64'
+'C:\Program Files\Microsoft Visual Studio\2022\Professional\MSBuild\Current\Bin\amd64'
 'C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\amd64'
 )
 
