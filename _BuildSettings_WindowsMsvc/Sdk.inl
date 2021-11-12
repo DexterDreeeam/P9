@@ -28,3 +28,5 @@
 #define \
     DEBUG_CALIBRATION \
         DEBUG_FULL
+
+// #define MEMORY_DEBUG

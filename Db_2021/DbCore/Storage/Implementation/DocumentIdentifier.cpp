@@ -20,6 +20,8 @@ string document_identifier::read()
 
     s64 read_len;
     f.input(buf, 8192, read_len);
+    f.uninit();
+
     if (read_len >= 8192)
     {
         return string();
