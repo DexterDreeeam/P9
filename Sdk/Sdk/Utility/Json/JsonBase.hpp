@@ -162,7 +162,7 @@ public:
 
     string my_path_index_string()
     {
-        if (_parent.parent_json.has_value() == boole::False)
+        if (_parent.parent_json.empty())
         {
             return "";
         }
@@ -183,5 +183,5 @@ public:
 
 private:
     JsonNs::json_parent_context _parent;
-    obs<json_base>         _self;
+    obs<json_base>              _self;
 };

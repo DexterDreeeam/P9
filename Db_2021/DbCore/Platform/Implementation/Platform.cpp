@@ -105,7 +105,7 @@ string platform::handle_operation(ref<Interpreter::query_operation> op)
     case Interpreter::query_operation_type::HARD_DELETE:
         return handle_hard_delete(op.ref_of<Interpreter::query_operation_hard_delete>());
     case Interpreter::query_operation_type::SEARCH:
-        return "good";//handle_search(op.ref_of<Interpreter::query_operation_search>());
+        return handle_search(op.ref_of<Interpreter::query_operation_search>());
     default:
         err("Not expected operation type, %d.", op->type());
         assert_info(0, "Not expected operation type.");
