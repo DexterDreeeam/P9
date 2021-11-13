@@ -1,6 +1,6 @@
 
-#include "../EnvironmentHeader.hpp"
 #include "../../Interface.hpp"
+#include "../EnvironmentHeader.hpp"
 
 template<typename Ty>
 class shadow_class

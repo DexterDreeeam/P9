@@ -15,6 +15,9 @@
     <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Thread.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Environment\EnvironmentLinuxGcc\CompilerDirective.hpp" />
+    <ClInclude Include="Environment\EnvironmentLinuxGcc\Definition.hpp" />
+    <ClInclude Include="Environment\EnvironmentLinuxGcc\EnvironmentHeader.hpp" />
     <ClInclude Include="Environment\EnvironmentWindowsMsvc\CompilerDirective.hpp" />
     <ClInclude Include="Environment\EnvironmentWindowsMsvc\Definition.hpp" />
     <ClInclude Include="Environment\EnvironmentWindowsMsvc\EnvironmentHeader.hpp" />
@@ -88,14 +91,21 @@
     <ClInclude Include="Interface.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Environment\Operation\Assert_Implementation.inl" />
     <None Include="Environment\Operation\Atom_Implementation.inl" />
     <None Include="Environment\Operation\CString_Implementation.inl" />
     <None Include="Environment\Operation\CStringConversion_Implementation.inl" />
+    <None Include="Environment\Operation\Date_Implementation.inl" />
+    <None Include="Environment\Operation\Directory_Implementation.inl" />
+    <None Include="Environment\Operation\File_Implementation.inl" />
     <None Include="Environment\Operation\Lock_Implementation.inl" />
     <None Include="Environment\Operation\Math_Implementation.inl" />
+    <None Include="Environment\Operation\Memory_Implementation.inl" />
     <None Include="Environment\Operation\Network_Implementation.inl" />
+    <None Include="Environment\Operation\New_Implementation.inl" />
     <None Include="Environment\Operation\Spin_Implementation.inl" />
     <None Include="Environment\Operation\Thread_Implementation.inl" />
+    <None Include="Environment\Operation\Timer_Implementation.inl" />
     <None Include="Environment\Reference\Context_Implementation.inl" />
     <None Include="Environment\Reference\Obs_Implementation.inl" />
     <None Include="Environment\Reference\Ref_Implementation.inl" />

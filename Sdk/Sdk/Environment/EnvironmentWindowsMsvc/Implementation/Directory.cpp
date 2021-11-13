@@ -1,6 +1,22 @@
 
-#include "../EnvironmentHeader.hpp"
 #include "../../Interface.hpp"
+#include "../EnvironmentHeader.hpp"
+
+boole directory::exist(const char* path)
+{
+    assert(path);
+    WIN32_FIND_DATAA wfd;
+    HANDLE hndl = ::FindFirstFileA(path, &wfd);
+    if (hndl != INVALID_HANDLE_VALUE)
+    {
+        ::FindClose(hndl);
+        return boole::True;
+    }
+    else
+    {
+        return boole::False;
+    }
+}
 
 void directory::build_path(char* path, s64 len)
 {
@@ -13,14 +29,12 @@ void directory::build_path(char* path, s64 len)
     {
         if (path[idx] == '/')
         {
-            WIN32_FIND_DATAA wfd;
             path[idx] = 0;
-            HANDLE hndl = ::FindFirstFileA(path, &wfd);
+            boole is_exist = exist(path);
             path[idx] = '/';
 
-            if (hndl != INVALID_HANDLE_VALUE)
+            if (is_exist)
             {
-                ::FindClose(hndl);
                 deepest_exist_directory_idx = idx;
                 break;
             }

@@ -1,6 +1,6 @@
 
-#include "../EnvironmentHeader.hpp"
 #include "../../Interface.hpp"
+#include "../EnvironmentHeader.hpp"
 
 #if defined(MEMORY_DEBUG)
 
