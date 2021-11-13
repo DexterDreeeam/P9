@@ -1,0 +1,48 @@
+{
+    "configurations": [
+        {
+            "name": "Db_2021_server_debug",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "../.exe.debug/Db_2021_EntryPoint",
+            "args": [
+                "host"
+            ],
+            "stopAtEntry": true,
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "Db_2021_client_debug",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "../.exe.debug/Db_2021_EntryPoint",
+            "args": [
+                "10.0.2.15",
+                "../Db_2021/.tests/01-upsert-1.json"
+            ],
+            "stopAtEntry": true,
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        }
+    ],
+    "version": "0.2.0"
+}

@@ -299,7 +299,7 @@ private:
             text_logs[i].uninit();
         }
         integrate_log_file.uninit();
-        print("Run time log locates '%s'", path_buf);
+        print("Run time log locates '%s'\n", path_buf);
     }
 
 private:

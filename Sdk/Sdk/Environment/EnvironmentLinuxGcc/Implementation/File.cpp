@@ -184,7 +184,7 @@ boole file::input(void* buf, s64 want_read_len, s64& actual_read_len)
     s64 read_len = ::read(
         ctx->_fp, buf, want_read_len);
 
-    if (read_len == want_read_len)
+    if (read_len > 0)
     {
         actual_read_len = read_len;
         return boole::True;
