@@ -9,6 +9,7 @@ temp/*
 .lib.release/*
 .exe.debug/*
 .exe.release/*
+.out/*
 *.vs/
 *x64*
 *.user
