@@ -1,7 +1,5 @@
 #pragma once
 
-#include "../BuildinType.hpp"
-
 template<typename Ty>
 class atom;
 

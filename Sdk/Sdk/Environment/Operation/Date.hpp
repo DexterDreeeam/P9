@@ -1,13 +1,11 @@
 #pragma once
 
-#include "Math.hpp"
-
 class random final
 {
 public:
     static u64 new_u64() noexcept;
 
-    static u64 new_u64_with_mod(u64 m) noexcept { return new_u64() % m; }
+    static u64 new_u64_with_mod(u64 m) noexcept;
 };
 
 class date final
@@ -53,59 +51,18 @@ public:
 
     static u64 count();
 
-    static void elapse_init()
-    {
-        record(count());
-    }
+    static void elapse_init();
 
-    static u64 elapse()
-    {
-        u64 rec = record(0);
-        if (rec)
-        {
-            return count() - rec;
-        }
-        else
-        {
-            elapse_init();
-            return elapse();
-        }
-    }
+    static u64 elapse();
 
-    static void elapse_print()
-    {
-        print("Time elapse is: %llums.\n", elapse());
-    }
+    static void elapse_print();
 
-    static tick new_sleep_cycle()
-    {
-        tick t;
-        t._sleep_cycle = 0;
-        sleep(0);
-        return t;
-    }
+    static tick new_sleep_cycle();
 
-    void sleep_cycle()
-    {
-        static u64 sleep_intervals[32] =
-        {
-            1, 1, 1, 1, 2, 2, 2, 2,
-            4, 4, 4, 4, 8, 8, 8, 8,
-            16, 16, 16, 16, 32, 32, 32, 32,
-            64, 64, 64, 64, 128, 128, 256, 256
-        };
-
-        assert(_sleep_cycle >= 0 && _sleep_cycle < 32);
-        sleep(sleep_intervals[_sleep_cycle]);
-        _sleep_cycle = math::max(_sleep_cycle + 1, 31);
-    }
+    void sleep_cycle();
 
 private:
-    static u64 record(u64 r = 0)
-    {
-        static u64 myrec = 0;
-        return r == 0 ? myrec : (myrec = r);
-    }
+    static u64 record(u64 r = 0);
 
 private:
     union

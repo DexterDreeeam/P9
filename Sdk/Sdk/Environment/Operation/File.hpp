@@ -3,21 +3,11 @@
 class file final
 {
 public:
-    file() :
-        _ctx(nullptr)
-    {
-    }
+    file();
 
-    file(const file& rhs) :
-        _ctx(rhs._ctx)
-    {
-    }
+    file(const file& rhs);
 
-    file& operator =(const file& rhs)
-    {
-        _ctx = rhs._ctx;
-        return *this;
-    }
+    file& operator =(const file& rhs);
 
     ~file() = default;
 
@@ -33,18 +23,14 @@ public:
 
     boole init_input(const char* path);
 
-    boole is_init() { return _ctx != nullptr; }
+    boole is_init();
 
     boole uninit();
 
 public:
     boole output(const char* content, s64 write_len);
 
-    boole output(const char* content)
-    {
-        assert(content);
-        return output(content, str_len(content));
-    }
+    boole output(const char* content);
 
     boole input(void* buf, s64 want_read_len, s64& actual_read_len);
 

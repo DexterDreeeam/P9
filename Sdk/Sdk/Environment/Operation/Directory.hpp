@@ -3,20 +3,11 @@
 class directory final
 {
 public:
+    static boole exist(const char* path);
+
     static void build_path(char* path, s64 len);
 
-    static void build_path(const char* path)
-    {
-        assert(path);
-        s64 len = str_len(path);
-        assert_info(path[len - 1] == '/', "directory path should end with \'/\'");
-
-        char path_buf[512] = {};
-        memory::copy(path, path_buf, len);
-        path_buf[len] = 0;
-
-        build_path(path_buf, len);
-    }
+    static void build_path(const char* path);
 };
 
 class directory_cursor final
@@ -24,21 +15,11 @@ class directory_cursor final
     friend class directory;
 
 public:
-    directory_cursor() :
-        _ctx(nullptr)
-    {
-    }
+    directory_cursor();
 
-    directory_cursor(const directory_cursor& rhs) :
-        _ctx(rhs._ctx)
-    {
-    }
+    directory_cursor(const directory_cursor& rhs);
 
-    directory_cursor& operator =(const directory_cursor& rhs)
-    {
-        _ctx = rhs._ctx;
-        return *this;
-    }
+    directory_cursor& operator =(const directory_cursor& rhs);
 
     ~directory_cursor() = default;
 

@@ -2,12 +2,58 @@
 #include "../EnvironmentHeader.hpp"
 #include "../../Interface.hpp"
 
+boole directory::exist(const char* path)
+{
+    struct stat st;
+    if(::stat(path, &st) == 0 && (st.st_mode & S_IFDIR) != 0)
+    {
+        return boole::True;
+    }
+    else
+    {
+        return boole::False;
+    }
+}
+
 void directory::build_path(char* path, s64 len)
 {
     assert(path);
     assert_info(path[len - 1] == '/', "directory path should end with \'/\'");
 
-    ::mkdir(path, S_IRWXU | S_IRWXG | S_IRWXO);
+    s64 first_inexist_directory_idx = -1;
+    s64 idx = len - 1;
+    while (idx >= 0)
+    {
+        if (path[idx] == '/')
+        {
+            path[idx] = 0;
+            boole directory_exist = exist(path);
+            path[idx] = '/';
+            if (directory_exist)
+            {
+                first_inexist_directory_idx = idx;
+                break;
+            }
+        }
+        --idx;
+    }
+    assert(first_inexist_directory_idx >= 0);
+    while (first_inexist_directory_idx < len)
+    {
+        idx = first_inexist_directory_idx + 1;
+        while (idx < len && path[idx] != '/')
+        {
+            ++idx;
+        }
+        if (idx >= len)
+        {
+            break;
+        }
+        path[idx] = 0;
+        ::mkdir(path, S_IRWXU | S_IRWXG | S_IRWXO);
+        path[idx] = '/';
+        first_inexist_directory_idx = idx;
+    }
 }
 
 struct directory_cursor_context
