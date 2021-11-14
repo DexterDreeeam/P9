@@ -1,4 +1,8 @@
 
+# Add Build Folder
+  rm -rdf ./*.o ./.lib.debug ./.lib.release ./.exe.debug ./.exe.release
+  mkdir ./.lib.debug ./.lib.release ./.exe.debug ./.exe.release
+
 # Sdk
 
   ## copy build setting for Sdk
@@ -48,4 +52,7 @@
   g++ -std=c++2a -O3 -pthread -c ./Db_2021/EntryPoint/*.cpp
   g++ -std=c++2a -O3 -pthread -o ./.exe.release/Db_2021_EntryPoint ./*.o ./.lib.release/Sdk.a ./.lib.release/DbCore.a
   rm ./*.o
+
+# Copy All Exe
+  cp -rf ./.exe.release/* ./_Release/
 
