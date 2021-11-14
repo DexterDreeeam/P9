@@ -8,7 +8,7 @@ _INLINE_ void err(Args...args);
 
 #if DEBUG_LEVEL > DEBUG_LEVEL_CALIBRATION_LOG_NONE
 
-#define LOG_FOLDER     P9_FOLDER##"Log/"
+#define LOG_FOLDER     P9_FOLDER "Log/"
 
 namespace LoggerNs
 {

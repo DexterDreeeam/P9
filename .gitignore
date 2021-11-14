@@ -4,12 +4,13 @@
 BuildSetting.inl
 
 temp/*
-.lib*
-.exe*
-.out*
+.out/*
+.lib.debug/*
+.lib.release/*
+.exe.debug/*
+.exe.release/*
 *.vs/
 *x64*
-*.pdb
 *.user
 *.ilk
 *.iobj
