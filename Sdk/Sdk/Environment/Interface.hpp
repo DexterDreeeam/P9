@@ -3,6 +3,7 @@
 #include "DebugLevel.hpp"
 
 #include "../../../BuildSetting.inl"
+#include "../../../BuildDebugCalibration.inl"
 
 #include "CompilerDirective.hpp"
 #include "DebugCalibration.hpp"
