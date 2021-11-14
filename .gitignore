@@ -3,13 +3,11 @@
 
 BuildSetting.inl
 
-# Windows MSVC ignoring files
-
 temp/*
 .lib*
 .exe*
 .out*
-*.vs*
+*.vs/
 *x64*
 *.pdb
 *.user
@@ -17,12 +15,10 @@ temp/*
 *.iobj
 *.ipdb
 
-!*placeholder*
-!P9DB.exe
-
-# Linux Gcc ignoring files
-
 .codelite*
 Debug/
 P9SDK/ExecutorDebug/main
+
+!*placeholder*
+!P9DB.exe
 

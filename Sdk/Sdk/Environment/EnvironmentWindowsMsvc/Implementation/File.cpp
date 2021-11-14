@@ -1,6 +1,6 @@
 
-#include "../../Interface.hpp"
 #include "../EnvironmentHeader.hpp"
+#include "../../Interface.hpp"
 
 class file_context
 {
@@ -25,15 +25,7 @@ public:
         assert(_hndl);
     }
 
-    ~file_context()
-    {
-        if (_type == __type::Output)
-        {
-            // flush potential buffered content
-            ::FlushFileBuffers(_hndl);
-        }
-        ::CloseHandle(_hndl);
-    }
+    ~file_context() = default;
 
 public:
     __type _type;
@@ -151,6 +143,11 @@ boole file::uninit()
     assert(ctx->_type == file_context::__type::Output || ctx->_type == file_context::__type::Input);
     assert(ctx->_hndl);
 
+    if (ctx->_type == file_context::__type::Output)
+    {
+        ::FlushFileBuffers(ctx->_hndl);
+    }
+
     if (::CloseHandle(ctx->_hndl))
     {
         ctx->_type = file_context::__type::None;
@@ -183,12 +180,6 @@ boole file::output(const char* content, s64 write_len)
     {
         return boole::False;
     }
-}
-
-boole file::output(const char* content)
-{
-    assert(content);
-    return output(content, str_len(content));
 }
 
 boole file::input(void* buf, s64 want_read_len, s64& actual_read_len)

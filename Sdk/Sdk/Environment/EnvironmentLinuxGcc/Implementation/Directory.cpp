@@ -1,62 +1,19 @@
 
-#include "../../Interface.hpp"
 #include "../EnvironmentHeader.hpp"
+#include "../../Interface.hpp"
 
 void directory::build_path(char* path, s64 len)
 {
     assert(path);
     assert_info(path[len - 1] == '/', "directory path should end with \'/\'");
 
-    s64 deepest_exist_directory_idx = -1;
-    s64 idx = len - 1;
-    while (idx >= 0)
-    {
-        if (path[idx] == '/')
-        {
-            WIN32_FIND_DATAA wfd;
-            path[idx] = 0;
-            HANDLE hndl = ::FindFirstFileA(path, &wfd);
-            path[idx] = '/';
-
-            if (hndl != INVALID_HANDLE_VALUE)
-            {
-                ::FindClose(hndl);
-                deepest_exist_directory_idx = idx;
-                break;
-            }
-        }
-        --idx;
-    }
-
-    assert(deepest_exist_directory_idx != -1);
-    while (++deepest_exist_directory_idx < len)
-    {
-        if (path[deepest_exist_directory_idx] == '/')
-        {
-            path[deepest_exist_directory_idx] = 0;
-            ::CreateDirectoryA(path, nullptr);
-            path[deepest_exist_directory_idx] = '/';
-        }
-    }
-}
-
-void directory::build_path(const char* path)
-{
-    assert(path);
-    s64 len = str_len(path);
-    assert_info(path[len - 1] == '/', "directory path should end with \'/\'");
-
-    char path_buf[512] = {};
-    memory::copy(path, path_buf, len);
-    path_buf[len] = 0;
-
-    build_path(path_buf, len);
+    ::mkdir(path, S_IRWXU | S_IRWXG | S_IRWXO);
 }
 
 struct directory_cursor_context
 {
-    WIN32_FIND_DATA  _wfd;
-    HANDLE           _hndl;
+    DIR*             _dir;
+    dirent*          _dir_ptr;
     char*            _folder;
 };
 
@@ -70,39 +27,33 @@ boole directory_cursor::init(const char* directory_path)
         directory_path[path_len - 1] == '/',
         "directory path should end with \'/\'");
 
-    char* buf = memory::alloc_copy<char>(
-        directory_path, path_len + 2, path_len);
-    buf[path_len] = '*';
-    buf[path_len + 1] = 0;
+    DIR* dir = ::opendir(directory_path);
+    if (dir == nullptr)
+    {
+        return boole::False;
+    }
 
     auto* ctx = new directory_cursor_context();
-    assert(ctx);
-
-    HANDLE h = ::FindFirstFileA(
-        buf, &ctx->_wfd);
-
-    buf[path_len] = 0;
-
-    if (h != INVALID_HANDLE_VALUE)
+    ctx->_dir = dir;
+    ctx->_dir_ptr = readdir(dir);
+    if (ctx->_dir_ptr == nullptr)
     {
-        ctx->_hndl = h;
-        ctx->_folder = buf;
-        _ctx = ctx;
+        ::closedir(dir);
+        delete ctx;
+        return boole::False;
+    }
+    ctx->_folder = memory::alloc_copy<char>(
+        directory_path, path_len + 1, path_len + 1);
 
-        if (move_next_if_invalid())
-        {
-            return boole::True;
-        }
-        else
-        {
-            uninit();
-            return boole::False;
-        }
+    _ctx = ctx;
+    if (valid_or_move_next())
+    {
+        // valid or move
+        return boole::True;
     }
     else
     {
-        memory::free(buf);
-        delete ctx;
+        uninit();
         return boole::False;
     }
 }
@@ -112,9 +63,9 @@ boole directory_cursor::uninit()
     auto* ctx = pointer_convert(_ctx, 0, directory_cursor_context*);
     assert(ctx);
     assert(ctx->_folder);
-    assert(ctx->_hndl);
+    assert(ctx->_dir);
 
-    if (::FindClose(ctx->_hndl))
+    if (::closedir(ctx->_dir))
     {
         memory::free(ctx->_folder);
         delete ctx;
@@ -132,6 +83,7 @@ const char* directory_cursor::directory_name() const
     auto* ctx = pointer_convert(_ctx, 0, directory_cursor_context*);
     assert(ctx);
     assert(ctx->_folder);
+    assert(ctx->_dir);
 
     return ctx->_folder;
 }
@@ -140,36 +92,43 @@ const char* directory_cursor::name() const
 {
     auto* ctx = pointer_convert(_ctx, 0, directory_cursor_context*);
     assert(ctx);
+    assert(ctx->_folder);
+    assert(ctx->_dir);
 
-    return ctx->_wfd.cFileName;
+    return ctx->_dir_ptr->d_name;
 }
 
 boole directory_cursor::is_file() const
 {
     auto* ctx = pointer_convert(_ctx, 0, directory_cursor_context*);
     assert(ctx);
+    assert(ctx->_folder);
+    assert(ctx->_dir);
 
-    return ctx->_wfd.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE;
+    return ctx->_dir_ptr->d_type == DT_REG;
 }
 
 boole directory_cursor::is_folder() const
 {
     auto* ctx = pointer_convert(_ctx, 0, directory_cursor_context*);
     assert(ctx);
+    assert(ctx->_folder);
+    assert(ctx->_dir);
 
-    return ctx->_wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY;
+    return ctx->_dir_ptr->d_type == DT_DIR;
 }
 
 boole directory_cursor::move_next()
 {
     auto* ctx = pointer_convert(_ctx, 0, directory_cursor_context*);
     assert(ctx);
-    assert(ctx->_hndl);
+    assert(ctx->_folder);
+    assert(ctx->_dir);
 
-    if (::FindNextFileA(
-        ctx->_hndl, &ctx->_wfd))
+    if (ctx->_dir_ptr)
     {
-        return move_next_if_invalid();
+        ctx->_dir_ptr = ::readdir(ctx->_dir);
+        return valid_or_move_next();
     }
     else
     {
@@ -177,15 +136,21 @@ boole directory_cursor::move_next()
     }
 }
 
-boole directory_cursor::move_next_if_invalid()
+boole directory_cursor::valid_or_move_next()
 {
     auto* ctx = pointer_convert(_ctx, 0, directory_cursor_context*);
     assert(ctx);
-    assert(ctx->_hndl);
+    assert(ctx->_folder);
+    assert(ctx->_dir);
 
-    if (str_equal(ctx->_wfd.cFileName, ".") ||
-        str_equal(ctx->_wfd.cFileName, "..") ||
-        (ctx->_wfd.dwFileAttributes & (FILE_ATTRIBUTE_ARCHIVE | FILE_ATTRIBUTE_DIRECTORY)) == 0)
+    if (ctx->_dir_ptr == nullptr)
+    {
+        return boole::False;
+    }
+    else if (
+        str_equal(ctx->_dir_ptr->d_name, ".") ||
+        str_equal(ctx->_dir_ptr->d_name, "..") ||
+        (ctx->_dir_ptr->d_type != DT_REG && ctx->_dir_ptr->d_type != DT_DIR))
     {
         // invalid
         // try move next
@@ -193,6 +158,7 @@ boole directory_cursor::move_next_if_invalid()
     }
     else
     {
+        // normal file or folder
         return boole::True;
     }
 }

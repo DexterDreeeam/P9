@@ -1,6 +1,6 @@
 
-#include "../../Interface.hpp"
 #include "../EnvironmentHeader.hpp"
+#include "../../Interface.hpp"
 
 #pragma comment(lib, "ws2_32.lib")
 
@@ -67,12 +67,12 @@ boole network_client::init(const char* server_addr, s64 server_port)
     return boole::True;
 
 L_error:
-    if (ctx->_sk != INVALID_SOCKET)
-    {
-        ::closesocket(ctx->_sk);
-    }
     if (ctx)
     {
+        if (ctx->_sk != INVALID_SOCKET)
+        {
+            ::closesocket(ctx->_sk);
+        }
         delete ctx;
     }
     return boole::False;
@@ -273,12 +273,12 @@ boole network_server::init(s64 server_port)
     return boole::True;
 
 L_error:
-    if (ctx->_sk != INVALID_SOCKET)
-    {
-        ::closesocket(ctx->_sk);
-    }
     if (ctx)
     {
+        if (ctx->_sk != INVALID_SOCKET)
+        {
+            ::closesocket(ctx->_sk);
+        }
         delete ctx;
     }
     return boole::False;

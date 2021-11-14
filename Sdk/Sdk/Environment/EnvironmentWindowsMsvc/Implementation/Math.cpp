@@ -1,6 +1,6 @@
 
-#include "../../Interface.hpp"
 #include "../EnvironmentHeader.hpp"
+#include "../../Interface.hpp"
 
 f64 math::power(f64 x, f64 exp)
 {

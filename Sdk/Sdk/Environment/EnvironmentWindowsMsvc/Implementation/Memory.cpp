@@ -1,7 +1,6 @@
-#pragma once
 
-#include "../../Interface.hpp"
 #include "../EnvironmentHeader.hpp"
+#include "../../Interface.hpp"
 
 #if defined(MEMORY_DEBUG)
 

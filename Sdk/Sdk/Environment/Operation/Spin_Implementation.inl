@@ -19,6 +19,7 @@ _INLINE_ spin& spin::operator =(const spin& rhs)
 _INLINE_ boole spin::init()
 {
     _v.set(0);
+    return boole::True;
 }
 
 _INLINE_ boole spin::is_init()
@@ -29,6 +30,7 @@ _INLINE_ boole spin::is_init()
 _INLINE_ boole spin::uninit()
 {
     _v.set(s64_min);
+    return boole::True;
 }
 
 _INLINE_ boole spin::try_acquire()
@@ -48,4 +50,5 @@ _INLINE_ boole spin::wait_acquire()
 _INLINE_ boole spin::release()
 {
     _v.set(0);
+    return boole::True;
 }

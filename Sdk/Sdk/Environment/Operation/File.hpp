@@ -40,7 +40,11 @@ public:
 public:
     boole output(const char* content, s64 write_len);
 
-    boole output(const char* content);
+    boole output(const char* content)
+    {
+        assert(content);
+        return output(content, str_len(content));
+    }
 
     boole input(void* buf, s64 want_read_len, s64& actual_read_len);
 

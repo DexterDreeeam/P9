@@ -10,9 +10,9 @@ typedef    unsigned  long long     int  u64;
 typedef      signed  long long     int  s64;
 typedef                          float  f32;
 typedef                         double  f64;
-typedef                            u64  uint;
-typedef                            s64  sint;
-typedef                            u64  hndl;
+// typedef                            u64  uint;
+// typedef                            s64  sint;
+// typedef                            u64  hndl;
 
 const u8  u8_max = (u8)0 - 1;
 const u8  u8_min = (u8)0;

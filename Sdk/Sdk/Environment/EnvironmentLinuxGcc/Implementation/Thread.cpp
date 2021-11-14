@@ -1,6 +1,6 @@
 
-#include "../../Interface.hpp"
 #include "../EnvironmentHeader.hpp"
+#include "../../Interface.hpp"
 
 namespace _InternalNs
 {
@@ -11,7 +11,7 @@ struct thread_call_back_context
     void* _par;
 };
 
-static unsigned long __stdcall thread_windows_call_back_fn(void* p)
+static void* thread_linux_call_back_fn(void* p)
 {
     auto* cb_ctx = pointer_convert(p, 0, thread_call_back_context*);
 
@@ -25,7 +25,7 @@ static unsigned long __stdcall thread_windows_call_back_fn(void* p)
 struct thread_context
 {
     thread::thread_call_back_function* _fn;
-    HANDLE _hndl;
+    pthread_t _thrd;
 };
 
 boole thread::init(thread_call_back_function* fn)
@@ -36,7 +36,7 @@ boole thread::init(thread_call_back_function* fn)
 
     ctx = new thread_context();
     ctx->_fn = fn;
-    ctx->_hndl = nullptr;
+    // ctx->_thrd = pthread_t();
     _ctx = ctx;
     return boole::True;
 }
@@ -62,47 +62,28 @@ boole thread::start(void* par)
     cb_ctx->_fn = ctx->_fn;
     cb_ctx->_par = par;
 
-    HANDLE h = ::CreateThread(NULL, 0, _InternalNs::thread_windows_call_back_fn, cb_ctx, 0, NULL);
-    if (h)
-    {
-        ctx->_hndl = h;
-        return boole::True;
-    }
-    else
-    {
-        delete cb_ctx;
-        return boole::False;
-    }
+    ::pthread_create(
+        &ctx->_thrd, nullptr, _InternalNs::thread_linux_call_back_fn, cb_ctx);
+
+    return boole::True;
 }
 
 boole thread::wait()
 {
     auto* ctx = pointer_convert(_ctx, 0, thread_context*);
     assert(ctx);
-    assert(ctx->_hndl);
+    assert(ctx->_thrd);
 
-    if (::WaitForSingleObject(ctx->_hndl, INFINITE))
-    {
-        return boole::True;
-    }
-    else
-    {
-        return boole::False;
-    }
+    ::pthread_join(ctx->_thrd, nullptr);
+    return boole::True;
 }
 
 boole thread::force_stop()
 {
     auto* ctx = pointer_convert(_ctx, 0, thread_context*);
     assert(ctx);
-    assert(ctx->_hndl);
+    assert(ctx->_thrd);
 
-    if (::TerminateThread(ctx->_hndl, 0))
-    {
-        return boole::True;
-    }
-    else
-    {
-        return boole::False;
-    }
+    ::pthread_kill(ctx->_thrd, SIGKILL);
+    return boole::True;
 }

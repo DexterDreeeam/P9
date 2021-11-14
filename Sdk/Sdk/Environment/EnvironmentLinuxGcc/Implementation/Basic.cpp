@@ -1,18 +1,18 @@
 
-#include "../../Interface.hpp"
 #include "../EnvironmentHeader.hpp"
+#include "../../Interface.hpp"
 
 void yield()
 {
-	::SwitchToThread();
+	::pthread_yield();
 }
 
 void barrier()
 {
-	MemoryBarrier();
+	// todo
 }
 
 u64 current_thread_id()
 {
-	return (u64)::GetCurrentThreadId();
+	return (u64)::pthread_self();
 }

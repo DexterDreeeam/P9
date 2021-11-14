@@ -1,0 +1,56 @@
+{
+    "tasks":
+    [
+        {
+            "type": "shell",
+            "label": "build_setting",
+            "command": "cp",
+            "args": [
+                "-rf",
+                "../_BuildSettings_LinuxGcc/Sdk.inl",
+                "../BuildSetting.inl"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "type": "shell",
+            "label": "compile",
+            "command": "g++",
+            "args": [
+                "-std=c++2a",
+                "-pthread",
+                "-c",
+                "./Sdk/Environment/EnvironmentLinuxGcc/Implementation/*",
+            ],
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": [
+                "build_setting"
+            ]
+        },
+        {
+            "type": "shell",
+            "label": "all_process",
+            "command": "rm",
+            "args": [
+                "./*.o",
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": [
+                "compile"
+            ]
+        }
+    ],
+    "version": "2.0.0"
+}

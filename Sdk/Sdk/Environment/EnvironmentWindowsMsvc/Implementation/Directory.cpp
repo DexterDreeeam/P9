@@ -1,6 +1,6 @@
 
-#include "../../Interface.hpp"
 #include "../EnvironmentHeader.hpp"
+#include "../../Interface.hpp"
 
 void directory::build_path(char* path, s64 len)
 {
@@ -40,19 +40,6 @@ void directory::build_path(char* path, s64 len)
     }
 }
 
-void directory::build_path(const char* path)
-{
-    assert(path);
-    s64 len = str_len(path);
-    assert_info(path[len - 1] == '/', "directory path should end with \'/\'");
-
-    char path_buf[512] = {};
-    memory::copy(path, path_buf, len);
-    path_buf[len] = 0;
-
-    build_path(path_buf, len);
-}
-
 struct directory_cursor_context
 {
     WIN32_FIND_DATA  _wfd;
@@ -89,7 +76,7 @@ boole directory_cursor::init(const char* directory_path)
         ctx->_folder = buf;
         _ctx = ctx;
 
-        if (move_next_if_invalid())
+        if (valid_or_move_next())
         {
             // valid or move
             return boole::True;
@@ -170,7 +157,7 @@ boole directory_cursor::move_next()
     if (::FindNextFileA(
         ctx->_hndl, &ctx->_wfd))
     {
-        return move_next_if_invalid();
+        return valid_or_move_next();
     }
     else
     {
@@ -178,7 +165,7 @@ boole directory_cursor::move_next()
     }
 }
 
-boole directory_cursor::move_next_if_invalid()
+boole directory_cursor::valid_or_move_next()
 {
     auto* ctx = pointer_convert(_ctx, 0, directory_cursor_context*);
     assert(ctx);

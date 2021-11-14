@@ -1,6 +1,6 @@
 
-#include "../../Interface.hpp"
 #include "../EnvironmentHeader.hpp"
+#include "../../Interface.hpp"
 
 template<typename Ty>
 class shadow_class
@@ -23,7 +23,7 @@ atom<s64>::atom(const atom<s64>& rhs) :
     auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<s64>*);
     auto& shadow_rhs = *pointer_convert(rhs._mem, 0, shadow_class<s64>*);
 
-    shadow_self._data = shadow_rhs._data;
+    shadow_self._data.store(shadow_rhs._data.load());
 }
 
 atom<s64>::atom(s64 v) :
@@ -36,7 +36,9 @@ atom<s64>::atom(s64 v) :
 
 atom<s64>::~atom()
 {
-    pointer_convert(_mem, 0, std::atomic<s64>*)->std::atomic<s64>::~atomic();
+    auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<s64>*);
+
+    (&shadow_self._data)->~atomic();
 }
 
 s64 atom<s64>::get() const
@@ -58,7 +60,7 @@ atom<s64>& atom<s64>::operator =(const atom<s64>& rhs)
     auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<s64>*);
     auto& shadow_rhs = *pointer_convert(rhs._mem, 0, shadow_class<s64>*);
 
-    shadow_self._data = shadow_rhs._data;
+    shadow_self._data.store(shadow_rhs._data.load());
     return *this;
 }
 
@@ -74,7 +76,8 @@ s64 atom<s64>::operator ++()
 {
     auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<s64>*);
 
-    return ++shadow_self._data;
+    s64 ret = ++shadow_self._data;
+    return ret;
 }
 
 s64 atom<s64>::operator ++(int)
@@ -87,7 +90,8 @@ s64 atom<s64>::operator --()
 {
     auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<s64>*);
 
-    return --shadow_self._data;
+    s64 ret = --shadow_self._data;
+    return ret;
 }
 
 s64 atom<s64>::operator --(int)
@@ -131,7 +135,7 @@ atom<u64>::atom(const atom<u64>& rhs) :
     auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<u64>*);
     auto& shadow_rhs = *pointer_convert(rhs._mem, 0, shadow_class<u64>*);
 
-    shadow_self._data = shadow_rhs._data;
+    shadow_self._data.store(shadow_rhs._data.load());
 }
 
 atom<u64>::atom(u64 v) :
@@ -139,12 +143,14 @@ atom<u64>::atom(u64 v) :
 {
     auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<u64>*);
 
-    shadow_self._data = v;
+    shadow_self._data.store(v);
 }
 
 atom<u64>::~atom()
 {
-    pointer_convert(_mem, 0, std::atomic<s64>*)->std::atomic<s64>::~atomic();
+    auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<u64>*);
+
+    (&shadow_self._data)->~atomic();
 }
 
 u64 atom<u64>::get() const
@@ -166,7 +172,7 @@ atom<u64>& atom<u64>::operator =(const atom<u64>& rhs)
     auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<u64>*);
     auto& shadow_rhs = *pointer_convert(rhs._mem, 0, shadow_class<u64>*);
 
-    shadow_self._data = shadow_rhs._data;
+    shadow_self._data.store(shadow_rhs._data.load());
     return *this;
 }
 
@@ -182,7 +188,8 @@ u64 atom<u64>::operator ++()
 {
     auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<u64>*);
 
-    return ++shadow_self._data;
+    u64 ret = ++shadow_self._data;
+    return ret;
 }
 
 u64 atom<u64>::operator ++(int)
@@ -195,7 +202,8 @@ u64 atom<u64>::operator --()
 {
     auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<u64>*);
 
-    return --shadow_self._data;
+    u64 ret = --shadow_self._data;
+    return ret;
 }
 
 u64 atom<u64>::operator --(int)
@@ -239,7 +247,7 @@ atom<void*>::atom(const atom<void*>& rhs) :
     auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<void*>*);
     auto& shadow_rhs = *pointer_convert(rhs._mem, 0, shadow_class<void*>*);
 
-    shadow_self._data = shadow_rhs._data;
+    shadow_self._data.store(shadow_rhs._data.load());
 }
 
 atom<void*>::atom(void* v) :
@@ -252,7 +260,6 @@ atom<void*>::atom(void* v) :
 
 atom<void*>::~atom()
 {
-    pointer_convert(_mem, 0, std::atomic<void*>*)->std::atomic<void*>::~atomic();
 }
 
 void* atom<void*>::get() const
@@ -274,7 +281,7 @@ atom<void*>& atom<void*>::operator =(const atom<void*>& rhs)
     auto& shadow_self = *pointer_convert(_mem, 0, shadow_class<void*>*);
     auto& shadow_rhs = *pointer_convert(rhs._mem, 0, shadow_class<void*>*);
 
-    shadow_self._data = shadow_rhs._data;
+    shadow_self._data.store(shadow_rhs._data.load());
     return *this;
 }
 
