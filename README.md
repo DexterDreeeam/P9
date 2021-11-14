@@ -1,3 +1,3 @@
-Pavilion Nine project.
+Pavilion Nine Project.
 
-Cross OS Set of Projects.
+Cross OS Software Set.
