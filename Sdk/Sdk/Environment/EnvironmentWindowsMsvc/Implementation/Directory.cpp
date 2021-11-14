@@ -29,9 +29,10 @@ void directory::build_path(char* path, s64 len)
     {
         if (path[idx] == '/')
         {
-            path[idx] = 0;
-            boole is_exist = exist(path);
-            path[idx] = '/';
+            char old_ch = path[idx + 1];
+            path[idx + 1] = 0;
+            boole is_exist = exist(path) || GetDriveTypeA(path) != DRIVE_NO_ROOT_DIR;
+            path[idx + 1] = old_ch;
 
             if (is_exist)
             {

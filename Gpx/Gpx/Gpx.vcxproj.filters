@@ -2,8 +2,17 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClInclude Include="Interface.hpp" />
+    <ClInclude Include="Window\Window.hpp" />
+    <ClInclude Include="Window\Interface.hpp" />
+    <ClInclude Include="Window\WindowsMsvc\GlfwWindow.hpp" />
+    <ClInclude Include="Runtime\Interface.hpp" />
+    <ClInclude Include="Runtime\Runtime.hpp" />
+    <ClInclude Include="Runtime\WindowsMsvc\VulkanRuntime.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source.cpp" />
+    <ClCompile Include="Window\WindowsMsvc\Implementation\Window.cpp" />
+    <ClCompile Include="Window\WindowsMsvc\Implementation\GlfwWindow.cpp" />
+    <ClCompile Include="Runtime\WindowsMsvc\Implementation\Runtime.cpp" />
+    <ClCompile Include="Runtime\WindowsMsvc\Implementation\VulkanRuntime.cpp" />
   </ItemGroup>
 </Project>

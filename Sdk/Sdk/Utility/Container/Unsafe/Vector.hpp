@@ -381,9 +381,21 @@ public:
         assert(sz >= 0 && sz <= cap);
     }
 
+    vector(sz_t init_sz) :
+        elem((Ty*)memory::alloc<void>(sizeof(Ty) * _ceil_align(init_sz))),
+        cap(_ceil_align(init_sz)),
+        sz(init_sz)
+    {
+        assert(sz >= 0 && sz <= cap);
+        for (s64 i = 0; i < sz; ++i)
+        {
+            new (&elem[i]) Ty();
+        }
+    }
+
     template<typename ...Args>
     vector(Args...args) :
-        elem((Ty*)memory::alloc<void>(sizeof(Ty)* _ceil_align(sizeof...(args)))),
+        elem((Ty*)memory::alloc<void>(sizeof(Ty) * _ceil_align(sizeof...(args)))),
         cap(_ceil_align(sizeof...(args))),
         sz(sizeof...(args))
     {
@@ -394,7 +406,7 @@ public:
 
     template<s64 ArraySz>
     vector(const array<Ty, ArraySz>& arr) :
-        elem((Ty*)memory::alloc<void>(sizeof(Ty)* _ceil_align(ArraySz))),
+        elem((Ty*)memory::alloc<void>(sizeof(Ty) * _ceil_align(ArraySz))),
         cap(_ceil_align(ArraySz)),
         sz(ArraySz)
     {
@@ -406,7 +418,7 @@ public:
     }
 
     vector(const Self_Ty& rhs) :
-        elem((Ty*)memory::alloc_copy<void>(rhs.elem, sizeof(Ty)* _ceil_align(rhs.sz), sizeof(Ty)* rhs.sz)),
+        elem((Ty*)memory::alloc_copy<void>(rhs.elem, sizeof(Ty) * _ceil_align(rhs.sz), sizeof(Ty) * rhs.sz)),
         cap(_ceil_align(rhs.sz)),
         sz(rhs.sz)
     {
@@ -505,7 +517,7 @@ public:
 
     Ty* data() noexcept
     {
-        assert(sz > 0 && sz <= cap);
+        assert(sz >= 0 && sz <= cap);
         return elem;
     }
 

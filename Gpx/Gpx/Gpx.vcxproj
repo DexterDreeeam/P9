@@ -12,9 +12,18 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Interface.hpp" />
+    <ClInclude Include="Runtime\Interface.hpp" />
+    <ClInclude Include="Runtime\Runtime.hpp" />
+    <ClInclude Include="Runtime\WindowsMsvc\VulkanRuntime.hpp" />
+    <ClInclude Include="Window\Interface.hpp" />
+    <ClInclude Include="Window\Window.hpp" />
+    <ClInclude Include="Window\WindowsMsvc\GlfwWindow.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source.cpp" />
+    <ClCompile Include="Runtime\WindowsMsvc\Implementation\Runtime.cpp" />
+    <ClCompile Include="Runtime\WindowsMsvc\Implementation\VulkanRuntime.cpp" />
+    <ClCompile Include="Window\WindowsMsvc\Implementation\GlfwWindow.cpp" />
+    <ClCompile Include="Window\WindowsMsvc\Implementation\Window.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

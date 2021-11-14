@@ -2,4 +2,5 @@
 
 #include "../../Sdk/Sdk/Interface.hpp"
 
-void start_gpx();
+#include "Runtime/Interface.hpp"
+#include "Window/Interface.hpp"

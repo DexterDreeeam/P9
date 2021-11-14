@@ -26,9 +26,10 @@ void directory::build_path(char* path, s64 len)
     {
         if (path[idx] == '/')
         {
-            path[idx] = 0;
+            char old_ch = path[idx + 1];
+            path[idx + 1] = 0;
             boole directory_exist = exist(path);
-            path[idx] = '/';
+            path[idx + 1] = old_ch;
             if (directory_exist)
             {
                 first_inexist_directory_idx = idx;

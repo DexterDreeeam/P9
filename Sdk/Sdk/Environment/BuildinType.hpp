@@ -10,6 +10,7 @@ typedef    unsigned  long long     int  u64;
 typedef      signed  long long     int  s64;
 typedef                          float  f32;
 typedef                         double  f64;
+typedef    unsigned  long long     int  sz_t;
 // typedef                            u64  uint;
 // typedef                            s64  sint;
 // typedef                            u64  hndl;
