@@ -3,4 +3,7 @@
   <ItemGroup>
     <ClCompile Include="EntryPoint.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="VulkanWindowTest.hpp" />
+  </ItemGroup>
 </Project>

@@ -1,8 +1,6 @@
 #pragma once
 
-#include "../../../External/Vulkan/Windows/Header/vulkan/vulkan.h"
-
-#include "../Interface.hpp"
+#include "Interface.hpp"
 
 namespace gpx
 {
@@ -15,9 +13,16 @@ public:
     virtual ~vulkan_runtime() override;
 
 public:
+    virtual void setup_self(obs<runtime> obs_rt) override;
+
+public:
     virtual boole init() override;
 
     virtual boole uninit() override;
+
+    virtual ref<window> build_window(const window_desc& desc) override;
+
+    virtual ref<window> get_window(const string& window_name) override;
 
 private:
     static VKAPI_ATTR VkBool32 VKAPI_CALL debug_cb(
@@ -27,8 +32,13 @@ private:
         void* pUserData);
 
 private:
-    runtime_desc       _desc;
-    atom<VkInstance*>  _instance;
+    runtime_desc          _desc;
+    obs<runtime>          _self;
+
+    vector<ref<window>>   _vec_window;
+    rw_lock               _vec_window_lock;
+
+    atom<VkInstance*>     _instance;
 };
 
 }

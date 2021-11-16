@@ -1,27 +1,17 @@
 #pragma once
 
-#include "../../../Sdk/Interface.hpp"
+#include "Interface.hpp"
 
 namespace gpx
 {
 
 struct window_desc
 {
-    enum class _type : s64
-    {
-        Default = 0,
-
-        Glfw = Default,
-
-        P9,
-    };
-
     window_desc() :
-        name(), width(800), height(600), type(_type::Default)
+        name(), width(800), height(600)
     {
     }
 
-    _type    type;
     string   name;
     s64      width;
     s64      height;
@@ -40,9 +30,8 @@ protected:
     window() = default;
 
 public:
-    static ref<window> build(const window_desc& desc);
+    virtual string name() = 0;
 
-public:
     virtual boole start() = 0;
 
     virtual boole stop() = 0;

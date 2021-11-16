@@ -1,20 +1,22 @@
 #pragma once
 
-#include "../../../External/Vulkan/Windows/Header/glfw3.h"
-
-#include "../Interface.hpp"
+#include "Interface.hpp"
 
 namespace gpx
 {
 
+class runtime;
+
 class glfw_window : public window
 {
 public:
-    glfw_window(const window_desc& desc);
+    glfw_window(const window_desc& desc, obs<runtime> rt);
 
     virtual ~glfw_window() override;
 
 public:
+    virtual string name() override;
+
     virtual boole start() override;
 
     virtual boole stop() override;
@@ -26,7 +28,12 @@ public:
     virtual boole is_running() override;
 
 private:
+    static mutex       _glfw_op_lock;
+    static s64         _window_number;
+
     window_desc        _desc;
+    obs<runtime>       _rt;
+
     atom<GLFWwindow*>  _ctx;
 };
 

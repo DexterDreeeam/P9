@@ -14,16 +14,15 @@
     <ClInclude Include="Interface.hpp" />
     <ClInclude Include="Runtime\Interface.hpp" />
     <ClInclude Include="Runtime\Runtime.hpp" />
-    <ClInclude Include="Runtime\WindowsMsvc\VulkanRuntime.hpp" />
+    <ClInclude Include="Runtime\VulkanRuntime.hpp" />
     <ClInclude Include="Window\Interface.hpp" />
     <ClInclude Include="Window\Window.hpp" />
-    <ClInclude Include="Window\WindowsMsvc\GlfwWindow.hpp" />
+    <ClInclude Include="Window\GlfwWindow.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Runtime\WindowsMsvc\Implementation\Runtime.cpp" />
-    <ClCompile Include="Runtime\WindowsMsvc\Implementation\VulkanRuntime.cpp" />
-    <ClCompile Include="Window\WindowsMsvc\Implementation\GlfwWindow.cpp" />
-    <ClCompile Include="Window\WindowsMsvc\Implementation\Window.cpp" />
+    <ClCompile Include="Runtime\Implementation\Runtime.cpp" />
+    <ClCompile Include="Runtime\Implementation\VulkanRuntime.cpp" />
+    <ClCompile Include="Window\Implementation\GlfwWindow.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

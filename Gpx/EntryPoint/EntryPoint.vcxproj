@@ -13,6 +13,9 @@
   <ItemGroup>
     <ClCompile Include="EntryPoint.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="VulkanWindowTest.hpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>

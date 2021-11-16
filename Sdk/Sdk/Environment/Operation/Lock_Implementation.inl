@@ -5,6 +5,15 @@ _INLINE_ mutex::mutex() :
 {
 }
 
+_INLINE_ mutex::mutex(boole direct_init) :
+    _ctx(nullptr)
+{
+    if (direct_init)
+    {
+        init();
+    }
+}
+
 _INLINE_ mutex::mutex(const mutex& rhs) :
     _ctx(rhs._ctx)
 {

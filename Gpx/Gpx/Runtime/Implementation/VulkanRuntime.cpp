@@ -1,5 +1,5 @@
 
-#include "../VulkanRuntime.hpp"
+#include "../Interface.hpp"
 
 namespace gpx
 {
@@ -7,14 +7,28 @@ namespace gpx
 vulkan_runtime::vulkan_runtime(const runtime_desc& desc) :
     runtime(),
     _desc(desc),
+    _self(),
+    _vec_window(),
+    _vec_window_lock(),
     _instance(nullptr)
 {
     AUTO_TRACE;
+
+    _vec_window_lock.init();
 }
 
 vulkan_runtime::~vulkan_runtime()
 {
     AUTO_TRACE;
+
+    uninit();
+
+    _vec_window_lock.uninit();
+}
+
+void vulkan_runtime::setup_self(obs<runtime> obs_rt)
+{
+    _self = obs_rt;
 }
 
 boole vulkan_runtime::init()
@@ -84,12 +98,52 @@ boole vulkan_runtime::uninit()
     AUTO_TRACE;
 
     auto* ins = _instance.exchange(nullptr);
-    if (ins)
+    if (ins == nullptr)
     {
-        vkDestroyInstance(*ins, nullptr);
+        return boole::False;
     }
 
+    // release all window resource
+    for (auto w : _vec_window)
+    {
+        w->stop();
+    }
+    _vec_window.clear();
+
+    // release vulkan release
+    vkDestroyInstance(*ins, nullptr);
     return boole::True;
+}
+
+ref<window> vulkan_runtime::build_window(const window_desc& desc)
+{
+    _vec_window_lock.wait_write();
+    escape_function ep = [=]() mutable
+    {
+        _vec_window_lock.write_release();
+    };
+
+    auto wnd = ref<glfw_window>::new_instance(desc, _self).ref_of<window>();
+    _vec_window.push_back(wnd);
+    return wnd;
+}
+
+ref<window> vulkan_runtime::get_window(const string& window_name)
+{
+    _vec_window_lock.wait_read();
+    escape_function ep = [=]() mutable
+    {
+        _vec_window_lock.read_release();
+    };
+
+    for (auto w : _vec_window)
+    {
+        if (w->name() == window_name)
+        {
+            return w;
+        }
+    }
+    return ref<window>();
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL vulkan_runtime::debug_cb(

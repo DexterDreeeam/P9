@@ -5,6 +5,8 @@ class mutex final
 public:
     mutex();
 
+    mutex(boole direct_init);
+
     mutex(const mutex& rhs);
 
     mutex& operator =(const mutex& rhs);
