@@ -27,6 +27,8 @@ glfw_window::~glfw_window()
 
 string glfw_window::name()
 {
+    AUTO_TRACE;
+
     return _desc.name;
 }
 
@@ -95,6 +97,8 @@ boole glfw_window::stop()
 
 boole glfw_window::present(s64 my_image)
 {
+    AUTO_TRACE;
+
     return boole::True;
 }
 
@@ -108,6 +112,8 @@ boole glfw_window::poll_event()
 
 boole glfw_window::is_running()
 {
+    AUTO_TRACE;
+
     return _ctx.get() != nullptr;
 }
 
