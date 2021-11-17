@@ -48,18 +48,18 @@ boole vulkan_runtime::init()
     appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
     appInfo.apiVersion = VK_API_VERSION_1_0;
 
-    VkInstanceCreateInfo createInfo{};
-    createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    createInfo.pApplicationInfo = &appInfo;
-
+    sz_t glfwExtensionsCnt = 0;
+    const char** glfwExtensions = glfwGetRequiredInstanceExtensions((uint32_t*)&glfwExtensionsCnt);
     vector<const char*> extensions;
-    extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+    for (s64 i = 0; i < glfwExtensionsCnt; ++i)
+    {
+        extensions.push_back(glfwExtensions[i]);
+    }
+    // extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
     if (_desc.debug_mode)
     {
         extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }
-    createInfo.enabledExtensionCount = extensions.size();
-    createInfo.ppEnabledExtensionNames = extensions.data();
 
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo = {};
     if (_desc.debug_mode)
@@ -67,18 +67,24 @@ boole vulkan_runtime::init()
         _vec_validation_layer.push_back("VK_LAYER_KHRONOS_validation");
         debugCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
         debugCreateInfo.messageSeverity =
-            // VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+            VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
             VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
             VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
         debugCreateInfo.messageType =
-            // VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+            VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
             VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
             VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
         debugCreateInfo.pfnUserCallback = vulkan_runtime::debug_cb;
-        createInfo.pNext = &debugCreateInfo;
     }
+
+    VkInstanceCreateInfo createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+    createInfo.pApplicationInfo = &appInfo;
+    createInfo.enabledExtensionCount = extensions.size();
+    createInfo.ppEnabledExtensionNames = extensions.data();
     createInfo.enabledLayerCount = _vec_validation_layer.size();
     createInfo.ppEnabledLayerNames = _vec_validation_layer.data();
+    createInfo.pNext = _desc.debug_mode ? &debugCreateInfo : nullptr;
 
     auto* ins = new VkInstance();
 
@@ -119,21 +125,22 @@ boole vulkan_runtime::uninit()
 
     // release vulkan release
     vkDestroyInstance(*ins, nullptr);
+    delete ins;
     return boole::True;
 }
 
 vector<string> vulkan_runtime::list_device()
 {
     AUTO_TRACE;
-    assert(_instance.get());
+    assert(get_vk_instance());
 
     vector<string> rst;
 
     sz_t device_count = 0;
-    vkEnumeratePhysicalDevices(*_instance.get(), (uint32_t*)&device_count, nullptr);
+    vkEnumeratePhysicalDevices(get_vk_instance(), (uint32_t*)&device_count, nullptr);
 
     vector<VkPhysicalDevice> vec_device(device_count);
-    vkEnumeratePhysicalDevices(*_instance.get(), (uint32_t*)&device_count, vec_device.data());
+    vkEnumeratePhysicalDevices(get_vk_instance(), (uint32_t*)&device_count, vec_device.data());
 
     for (auto& dev : vec_device)
     {
@@ -158,10 +165,10 @@ boole vulkan_runtime::select_device(const string& device_name)
     s64 best_device_idx = -1;
 
     sz_t device_count = 0;
-    vkEnumeratePhysicalDevices(*_instance.get(), (uint32_t*)&device_count, nullptr);
+    vkEnumeratePhysicalDevices(get_vk_instance(), (uint32_t*)&device_count, nullptr);
 
     vector<VkPhysicalDevice> vec_device(device_count);
-    vkEnumeratePhysicalDevices(*_instance.get(), (uint32_t*)&device_count, vec_device.data());
+    vkEnumeratePhysicalDevices(get_vk_instance(), (uint32_t*)&device_count, vec_device.data());
 
     for (s64 i = 0; i < device_count; ++i)
     {
@@ -312,7 +319,7 @@ ref<window> vulkan_runtime::build_window(const window_desc& desc)
         _vec_window_lock.write_release();
     };
 
-    auto wnd = ref<glfw_window>::new_instance(desc, _self).ref_of<window>();
+    auto wnd = ref<glfw_window>::new_instance(desc, _self);
     _vec_window.push_back(wnd);
     return wnd;
 }

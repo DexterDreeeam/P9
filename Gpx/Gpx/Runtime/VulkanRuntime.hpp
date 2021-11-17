@@ -7,6 +7,8 @@ namespace gpx
 
 class vulkan_runtime : public runtime
 {
+    friend class glfw_window;
+
 public:
     vulkan_runtime(const runtime_desc& desc);
 
@@ -29,6 +31,8 @@ public:
     virtual ref<window> get_window(const string& window_name) override;
 
 private:
+    VkInstance get_vk_instance() { return *_instance.get(); }
+
     boole build_device_resource(VkPhysicalDevice physical_device);
 
     boole clear_device_resource();

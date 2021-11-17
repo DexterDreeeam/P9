@@ -24,6 +24,7 @@
 #define POINTER_BITS  (64)
 
 #pragma warning (disable : 4005)
+#pragma warning (disable : 4018)
 #pragma warning (disable : 4200)
 #pragma warning (disable : 4244)
 #pragma warning (disable : 4307)

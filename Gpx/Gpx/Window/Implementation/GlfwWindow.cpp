@@ -1,4 +1,6 @@
 
+#define VK_USE_PLATFORM_WIN32_KHR
+#include "../../Runtime/VulkanRuntime.hpp"
 #include "../Interface.hpp"
 
 namespace gpx
@@ -42,6 +44,11 @@ boole glfw_window::start()
         _glfw_op_lock.release();
     };
 
+    if (_ctx != nullptr)
+    {
+        return boole::False;
+    }
+
     if (++_window_number == 1)
     {
         if (glfwInit() == GLFW_FALSE)
@@ -50,15 +57,41 @@ boole glfw_window::start()
         }
     }
 
+    assert(glfwVulkanSupported() == GLFW_TRUE);
+
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
     auto* ctx = glfwCreateWindow(
         _desc.width, _desc.height, _desc.name.data(), nullptr, nullptr);
 
-    if (ctx && _ctx.compare_exchange(nullptr, ctx) == nullptr)
+    if (ctx == nullptr)
     {
-        return boole::True;
+        return boole::False;
+    }
+
+    auto rt = _rt.try_ref();
+    assert(rt.has_value());
+
+    VkSurfaceKHR surface;
+    VkInstance vk = rt.ref_of<vulkan_runtime>()->get_vk_instance();
+    int test = glfwVulkanSupported();
+    test = glfwCreateWindowSurface(
+        rt.ref_of<vulkan_runtime>()->get_vk_instance(), ctx, nullptr, &surface);
+
+    if (glfwCreateWindowSurface(
+            rt.ref_of<vulkan_runtime>()->get_vk_instance(), ctx, nullptr, &surface) != VK_SUCCESS)
+    {
+        goto L_error;
+    }
+    _ctx = ctx;
+    _surface = surface;
+    return boole::True;
+
+L_error:
+    if (surface)
+    {
+        vkDestroySurfaceKHR(rt.ref_of<vulkan_runtime>()->get_vk_instance(), surface, nullptr);
     }
     if (ctx)
     {
@@ -81,13 +114,18 @@ boole glfw_window::stop()
         _glfw_op_lock.release();
     };
 
-    auto* ctx = _ctx.exchange(nullptr);
-    if (ctx == nullptr)
+    auto rt = _rt.try_ref();
+    assert(rt.has_value());
+    if (_surface)
     {
-        // window has stopped already
-        return boole::False;
+        vkDestroySurfaceKHR(rt.ref_of<vulkan_runtime>()->get_vk_instance(), _surface, nullptr);
+        _surface = nullptr;
     }
-    glfwDestroyWindow(ctx);
+    if (_ctx)
+    {
+        glfwDestroyWindow(_ctx);
+        _ctx = nullptr;
+    }
     if (--_window_number == 0)
     {
         glfwTerminate();
@@ -114,7 +152,7 @@ boole glfw_window::is_running()
 {
     AUTO_TRACE;
 
-    return _ctx.get() != nullptr;
+    return _ctx != nullptr;
 }
 
 }

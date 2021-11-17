@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../../External/Vulkan/Windows/Header/vulkan/vulkan.h"
 #include "Interface.hpp"
 
 namespace gpx
@@ -9,6 +10,8 @@ class runtime;
 
 class glfw_window : public window
 {
+    friend class vulkan_runtime;
+
 public:
     glfw_window(const window_desc& desc, obs<runtime> rt);
 
@@ -34,7 +37,8 @@ private:
     window_desc        _desc;
     obs<runtime>       _rt;
 
-    atom<GLFWwindow*>  _ctx;
+    GLFWwindow*        _ctx;
+    VkSurfaceKHR       _surface;
 };
 
 }
