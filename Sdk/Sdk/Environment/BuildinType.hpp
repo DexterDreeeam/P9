@@ -164,9 +164,3 @@ _INLINE_ _NOALIAS_ void swap(Ty1& e1, Ty2& e2) noexcept
     e1 = e2;
     e2 = tmp;
 }
-
-template<typename Ty>
-constexpr auto right_value_type(Ty& e) noexcept -> Ty&&
-{
-    return static_cast<Ty&&>(e);
-}

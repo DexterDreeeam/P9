@@ -89,6 +89,7 @@
     <ClInclude Include="Utility\Json\Utility.hpp" />
     <ClInclude Include="Utility\Interface.hpp" />
     <ClInclude Include="Interface.hpp" />
+    <ClInclude Include="Environment\TypeDeduction.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Environment\Operation\Assert_Implementation.inl" />

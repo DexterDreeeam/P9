@@ -650,6 +650,12 @@ public:
         }
     }
 
+    void erase(Iter_Ty itr) noexcept
+    {
+        assert(sz >= 0 && sz <= cap);
+        erase((pointer_convert(itr.data, 0, char*) - pointer_convert(elem, 0, char*)) / sizeof(Ty), 1);
+    }
+
     void swap(Self_Ty& rhs) noexcept
     {
         assert(sz >= 0 && sz <= cap);

@@ -120,13 +120,25 @@ public:
 };
 
 template<typename Ty1, typename Ty2>
-_INLINE_ pair<Ty1, Ty2> make_pair(const Ty1& e1, const Ty2& e2) noexcept
+_INLINE_ auto make_pair(const Ty1& e1, const Ty2& e2) -> pair<prime_value_type<Ty1>, prime_value_type<Ty2>>
 {
-    return pair<Ty1, Ty2>(static_cast<Ty1>(e1), static_cast<Ty2>(e2));
+    return pair<prime_value_type<Ty1>, prime_value_type<Ty2>>(e1, e2);
 }
 
 template<typename Ty1, typename Ty2>
-_INLINE_ pair<Ty1, Ty2> make_pair(Ty1&& e1, Ty2&& e2) noexcept
+_INLINE_ auto make_pair(Ty1&& e1, const Ty2& e2) -> pair<prime_value_type<Ty1>, prime_value_type<Ty2>>
 {
-    return pair<Ty1, Ty2>(e1, e2);
+    return pair<prime_value_type<Ty1>, prime_value_type<Ty2>>(e1, e2);
+}
+
+template<typename Ty1, typename Ty2>
+_INLINE_ auto make_pair(const Ty1& e1, Ty2&& e2) -> pair<prime_value_type<Ty1>, prime_value_type<Ty2>>
+{
+    return pair<prime_value_type<Ty1>, prime_value_type<Ty2>>(e1, e2);
+}
+
+template<typename Ty1, typename Ty2>
+_INLINE_ auto make_pair(Ty1&& e1, Ty2&& e2) -> pair<prime_value_type<Ty1>, prime_value_type<Ty2>>
+{
+    return pair<prime_value_type<Ty1>, prime_value_type<Ty2>>(e1, e2);
 }

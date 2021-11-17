@@ -49,13 +49,7 @@ boole glfw_window::start()
         return boole::False;
     }
 
-    if (++_window_number == 1)
-    {
-        if (glfwInit() == GLFW_FALSE)
-        {
-            return boole::False;
-        }
-    }
+    ++_window_number;
 
     assert(glfwVulkanSupported() == GLFW_TRUE);
 
@@ -75,32 +69,31 @@ boole glfw_window::start()
 
     VkSurfaceKHR surface;
     VkInstance vk = rt.ref_of<vulkan_runtime>()->get_vk_instance();
-    int test = glfwVulkanSupported();
-    test = glfwCreateWindowSurface(
-        rt.ref_of<vulkan_runtime>()->get_vk_instance(), ctx, nullptr, &surface);
-
-    if (glfwCreateWindowSurface(
-            rt.ref_of<vulkan_runtime>()->get_vk_instance(), ctx, nullptr, &surface) != VK_SUCCESS)
+    if (glfwCreateWindowSurface(vk, ctx, nullptr, &surface) != VK_SUCCESS)
     {
         goto L_error;
     }
     _ctx = ctx;
     _surface = surface;
+    if (rt.ref_of<vulkan_runtime>()->window_start_callback(_desc.name) == boole::False)
+    {
+        goto L_error;
+    }
+
     return boole::True;
 
 L_error:
     if (surface)
     {
         vkDestroySurfaceKHR(rt.ref_of<vulkan_runtime>()->get_vk_instance(), surface, nullptr);
+        _surface = nullptr;
     }
     if (ctx)
     {
         glfwDestroyWindow(ctx);
+        _ctx = nullptr;
     }
-    if (--_window_number == 0)
-    {
-        glfwTerminate();
-    }
+    --_window_number;
     return boole::False;
 }
 
@@ -115,7 +108,14 @@ boole glfw_window::stop()
     };
 
     auto rt = _rt.try_ref();
-    assert(rt.has_value());
+    if (rt.empty())
+    {
+        return boole::False;
+    }
+    if (rt.ref_of<vulkan_runtime>()->window_stop_callback(_desc.name) == boole::False)
+    {
+        return boole::False;
+    }
     if (_surface)
     {
         vkDestroySurfaceKHR(rt.ref_of<vulkan_runtime>()->get_vk_instance(), _surface, nullptr);
@@ -126,10 +126,7 @@ boole glfw_window::stop()
         glfwDestroyWindow(_ctx);
         _ctx = nullptr;
     }
-    if (--_window_number == 0)
-    {
-        glfwTerminate();
-    }
+    --_window_number;
     return boole::True;
 }
 

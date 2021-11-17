@@ -10,6 +10,7 @@
 #include "EnvironmentDefinition.hpp"
 
 #include "BuildinType.hpp"
+#include "TypeDeduction.hpp"
 
 #include "Operation/Assert.hpp"
 #include "Operation/Atom.hpp"

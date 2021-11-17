@@ -48,11 +48,13 @@ namespace ArrayNs
         Self_Ty& operator ++() noexcept
         {
             data = pointer_convert(data, sizeof(Data_Ty), Data_Ty*);
+            return *this;
         }
 
         Self_Ty& operator --() noexcept
         {
             data = pointer_convert(data, -(s64)sizeof(Data_Ty), Data_Ty*);
+            return *this;
         }
 
         Self_Ty operator ++(int) noexcept
@@ -126,11 +128,13 @@ namespace ArrayNs
         Self_Ty& operator ++() noexcept
         {
             data = pointer_convert(data, -(s64)sizeof(Data_Ty), Data_Ty*);
+            return *this;
         }
 
         Self_Ty& operator --() noexcept
         {
             data = pointer_convert(data, sizeof(Data_Ty), Data_Ty*);
+            return *this;
         }
 
         Self_Ty operator ++(int) noexcept
@@ -204,11 +208,13 @@ namespace ArrayNs
         Self_Ty& operator ++() noexcept
         {
             data = pointer_convert(data, sizeof(Data_Ty), Data_Ty*);
+            return *this;
         }
 
         Self_Ty& operator --() noexcept
         {
             data = pointer_convert(data, -(s64)sizeof(Data_Ty), Data_Ty*);
+            return *this;
         }
 
         Self_Ty operator ++(int) noexcept
@@ -282,11 +288,13 @@ namespace ArrayNs
         Self_Ty& operator ++() noexcept
         {
             data = pointer_convert(data, -(s64)sizeof(Data_Ty), Data_Ty*);
+            return *this;
         }
 
         Self_Ty& operator --() noexcept
         {
             data = pointer_convert(data, sizeof(Data_Ty), Data_Ty*);
+            return *this;
         }
 
         Self_Ty operator ++(int) noexcept

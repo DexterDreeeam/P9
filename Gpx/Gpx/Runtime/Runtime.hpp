@@ -44,9 +44,9 @@ public:
 
     virtual vector<string> list_device() = 0;
 
-    virtual boole select_device(const string& device_name = "") = 0;
+    virtual ref<window> build_window(const window_desc& desc, const string& preferred_device_name = "") = 0;
 
-    virtual ref<window> build_window(const window_desc& desc) = 0;
+    virtual boole remove_window(const string& window_name) = 0;
 
     virtual ref<window> get_window(const string& window_name) = 0;
 };
