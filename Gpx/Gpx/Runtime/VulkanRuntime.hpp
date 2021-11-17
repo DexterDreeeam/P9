@@ -12,9 +12,19 @@ struct window_context
 
     VkPhysicalDevice         _physical_device;
     VkDevice                 _logical_device;
+    u64                      _render_queue_family_idx;
+    u64                      _present_queue_family_idx;
+    u64                      _transfer_queue_family_idx;
     VkQueue                  _render_queue;
     VkQueue                  _present_queue;
     VkQueue                  _transfer_queue;
+
+    VkSurfaceFormatKHR       _surface_format;
+    VkPresentModeKHR         _present_mode;
+    VkExtent2D               _swap_chain_extent;
+    VkSwapchainKHR           _swap_chain;
+    vector<VkImage>          _swap_chain_image_vec;
+    vector<VkImageView>      _image_view_vec;
 };
 
 class vulkan_runtime : public runtime
@@ -51,7 +61,9 @@ private:
 
     boole window_stop_callback(const string& window_name);
 
-    boole build_device_resource(VkPhysicalDevice physical_device, ref<window_context> w_ctx);
+    boole build_device_hardware_resource(VkPhysicalDevice physical_device, ref<window_context> w_ctx);
+
+    boole build_device_image_resource(ref<window_context> w_ctx);
 
     boole clear_device_resource(ref<window_context> w_ctx);
 
@@ -71,8 +83,8 @@ private:
     static atom<VkInstance*>      _instance;
 
     // window resource
-    vector<ref<window_context>>   _vec_window_ctx;
-    rw_lock                       _vec_window_ctx_lock;
+    vector<ref<window_context>>   _window_ctx_vec;
+    rw_lock                       _window_ctx_vec_lock;
 };
 
 }
