@@ -1,30 +1,33 @@
 #pragma once
 
 #include "Interface.hpp"
+#include "VulkanPipeline.hpp"
 
 namespace gpx
 {
 
-struct window_context
+struct vulkan_window_context
 {
-    ref<window>              _window;
-    string                   _preferred_device_name;
+    ref<window>                _window;
+    string                     _preferred_device_name;
 
-    VkPhysicalDevice         _physical_device;
-    VkDevice                 _logical_device;
-    u64                      _render_queue_family_idx;
-    u64                      _present_queue_family_idx;
-    u64                      _transfer_queue_family_idx;
-    VkQueue                  _render_queue;
-    VkQueue                  _present_queue;
-    VkQueue                  _transfer_queue;
+    VkPhysicalDevice           _physical_device;
+    VkDevice                   _logical_device;
+    u64                        _render_queue_family_idx;
+    u64                        _present_queue_family_idx;
+    u64                        _transfer_queue_family_idx;
+    VkQueue                    _render_queue;
+    VkQueue                    _present_queue;
+    VkQueue                    _transfer_queue;
 
-    VkSurfaceFormatKHR       _surface_format;
-    VkPresentModeKHR         _present_mode;
-    VkExtent2D               _swap_chain_extent;
-    VkSwapchainKHR           _swap_chain;
-    vector<VkImage>          _swap_chain_image_vec;
-    vector<VkImageView>      _image_view_vec;
+    VkSurfaceFormatKHR         _surface_format;
+    VkPresentModeKHR           _present_mode;
+    VkExtent2D                 _swap_chain_extent;
+    VkSwapchainKHR             _swap_chain;
+    vector<VkImage>            _swap_chain_image_vec;
+    vector<VkImageView>        _image_view_vec;
+
+    vector<ref<pipeline>>      _pipelines;
 };
 
 class vulkan_runtime : public runtime
@@ -52,20 +55,24 @@ public:
 
     virtual ref<window> get_window(const string& window_name) override;
 
+    virtual boole register_pipeline() override;
+
+    virtual boole unregister_pipeline() override;
+
 private:
     VkInstance get_vk_instance() { return *_instance.get(); }
 
-    ref<window_context> get_window_context(const string& window_name);
+    ref<vulkan_window_context> get_window_context(const string& window_name);
 
     boole window_start_callback(const string& window_name);
 
     boole window_stop_callback(const string& window_name);
 
-    boole build_device_hardware_resource(VkPhysicalDevice physical_device, ref<window_context> w_ctx);
+    boole build_device_hardware_resource(VkPhysicalDevice physical_device, ref<vulkan_window_context> w_ctx);
 
-    boole build_device_image_resource(ref<window_context> w_ctx);
+    boole build_device_image_resource(ref<vulkan_window_context> w_ctx);
 
-    boole clear_device_resource(ref<window_context> w_ctx);
+    boole clear_device_resource(ref<vulkan_window_context> w_ctx);
 
 private:
     static VKAPI_ATTR VkBool32 VKAPI_CALL debug_cb(
@@ -83,7 +90,9 @@ private:
     static atom<VkInstance*>      _instance;
 
     // window resource
-    vector<ref<window_context>>   _window_ctx_vec;
+    vector<
+        ref<vulkan_window_context>
+    >                             _window_ctx_vec;
     rw_lock                       _window_ctx_vec_lock;
 };
 

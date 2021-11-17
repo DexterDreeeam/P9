@@ -1,5 +1,7 @@
 
 #include "../Interface.hpp"
+#include "../VulkanRuntime.hpp"
+#include "../../Window/GlfwWindow.hpp"
 
 namespace gpx
 {
@@ -153,7 +155,7 @@ vector<string> vulkan_runtime::list_device()
     return rst;
 }
 
-ref<window_context> vulkan_runtime::get_window_context(const string& window_name)
+ref<vulkan_window_context> vulkan_runtime::get_window_context(const string& window_name)
 {
     AUTO_TRACE;
 
@@ -170,7 +172,7 @@ ref<window_context> vulkan_runtime::get_window_context(const string& window_name
             return *itr;
         }
     }
-    return ref<window_context>();
+    return ref<vulkan_window_context>();
 }
 
 boole vulkan_runtime::window_start_callback(const string& window_name)
@@ -257,7 +259,7 @@ boole vulkan_runtime::window_stop_callback(const string& window_name)
     return clear_device_resource(w_ctx);
 }
 
-boole vulkan_runtime::build_device_hardware_resource(VkPhysicalDevice physical_device, ref<window_context> w_ctx)
+boole vulkan_runtime::build_device_hardware_resource(VkPhysicalDevice physical_device, ref<vulkan_window_context> w_ctx)
 {
     AUTO_TRACE;
     assert(physical_device);
@@ -404,7 +406,7 @@ boole vulkan_runtime::build_device_hardware_resource(VkPhysicalDevice physical_d
     return boole::True;
 }
 
-boole vulkan_runtime::build_device_image_resource(ref<window_context> w_ctx)
+boole vulkan_runtime::build_device_image_resource(ref<vulkan_window_context> w_ctx)
 {
     VkSurfaceKHR surface = w_ctx->_window.ref_of<glfw_window>()->_surface;
 
@@ -552,7 +554,7 @@ boole vulkan_runtime::build_device_image_resource(ref<window_context> w_ctx)
     return boole::True;
 }
 
-boole vulkan_runtime::clear_device_resource(ref<window_context> w_ctx)
+boole vulkan_runtime::clear_device_resource(ref<vulkan_window_context> w_ctx)
 {
     AUTO_TRACE;
     while (w_ctx->_image_view_vec.size())
@@ -593,7 +595,7 @@ ref<window> vulkan_runtime::build_window(const window_desc& desc, const string& 
         return ref<window>();
     }
 
-    auto w_ctx = ref<window_context>::new_instance();
+    auto w_ctx = ref<vulkan_window_context>::new_instance();
     w_ctx->_window = wnd;
     w_ctx->_preferred_device_name = preferred_device_name;
     w_ctx->_logical_device = nullptr;
@@ -640,6 +642,16 @@ ref<window> vulkan_runtime::get_window(const string& window_name)
         }
     }
     return ref<window>();
+}
+
+boole vulkan_runtime::register_pipeline()
+{
+    return boole::True;
+}
+
+boole vulkan_runtime::unregister_pipeline()
+{
+    return boole::True;
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL vulkan_runtime::debug_cb(

@@ -2,7 +2,6 @@
 #include "../Gpx/Interface.hpp"
 
 #include "VulkanWindowTest.hpp"
-#include "VulkanDeviceTest.hpp"
 
 int main(int argc, char* argv[])
 {

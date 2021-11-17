@@ -8,10 +8,13 @@
     <ClInclude Include="Runtime\Interface.hpp" />
     <ClInclude Include="Runtime\Runtime.hpp" />
     <ClInclude Include="Runtime\VulkanRuntime.hpp" />
+    <ClInclude Include="Runtime\VulkanPipeline.hpp" />
+    <ClInclude Include="Runtime\Pipeline.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Window\Implementation\GlfwWindow.cpp" />
     <ClCompile Include="Runtime\Implementation\Runtime.cpp" />
     <ClCompile Include="Runtime\Implementation\VulkanRuntime.cpp" />
+    <ClCompile Include="Runtime\Implementation\VulkanPipeline.cpp" />
   </ItemGroup>
 </Project>

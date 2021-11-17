@@ -1,7 +1,8 @@
 #pragma once
 
 #include "../../External/Vulkan/Windows/Header/vulkan/vulkan.h"
-#include "Interface.hpp"
+#include "../Runtime/Interface.hpp"
+#include "../Runtime/VulkanRuntime.hpp"
 
 namespace gpx
 {

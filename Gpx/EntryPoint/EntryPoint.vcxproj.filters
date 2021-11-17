@@ -5,6 +5,5 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="VulkanWindowTest.hpp" />
-    <ClInclude Include="VulkanDeviceTest.hpp" />
   </ItemGroup>
 </Project>

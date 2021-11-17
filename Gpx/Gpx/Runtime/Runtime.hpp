@@ -38,17 +38,27 @@ public:
     static ref<runtime> build(const runtime_desc& desc);
 
 public:
+    // runtime
+
     virtual boole init() = 0;
 
     virtual boole uninit() = 0;
 
     virtual vector<string> list_device() = 0;
 
+    // window
+
     virtual ref<window> build_window(const window_desc& desc, const string& preferred_device_name = "") = 0;
 
     virtual boole remove_window(const string& window_name) = 0;
 
     virtual ref<window> get_window(const string& window_name) = 0;
+
+    // pipeline
+
+    virtual boole register_pipeline() = 0;
+
+    virtual boole unregister_pipeline() = 0;
 };
 
 }

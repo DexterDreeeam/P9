@@ -2,6 +2,7 @@
 #define VK_USE_PLATFORM_WIN32_KHR
 #include "../../Runtime/VulkanRuntime.hpp"
 #include "../Interface.hpp"
+#include "../GlfwWindow.hpp"
 
 namespace gpx
 {
