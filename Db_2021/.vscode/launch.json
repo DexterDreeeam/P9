@@ -1,10 +1,10 @@
 {
     "configurations": [
         {
-            "name": "Db_2021_server_debug",
+            "name": "Linux_Db_2021_server_debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "../.exe.debug/Db_2021_EntryPoint",
+            "program": "${workspaceFolder}/../.exe.debug/Db_2021_EntryPoint",
             "args": [
                 "host"
             ],
@@ -22,10 +22,10 @@
             ]
         },
         {
-            "name": "Db_2021_client_debug",
+            "name": "Linux_Db_2021_client_debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "../.exe.debug/Db_2021_EntryPoint",
+            "program": "${workspaceFolder}/../.exe.debug/Db_2021_EntryPoint",
             "args": [
                 "10.0.2.15",
                 "../Db_2021/.tests/01-upsert-1.json"
