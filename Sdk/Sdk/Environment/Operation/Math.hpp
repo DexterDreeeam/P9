@@ -46,13 +46,13 @@ public:
 
     static f64 acos(f64 x);
 
-    static u64 kilobyte();
+    static constexpr u64 kilobyte();
 
-    static u64 megabyte();
+    static constexpr u64 megabyte();
 
-    static u64 gigabyte();
+    static constexpr u64 gigabyte();
 
-    static u64 terabyte();
+    static constexpr u64 terabyte();
 
-    static u64 petabyte();
+    static constexpr u64 petabyte();
 };

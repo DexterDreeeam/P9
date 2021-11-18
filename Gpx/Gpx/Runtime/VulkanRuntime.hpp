@@ -2,6 +2,7 @@
 
 #include "Interface.hpp"
 #include "VulkanPipeline.hpp"
+#include "VulkanShader.hpp"
 
 namespace gpx
 {
@@ -57,7 +58,15 @@ public:
 
     virtual boole register_pipeline() override;
 
+    virtual ref<pipeline> get_pipeline(const string& pipeline_name) override;
+
     virtual boole unregister_pipeline() override;
+
+    virtual boole register_shader(const shader_desc& desc) override;
+
+    virtual ref<shader> get_shader(const string& pipeline_name) override;
+
+    virtual boole unregister_shader(const string& shader_name) override;
 
 private:
     VkInstance get_vk_instance() { return *_instance.get(); }
@@ -94,6 +103,11 @@ private:
         ref<vulkan_window_context>
     >                             _window_ctx_vec;
     rw_lock                       _window_ctx_vec_lock;
+
+    map<
+        string, ref<vulkan_shader>
+    >                             _shader_map;
+    rw_lock                       _shader_map_lock;
 };
 
 }

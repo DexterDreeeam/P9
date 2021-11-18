@@ -1,6 +1,8 @@
 
 #include "../Interface.hpp"
 #include "../VulkanRuntime.hpp"
+#include "../VulkanPipeline.hpp"
+#include "../VulkanShader.hpp"
 #include "../../Window/GlfwWindow.hpp"
 
 namespace gpx
@@ -13,11 +15,14 @@ vulkan_runtime::vulkan_runtime(const runtime_desc& desc) :
     _desc(desc),
     _self(),
     _window_ctx_vec(),
-    _window_ctx_vec_lock()
+    _window_ctx_vec_lock(),
+    _shader_map(),
+    _shader_map_lock()
 {
     AUTO_TRACE;
 
     _window_ctx_vec_lock.init();
+    _shader_map_lock.init();
 }
 
 vulkan_runtime::~vulkan_runtime()
@@ -26,6 +31,7 @@ vulkan_runtime::~vulkan_runtime()
 
     uninit();
 
+    _shader_map_lock.uninit();
     _window_ctx_vec_lock.uninit();
 }
 
@@ -649,9 +655,81 @@ boole vulkan_runtime::register_pipeline()
     return boole::True;
 }
 
+ref<pipeline> vulkan_runtime::get_pipeline(const string& pipeline_name)
+{
+    return ref<pipeline>();
+}
+
 boole vulkan_runtime::unregister_pipeline()
 {
     return boole::True;
+}
+
+boole vulkan_runtime::register_shader(const shader_desc& desc)
+{
+    auto w_ctx = get_window_context(desc._window_name);
+    if (w_ctx.empty())
+    {
+        return boole::False;
+    }
+
+    auto r_shader = ref<vulkan_shader>::new_instance(desc, w_ctx);
+    r_shader->load(desc._shader_path);
+
+    if (!_shader_map_lock.wait_write())
+    {
+        return boole::False;
+    }
+    escape_function ef =
+        [=]() mutable
+        {
+            _shader_map_lock.write_release();
+        };
+
+    if (_shader_map.find(desc._shader_name) != _shader_map.end())
+    {
+        return boole::False;
+    }
+
+    _shader_map[desc._shader_name] = r_shader;
+    return boole::True;
+}
+
+ref<shader> vulkan_runtime::get_shader(const string& pipeline_name)
+{
+    ref<shader> ret;
+
+    if (!_shader_map_lock.wait_read())
+    {
+        return ret;
+    }
+    escape_function ef =
+        [=]() mutable
+        {
+            _shader_map_lock.read_release();
+        };
+
+    auto itr = _shader_map.find(pipeline_name);
+    if (itr != _shader_map.end())
+    {
+        ret = itr->second;
+    }
+    return ret;
+}
+
+boole vulkan_runtime::unregister_shader(const string& shader_name)
+{
+    if (!_shader_map_lock.wait_write())
+    {
+        return boole::False;
+    }
+    escape_function ef =
+        [=]() mutable
+        {
+            _shader_map_lock.write_release();
+        };
+
+    return _shader_map.erase(shader_name);
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL vulkan_runtime::debug_cb(

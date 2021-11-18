@@ -72,27 +72,27 @@ _INLINE_ f64 math::radian_to_degree(f64 x)
     return 57.295779513082320876798154814105 * x;
 }
 
-_INLINE_ u64 math::kilobyte()
+_INLINE_ constexpr u64 math::kilobyte()
 {
     return 1024ULL;
 }
 
-_INLINE_ u64 math::megabyte()
+_INLINE_ constexpr u64 math::megabyte()
 {
     return kilobyte() * 1024ULL;
 }
 
-_INLINE_ u64 math::gigabyte()
+_INLINE_ constexpr u64 math::gigabyte()
 {
     return megabyte() * 1024ULL;
 }
 
-_INLINE_ u64 math::terabyte()
+_INLINE_ constexpr u64 math::terabyte()
 {
     return gigabyte() * 1024ULL;
 }
 
-_INLINE_ u64 math::petabyte()
+_INLINE_ constexpr u64 math::petabyte()
 {
     return terabyte() * 1024ULL;
 }

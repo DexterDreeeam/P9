@@ -5,5 +5,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="VulkanWindowTest.hpp" />
+    <ClInclude Include="VulkanPipelineTest.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="_compile_windows_vulkan_shaders.ps1" />
+    <None Include="Shader\Vulkan\Glsl\test1.frag" />
+    <None Include="Shader\Vulkan\Glsl\test1.vert" />
   </ItemGroup>
 </Project>

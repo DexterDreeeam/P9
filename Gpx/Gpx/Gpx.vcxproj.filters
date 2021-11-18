@@ -10,11 +10,14 @@
     <ClInclude Include="Runtime\VulkanRuntime.hpp" />
     <ClInclude Include="Runtime\VulkanPipeline.hpp" />
     <ClInclude Include="Runtime\Pipeline.hpp" />
+    <ClInclude Include="Runtime\Shader.hpp" />
+    <ClInclude Include="Runtime\VulkanShader.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Window\Implementation\GlfwWindow.cpp" />
     <ClCompile Include="Runtime\Implementation\Runtime.cpp" />
     <ClCompile Include="Runtime\Implementation\VulkanRuntime.cpp" />
     <ClCompile Include="Runtime\Implementation\VulkanPipeline.cpp" />
+    <ClCompile Include="Runtime\Implementation\VulkanShader.cpp" />
   </ItemGroup>
 </Project>

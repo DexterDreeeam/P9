@@ -3,7 +3,7 @@
     [
         {
             "type": "shell",
-            "label": "build_setting",
+            "label": "linux_build_setting",
             "command": "cp",
             "args": [
                 "-rf",
@@ -17,7 +17,7 @@
         },
         {
             "type": "shell",
-            "label": "compile",
+            "label": "linux_compile",
             "command": "g++",
             "args": [
                 "-std=c++2a",
@@ -33,12 +33,12 @@
                 "isDefault": true
             },
             "dependsOn": [
-                "build_setting"
+                "linux_build_setting"
             ]
         },
         {
             "type": "shell",
-            "label": "all_process",
+            "label": "linux_all_process",
             "command": "rm",
             "args": [
                 "./*.o",
@@ -48,7 +48,7 @@
                 "isDefault": true
             },
             "dependsOn": [
-                "compile"
+                "linux_compile"
             ]
         }
     ],

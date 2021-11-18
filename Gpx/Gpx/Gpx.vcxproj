@@ -15,8 +15,10 @@
     <ClInclude Include="Runtime\Interface.hpp" />
     <ClInclude Include="Runtime\Pipeline.hpp" />
     <ClInclude Include="Runtime\Runtime.hpp" />
+    <ClInclude Include="Runtime\Shader.hpp" />
     <ClInclude Include="Runtime\VulkanPipeline.hpp" />
     <ClInclude Include="Runtime\VulkanRuntime.hpp" />
+    <ClInclude Include="Runtime\VulkanShader.hpp" />
     <ClInclude Include="Window\Interface.hpp" />
     <ClInclude Include="Window\Window.hpp" />
     <ClInclude Include="Window\GlfwWindow.hpp" />
@@ -25,6 +27,7 @@
     <ClCompile Include="Runtime\Implementation\Runtime.cpp" />
     <ClCompile Include="Runtime\Implementation\VulkanPipeline.cpp" />
     <ClCompile Include="Runtime\Implementation\VulkanRuntime.cpp" />
+    <ClCompile Include="Runtime\Implementation\VulkanShader.cpp" />
     <ClCompile Include="Window\Implementation\GlfwWindow.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
