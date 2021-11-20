@@ -59,6 +59,9 @@ public:
     // obs<Ty> call try_ref() when try to get a copy of ref(), if return value is true, try_ref() succeed, no need add_ref() again
     boole try_ref();
 
+public:
+    void debug_report() const;
+
 private:
     static void deconstructor(void* p);
 

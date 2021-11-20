@@ -104,6 +104,13 @@ _INLINE_ boole context<Ty>::try_ref()
 }
 
 template<typename Ty>
+_INLINE_ void context<Ty>::debug_report() const
+{
+    print("[_RefNs::context::debug_report] =========\n   ref_cnt = %lld\n   obs_cnt = %lld\n",
+        _ref_cnt.get(), _obs_cnt.get());
+}
+
+template<typename Ty>
 _INLINE_ void context<Ty>::deconstructor(void* p)
 {
     pointer_convert(p, 0, Ty*)->~Ty();

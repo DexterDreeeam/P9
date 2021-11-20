@@ -22,18 +22,14 @@ void vulkan_pipeline_test()
     assert(checker);
     tick::sleep(500);
 
-    // register pipeline
-    checker = rt->register_pipeline();
-    assert(checker);
-    tick::sleep(500);
-
-    // register shader
+    // build shader
     gpx::shader_desc shader_desc_1;
     shader_desc_1._type = gpx::shader_type::VERTEX;
     shader_desc_1._shader_name = "test vertex shader 1";
     shader_desc_1._window_name = "Hello Pavilion Nine";
     shader_desc_1._shader_path = "./Shader/Vulkan/test1.vert.spv";
-    checker = rt->register_shader(shader_desc_1);
+    auto vert_shader = rt->build_shader(shader_desc_1);
+    checker = vert_shader.has_value();
     assert(checker);
 
     gpx::shader_desc shader_desc_2;
@@ -41,17 +37,28 @@ void vulkan_pipeline_test()
     shader_desc_2._shader_name = "test fragment shader 1";
     shader_desc_2._window_name = "Hello Pavilion Nine";
     shader_desc_2._shader_path = "./Shader/Vulkan/test1.frag.spv";
-    checker = rt->register_shader(shader_desc_2);
+    auto frag_shader = rt->build_shader(shader_desc_2);
+    checker = frag_shader.has_value();
     assert(checker);
+
+    // register pipeline
+    gpx::pipeline_desc pipeline_desc;
+    pipeline_desc._window_name = "Hello Pavilion Nine";
+    pipeline_desc._pipeline_name = "Pavilion Nine Test Pipeline";
+    pipeline_desc._shaders.push_back(vert_shader);
+    pipeline_desc._shaders.push_back(frag_shader);
+
+    checker = rt->register_pipeline(pipeline_desc);
+    assert(checker);
+    tick::sleep(500);
+
+    vert_shader->unload();
+    frag_shader->unload();
 
     tick::sleep(500);
 
     // release resources
-    checker = rt->unregister_shader("test vertex shader 1");
-    assert(checker);
-    checker = rt->unregister_shader("test fragment shader 1");
-    assert(checker);
-    checker = rt->unregister_pipeline();
+    checker = rt->unregister_pipeline("Pavilion Nine Test Pipeline");
     assert(checker);
     checker = wnd->stop();
     assert(checker);

@@ -32,12 +32,12 @@ boole vulkan_shader::load(const string& shader_path)
     s64 f_len;
     escape_function ef =
         [=]() mutable
-    {
-        if (f.is_init())
         {
-            f.uninit();
-        }
-    };
+            if (f.is_init())
+            {
+                f.uninit();
+            }
+        };
 
     if (!f.init_input(shader_path.data()))
     {
@@ -74,6 +74,11 @@ boole vulkan_shader::unload()
     vkDestroyShaderModule(w_ctx->_logical_device, shader_module, nullptr);
     _shader_module = nullptr;
     return boole::True;
+}
+
+shader_type vulkan_shader::type()
+{
+    return _desc._type;
 }
 
 }

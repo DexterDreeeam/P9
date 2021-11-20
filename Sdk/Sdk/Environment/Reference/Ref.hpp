@@ -69,6 +69,9 @@ public:
     void clear();
 
 public:
+    void debug_report() const;
+
+public:
     template<typename ...Args>
     static ref<Ty> new_instance(Args ...args);
 

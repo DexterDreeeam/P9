@@ -5,6 +5,6 @@
 #include "../../External/Vulkan/Windows/Header/glfw3.h"
 #include "../Window/Interface.hpp"
 
-#include "Pipeline.hpp"
 #include "Shader.hpp"
+#include "Pipeline.hpp"
 #include "Runtime.hpp"

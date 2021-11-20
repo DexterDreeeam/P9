@@ -382,7 +382,7 @@ public:
     }
 
     vector(sz_t init_sz) :
-        elem((Ty*)memory::alloc<void>(sizeof(Ty) * _ceil_align(init_sz))),
+        elem(memory::alloc<Ty>(sizeof(Ty) * _ceil_align(init_sz))),
         cap(_ceil_align(init_sz)),
         sz(init_sz)
     {
@@ -418,11 +418,15 @@ public:
     }
 
     vector(const Self_Ty& rhs) :
-        elem((Ty*)memory::alloc_copy<void>(rhs.elem, sizeof(Ty) * _ceil_align(rhs.sz), sizeof(Ty) * rhs.sz)),
+        elem(memory::alloc<Ty>(sizeof(Ty) * _ceil_align(rhs.sz))),
         cap(_ceil_align(rhs.sz)),
         sz(rhs.sz)
     {
         assert(sz >= 0 && sz <= cap);
+        for (s64 i = 0; i < sz; ++i)
+        {
+            new (&elem[i]) Ty(rhs[i]);
+        }
     }
 
     vector(Self_Ty&& rhs) noexcept :
@@ -447,9 +451,13 @@ public:
     {
         assert(sz >= 0 && sz <= cap);
         _deconstruct();
-        elem = (Ty*)memory::alloc<void>(sizeof(Ty) * _ceil_align(ArraySz));
+        elem = memory::alloc<Ty>(sizeof(Ty) * _ceil_align(ArraySz));
         cap = _ceil_align(ArraySz);
         sz = ArraySz;
+        for (s64 i = 0; i < sz; ++i)
+        {
+            new (&elem[i]) Ty(arr[i]);
+        }
         return *this;
     }
 
@@ -457,9 +465,13 @@ public:
     {
         assert(sz >= 0 && sz <= cap);
         _deconstruct();
-        elem = (Ty*)memory::alloc_copy<void>(rhs.elem, sizeof(Ty) * _ceil_align(rhs.sz), sizeof(Ty) * rhs.sz);
         cap = _ceil_align(rhs.sz);
         sz = rhs.sz;
+        elem = memory::alloc<Ty>(sizeof(Ty) * cap);
+        for (s64 i = 0; i < sz; ++i)
+        {
+            new (&elem[i]) Ty(rhs[i]);
+        }
         return *this;
     }
 
@@ -467,7 +479,7 @@ public:
     {
         assert(sz >= 0 && sz <= cap);
         _deconstruct();
-        elem = (Ty*)memory::alloc_copy<void>(rhs.elem, sizeof(Ty) * _ceil_align(rhs.sz), sizeof(Ty) * rhs.sz);
+        elem = rhs.elem;
         cap = _ceil_align(rhs.sz);
         sz = rhs.sz;
         rhs.elem = nullptr;

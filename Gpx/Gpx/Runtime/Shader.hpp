@@ -8,9 +8,9 @@ namespace gpx
 enum class shader_type : s64
 {
     VERTEX,
-    FRAGMENT,
     TESSELLATION,
     GEOMETRY,
+    FRAGMENT,
 };
 
 struct shader_desc
@@ -29,6 +29,10 @@ public:
     virtual ~shader() = default;
 
     virtual boole load(const string& shader_path) = 0;
+
+    virtual boole unload() = 0;
+
+    virtual shader_type type() = 0;
 };
 
 }

@@ -1,11 +1,11 @@
 #pragma once
 
 #include "Interface.hpp"
-#include "VulkanPipeline.hpp"
-#include "VulkanShader.hpp"
 
 namespace gpx
 {
+
+class vulkan_pipeline;
 
 struct vulkan_window_context
 {
@@ -56,17 +56,13 @@ public:
 
     virtual ref<window> get_window(const string& window_name) override;
 
-    virtual boole register_pipeline() override;
+    virtual ref<shader> build_shader(const shader_desc& desc) override;
+
+    virtual boole register_pipeline(const pipeline_desc& desc) override;
 
     virtual ref<pipeline> get_pipeline(const string& pipeline_name) override;
 
-    virtual boole unregister_pipeline() override;
-
-    virtual boole register_shader(const shader_desc& desc) override;
-
-    virtual ref<shader> get_shader(const string& pipeline_name) override;
-
-    virtual boole unregister_shader(const string& shader_name) override;
+    virtual boole unregister_pipeline(const string& pipeline_name) override;
 
 private:
     VkInstance get_vk_instance() { return *_instance.get(); }
@@ -105,9 +101,9 @@ private:
     rw_lock                       _window_ctx_vec_lock;
 
     map<
-        string, ref<vulkan_shader>
-    >                             _shader_map;
-    rw_lock                       _shader_map_lock;
+        string, ref<vulkan_pipeline>
+    >                             _pipeline_map;
+    rw_lock                       _pipeline_map_lock;
 };
 
 }

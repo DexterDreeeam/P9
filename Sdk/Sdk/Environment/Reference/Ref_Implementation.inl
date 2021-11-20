@@ -225,6 +225,13 @@ _INLINE_ void ref<Ty>::clear()
 }
 
 template<typename Ty>
+_INLINE_ void ref<Ty>::debug_report() const
+{
+    auto* ctx = _ctx.get();
+    ctx->debug_report();
+}
+
+template<typename Ty>
 template<typename ...Args>
 _INLINE_ ref<Ty> ref<Ty>::new_instance(Args ...args)
 {

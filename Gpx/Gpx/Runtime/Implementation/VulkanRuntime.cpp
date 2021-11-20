@@ -16,13 +16,13 @@ vulkan_runtime::vulkan_runtime(const runtime_desc& desc) :
     _self(),
     _window_ctx_vec(),
     _window_ctx_vec_lock(),
-    _shader_map(),
-    _shader_map_lock()
+    _pipeline_map(),
+    _pipeline_map_lock()
 {
     AUTO_TRACE;
 
     _window_ctx_vec_lock.init();
-    _shader_map_lock.init();
+    _pipeline_map_lock.init();
 }
 
 vulkan_runtime::~vulkan_runtime()
@@ -31,7 +31,7 @@ vulkan_runtime::~vulkan_runtime()
 
     uninit();
 
-    _shader_map_lock.uninit();
+    _pipeline_map_lock.uninit();
     _window_ctx_vec_lock.uninit();
 }
 
@@ -650,22 +650,23 @@ ref<window> vulkan_runtime::get_window(const string& window_name)
     return ref<window>();
 }
 
-boole vulkan_runtime::register_pipeline()
+ref<shader> vulkan_runtime::build_shader(const shader_desc& desc)
 {
-    return boole::True;
+    auto w_ctx = get_window_context(desc._window_name);
+    if (w_ctx.empty())
+    {
+        return ref<shader>();
+    }
+
+    auto r_shader = ref<vulkan_shader>::new_instance(desc, w_ctx);
+    if (!r_shader->load(desc._shader_path))
+    {
+        return ref<shader>();
+    }
+    return r_shader;
 }
 
-ref<pipeline> vulkan_runtime::get_pipeline(const string& pipeline_name)
-{
-    return ref<pipeline>();
-}
-
-boole vulkan_runtime::unregister_pipeline()
-{
-    return boole::True;
-}
-
-boole vulkan_runtime::register_shader(const shader_desc& desc)
+boole vulkan_runtime::register_pipeline(const pipeline_desc& desc)
 {
     auto w_ctx = get_window_context(desc._window_name);
     if (w_ctx.empty())
@@ -673,63 +674,67 @@ boole vulkan_runtime::register_shader(const shader_desc& desc)
         return boole::False;
     }
 
-    auto r_shader = ref<vulkan_shader>::new_instance(desc, w_ctx);
-    r_shader->load(desc._shader_path);
+    auto r_pipeline = ref<vulkan_pipeline>::new_instance(w_ctx);
+    if (!r_pipeline->init(desc))
+    {
+        return boole::False;
+    }
 
-    if (!_shader_map_lock.wait_write())
+    if (!_pipeline_map_lock.wait_write())
     {
         return boole::False;
     }
     escape_function ef =
         [=]() mutable
-        {
-            _shader_map_lock.write_release();
-        };
-
-    if (_shader_map.find(desc._shader_name) != _shader_map.end())
     {
+        _pipeline_map_lock.write_release();
+    };
+
+    if (_pipeline_map.find(desc._pipeline_name) != _pipeline_map.end())
+    {
+        // already has a same name pipeline
         return boole::False;
     }
 
-    _shader_map[desc._shader_name] = r_shader;
+    _pipeline_map[desc._pipeline_name] = r_pipeline;
     return boole::True;
 }
 
-ref<shader> vulkan_runtime::get_shader(const string& pipeline_name)
+ref<pipeline> vulkan_runtime::get_pipeline(const string& pipeline_name)
 {
-    ref<shader> ret;
+    ref<pipeline> ret;
 
-    if (!_shader_map_lock.wait_read())
+    if (!_pipeline_map_lock.wait_read())
     {
         return ret;
     }
     escape_function ef =
         [=]() mutable
-        {
-            _shader_map_lock.read_release();
-        };
+    {
+        _pipeline_map_lock.read_release();
+    };
 
-    auto itr = _shader_map.find(pipeline_name);
-    if (itr != _shader_map.end())
+    auto itr = _pipeline_map.find(pipeline_name);
+    if (itr != _pipeline_map.end())
     {
         ret = itr->second;
     }
     return ret;
 }
 
-boole vulkan_runtime::unregister_shader(const string& shader_name)
+boole vulkan_runtime::unregister_pipeline(const string& pipeline_name)
 {
-    if (!_shader_map_lock.wait_write())
+    if (!_pipeline_map_lock.wait_write())
     {
         return boole::False;
     }
     escape_function ef =
         [=]() mutable
-        {
-            _shader_map_lock.write_release();
-        };
+    {
+        _pipeline_map_lock.write_release();
+    };
 
-    return _shader_map.erase(shader_name);
+    return _pipeline_map.erase(pipeline_name);
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL vulkan_runtime::debug_cb(

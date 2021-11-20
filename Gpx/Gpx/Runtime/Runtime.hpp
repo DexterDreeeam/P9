@@ -57,21 +57,17 @@ public:
 
     virtual ref<window> get_window(const string& window_name) = 0;
 
+    // shader
+
+    virtual ref<shader> build_shader(const shader_desc& desc) = 0;
+
     // pipeline
 
-    virtual boole register_pipeline() = 0;
+    virtual boole register_pipeline(const pipeline_desc& desc) = 0;
 
     virtual ref<pipeline> get_pipeline(const string& pipeline_name) = 0;
 
-    virtual boole unregister_pipeline() = 0;
-
-    // shader
-
-    virtual boole register_shader(const shader_desc& desc) = 0;
-
-    virtual ref<shader> get_shader(const string& shader_name) = 0;
-
-    virtual boole unregister_shader(const string& shader_name) = 0;
+    virtual boole unregister_pipeline(const string& pipeline_name) = 0;
 };
 
 }

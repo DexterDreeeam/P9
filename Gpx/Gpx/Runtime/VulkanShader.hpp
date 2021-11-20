@@ -9,6 +9,8 @@ struct vulkan_window_context;
 
 class vulkan_shader : public shader
 {
+    friend class vulkan_pipeline;
+
 public:
     vulkan_shader(const shader_desc& desc, obs<vulkan_window_context> w_ctx);
 
@@ -16,8 +18,9 @@ public:
 
     virtual boole load(const string& shader_path) override;
 
-private:
-    boole unload();
+    virtual boole unload() override;
+
+    virtual shader_type type() override;
 
 private:
     shader_desc                 _desc;
