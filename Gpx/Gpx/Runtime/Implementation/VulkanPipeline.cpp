@@ -12,9 +12,7 @@ vulkan_pipeline::vulkan_pipeline(obs<vulkan_window_context> w_ctx) :
     _render_pass(nullptr),
     _pipeline(nullptr),
     _frame_buffer_vec(),
-    _command_buffer_vec(),
-    _sema_image_available(nullptr),
-    _sema_render_complete(nullptr)
+    _command_buffer_vec()
 {
 }
 
@@ -257,22 +255,6 @@ boole vulkan_pipeline::init(const pipeline_desc& desc)
         return boole::False;
     }
 
-    // semaphore
-    VkSemaphoreCreateInfo semaphoreInfo = {};
-    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-    if (vkCreateSemaphore(
-            w_ctx->_logical_device, &semaphoreInfo, nullptr, &_sema_image_available) != VK_SUCCESS)
-    {
-        uninit();
-        return boole::False;
-    }
-    if (vkCreateSemaphore(
-            w_ctx->_logical_device, &semaphoreInfo, nullptr, &_sema_render_complete) != VK_SUCCESS)
-    {
-        uninit();
-        return boole::False;
-    }
-
     return boole::True;
 }
 
@@ -282,13 +264,6 @@ boole vulkan_pipeline::uninit()
     if (w_ctx.empty())
     {
         return boole::False;
-    }
-    if (_sema_image_available)
-    {
-        vkDestroySemaphore(w_ctx->_logical_device, _sema_image_available, nullptr);
-        vkDestroySemaphore(w_ctx->_logical_device, _sema_render_complete, nullptr);
-        _sema_image_available = nullptr;
-        _sema_render_complete = nullptr;
     }
     if (_pipeline)
     {
@@ -434,66 +409,6 @@ boole vulkan_pipeline::unload_resource()
     return boole::True;
 }
 
-//boole vulkan_pipeline::render()
-//{
-//    auto w_ctx = _window_ctx.try_ref();
-//    if (w_ctx.empty())
-//    {
-//        return boole::False;
-//    }
-//
-//    u64 image_index = 0;
-//    if (vkAcquireNextImageKHR(
-//            w_ctx->_logical_device,
-//            w_ctx->_swap_chain,
-//            u64_max,
-//            _sema_image_available,
-//            nullptr,
-//            (uint32_t*)&image_index) != VK_SUCCESS)
-//    {
-//        return boole::False;
-//    }
-//
-//    VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-//    VkSubmitInfo submitInfo = {};
-//    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-//    submitInfo.waitSemaphoreCount = 1;
-//    submitInfo.pWaitSemaphores = &_sema_image_available;
-//    submitInfo.pWaitDstStageMask = waitStages;
-//    submitInfo.commandBufferCount = 1;
-//    submitInfo.pCommandBuffers = &_command_buffer_vec[image_index];
-//    submitInfo.signalSemaphoreCount = 1;
-//    submitInfo.pSignalSemaphores = &_sema_render_complete;
-//
-//    if (vkQueueSubmit(w_ctx->_render_queue, 1, &submitInfo, nullptr) != VK_SUCCESS)
-//    {
-//        return boole::False;
-//    }
-//
-//    VkPresentInfoKHR presentInfo{};
-//    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-//    presentInfo.waitSemaphoreCount = 1;
-//    presentInfo.pWaitSemaphores = &_sema_render_complete;
-//    presentInfo.swapchainCount = 1;
-//    presentInfo.pSwapchains = &w_ctx->_swap_chain;
-//    presentInfo.pImageIndices = (uint32_t*)&image_index;
-//    presentInfo.pResults = nullptr;
-//
-//    if (vkQueuePresentKHR(w_ctx->_render_queue, &presentInfo) != VK_SUCCESS)
-//    {
-//        return boole::False;
-//    }
-//
-//    return boole::True;
-//}
-
-vector<VkSemaphore> imageAvailableSemaphores;
-vector<VkSemaphore> renderFinishedSemaphores;
-vector<VkFence> inFlightFences;
-vector<VkFence> imagesInFlight;
-const int MAX_FRAMES_IN_FLIGHT = 2;
-size_t currentFrame = 0;
-
 boole vulkan_pipeline::render()
 {
     auto w_ctx = _window_ctx.try_ref();
@@ -501,80 +416,62 @@ boole vulkan_pipeline::render()
     {
         return boole::False;
     }
-    imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT, nullptr);
-    renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT, nullptr);
-    inFlightFences.resize(MAX_FRAMES_IN_FLIGHT, nullptr);
-    imagesInFlight.resize(3, VK_NULL_HANDLE);
 
-    VkSemaphoreCreateInfo semaphoreInfo{};
-    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+    s64 counter = w_ctx->_fence_counter;
+    u64 image_index = 0;
 
-    VkFenceCreateInfo fenceInfo{};
-    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+    vkWaitForFences(w_ctx->_logical_device, 1, &w_ctx->_inflight_fence_vec[counter], VK_TRUE, u64_max);
 
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-        if (vkCreateSemaphore(w_ctx->_logical_device, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
-            vkCreateSemaphore(w_ctx->_logical_device, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
-            vkCreateFence(w_ctx->_logical_device, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
-            throw 123;
-        }
-    }
-
-    while (1)
+    if (vkAcquireNextImageKHR(
+            w_ctx->_logical_device,
+            w_ctx->_swap_chain,
+            u64_max,
+            w_ctx->_image_available_sema_vec[counter],
+            nullptr,
+            (uint32_t*)&image_index) != VK_SUCCESS)
     {
-
-        vkWaitForFences(w_ctx->_logical_device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
-
-        uint32_t imageIndex;
-        vkAcquireNextImageKHR(w_ctx->_logical_device, w_ctx->_swap_chain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
-
-        if (imagesInFlight[imageIndex] != VK_NULL_HANDLE) {
-            vkWaitForFences(w_ctx->_logical_device, 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
-        }
-        imagesInFlight[imageIndex] = inFlightFences[currentFrame];
-
-        VkSubmitInfo submitInfo{};
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
-        VkSemaphore waitSemaphores[] = {imageAvailableSemaphores[currentFrame]};
-        VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-        submitInfo.waitSemaphoreCount = 1;
-        submitInfo.pWaitSemaphores = waitSemaphores;
-        submitInfo.pWaitDstStageMask = waitStages;
-
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &_command_buffer_vec[imageIndex];
-
-        VkSemaphore signalSemaphores[] = {renderFinishedSemaphores[currentFrame]};
-        submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = signalSemaphores;
-
-        vkResetFences(w_ctx->_logical_device, 1, &inFlightFences[currentFrame]);
-
-        if (vkQueueSubmit(w_ctx->_render_queue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS) {
-            throw 234;
-        }
-
-        VkPresentInfoKHR presentInfo{};
-        presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-
-        presentInfo.waitSemaphoreCount = 1;
-        presentInfo.pWaitSemaphores = signalSemaphores;
-
-        VkSwapchainKHR swapChains[] = {w_ctx->_swap_chain};
-        presentInfo.swapchainCount = 1;
-        presentInfo.pSwapchains = swapChains;
-
-        presentInfo.pImageIndices = &imageIndex;
-
-        vkQueuePresentKHR(w_ctx->_present_queue, &presentInfo);
-
-        currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
-
-        w_ctx->_window->poll_event();
+        return boole::False;
     }
 
+    if (w_ctx->_reordered_fence_vec[image_index])
+    {
+        vkWaitForFences(w_ctx->_logical_device, 1, &w_ctx->_reordered_fence_vec[image_index], VK_TRUE, u64_max);
+    }
+    w_ctx->_reordered_fence_vec[image_index] = w_ctx->_inflight_fence_vec[counter];
+    vkResetFences(w_ctx->_logical_device, 1, &w_ctx->_inflight_fence_vec[counter]);
+
+    VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.pWaitSemaphores = &w_ctx->_image_available_sema_vec[counter];
+    submitInfo.pWaitDstStageMask = waitStages;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &_command_buffer_vec[image_index];
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = &w_ctx->_render_complete_sema_vec[counter];
+
+    if (vkQueueSubmit(w_ctx->_render_queue, 1, &submitInfo, w_ctx->_inflight_fence_vec[counter]) != VK_SUCCESS)
+    {
+        return boole::False;
+    }
+
+    VkPresentInfoKHR presentInfo{};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores = &w_ctx->_render_complete_sema_vec[counter];
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = &w_ctx->_swap_chain;
+    presentInfo.pImageIndices = (uint32_t*)&image_index;
+    presentInfo.pResults = nullptr;
+
+    if (vkQueuePresentKHR(w_ctx->_render_queue, &presentInfo) != VK_SUCCESS)
+    {
+        return boole::False;
+    }
+
+    counter = (counter + 1) % w_ctx->_swap_chain_image_vec.size();
+    w_ctx->_fence_counter = counter;
     return boole::True;
 }
 

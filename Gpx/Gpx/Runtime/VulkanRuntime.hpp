@@ -29,6 +29,12 @@ struct vulkan_window_context
     vector<VkImageView>        _image_view_vec;
 
     VkCommandPool              _command_pool;
+
+    vector<VkSemaphore>        _image_available_sema_vec;
+    vector<VkSemaphore>        _render_complete_sema_vec;
+    vector<VkFence>            _inflight_fence_vec;
+    vector<VkFence>            _reordered_fence_vec;
+    s64                        _fence_counter;
 };
 
 class vulkan_runtime : public runtime
@@ -69,6 +75,8 @@ public:
     virtual boole unload_pipeline_resource(const string& pipeline_name) override;
 
     virtual boole render(const string& pipeline_name) override;
+
+    virtual boole wait_render_complete(const string& window_name) override;
 
 private:
     VkInstance get_vk_instance() { return *_instance.get(); }

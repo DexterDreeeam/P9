@@ -28,22 +28,22 @@ void vulkan_window_test()
     checker = wnd1->start();
     assert(checker);
 
-    tick::sleep(500);
+    tick::sleep(100);
 
     checker = wnd2->start();
     assert(checker);
 
-    tick::sleep(500);
+    tick::sleep(100);
 
     checker = wnd1->stop();
     assert(checker);
 
-    tick::sleep(500);
+    tick::sleep(100);
 
     checker = wnd1->start();
     assert(checker);
 
-    tick::sleep(500);
+    tick::sleep(100);
 
     checker = wnd1->stop();
     assert(checker);

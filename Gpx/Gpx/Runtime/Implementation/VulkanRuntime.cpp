@@ -571,12 +571,65 @@ boole vulkan_runtime::build_device_image_resource(ref<vulkan_window_context> w_c
         }
     }
 
+    // semaphore & fence
+    VkSemaphoreCreateInfo semaphoreInfo = {};
+    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+    VkFenceCreateInfo fenceInfo = {};
+    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+    for (s64 i = 0; i < image_count; ++i)
+    {
+        VkSemaphore sema;
+        VkFence fence;
+        if (vkCreateSemaphore(w_ctx->_logical_device, &semaphoreInfo, nullptr, &sema) != VK_SUCCESS)
+        {
+            clear_device_resource(w_ctx);
+            return boole::False;
+        }
+        w_ctx->_image_available_sema_vec.push_back(sema);
+        if (vkCreateSemaphore(w_ctx->_logical_device, &semaphoreInfo, nullptr, &sema) != VK_SUCCESS)
+        {
+            clear_device_resource(w_ctx);
+            return boole::False;
+        }
+        w_ctx->_render_complete_sema_vec.push_back(sema);
+        if (vkCreateFence(w_ctx->_logical_device, &fenceInfo, nullptr, &fence) != VK_SUCCESS)
+        {
+            clear_device_resource(w_ctx);
+            return boole::False;
+        }
+        w_ctx->_inflight_fence_vec.push_back(fence);
+    }
+    w_ctx->_reordered_fence_vec.clear();
+    w_ctx->_reordered_fence_vec.resize(w_ctx->_swap_chain_image_vec.size(), nullptr);
+    w_ctx->_fence_counter = 0;
+
     return boole::True;
 }
 
 boole vulkan_runtime::clear_device_resource(ref<vulkan_window_context> w_ctx)
 {
     AUTO_TRACE;
+    while (w_ctx->_image_available_sema_vec.size())
+    {
+        vkDestroySemaphore(w_ctx->_logical_device, w_ctx->_image_available_sema_vec.back(), nullptr);
+        w_ctx->_image_available_sema_vec.pop_back();
+    }
+    while (w_ctx->_render_complete_sema_vec.size())
+    {
+        vkDestroySemaphore(w_ctx->_logical_device, w_ctx->_render_complete_sema_vec.back(), nullptr);
+        w_ctx->_render_complete_sema_vec.pop_back();
+    }
+    while (w_ctx->_inflight_fence_vec.size())
+    {
+        vkDestroyFence(w_ctx->_logical_device, w_ctx->_inflight_fence_vec.back(), nullptr);
+        w_ctx->_inflight_fence_vec.pop_back();
+    }
+    w_ctx->_reordered_fence_vec.clear();
+    w_ctx->_fence_counter = 0;
+
     while (w_ctx->_image_view_vec.size())
     {
         vkDestroyImageView(w_ctx->_logical_device, w_ctx->_image_view_vec.back(), nullptr);
@@ -789,6 +842,20 @@ boole vulkan_runtime::render(const string& pipeline_name)
     }
 
     return p->render();
+}
+
+boole vulkan_runtime::wait_render_complete(const string& window_name)
+{
+    auto w_ctx = get_window_context(window_name);
+    if (w_ctx.empty())
+    {
+        return boole::False;
+    }
+    if (vkDeviceWaitIdle(w_ctx->_logical_device) != VK_SUCCESS)
+    {
+        return boole::False;
+    }
+    return boole::True;
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL vulkan_runtime::debug_cb(

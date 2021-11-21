@@ -31,8 +31,6 @@ private:
     VkPipeline                  _pipeline;
     vector<VkFramebuffer>       _frame_buffer_vec;
     vector<VkCommandBuffer>     _command_buffer_vec;
-    VkSemaphore                 _sema_image_available;
-    VkSemaphore                 _sema_render_complete;
 };
 
 }

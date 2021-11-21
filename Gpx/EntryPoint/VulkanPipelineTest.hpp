@@ -61,15 +61,17 @@ void vulkan_pipeline_test()
     u64 start_tick = tick::elapse();
     while (1)
     {
-        //if (tick::elapse() - start_tick >= 4000)
-        //{
-        //    break;
-        //}
+        if (tick::elapse() - start_tick >= 4000)
+        {
+            break;
+        }
         checker = wnd->poll_event();
         assert(checker);
         checker = rt->render("Pavilion Nine Test Pipeline");
         assert(checker);
     }
+    checker = rt->wait_render_complete("Hello Pavilion Nine");
+    assert(checker);
 
     checker = rt->unload_pipeline_resource("Pavilion Nine Test Pipeline");
     assert(checker);
