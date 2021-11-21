@@ -68,6 +68,12 @@ public:
     virtual ref<pipeline> get_pipeline(const string& pipeline_name) = 0;
 
     virtual boole unregister_pipeline(const string& pipeline_name) = 0;
+
+    virtual boole load_pipeline_resource(const string& pipeline_name) = 0;
+
+    virtual boole unload_pipeline_resource(const string& pipeline_name) = 0;
+
+    virtual boole render(const string& pipeline_name) = 0;
 };
 
 }

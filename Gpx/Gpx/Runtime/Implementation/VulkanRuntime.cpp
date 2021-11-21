@@ -166,10 +166,11 @@ ref<vulkan_window_context> vulkan_runtime::get_window_context(const string& wind
     AUTO_TRACE;
 
     _window_ctx_vec_lock.wait_write();
-    escape_function ep = [=]() mutable
-    {
-        _window_ctx_vec_lock.write_release();
-    };
+    escape_function ep =
+        [=]() mutable
+        {
+            _window_ctx_vec_lock.write_release();
+        };
 
     for (auto itr = _window_ctx_vec.begin(); itr != _window_ctx_vec.end(); ++itr)
     {
@@ -399,6 +400,17 @@ boole vulkan_runtime::build_device_hardware_resource(VkPhysicalDevice physical_d
         return boole::False;
     }
 
+    VkCommandPool cp;
+    VkCommandPoolCreateInfo poolInfo = {};
+    poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    poolInfo.queueFamilyIndex = render_queue_family_idx;
+    poolInfo.flags = 0;
+    if (vkCreateCommandPool(logical_device, &poolInfo, nullptr, &cp) != VK_SUCCESS)
+    {
+        vkDestroyDevice(logical_device, nullptr);
+        return boole::False;
+    }
+
     w_ctx->_physical_device = physical_device;
     w_ctx->_logical_device = logical_device;
 
@@ -408,6 +420,8 @@ boole vulkan_runtime::build_device_hardware_resource(VkPhysicalDevice physical_d
     vkGetDeviceQueue(logical_device, render_queue_family_idx, render_queue_family_queue_idx, &w_ctx->_render_queue);
     vkGetDeviceQueue(logical_device, transfer_queue_family_idx, transfer_queue_family_queue_idx, &w_ctx->_transfer_queue);
     vkGetDeviceQueue(logical_device, present_queue_family_idx, present_queue_family_queue_idx, &w_ctx->_present_queue);
+
+    w_ctx->_command_pool = cp;
 
     return boole::True;
 }
@@ -573,6 +587,11 @@ boole vulkan_runtime::clear_device_resource(ref<vulkan_window_context> w_ctx)
         vkDestroySwapchainKHR(w_ctx->_logical_device, w_ctx->_swap_chain, nullptr);
         w_ctx->_swap_chain = nullptr;
     }
+    if (w_ctx->_command_pool)
+    {
+        vkDestroyCommandPool(w_ctx->_logical_device, w_ctx->_command_pool, nullptr);
+        w_ctx->_command_pool = nullptr;
+    }
     if (w_ctx->_logical_device)
     {
         vkDestroyDevice(w_ctx->_logical_device, nullptr);
@@ -590,10 +609,11 @@ ref<window> vulkan_runtime::build_window(const window_desc& desc, const string& 
     AUTO_TRACE;
 
     _window_ctx_vec_lock.wait_write();
-    escape_function ep = [=]() mutable
-    {
-        _window_ctx_vec_lock.write_release();
-    };
+    escape_function ep =
+        [=]() mutable
+        {
+            _window_ctx_vec_lock.write_release();
+        };
 
     auto wnd = ref<glfw_window>::new_instance(desc, _self);
     if (wnd.empty())
@@ -635,10 +655,11 @@ boole vulkan_runtime::remove_window(const string& window_name)
 ref<window> vulkan_runtime::get_window(const string& window_name)
 {
     _window_ctx_vec_lock.wait_read();
-    escape_function ep = [=]() mutable
-    {
-        _window_ctx_vec_lock.read_release();
-    };
+    escape_function ep =
+        [=]() mutable
+        {
+            _window_ctx_vec_lock.read_release();
+        };
 
     for (auto w : _window_ctx_vec)
     {
@@ -686,9 +707,9 @@ boole vulkan_runtime::register_pipeline(const pipeline_desc& desc)
     }
     escape_function ef =
         [=]() mutable
-    {
-        _pipeline_map_lock.write_release();
-    };
+        {
+            _pipeline_map_lock.write_release();
+        };
 
     if (_pipeline_map.find(desc._pipeline_name) != _pipeline_map.end())
     {
@@ -710,9 +731,9 @@ ref<pipeline> vulkan_runtime::get_pipeline(const string& pipeline_name)
     }
     escape_function ef =
         [=]() mutable
-    {
-        _pipeline_map_lock.read_release();
-    };
+        {
+            _pipeline_map_lock.read_release();
+        };
 
     auto itr = _pipeline_map.find(pipeline_name);
     if (itr != _pipeline_map.end())
@@ -735,6 +756,39 @@ boole vulkan_runtime::unregister_pipeline(const string& pipeline_name)
     };
 
     return _pipeline_map.erase(pipeline_name);
+}
+
+boole vulkan_runtime::load_pipeline_resource(const string& pipeline_name)
+{
+    auto p = get_pipeline(pipeline_name);
+    if (p.empty())
+    {
+        return boole::False;
+    }
+
+    return p->load_resource();
+}
+
+boole vulkan_runtime::unload_pipeline_resource(const string& pipeline_name)
+{
+    auto p = get_pipeline(pipeline_name);
+    if (p.empty())
+    {
+        return boole::False;
+    }
+
+    return p->unload_resource();
+}
+
+boole vulkan_runtime::render(const string& pipeline_name)
+{
+    auto p = get_pipeline(pipeline_name);
+    if (p.empty())
+    {
+        return boole::False;
+    }
+
+    return p->render();
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL vulkan_runtime::debug_cb(

@@ -22,6 +22,12 @@ public:
     virtual boole init(const pipeline_desc& desc) = 0;
 
     virtual boole uninit() = 0;
+
+    virtual boole load_resource() = 0;
+
+    virtual boole unload_resource() = 0;
+
+    virtual boole render() = 0;
 };
 
 }

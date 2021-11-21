@@ -7,7 +7,7 @@ void vulkan_pipeline_test()
     // create runtime
     gpx::runtime_desc rt_desc;
     rt_desc.type = gpx::runtime_desc::_type::Vulkan;
-    rt_desc.debug_mode = boole::False;
+    rt_desc.debug_mode = boole::True;
     auto rt = gpx::runtime::build(rt_desc);
     checker = rt->init();
     assert(checker);
@@ -20,7 +20,6 @@ void vulkan_pipeline_test()
     auto wnd = rt->build_window(wnd_desc);
     checker = wnd->start();
     assert(checker);
-    tick::sleep(500);
 
     // build shader
     gpx::shader_desc shader_desc_1;
@@ -50,12 +49,30 @@ void vulkan_pipeline_test()
 
     checker = rt->register_pipeline(pipeline_desc);
     assert(checker);
-    tick::sleep(500);
 
     vert_shader->unload();
     frag_shader->unload();
 
-    tick::sleep(500);
+    // load pipeline resource
+    checker = rt->load_pipeline_resource("Pavilion Nine Test Pipeline");
+    assert(checker);
+
+    // main loop
+    u64 start_tick = tick::elapse();
+    while (1)
+    {
+        //if (tick::elapse() - start_tick >= 4000)
+        //{
+        //    break;
+        //}
+        checker = wnd->poll_event();
+        assert(checker);
+        checker = rt->render("Pavilion Nine Test Pipeline");
+        assert(checker);
+    }
+
+    checker = rt->unload_pipeline_resource("Pavilion Nine Test Pipeline");
+    assert(checker);
 
     // release resources
     checker = rt->unregister_pipeline("Pavilion Nine Test Pipeline");

@@ -28,7 +28,7 @@ struct vulkan_window_context
     vector<VkImage>            _swap_chain_image_vec;
     vector<VkImageView>        _image_view_vec;
 
-    vector<ref<pipeline>>      _pipelines;
+    VkCommandPool              _command_pool;
 };
 
 class vulkan_runtime : public runtime
@@ -63,6 +63,12 @@ public:
     virtual ref<pipeline> get_pipeline(const string& pipeline_name) override;
 
     virtual boole unregister_pipeline(const string& pipeline_name) override;
+
+    virtual boole load_pipeline_resource(const string& pipeline_name) override;
+
+    virtual boole unload_pipeline_resource(const string& pipeline_name) override;
+
+    virtual boole render(const string& pipeline_name) override;
 
 private:
     VkInstance get_vk_instance() { return *_instance.get(); }

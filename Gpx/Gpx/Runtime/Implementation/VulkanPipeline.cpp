@@ -8,7 +8,13 @@ namespace gpx
 
 vulkan_pipeline::vulkan_pipeline(obs<vulkan_window_context> w_ctx) :
     _window_ctx(w_ctx),
-    _layout(nullptr)
+    _layout(nullptr),
+    _render_pass(nullptr),
+    _pipeline(nullptr),
+    _frame_buffer_vec(),
+    _command_buffer_vec(),
+    _sema_image_available(nullptr),
+    _sema_render_complete(nullptr)
 {
 }
 
@@ -202,12 +208,22 @@ boole vulkan_pipeline::init(const pipeline_desc& desc)
     subpass.colorAttachmentCount = 1;
     subpass.pColorAttachments = &colorAttachmentRef;
 
+    VkSubpassDependency dependency{};
+    dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+    dependency.dstSubpass = 0;
+    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.srcAccessMask = 0;
+    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
     VkRenderPassCreateInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     renderPassInfo.attachmentCount = colorAttachment_vec.size();
     renderPassInfo.pAttachments = colorAttachment_vec.data();
     renderPassInfo.subpassCount = 1;
     renderPassInfo.pSubpasses = &subpass;
+    renderPassInfo.dependencyCount = 1;
+    renderPassInfo.pDependencies = &dependency;
 
     if (vkCreateRenderPass(w_ctx->_logical_device, &renderPassInfo, nullptr, &_render_pass) != VK_SUCCESS)
     {
@@ -234,11 +250,29 @@ boole vulkan_pipeline::init(const pipeline_desc& desc)
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.basePipelineIndex = -1;
 
-    if (vkCreateGraphicsPipelines(w_ctx->_logical_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_pipeline) != VK_SUCCESS)
+    if (vkCreateGraphicsPipelines(
+            w_ctx->_logical_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_pipeline) != VK_SUCCESS)
     {
         uninit();
         return boole::False;
     }
+
+    // semaphore
+    VkSemaphoreCreateInfo semaphoreInfo = {};
+    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+    if (vkCreateSemaphore(
+            w_ctx->_logical_device, &semaphoreInfo, nullptr, &_sema_image_available) != VK_SUCCESS)
+    {
+        uninit();
+        return boole::False;
+    }
+    if (vkCreateSemaphore(
+            w_ctx->_logical_device, &semaphoreInfo, nullptr, &_sema_render_complete) != VK_SUCCESS)
+    {
+        uninit();
+        return boole::False;
+    }
+
     return boole::True;
 }
 
@@ -248,6 +282,13 @@ boole vulkan_pipeline::uninit()
     if (w_ctx.empty())
     {
         return boole::False;
+    }
+    if (_sema_image_available)
+    {
+        vkDestroySemaphore(w_ctx->_logical_device, _sema_image_available, nullptr);
+        vkDestroySemaphore(w_ctx->_logical_device, _sema_render_complete, nullptr);
+        _sema_image_available = nullptr;
+        _sema_render_complete = nullptr;
     }
     if (_pipeline)
     {
@@ -264,6 +305,276 @@ boole vulkan_pipeline::uninit()
         vkDestroyPipelineLayout(w_ctx->_logical_device, _layout, nullptr);
         _layout = nullptr;
     }
+    return boole::True;
+}
+
+boole vulkan_pipeline::load_resource()
+{
+    if (!_pipeline || !_render_pass || !_layout)
+    {
+        return boole::False;
+    }
+
+    if (_frame_buffer_vec.size() > 0 || _command_buffer_vec.size() > 0)
+    {
+        return boole::False;
+    }
+
+    auto w_ctx = _window_ctx.try_ref();
+    if (w_ctx.empty())
+    {
+        return boole::False;
+    }
+
+    s64 image_count = w_ctx->_image_view_vec.size();
+    VkCommandBufferAllocateInfo allocInfo = {};
+
+    // frame buffer
+    for (s64 i = 0; i < image_count; ++i)
+    {
+        VkFramebufferCreateInfo framebufferInfo = {};
+        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        framebufferInfo.renderPass = _render_pass;
+        framebufferInfo.attachmentCount = 1;
+        framebufferInfo.pAttachments = &w_ctx->_image_view_vec[i];
+        framebufferInfo.width = w_ctx->_swap_chain_extent.width;
+        framebufferInfo.height = w_ctx->_swap_chain_extent.height;
+        framebufferInfo.layers = 1;
+
+        VkFramebuffer fb;
+        if (vkCreateFramebuffer(
+                w_ctx->_logical_device, &framebufferInfo, nullptr, &fb) != VK_SUCCESS)
+        {
+            goto L_error;
+        }
+        _frame_buffer_vec.push_back(fb);
+    }
+
+    // allocate command buffer
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.commandPool = w_ctx->_command_pool;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandBufferCount = (uint32_t)image_count;
+    _command_buffer_vec.resize(image_count, nullptr);
+    if (vkAllocateCommandBuffers(
+            w_ctx->_logical_device, &allocInfo, _command_buffer_vec.data()) != VK_SUCCESS)
+    {
+        _command_buffer_vec.clear();
+        goto L_error;
+    }
+
+    // record command buffer
+    for (s64 i = 0; i < image_count; ++i)
+    {
+        VkCommandBufferBeginInfo beginInfo = {};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags = 0;
+        beginInfo.pInheritanceInfo = nullptr;
+
+        if (vkBeginCommandBuffer(_command_buffer_vec[i], &beginInfo) != VK_SUCCESS)
+        {
+            goto L_error;
+        }
+
+        VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+        VkRenderPassBeginInfo renderPassInfo = {};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassInfo.renderPass = _render_pass;
+        renderPassInfo.framebuffer = _frame_buffer_vec[i];
+        renderPassInfo.renderArea.offset = { 0, 0 };
+        renderPassInfo.renderArea.extent = w_ctx->_swap_chain_extent;
+        renderPassInfo.clearValueCount = 1;
+        renderPassInfo.pClearValues = &clearColor;
+
+        vkCmdBeginRenderPass(_command_buffer_vec[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdBindPipeline(_command_buffer_vec[i], VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline);
+        vkCmdDraw(_command_buffer_vec[i], 3, 1, 0, 0);
+        vkCmdEndRenderPass(_command_buffer_vec[i]);
+
+        if (vkEndCommandBuffer(_command_buffer_vec[i]) != VK_SUCCESS)
+        {
+            goto L_error;
+        }
+    }
+
+    return boole::True;
+
+L_error:
+    unload_resource();
+    return boole::False;
+}
+
+boole vulkan_pipeline::unload_resource()
+{
+    if (!_pipeline || !_render_pass || !_layout)
+    {
+        return boole::False;
+    }
+
+    auto w_ctx = _window_ctx.try_ref();
+    if (w_ctx.empty())
+    {
+        return boole::False;
+    }
+
+    if (_command_buffer_vec.size())
+    {
+        vkFreeCommandBuffers(
+            w_ctx->_logical_device,
+            w_ctx->_command_pool,
+            _command_buffer_vec.size(),
+            _command_buffer_vec.data());
+        _command_buffer_vec.clear();
+    }
+    while (_frame_buffer_vec.size())
+    {
+        vkDestroyFramebuffer(w_ctx->_logical_device, _frame_buffer_vec.back(), nullptr);
+        _frame_buffer_vec.pop_back();
+    }
+    return boole::True;
+}
+
+//boole vulkan_pipeline::render()
+//{
+//    auto w_ctx = _window_ctx.try_ref();
+//    if (w_ctx.empty())
+//    {
+//        return boole::False;
+//    }
+//
+//    u64 image_index = 0;
+//    if (vkAcquireNextImageKHR(
+//            w_ctx->_logical_device,
+//            w_ctx->_swap_chain,
+//            u64_max,
+//            _sema_image_available,
+//            nullptr,
+//            (uint32_t*)&image_index) != VK_SUCCESS)
+//    {
+//        return boole::False;
+//    }
+//
+//    VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+//    VkSubmitInfo submitInfo = {};
+//    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+//    submitInfo.waitSemaphoreCount = 1;
+//    submitInfo.pWaitSemaphores = &_sema_image_available;
+//    submitInfo.pWaitDstStageMask = waitStages;
+//    submitInfo.commandBufferCount = 1;
+//    submitInfo.pCommandBuffers = &_command_buffer_vec[image_index];
+//    submitInfo.signalSemaphoreCount = 1;
+//    submitInfo.pSignalSemaphores = &_sema_render_complete;
+//
+//    if (vkQueueSubmit(w_ctx->_render_queue, 1, &submitInfo, nullptr) != VK_SUCCESS)
+//    {
+//        return boole::False;
+//    }
+//
+//    VkPresentInfoKHR presentInfo{};
+//    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+//    presentInfo.waitSemaphoreCount = 1;
+//    presentInfo.pWaitSemaphores = &_sema_render_complete;
+//    presentInfo.swapchainCount = 1;
+//    presentInfo.pSwapchains = &w_ctx->_swap_chain;
+//    presentInfo.pImageIndices = (uint32_t*)&image_index;
+//    presentInfo.pResults = nullptr;
+//
+//    if (vkQueuePresentKHR(w_ctx->_render_queue, &presentInfo) != VK_SUCCESS)
+//    {
+//        return boole::False;
+//    }
+//
+//    return boole::True;
+//}
+
+vector<VkSemaphore> imageAvailableSemaphores;
+vector<VkSemaphore> renderFinishedSemaphores;
+vector<VkFence> inFlightFences;
+vector<VkFence> imagesInFlight;
+const int MAX_FRAMES_IN_FLIGHT = 2;
+size_t currentFrame = 0;
+
+boole vulkan_pipeline::render()
+{
+    auto w_ctx = _window_ctx.try_ref();
+    if (w_ctx.empty())
+    {
+        return boole::False;
+    }
+    imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT, nullptr);
+    renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT, nullptr);
+    inFlightFences.resize(MAX_FRAMES_IN_FLIGHT, nullptr);
+    imagesInFlight.resize(3, VK_NULL_HANDLE);
+
+    VkSemaphoreCreateInfo semaphoreInfo{};
+    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+    VkFenceCreateInfo fenceInfo{};
+    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        if (vkCreateSemaphore(w_ctx->_logical_device, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
+            vkCreateSemaphore(w_ctx->_logical_device, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
+            vkCreateFence(w_ctx->_logical_device, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
+            throw 123;
+        }
+    }
+
+    while (1)
+    {
+
+        vkWaitForFences(w_ctx->_logical_device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+
+        uint32_t imageIndex;
+        vkAcquireNextImageKHR(w_ctx->_logical_device, w_ctx->_swap_chain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+
+        if (imagesInFlight[imageIndex] != VK_NULL_HANDLE) {
+            vkWaitForFences(w_ctx->_logical_device, 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
+        }
+        imagesInFlight[imageIndex] = inFlightFences[currentFrame];
+
+        VkSubmitInfo submitInfo{};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+        VkSemaphore waitSemaphores[] = {imageAvailableSemaphores[currentFrame]};
+        VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+        submitInfo.waitSemaphoreCount = 1;
+        submitInfo.pWaitSemaphores = waitSemaphores;
+        submitInfo.pWaitDstStageMask = waitStages;
+
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &_command_buffer_vec[imageIndex];
+
+        VkSemaphore signalSemaphores[] = {renderFinishedSemaphores[currentFrame]};
+        submitInfo.signalSemaphoreCount = 1;
+        submitInfo.pSignalSemaphores = signalSemaphores;
+
+        vkResetFences(w_ctx->_logical_device, 1, &inFlightFences[currentFrame]);
+
+        if (vkQueueSubmit(w_ctx->_render_queue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS) {
+            throw 234;
+        }
+
+        VkPresentInfoKHR presentInfo{};
+        presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+        presentInfo.waitSemaphoreCount = 1;
+        presentInfo.pWaitSemaphores = signalSemaphores;
+
+        VkSwapchainKHR swapChains[] = {w_ctx->_swap_chain};
+        presentInfo.swapchainCount = 1;
+        presentInfo.pSwapchains = swapChains;
+
+        presentInfo.pImageIndices = &imageIndex;
+
+        vkQueuePresentKHR(w_ctx->_present_queue, &presentInfo);
+
+        currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+
+        w_ctx->_window->poll_event();
+    }
+
     return boole::True;
 }
 
