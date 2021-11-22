@@ -30,6 +30,10 @@ boole vulkan_shader::load(const string& shader_path)
     file f;
     char buf[math::kilobyte() * 64];
     s64 f_len;
+    if (!f.init_input(shader_path.data()))
+    {
+        return boole::False;
+    }
     escape_function ef =
         [=]() mutable
         {
@@ -39,10 +43,6 @@ boole vulkan_shader::load(const string& shader_path)
             }
         };
 
-    if (!f.init_input(shader_path.data()))
-    {
-        return boole::False;
-    }
     if (!f.input(buf, math::kilobyte() * 64, f_len))
     {
         return boole::False;

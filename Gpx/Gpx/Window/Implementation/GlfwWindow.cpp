@@ -30,8 +30,6 @@ glfw_window::~glfw_window()
 
 string glfw_window::name()
 {
-    AUTO_TRACE;
-
     return _desc.name;
 }
 

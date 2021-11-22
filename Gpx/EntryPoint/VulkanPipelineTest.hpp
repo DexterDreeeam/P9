@@ -15,18 +15,41 @@ void vulkan_pipeline_test()
     // create window
     gpx::window_desc wnd_desc;
     wnd_desc.name = "Hello Pavilion Nine";
-    wnd_desc.width = 1920;
-    wnd_desc.height = 1080;
+    wnd_desc.width = 160;
+    wnd_desc.height = 120;
     auto wnd = rt->build_window(wnd_desc);
     checker = wnd->start();
     assert(checker);
 
     // build shader
+    vector<string> vertex_shader_files_found;
+    vector<string> fragment_shader_files_found;
+    string vert_shader_file_name = "test1.vert.spv";
+    string frag_shader_file_name = "test1.frag.spv";
+    vertex_shader_files_found = search_files(
+        "../",
+        [&](const string& path)
+        {
+            return
+                path.size() >= vert_shader_file_name.size() &&
+                path.substr(path.size() - vert_shader_file_name.size()) == vert_shader_file_name;
+        });
+    fragment_shader_files_found = search_files(
+        "../",
+        [&](const string& path)
+        {
+            return
+                path.size() >= frag_shader_file_name.size() &&
+                path.substr(path.size() - frag_shader_file_name.size()) == frag_shader_file_name;
+        });
+    assert(vertex_shader_files_found.size());
+    assert(fragment_shader_files_found.size());
+
     gpx::shader_desc shader_desc_1;
     shader_desc_1._type = gpx::shader_type::VERTEX;
     shader_desc_1._shader_name = "test vertex shader 1";
     shader_desc_1._window_name = "Hello Pavilion Nine";
-    shader_desc_1._shader_path = "./Shader/Vulkan/test1.vert.spv";
+    shader_desc_1._shader_path = vertex_shader_files_found[0];
     auto vert_shader = rt->build_shader(shader_desc_1);
     checker = vert_shader.has_value();
     assert(checker);
@@ -35,7 +58,7 @@ void vulkan_pipeline_test()
     shader_desc_2._type = gpx::shader_type::FRAGMENT;
     shader_desc_2._shader_name = "test fragment shader 1";
     shader_desc_2._window_name = "Hello Pavilion Nine";
-    shader_desc_2._shader_path = "./Shader/Vulkan/test1.frag.spv";
+    shader_desc_2._shader_path = fragment_shader_files_found[0];
     auto frag_shader = rt->build_shader(shader_desc_2);
     checker = frag_shader.has_value();
     assert(checker);
@@ -46,7 +69,6 @@ void vulkan_pipeline_test()
     pipeline_desc._pipeline_name = "Pavilion Nine Test Pipeline";
     pipeline_desc._shaders.push_back(vert_shader);
     pipeline_desc._shaders.push_back(frag_shader);
-
     checker = rt->register_pipeline(pipeline_desc);
     assert(checker);
 
