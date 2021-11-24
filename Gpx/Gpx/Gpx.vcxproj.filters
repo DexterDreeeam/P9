@@ -12,12 +12,6 @@
     <ClInclude Include="Runtime\Pipeline.hpp" />
     <ClInclude Include="Runtime\Shader.hpp" />
     <ClInclude Include="Runtime\VulkanShader.hpp" />
-    <ClInclude Include="Algebra\Interface.hpp" />
-    <ClInclude Include="Algebra\Mat3.hpp" />
-    <ClInclude Include="Algebra\Mat4.hpp" />
-    <ClInclude Include="Algebra\Vec2.hpp" />
-    <ClInclude Include="Algebra\Vec3.hpp" />
-    <ClInclude Include="Algebra\Vec4.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Window\Implementation\GlfwWindow.cpp" />
@@ -25,10 +19,5 @@
     <ClCompile Include="Runtime\Implementation\VulkanRuntime.cpp" />
     <ClCompile Include="Runtime\Implementation\VulkanPipeline.cpp" />
     <ClCompile Include="Runtime\Implementation\VulkanShader.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Algebra\Vec2_Implementation.inl" />
-    <None Include="Algebra\Vec3_Implementation.inl" />
-    <None Include="Algebra\Vec4_Implementation.inl" />
   </ItemGroup>
 </Project>
