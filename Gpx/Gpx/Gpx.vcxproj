@@ -11,6 +11,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Algebra\Interface.hpp" />
+    <ClInclude Include="Algebra\Mat3.hpp" />
+    <ClInclude Include="Algebra\Mat4.hpp" />
+    <ClInclude Include="Algebra\Vec2.hpp" />
+    <ClInclude Include="Algebra\Vec3.hpp" />
+    <ClInclude Include="Algebra\Vec4.hpp" />
     <ClInclude Include="Interface.hpp" />
     <ClInclude Include="Runtime\Interface.hpp" />
     <ClInclude Include="Runtime\Pipeline.hpp" />
@@ -29,6 +35,11 @@
     <ClCompile Include="Runtime\Implementation\VulkanRuntime.cpp" />
     <ClCompile Include="Runtime\Implementation\VulkanShader.cpp" />
     <ClCompile Include="Window\Implementation\GlfwWindow.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Algebra\Vec2_Implementation.inl" />
+    <None Include="Algebra\Vec3_Implementation.inl" />
+    <None Include="Algebra\Vec4_Implementation.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
