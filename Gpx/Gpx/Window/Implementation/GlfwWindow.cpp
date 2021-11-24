@@ -58,6 +58,8 @@ boole glfw_window::start()
     auto* ctx = glfwCreateWindow(
         _desc.width, _desc.height, _desc.name.data(), nullptr, nullptr);
 
+    glfwSetWindowUserPointer(ctx, this);
+
     if (ctx == nullptr)
     {
         return boole::False;

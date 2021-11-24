@@ -9,5 +9,5 @@ out vec4 Color_Printout;
 
 void main()
 {
-	Color_Printout = vec4(Color_Takeover, 1.0);
+    Color_Printout = vec4(Color_Takeover, 1.0);
 }
