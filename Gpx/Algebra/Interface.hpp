@@ -23,6 +23,27 @@
 #include "Mat4x3.hpp"
 #include "Mat4x4.hpp"
 
-#include "Vec2_Implementation.inl"
-#include "Vec3_Implementation.inl"
-#include "Vec4_Implementation.inl"
+#include "MatMultiplication.hpp"
+
+// implementation
+
+#include "Implementation/Vec2_Implementation.inl"
+#include "Implementation/Vec3_Implementation.inl"
+#include "Implementation/Vec4_Implementation.inl"
+
+#include "Implementation/Mat1x1_Implementation.inl"
+#include "Implementation/Mat1x2_Implementation.inl"
+#include "Implementation/Mat1x3_Implementation.inl"
+#include "Implementation/Mat1x4_Implementation.inl"
+#include "Implementation/Mat2x1_Implementation.inl"
+#include "Implementation/Mat2x2_Implementation.inl"
+#include "Implementation/Mat2x3_Implementation.inl"
+#include "Implementation/Mat2x4_Implementation.inl"
+#include "Implementation/Mat3x1_Implementation.inl"
+#include "Implementation/Mat3x2_Implementation.inl"
+#include "Implementation/Mat3x3_Implementation.inl"
+#include "Implementation/Mat3x4_Implementation.inl"
+#include "Implementation/Mat4x1_Implementation.inl"
+#include "Implementation/Mat4x2_Implementation.inl"
+#include "Implementation/Mat4x3_Implementation.inl"
+#include "Implementation/Mat4x4_Implementation.inl"

@@ -28,14 +28,31 @@
     <ClInclude Include="Mat4x2.hpp" />
     <ClInclude Include="Mat4x3.hpp" />
     <ClInclude Include="Mat4x4.hpp" />
+    <ClInclude Include="MatMultiplication.hpp" />
     <ClInclude Include="Vec2.hpp" />
     <ClInclude Include="Vec3.hpp" />
     <ClInclude Include="Vec4.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Vec2_Implementation.inl" />
-    <None Include="Vec3_Implementation.inl" />
-    <None Include="Vec4_Implementation.inl" />
+    <None Include="Implementation\Mat1x1_Implementation.inl" />
+    <None Include="Implementation\Mat1x2_Implementation.inl" />
+    <None Include="Implementation\Mat1x3_Implementation.inl" />
+    <None Include="Implementation\Mat1x4_Implementation.inl" />
+    <None Include="Implementation\Mat2x1_Implementation.inl" />
+    <None Include="Implementation\Mat2x2_Implementation.inl" />
+    <None Include="Implementation\Mat2x3_Implementation.inl" />
+    <None Include="Implementation\Mat2x4_Implementation.inl" />
+    <None Include="Implementation\Mat3x1_Implementation.inl" />
+    <None Include="Implementation\Mat3x2_Implementation.inl" />
+    <None Include="Implementation\Mat3x3_Implementation.inl" />
+    <None Include="Implementation\Mat3x4_Implementation.inl" />
+    <None Include="Implementation\Mat4x1_Implementation.inl" />
+    <None Include="Implementation\Mat4x2_Implementation.inl" />
+    <None Include="Implementation\Mat4x3_Implementation.inl" />
+    <None Include="Implementation\Mat4x4_Implementation.inl" />
+    <None Include="Implementation\Vec2_Implementation.inl" />
+    <None Include="Implementation\Vec3_Implementation.inl" />
+    <None Include="Implementation\Vec4_Implementation.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

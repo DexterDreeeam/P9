@@ -15,6 +15,12 @@ struct mat1x3_data
     {
     }
 
+    mat1x3_data& operator =(const mat1x3_data& rhs)
+    {
+        _r1 = rhs._r1;
+        return *this;
+    }
+
     vec3_data _r1;
 };
 
@@ -28,6 +34,15 @@ public:
     mat1x3(const mat1x3& rhs);
 
     mat1x3& operator =(const mat1x3& rhs);
+
+public:
+    vec3 r1() const;
+
+    f32 c1() const;
+
+    f32 c2() const;
+
+    f32 c3() const;
 
 public:
     mat1x3_data _data;

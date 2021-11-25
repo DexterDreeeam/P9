@@ -23,6 +23,11 @@ _INLINE_ vec3::vec3(const vec3& vc3) :
 {
 }
 
+_INLINE_ vec3::vec3(const vec3_data& vc3) :
+    _data(vc3)
+{
+}
+
 _INLINE_ vec3& vec3::operator =(const vec3& vc3)
 {
     sizeof(vec3);
@@ -103,6 +108,20 @@ _INLINE_ vec3 vec3::zxy() const
 _INLINE_ vec3 vec3::zyx() const
 {
     return vec3(_data._z, _data._y, _data._x);
+}
+
+_INLINE_ f32 vec3::dot(const vec3& vc3) const
+{
+    f32 rst = 0;
+    rst += _data._x * vc3._data._x;
+    rst += _data._y * vc3._data._y;
+    rst += _data._z * vc3._data._z;
+    return rst;
+}
+
+_INLINE_ f32 vec3::operator *(const vec3& vc3) const
+{
+    return dot(vc3);
 }
 
 }

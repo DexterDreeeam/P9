@@ -43,6 +43,11 @@ _INLINE_ vec4::vec4(const vec4& vc4) :
 {
 }
 
+_INLINE_ vec4::vec4(const vec4_data& vc4) :
+    _data(vc4)
+{
+}
+
 _INLINE_ vec4& vec4::operator =(const vec4& vc4)
 {
     _data = vc4._data;
@@ -367,6 +372,21 @@ _INLINE_ vec4 vec4::wzxy() const
 _INLINE_ vec4 vec4::wzyx() const
 {
     return vec4(_data._w, _data._z, _data._y, _data._x);
+}
+
+_INLINE_ f32 vec4::dot(const vec4& vc4) const
+{
+    f32 rst = 0;
+    rst += _data._x * vc4._data._x;
+    rst += _data._y * vc4._data._y;
+    rst += _data._z * vc4._data._z;
+    rst += _data._w * vc4._data._w;
+    return rst;
+}
+
+_INLINE_ f32 vec4::operator *(const vec4& vc4) const
+{
+    return dot(vc4);
 }
 
 }

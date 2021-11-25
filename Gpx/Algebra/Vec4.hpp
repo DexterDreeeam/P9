@@ -124,6 +124,8 @@ public:
 
     vec4(const vec4& vc4);
 
+    vec4(const vec4_data& vc4);
+
     vec4& operator =(const vec4& vc4);
 
     f32 x() const;
@@ -253,6 +255,11 @@ public:
     vec4 wzxy() const;
 
     vec4 wzyx() const;
+
+public:
+    f32 dot(const vec4& vc4) const;
+
+    f32 operator *(const vec4& vc4) const;
 
 public:
     vec4_data _data;

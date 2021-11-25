@@ -52,6 +52,8 @@ public:
 
     vec2(const vec2& vc2);
 
+    vec2(const vec2_data& vc2);
+
     vec2& operator =(const vec2& vc2);
 
     f32 x() const;
@@ -61,6 +63,11 @@ public:
     vec2 xy() const;
 
     vec2 yx() const;
+
+public:
+    f32 dot(const vec2& vc2) const;
+
+    f32 operator *(const vec2& vc2) const;
 
 public:
     vec2_data _data;

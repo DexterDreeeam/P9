@@ -76,6 +76,8 @@ public:
 
     vec3(const vec3& vc3);
 
+    vec3(const vec3_data& vc3);
+
     vec3& operator =(const vec3& vc3);
 
     f32 x() const;
@@ -107,6 +109,11 @@ public:
     vec3 zxy() const;
 
     vec3 zyx() const;
+
+public:
+    f32 dot(const vec3& vc3) const;
+
+    f32 operator *(const vec3& vc3) const;
 
 public:
     vec3_data _data;

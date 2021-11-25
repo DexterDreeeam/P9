@@ -13,6 +13,11 @@ _INLINE_ vec2::vec2(const vec2& vc2) :
 {
 }
 
+_INLINE_ vec2::vec2(const vec2_data& vc2) :
+    _data(vc2)
+{
+}
+
 _INLINE_ vec2& vec2::operator =(const vec2& vc2)
 {
     _data = vc2._data;
@@ -37,6 +42,19 @@ _INLINE_ vec2 vec2::xy() const
 _INLINE_ vec2 vec2::yx() const
 {
     return vec2(_data._y, _data._x);
+}
+
+_INLINE_ f32 vec2::dot(const vec2& vc2) const
+{
+    f32 rst = 0;
+    rst += _data._x * vc2._data._x;
+    rst += _data._y * vc2._data._y;
+    return rst;
+}
+
+_INLINE_ f32 vec2::operator *(const vec2& vc2) const
+{
+    return dot(vc2);
 }
 
 }

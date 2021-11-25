@@ -15,6 +15,15 @@ struct mat4x1_data
     {
     }
 
+    mat4x1_data& operator =(const mat4x1_data& rhs)
+    {
+        _r1 = rhs._r1;
+        _r2 = rhs._r2;
+        _r3 = rhs._r3;
+        _r4 = rhs._r4;
+        return *this;
+    }
+
     f32 _r1;
     f32 _r2;
     f32 _r3;
@@ -33,6 +42,17 @@ public:
     mat4x1(const mat4x1& rhs);
 
     mat4x1& operator =(const mat4x1& rhs);
+
+public:
+    f32 r1() const;
+
+    f32 r2() const;
+
+    f32 r3() const;
+
+    f32 r4() const;
+
+    vec4 c1() const;
 
 public:
     mat4x1_data _data;
