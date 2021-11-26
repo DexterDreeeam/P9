@@ -3,7 +3,7 @@
 namespace gpx
 {
 
-mat3x4::mat3x4(
+_INLINE_ mat3x4::mat3x4(
     f32 v11, f32 v12, f32 v13, f32 v14,
     f32 v21, f32 v22, f32 v23, f32 v24,
     f32 v31, f32 v32, f32 v33, f32 v34) :
@@ -14,38 +14,38 @@ mat3x4::mat3x4(
 {
 }
 
-mat3x4::mat3x4(vec4 vc4_1, vec4 vc4_2, vec4 vc4_3) :
+_INLINE_ mat3x4::mat3x4(vec4 vc4_1, vec4 vc4_2, vec4 vc4_3) :
     _data(vc4_1._data, vc4_2._data, vc4_3._data)
 {
 }
 
-mat3x4::mat3x4(const mat3x4& rhs) :
+_INLINE_ mat3x4::mat3x4(const mat3x4& rhs) :
     _data(rhs._data)
 {
 }
 
-mat3x4& mat3x4::operator =(const mat3x4& rhs)
+_INLINE_ mat3x4& mat3x4::operator =(const mat3x4& rhs)
 {
     _data = rhs._data;
     return *this;
 }
 
-vec4 mat3x4::r1() const
+_INLINE_ vec4 mat3x4::r1() const
 {
     return _data._r1;
 }
 
-vec4 mat3x4::r2() const
+_INLINE_ vec4 mat3x4::r2() const
 {
     return _data._r2;
 }
 
-vec4 mat3x4::r3() const
+_INLINE_ vec4 mat3x4::r3() const
 {
     return _data._r3;
 }
 
-vec3 mat3x4::c1() const
+_INLINE_ vec3 mat3x4::c1() const
 {
     return vec3(
         _data._r1._x,
@@ -53,7 +53,7 @@ vec3 mat3x4::c1() const
         _data._r3._x);
 }
 
-vec3 mat3x4::c2() const
+_INLINE_ vec3 mat3x4::c2() const
 {
     return vec3(
         _data._r1._y,
@@ -61,7 +61,7 @@ vec3 mat3x4::c2() const
         _data._r3._y);
 }
 
-vec3 mat3x4::c3() const
+_INLINE_ vec3 mat3x4::c3() const
 {
     return vec3(
         _data._r1._z,
@@ -69,7 +69,7 @@ vec3 mat3x4::c3() const
         _data._r3._z);
 }
 
-vec3 mat3x4::c4() const
+_INLINE_ vec3 mat3x4::c4() const
 {
     return vec3(
         _data._r1._w,

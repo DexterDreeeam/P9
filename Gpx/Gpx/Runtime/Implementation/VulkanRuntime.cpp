@@ -182,6 +182,28 @@ ref<vulkan_window_context> vulkan_runtime::get_window_context(const string& wind
     return ref<vulkan_window_context>();
 }
 
+ref<pipeline> vulkan_runtime::get_pipeline(const string& pipeline_name)
+{
+    ref<pipeline> ret;
+
+    if (!_pipeline_map_lock.wait_read())
+    {
+        return ret;
+    }
+    escape_function ef =
+        [=]() mutable
+        {
+            _pipeline_map_lock.read_release();
+        };
+
+    auto itr = _pipeline_map.find(pipeline_name);
+    if (itr != _pipeline_map.end())
+    {
+        ret = itr->second;
+    }
+    return ret;
+}
+
 boole vulkan_runtime::window_start_callback(const string& window_name)
 {
     AUTO_TRACE;
@@ -740,6 +762,19 @@ ref<shader> vulkan_runtime::build_shader(const shader_desc& desc)
     return r_shader;
 }
 
+ref<vertices_buffer> vulkan_runtime::build_vertices_buffer(const string& buffer_path)
+{
+    auto vb = ref<vertices_buffer_pos_color>::new_instance();
+    if (vb->setup(buffer_path))
+    {
+        return vb;
+    }
+    else
+    {
+        return ref<vertices_buffer>();
+    }
+}
+
 boole vulkan_runtime::register_pipeline(const pipeline_desc& desc)
 {
     auto w_ctx = get_window_context(desc._window_name);
@@ -774,28 +809,6 @@ boole vulkan_runtime::register_pipeline(const pipeline_desc& desc)
     return boole::True;
 }
 
-ref<pipeline> vulkan_runtime::get_pipeline(const string& pipeline_name)
-{
-    ref<pipeline> ret;
-
-    if (!_pipeline_map_lock.wait_read())
-    {
-        return ret;
-    }
-    escape_function ef =
-        [=]() mutable
-        {
-            _pipeline_map_lock.read_release();
-        };
-
-    auto itr = _pipeline_map.find(pipeline_name);
-    if (itr != _pipeline_map.end())
-    {
-        ret = itr->second;
-    }
-    return ret;
-}
-
 boole vulkan_runtime::unregister_pipeline(const string& pipeline_name)
 {
     if (!_pipeline_map_lock.wait_write())
@@ -809,6 +822,26 @@ boole vulkan_runtime::unregister_pipeline(const string& pipeline_name)
     };
 
     return _pipeline_map.erase(pipeline_name);
+}
+
+boole vulkan_runtime::setup_vertices_buffer(const string& pipeline_name, ref<vertices_buffer> buffer)
+{
+    auto p = get_pipeline(pipeline_name);
+    if (p.empty())
+    {
+        return boole::False;
+    }
+    return p->setup_vertices_buffer(buffer);
+}
+
+boole vulkan_runtime::clear_vertices_buffer(const string& pipeline_name)
+{
+    auto p = get_pipeline(pipeline_name);
+    if (p.empty())
+    {
+        return boole::False;
+    }
+    return p->clear_vertices_buffer();
 }
 
 boole vulkan_runtime::load_pipeline_resource(const string& pipeline_name)

@@ -61,13 +61,19 @@ public:
 
     virtual ref<shader> build_shader(const shader_desc& desc) = 0;
 
+    // vertices buffer
+
+    virtual ref<vertices_buffer> build_vertices_buffer(const string& buffer_path) = 0;
+
     // pipeline
 
     virtual boole register_pipeline(const pipeline_desc& desc) = 0;
 
-    virtual ref<pipeline> get_pipeline(const string& pipeline_name) = 0;
-
     virtual boole unregister_pipeline(const string& pipeline_name) = 0;
+
+    virtual boole setup_vertices_buffer(const string& pipeline_name, ref<vertices_buffer> buffer) = 0;
+
+    virtual boole clear_vertices_buffer(const string& pipeline_name) = 0;
 
     virtual boole load_pipeline_resource(const string& pipeline_name) = 0;
 

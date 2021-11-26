@@ -3,7 +3,7 @@
 namespace gpx
 {
 
-mat4x1::mat4x1(
+_INLINE_ mat4x1::mat4x1(
     f32 v11,
     f32 v21,
     f32 v31,
@@ -16,38 +16,38 @@ mat4x1::mat4x1(
 {
 }
 
-mat4x1::mat4x1(const mat4x1& rhs) :
+_INLINE_ mat4x1::mat4x1(const mat4x1& rhs) :
     _data(rhs._data)
 {
 }
 
-mat4x1& mat4x1::operator =(const mat4x1& rhs)
+_INLINE_ mat4x1& mat4x1::operator =(const mat4x1& rhs)
 {
     _data = rhs._data;
     return *this;
 }
 
-f32 mat4x1::r1() const
+_INLINE_ f32 mat4x1::r1() const
 {
     return _data._r1;
 }
 
-f32 mat4x1::r2() const
+_INLINE_ f32 mat4x1::r2() const
 {
     return _data._r2;
 }
 
-f32 mat4x1::r3() const
+_INLINE_ f32 mat4x1::r3() const
 {
     return _data._r3;
 }
 
-f32 mat4x1::r4() const
+_INLINE_ f32 mat4x1::r4() const
 {
     return _data._r4;
 }
 
-vec4 mat4x1::c1() const
+_INLINE_ vec4 mat4x1::c1() const
 {
     return vec4(
         _data._r1,

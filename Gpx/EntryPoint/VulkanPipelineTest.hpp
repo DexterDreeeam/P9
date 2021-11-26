@@ -24,8 +24,8 @@ void vulkan_pipeline_test()
     // build shader
     vector<string> vertex_shader_files_found;
     vector<string> fragment_shader_files_found;
-    string vert_shader_file_name = "test1.vert.spv";
-    string frag_shader_file_name = "test1.frag.spv";
+    string vert_shader_file_name = "test2.vert.spv";
+    string frag_shader_file_name = "test2.frag.spv";
     vertex_shader_files_found = search_files(
         "../",
         [&](const string& path)
@@ -67,6 +67,7 @@ void vulkan_pipeline_test()
     gpx::pipeline_desc pipeline_desc;
     pipeline_desc._window_name = "Hello Pavilion Nine";
     pipeline_desc._pipeline_name = "Pavilion Nine Test Pipeline";
+    pipeline_desc._vertex_type = gpx::vertex_pos_color::type();
     pipeline_desc._shaders.push_back(vert_shader);
     pipeline_desc._shaders.push_back(frag_shader);
     checker = rt->register_pipeline(pipeline_desc);
@@ -74,6 +75,14 @@ void vulkan_pipeline_test()
 
     vert_shader->unload();
     frag_shader->unload();
+
+    // build vertices buffer
+    auto vertices_buf = rt->build_vertices_buffer("");
+    checker = vertices_buf.has_value();
+    assert(checker);
+
+    checker = rt->setup_vertices_buffer("Pavilion Nine Test Pipeline", vertices_buf);
+    assert(checker);
 
     // load pipeline resource
     checker = rt->load_pipeline_resource("Pavilion Nine Test Pipeline");
@@ -96,6 +105,9 @@ void vulkan_pipeline_test()
     assert(checker);
 
     checker = rt->unload_pipeline_resource("Pavilion Nine Test Pipeline");
+    assert(checker);
+
+    checker = rt->clear_vertices_buffer("Pavilion Nine Test Pipeline");
     assert(checker);
 
     // release resources

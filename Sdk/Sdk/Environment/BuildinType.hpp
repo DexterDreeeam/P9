@@ -47,7 +47,7 @@ const f64 f64_pos_max = (1.0e60);
 const f64 f64_epsilon = (1.0e-5);
 const f64 f64_pi = (3.1415926535897932384626433832795);
 
-#define class_offset(cls, ele)            reinterpret_cast<unsigned long long>(&(reinterpret_cast<cls*>(nullptr)->ele))
+#define class_offset(cls, ele)            reinterpret_cast<unsigned long long>(&(reinterpret_cast<cls*>((void*)nullptr)->ele))
 #define pointer_convert(p, offset, newp)  reinterpret_cast<newp>(const_cast<char*>(reinterpret_cast<const char*>(p)) + (s64(offset)))
 
 typedef struct boole

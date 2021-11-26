@@ -68,9 +68,9 @@ union vec3_data
 class vec3
 {
 public:
-    explicit vec3(f32 x = 0, f32 y = 0, f32 z = 0);
+    vec3(f32 x = 0, f32 y = 0, f32 z = 0);
 
-    explicit vec3(const vec2& vc2, f32 z = 0);
+    vec3(const vec2& vc2, f32 z = 0);
 
     vec3(f32 x, const vec2& vc2);
 

@@ -6,13 +6,21 @@
 namespace gpx
 {
 
+static void setup_vertex_input_desc(
+    vertex_type vertexType,
+    vector<VkVertexInputBindingDescription>& binding_vec,
+    vector<VkVertexInputAttributeDescription>& attribute_vec);
+
 vulkan_pipeline::vulkan_pipeline(obs<vulkan_window_context> w_ctx) :
     _window_ctx(w_ctx),
     _layout(nullptr),
     _render_pass(nullptr),
     _pipeline(nullptr),
     _frame_buffer_vec(),
-    _command_buffer_vec()
+    _command_buffer_vec(),
+    _vertices_buffers(),
+    _vk_vertices_buffers(),
+    _vk_memory_vec()
 {
 }
 
@@ -77,11 +85,14 @@ boole vulkan_pipeline::init(const pipeline_desc& desc)
 
     // pipeline vertex input
     VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
+    vector<VkVertexInputBindingDescription> binding_vec;
+    vector<VkVertexInputAttributeDescription> attribute_vec;
+    setup_vertex_input_desc(desc._vertex_type, binding_vec, attribute_vec);
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputInfo.vertexBindingDescriptionCount = 0;
-    vertexInputInfo.pVertexBindingDescriptions = nullptr;
-    vertexInputInfo.vertexAttributeDescriptionCount = 0;
-    vertexInputInfo.pVertexAttributeDescriptions = nullptr;
+    vertexInputInfo.vertexBindingDescriptionCount = binding_vec.size();
+    vertexInputInfo.pVertexBindingDescriptions = binding_vec.data();
+    vertexInputInfo.vertexAttributeDescriptionCount = attribute_vec.size();
+    vertexInputInfo.pVertexAttributeDescriptions = attribute_vec.data();
 
     VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
     inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -255,52 +266,6 @@ boole vulkan_pipeline::init(const pipeline_desc& desc)
         return boole::False;
     }
 
-    return boole::True;
-}
-
-boole vulkan_pipeline::uninit()
-{
-    auto w_ctx = _window_ctx.try_ref();
-    if (w_ctx.empty())
-    {
-        return boole::False;
-    }
-    if (_pipeline)
-    {
-        vkDestroyPipeline(w_ctx->_logical_device, _pipeline, nullptr);
-        _pipeline = nullptr;
-    }
-    if (_render_pass)
-    {
-        vkDestroyRenderPass(w_ctx->_logical_device, _render_pass, nullptr);
-        _render_pass = nullptr;
-    }
-    if (_layout)
-    {
-        vkDestroyPipelineLayout(w_ctx->_logical_device, _layout, nullptr);
-        _layout = nullptr;
-    }
-    return boole::True;
-}
-
-boole vulkan_pipeline::load_resource()
-{
-    if (!_pipeline || !_render_pass || !_layout)
-    {
-        return boole::False;
-    }
-
-    if (_frame_buffer_vec.size() > 0 || _command_buffer_vec.size() > 0)
-    {
-        return boole::False;
-    }
-
-    auto w_ctx = _window_ctx.try_ref();
-    if (w_ctx.empty())
-    {
-        return boole::False;
-    }
-
     s64 image_count = w_ctx->_image_view_vec.size();
     VkCommandBufferAllocateInfo allocInfo = {};
 
@@ -320,7 +285,8 @@ boole vulkan_pipeline::load_resource()
         if (vkCreateFramebuffer(
                 w_ctx->_logical_device, &framebufferInfo, nullptr, &fb) != VK_SUCCESS)
         {
-            goto L_error;
+            uninit();
+            return boole::False;
         }
         _frame_buffer_vec.push_back(fb);
     }
@@ -335,10 +301,126 @@ boole vulkan_pipeline::load_resource()
             w_ctx->_logical_device, &allocInfo, _command_buffer_vec.data()) != VK_SUCCESS)
     {
         _command_buffer_vec.clear();
-        goto L_error;
+        uninit();
+        return boole::False;
+    }
+
+    return boole::True;
+}
+
+boole vulkan_pipeline::uninit()
+{
+    auto w_ctx = _window_ctx.try_ref();
+    if (w_ctx.empty())
+    {
+        return boole::False;
+    }
+    if (_command_buffer_vec.size())
+    {
+        vkFreeCommandBuffers(
+            w_ctx->_logical_device,
+            w_ctx->_command_pool,
+            _command_buffer_vec.size(),
+            _command_buffer_vec.data());
+        _command_buffer_vec.clear();
+    }
+    while (_frame_buffer_vec.size())
+    {
+        vkDestroyFramebuffer(w_ctx->_logical_device, _frame_buffer_vec.back(), nullptr);
+        _frame_buffer_vec.pop_back();
+    }
+    if (_pipeline)
+    {
+        vkDestroyPipeline(w_ctx->_logical_device, _pipeline, nullptr);
+        _pipeline = nullptr;
+    }
+    if (_render_pass)
+    {
+        vkDestroyRenderPass(w_ctx->_logical_device, _render_pass, nullptr);
+        _render_pass = nullptr;
+    }
+    if (_layout)
+    {
+        vkDestroyPipelineLayout(w_ctx->_logical_device, _layout, nullptr);
+        _layout = nullptr;
+    }
+    return boole::True;
+}
+
+boole vulkan_pipeline::setup_vertices_buffer(ref<vertices_buffer> vertices_buffer)
+{
+    _vertices_buffers.push_back(vertices_buffer);
+    return boole::True;
+}
+
+boole vulkan_pipeline::clear_vertices_buffer()
+{
+    _vertices_buffers.clear();
+    return boole::True;
+}
+
+boole vulkan_pipeline::load_resource()
+{
+    if (!_pipeline || !_render_pass || !_layout || _frame_buffer_vec.size() == 0 || _command_buffer_vec.size() == 0)
+    {
+        return boole::False;
+    }
+
+    auto w_ctx = _window_ctx.try_ref();
+    if (w_ctx.empty())
+    {
+        return boole::False;
+    }
+
+    auto logical_device = w_ctx->_logical_device;
+
+    for (s64 buf_idx = 0; buf_idx < _vertices_buffers.size(); ++buf_idx)
+    {
+        VkBufferCreateInfo bufferInfo{};
+        bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+        bufferInfo.size = _vertices_buffers[buf_idx]->vertices_data_size();
+        bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+        bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+        VkBuffer vk_buffer;
+        if (vkCreateBuffer(logical_device, &bufferInfo, nullptr, &vk_buffer) != VK_SUCCESS)
+        {
+            unload_resource();
+            return boole::False;
+        }
+        _vk_vertices_buffers.push_back(vk_buffer);
+
+        VkMemoryRequirements memRequirements;
+        vkGetBufferMemoryRequirements(logical_device, vk_buffer, &memRequirements);
+
+        VkMemoryAllocateInfo allocInfo{};
+        allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+        allocInfo.allocationSize = memRequirements.size;
+        allocInfo.memoryTypeIndex = get_vk_memory_type(
+            memRequirements, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+        VkDeviceMemory mem;
+        if (vkAllocateMemory(logical_device, &allocInfo, nullptr, &mem) != VK_SUCCESS)
+        {
+            unload_resource();
+            return boole::False;
+        }
+        _vk_memory_vec.push_back(mem);
+
+        if (vkBindBufferMemory(logical_device, vk_buffer, mem, 0) != VK_SUCCESS)
+        {
+            unload_resource();
+            return boole::False;
+        }
+
+        void* data;
+        vkMapMemory(logical_device, mem, 0, bufferInfo.size, 0, &data);
+        memory::copy(_vertices_buffers[buf_idx]->vertex_data(), data, bufferInfo.size);
+        vkUnmapMemory(logical_device, mem);
     }
 
     // record command buffer
+    s64 image_count = w_ctx->_image_view_vec.size();
     for (s64 i = 0; i < image_count; ++i)
     {
         VkCommandBufferBeginInfo beginInfo = {};
@@ -361,9 +443,17 @@ boole vulkan_pipeline::load_resource()
         renderPassInfo.clearValueCount = 1;
         renderPassInfo.pClearValues = &clearColor;
 
+        vector<VkDeviceSize> offsets;
+        offsets.resize(_vertices_buffers.size(), 0);
+        s64 vertices_count = 0;
+        for (auto buf : _vertices_buffers)
+        {
+            vertices_count += buf->vertex_count();
+        }
         vkCmdBeginRenderPass(_command_buffer_vec[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
         vkCmdBindPipeline(_command_buffer_vec[i], VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline);
-        vkCmdDraw(_command_buffer_vec[i], 3, 1, 0, 0);
+        vkCmdBindVertexBuffers(_command_buffer_vec[i], 0, _vertices_buffers.size(), _vk_vertices_buffers.data(), offsets.data());
+        vkCmdDraw(_command_buffer_vec[i], vertices_count, 1, 0, 0);
         vkCmdEndRenderPass(_command_buffer_vec[i]);
 
         if (vkEndCommandBuffer(_command_buffer_vec[i]) != VK_SUCCESS)
@@ -385,26 +475,22 @@ boole vulkan_pipeline::unload_resource()
     {
         return boole::False;
     }
-
     auto w_ctx = _window_ctx.try_ref();
     if (w_ctx.empty())
     {
         return boole::False;
     }
 
-    if (_command_buffer_vec.size())
+    auto logical_device = w_ctx->_logical_device;
+    while (_vk_memory_vec.size())
     {
-        vkFreeCommandBuffers(
-            w_ctx->_logical_device,
-            w_ctx->_command_pool,
-            _command_buffer_vec.size(),
-            _command_buffer_vec.data());
-        _command_buffer_vec.clear();
+        vkFreeMemory(logical_device, _vk_memory_vec.back(), nullptr);
+        _vk_memory_vec.pop_back();
     }
-    while (_frame_buffer_vec.size())
+    while (_vk_vertices_buffers.size())
     {
-        vkDestroyFramebuffer(w_ctx->_logical_device, _frame_buffer_vec.back(), nullptr);
-        _frame_buffer_vec.pop_back();
+        vkDestroyBuffer(logical_device, _vk_vertices_buffers.back(), nullptr);
+        _vk_vertices_buffers.pop_back();
     }
     return boole::True;
 }
@@ -473,6 +559,63 @@ boole vulkan_pipeline::render()
     counter = (counter + 1) % w_ctx->_swap_chain_image_vec.size();
     w_ctx->_fence_counter = counter;
     return boole::True;
+}
+
+s64 vulkan_pipeline::get_vk_memory_type(VkMemoryRequirements& requirements, VkFlags needed_properties)
+{
+    auto w_ctx = _window_ctx.try_ref();
+    if (w_ctx.empty())
+    {
+        return -1;
+    }
+    auto typeBits = requirements.memoryTypeBits;
+    VkPhysicalDeviceMemoryProperties memProperties;
+    vkGetPhysicalDeviceMemoryProperties(w_ctx->_physical_device, &memProperties);
+    for (s64 i = 0; i < memProperties.memoryTypeCount; ++i)
+    {
+        if ((typeBits & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & needed_properties) == needed_properties)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void setup_vertex_input_desc(
+    vertex_type vertexType,
+    vector<VkVertexInputBindingDescription>& binding_vec,
+    vector<VkVertexInputAttributeDescription>& attribute_vec)
+{
+    VkVertexInputBindingDescription binding_desc = {};
+    VkVertexInputAttributeDescription attribute_desc = {};
+    binding_vec.clear();
+    attribute_vec.clear();
+    switch (vertexType)
+    {
+    case vertex_pos_color::type():
+
+        binding_desc.binding = 0;
+        binding_desc.stride = sizeof(vertex_pos_color);
+        binding_desc.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+        binding_vec.push_back(binding_desc);
+
+        attribute_desc.binding = 0;
+        attribute_desc.location = 0;
+        attribute_desc.format = VK_FORMAT_R32G32B32_SFLOAT;
+        attribute_desc.offset = class_offset(vertex_pos_color, _pos);
+        attribute_vec.push_back(attribute_desc);
+
+        attribute_desc.binding = 0;
+        attribute_desc.location = 1;
+        attribute_desc.format = VK_FORMAT_R32G32B32_SFLOAT;
+        attribute_desc.offset = class_offset(vertex_pos_color, _color);
+        attribute_vec.push_back(attribute_desc);
+
+        break;
+    default:
+        assert(0);
+        break;
+    }
 }
 
 }

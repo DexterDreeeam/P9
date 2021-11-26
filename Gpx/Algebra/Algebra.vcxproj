@@ -12,26 +12,27 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Interface.hpp" />
-    <ClInclude Include="Mat1x1.hpp" />
-    <ClInclude Include="Mat1x2.hpp" />
-    <ClInclude Include="Mat1x3.hpp" />
-    <ClInclude Include="Mat1x4.hpp" />
-    <ClInclude Include="Mat2x1.hpp" />
-    <ClInclude Include="Mat2x2.hpp" />
-    <ClInclude Include="Mat2x3.hpp" />
-    <ClInclude Include="Mat2x4.hpp" />
-    <ClInclude Include="Mat3x1.hpp" />
-    <ClInclude Include="Mat3x2.hpp" />
-    <ClInclude Include="Mat3x3.hpp" />
-    <ClInclude Include="Mat3x4.hpp" />
-    <ClInclude Include="Mat4x1.hpp" />
-    <ClInclude Include="Mat4x2.hpp" />
-    <ClInclude Include="Mat4x3.hpp" />
-    <ClInclude Include="Mat4x4.hpp" />
+    <ClInclude Include="Mat\Mat1x1.hpp" />
+    <ClInclude Include="Mat\Mat1x2.hpp" />
+    <ClInclude Include="Mat\Mat1x3.hpp" />
+    <ClInclude Include="Mat\Mat1x4.hpp" />
+    <ClInclude Include="Mat\Mat2x1.hpp" />
+    <ClInclude Include="Mat\Mat2x2.hpp" />
+    <ClInclude Include="Mat\Mat2x3.hpp" />
+    <ClInclude Include="Mat\Mat2x4.hpp" />
+    <ClInclude Include="Mat\Mat3x1.hpp" />
+    <ClInclude Include="Mat\Mat3x2.hpp" />
+    <ClInclude Include="Mat\Mat3x3.hpp" />
+    <ClInclude Include="Mat\Mat3x4.hpp" />
+    <ClInclude Include="Mat\Mat4x1.hpp" />
+    <ClInclude Include="Mat\Mat4x2.hpp" />
+    <ClInclude Include="Mat\Mat4x3.hpp" />
+    <ClInclude Include="Mat\Mat4x4.hpp" />
     <ClInclude Include="MatMultiplication.hpp" />
-    <ClInclude Include="Vec2.hpp" />
-    <ClInclude Include="Vec3.hpp" />
-    <ClInclude Include="Vec4.hpp" />
+    <ClInclude Include="Vec\Vec2.hpp" />
+    <ClInclude Include="Vec\Vec3.hpp" />
+    <ClInclude Include="Vec\Vec4.hpp" />
+    <ClInclude Include="Vertex\Vertex.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Implementation\Mat1x1_Implementation.inl" />
@@ -50,6 +51,7 @@
     <None Include="Implementation\Mat4x2_Implementation.inl" />
     <None Include="Implementation\Mat4x3_Implementation.inl" />
     <None Include="Implementation\Mat4x4_Implementation.inl" />
+    <None Include="Implementation\MatMultiplication_Implementation.inl" />
     <None Include="Implementation\Vec2_Implementation.inl" />
     <None Include="Implementation\Vec3_Implementation.inl" />
     <None Include="Implementation\Vec4_Implementation.inl" />

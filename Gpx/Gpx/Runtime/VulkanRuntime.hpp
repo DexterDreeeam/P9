@@ -64,11 +64,15 @@ public:
 
     virtual ref<shader> build_shader(const shader_desc& desc) override;
 
+    virtual ref<vertices_buffer> build_vertices_buffer(const string& buffer_path) override;
+
     virtual boole register_pipeline(const pipeline_desc& desc) override;
 
-    virtual ref<pipeline> get_pipeline(const string& pipeline_name) override;
-
     virtual boole unregister_pipeline(const string& pipeline_name) override;
+
+    virtual boole setup_vertices_buffer(const string& pipeline_name, ref<vertices_buffer> buffer) override;
+
+    virtual boole clear_vertices_buffer(const string& pipeline_name) override;
 
     virtual boole load_pipeline_resource(const string& pipeline_name) override;
 
@@ -82,6 +86,8 @@ private:
     VkInstance get_vk_instance() { return *_instance.get(); }
 
     ref<vulkan_window_context> get_window_context(const string& window_name);
+
+    ref<pipeline> get_pipeline(const string& pipeline_name);
 
     boole window_start_callback(const string& window_name);
 
