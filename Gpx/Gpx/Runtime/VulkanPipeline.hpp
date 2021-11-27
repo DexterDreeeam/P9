@@ -29,6 +29,12 @@ public:
     virtual boole render() override;
 
 private:
+    boole setup_vk_buffer(
+        sz_t size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
+        VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+
+    boole copy_vk_buffer(const void* data, VkBuffer device_buf, sz_t size);
+
     s64 get_vk_memory_type(VkMemoryRequirements& requirements, VkFlags needed_properties);
 
 private:
@@ -43,7 +49,7 @@ private:
         ref<vertices_buffer>
     >                           _vertices_buffers;
     vector<VkBuffer>            _vk_vertices_buffers;
-    vector<VkDeviceMemory>      _vk_memory_vec;
+    vector<VkDeviceMemory>      _vk_vertices_memories;
 };
 
 }

@@ -296,6 +296,7 @@ boole vulkan_runtime::build_device_hardware_resource(VkPhysicalDevice physical_d
     // find right queue family
     // find right queue index
     // create logical device
+    // create command pool
 
     sz_t queue_family_count = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(physical_device, (uint32_t*)&queue_family_count, nullptr);
@@ -422,13 +423,22 @@ boole vulkan_runtime::build_device_hardware_resource(VkPhysicalDevice physical_d
         return boole::False;
     }
 
-    VkCommandPool cp;
+    VkCommandPool render_cp;
+    VkCommandPool transfer_cp;
     VkCommandPoolCreateInfo poolInfo = {};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    poolInfo.queueFamilyIndex = render_queue_family_idx;
     poolInfo.flags = 0;
-    if (vkCreateCommandPool(logical_device, &poolInfo, nullptr, &cp) != VK_SUCCESS)
+
+    poolInfo.queueFamilyIndex = render_queue_family_idx;
+    if (vkCreateCommandPool(logical_device, &poolInfo, nullptr, &render_cp) != VK_SUCCESS)
     {
+        vkDestroyDevice(logical_device, nullptr);
+        return boole::False;
+    }
+    poolInfo.queueFamilyIndex = transfer_queue_family_idx;
+    if (vkCreateCommandPool(logical_device, &poolInfo, nullptr, &transfer_cp) != VK_SUCCESS)
+    {
+        vkDestroyCommandPool(logical_device, render_cp, nullptr);
         vkDestroyDevice(logical_device, nullptr);
         return boole::False;
     }
@@ -443,13 +453,16 @@ boole vulkan_runtime::build_device_hardware_resource(VkPhysicalDevice physical_d
     vkGetDeviceQueue(logical_device, transfer_queue_family_idx, transfer_queue_family_queue_idx, &w_ctx->_transfer_queue);
     vkGetDeviceQueue(logical_device, present_queue_family_idx, present_queue_family_queue_idx, &w_ctx->_present_queue);
 
-    w_ctx->_command_pool = cp;
+    w_ctx->_render_command_pool = render_cp;
+    w_ctx->_transfer_command_pool = transfer_cp;
 
     return boole::True;
 }
 
 boole vulkan_runtime::build_device_image_resource(ref<vulkan_window_context> w_ctx)
 {
+    AUTO_TRACE;
+
     VkSurfaceKHR surface = w_ctx->_window.ref_of<glfw_window>()->_surface;
 
     VkSurfaceCapabilitiesKHR surfaceCapabilities;
@@ -634,6 +647,7 @@ boole vulkan_runtime::build_device_image_resource(ref<vulkan_window_context> w_c
 boole vulkan_runtime::clear_device_resource(ref<vulkan_window_context> w_ctx)
 {
     AUTO_TRACE;
+
     while (w_ctx->_image_available_sema_vec.size())
     {
         vkDestroySemaphore(w_ctx->_logical_device, w_ctx->_image_available_sema_vec.back(), nullptr);
@@ -662,10 +676,15 @@ boole vulkan_runtime::clear_device_resource(ref<vulkan_window_context> w_ctx)
         vkDestroySwapchainKHR(w_ctx->_logical_device, w_ctx->_swap_chain, nullptr);
         w_ctx->_swap_chain = nullptr;
     }
-    if (w_ctx->_command_pool)
+    if (w_ctx->_render_command_pool)
     {
-        vkDestroyCommandPool(w_ctx->_logical_device, w_ctx->_command_pool, nullptr);
-        w_ctx->_command_pool = nullptr;
+        vkDestroyCommandPool(w_ctx->_logical_device, w_ctx->_render_command_pool, nullptr);
+        w_ctx->_render_command_pool = nullptr;
+    }
+    if (w_ctx->_transfer_command_pool)
+    {
+        vkDestroyCommandPool(w_ctx->_logical_device, w_ctx->_transfer_command_pool, nullptr);
+        w_ctx->_transfer_command_pool = nullptr;
     }
     if (w_ctx->_logical_device)
     {
@@ -748,6 +767,8 @@ ref<window> vulkan_runtime::get_window(const string& window_name)
 
 ref<shader> vulkan_runtime::build_shader(const shader_desc& desc)
 {
+    AUTO_TRACE;
+
     auto w_ctx = get_window_context(desc._window_name);
     if (w_ctx.empty())
     {
@@ -764,6 +785,8 @@ ref<shader> vulkan_runtime::build_shader(const shader_desc& desc)
 
 boole vulkan_runtime::register_pipeline(const pipeline_desc& desc)
 {
+    AUTO_TRACE;
+
     auto w_ctx = get_window_context(desc._window_name);
     if (w_ctx.empty())
     {
@@ -798,6 +821,8 @@ boole vulkan_runtime::register_pipeline(const pipeline_desc& desc)
 
 boole vulkan_runtime::unregister_pipeline(const string& pipeline_name)
 {
+    AUTO_TRACE;
+
     if (!_pipeline_map_lock.wait_write())
     {
         return boole::False;
@@ -813,6 +838,8 @@ boole vulkan_runtime::unregister_pipeline(const string& pipeline_name)
 
 boole vulkan_runtime::setup_vertices_buffer(const string& pipeline_name, ref<vertices_buffer> buffer)
 {
+    AUTO_TRACE;
+
     auto p = get_pipeline(pipeline_name);
     if (p.empty())
     {
@@ -823,6 +850,8 @@ boole vulkan_runtime::setup_vertices_buffer(const string& pipeline_name, ref<ver
 
 boole vulkan_runtime::clear_vertices_buffer(const string& pipeline_name)
 {
+    AUTO_TRACE;
+
     auto p = get_pipeline(pipeline_name);
     if (p.empty())
     {
@@ -833,6 +862,8 @@ boole vulkan_runtime::clear_vertices_buffer(const string& pipeline_name)
 
 boole vulkan_runtime::load_pipeline_resource(const string& pipeline_name)
 {
+    AUTO_TRACE;
+
     auto p = get_pipeline(pipeline_name);
     if (p.empty())
     {
@@ -844,6 +875,8 @@ boole vulkan_runtime::load_pipeline_resource(const string& pipeline_name)
 
 boole vulkan_runtime::unload_pipeline_resource(const string& pipeline_name)
 {
+    AUTO_TRACE;
+
     auto p = get_pipeline(pipeline_name);
     if (p.empty())
     {
@@ -855,6 +888,8 @@ boole vulkan_runtime::unload_pipeline_resource(const string& pipeline_name)
 
 boole vulkan_runtime::render(const string& pipeline_name)
 {
+    AUTO_TRACE;
+
     auto p = get_pipeline(pipeline_name);
     if (p.empty())
     {
@@ -866,6 +901,8 @@ boole vulkan_runtime::render(const string& pipeline_name)
 
 boole vulkan_runtime::wait_render_complete(const string& window_name)
 {
+    AUTO_TRACE;
+
     auto w_ctx = get_window_context(window_name);
     if (w_ctx.empty())
     {

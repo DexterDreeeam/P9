@@ -28,7 +28,8 @@ struct vulkan_window_context
     vector<VkImage>            _swap_chain_image_vec;
     vector<VkImageView>        _image_view_vec;
 
-    VkCommandPool              _command_pool;
+    VkCommandPool              _render_command_pool;
+    VkCommandPool              _transfer_command_pool;
 
     vector<VkSemaphore>        _image_available_sema_vec;
     vector<VkSemaphore>        _render_complete_sema_vec;
