@@ -14,7 +14,6 @@
     <ClInclude Include="Interface.hpp" />
     <ClInclude Include="Runtime\Interface.hpp" />
     <ClInclude Include="Runtime\Pipeline.hpp" />
-    <ClInclude Include="Runtime\PipelineBuffer.hpp" />
     <ClInclude Include="Runtime\Runtime.hpp" />
     <ClInclude Include="Runtime\Shader.hpp" />
     <ClInclude Include="Runtime\VulkanPipeline.hpp" />
@@ -27,7 +26,6 @@
   <ItemGroup>
     <ClCompile Include="Runtime\Implementation\Runtime.cpp" />
     <ClCompile Include="Runtime\Implementation\VulkanPipeline.cpp" />
-    <ClCompile Include="Runtime\Implementation\PipelineBuffer.cpp" />
     <ClCompile Include="Runtime\Implementation\VulkanRuntime.cpp" />
     <ClCompile Include="Runtime\Implementation\VulkanShader.cpp" />
     <ClCompile Include="Window\Implementation\GlfwWindow.cpp" />

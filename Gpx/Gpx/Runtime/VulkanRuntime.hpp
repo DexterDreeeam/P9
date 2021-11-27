@@ -64,8 +64,6 @@ public:
 
     virtual ref<shader> build_shader(const shader_desc& desc) override;
 
-    virtual ref<vertices_buffer> build_vertices_buffer(const string& buffer_path) override;
-
     virtual boole register_pipeline(const pipeline_desc& desc) override;
 
     virtual boole unregister_pipeline(const string& pipeline_name) override;

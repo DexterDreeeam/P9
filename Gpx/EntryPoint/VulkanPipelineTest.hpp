@@ -77,7 +77,18 @@ void vulkan_pipeline_test()
     frag_shader->unload();
 
     // build vertices buffer
-    auto vertices_buf = rt->build_vertices_buffer("");
+    string vertices_file_name = "test2.p9vb";
+    auto vertices_files = search_files(
+        "../",
+        [&](const string& path)
+        {
+            return
+                path.size() >= vertices_file_name.size() &&
+                path.substr(path.size() - vertices_file_name.size()) == vertices_file_name;
+        });
+    assert(vertices_files.size());
+
+    auto vertices_buf = gpx::vertices_buffer::load(vertices_files[0]);
     checker = vertices_buf.has_value();
     assert(checker);
 

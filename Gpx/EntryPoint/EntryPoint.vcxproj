@@ -20,6 +20,7 @@
   <ItemGroup>
     <None Include="Shader\Vulkan\Glsl\test2.frag" />
     <None Include="Shader\Vulkan\Glsl\test2.vert" />
+    <None Include="Vertices\test2.vertices.json" />
     <None Include="_compile_windows_vulkan_shaders.ps1" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

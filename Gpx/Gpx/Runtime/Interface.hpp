@@ -7,6 +7,5 @@
 #include "../Window/Interface.hpp"
 
 #include "Shader.hpp"
-#include "PipelineBuffer.hpp"
 #include "Pipeline.hpp"
 #include "Runtime.hpp"

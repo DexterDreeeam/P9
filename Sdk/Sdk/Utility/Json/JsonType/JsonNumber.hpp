@@ -112,6 +112,14 @@ public:
         return !rst;
     }
 
+    f32 as_f32() const
+    {
+        f32 rst = 0.0;
+        rst += (f32)_integer;
+        rst += (f32)_fraction / math::power(10, json_float_precision);
+        return _sign ? rst : -rst;
+    }
+
 private:
     s64 abs_compare(const number& rhs) const noexcept
     {

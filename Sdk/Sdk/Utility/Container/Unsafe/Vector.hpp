@@ -695,6 +695,11 @@ public:
         }
     }
 
+    void resize(s64 new_sz) noexcept
+    {
+        resize(new_sz, Ty());
+    }
+
     void resize(s64 new_sz, const Ty& val) noexcept
     {
         assert(sz >= 0 && sz <= cap);

@@ -12,7 +12,6 @@
     <ClInclude Include="Runtime\Pipeline.hpp" />
     <ClInclude Include="Runtime\Shader.hpp" />
     <ClInclude Include="Runtime\VulkanShader.hpp" />
-    <ClInclude Include="Runtime\PipelineBuffer.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Window\Implementation\GlfwWindow.cpp" />
@@ -20,6 +19,5 @@
     <ClCompile Include="Runtime\Implementation\VulkanRuntime.cpp" />
     <ClCompile Include="Runtime\Implementation\VulkanPipeline.cpp" />
     <ClCompile Include="Runtime\Implementation\VulkanShader.cpp" />
-    <ClCompile Include="Runtime\Implementation\PipelineBuffer.cpp" />
   </ItemGroup>
 </Project>

@@ -762,19 +762,6 @@ ref<shader> vulkan_runtime::build_shader(const shader_desc& desc)
     return r_shader;
 }
 
-ref<vertices_buffer> vulkan_runtime::build_vertices_buffer(const string& buffer_path)
-{
-    auto vb = ref<vertices_buffer_pos_color>::new_instance();
-    if (vb->setup(buffer_path))
-    {
-        return vb;
-    }
-    else
-    {
-        return ref<vertices_buffer>();
-    }
-}
-
 boole vulkan_runtime::register_pipeline(const pipeline_desc& desc)
 {
     auto w_ctx = get_window_context(desc._window_name);

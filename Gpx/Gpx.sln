@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EntryPoint", "EntryPoint\En
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Algebra", "Algebra\Algebra.vcxproj", "{E6F9C2A4-4A6F-4CFC-B625-9FFB7E757E2B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GpxTool", "GpxTool\GpxTool.vcxproj", "{C0B15640-1EBA-434F-8EF9-2E80B6E2E1FD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		debug|x64 = debug|x64
@@ -27,6 +29,10 @@ Global
 		{E6F9C2A4-4A6F-4CFC-B625-9FFB7E757E2B}.debug|x64.Build.0 = debug|x64
 		{E6F9C2A4-4A6F-4CFC-B625-9FFB7E757E2B}.release|x64.ActiveCfg = release|x64
 		{E6F9C2A4-4A6F-4CFC-B625-9FFB7E757E2B}.release|x64.Build.0 = release|x64
+		{C0B15640-1EBA-434F-8EF9-2E80B6E2E1FD}.debug|x64.ActiveCfg = debug|x64
+		{C0B15640-1EBA-434F-8EF9-2E80B6E2E1FD}.debug|x64.Build.0 = debug|x64
+		{C0B15640-1EBA-434F-8EF9-2E80B6E2E1FD}.release|x64.ActiveCfg = release|x64
+		{C0B15640-1EBA-434F-8EF9-2E80B6E2E1FD}.release|x64.Build.0 = release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

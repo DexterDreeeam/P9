@@ -154,7 +154,7 @@ boole file::uninit()
     }
 }
 
-boole file::output(const char* content, s64 write_len)
+boole file::output(const void* content, s64 write_len)
 {
     auto* ctx = pointer_convert(_ctx, 0, file_context*);
     assert(ctx);

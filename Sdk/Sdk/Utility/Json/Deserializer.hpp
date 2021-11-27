@@ -63,3 +63,28 @@ _INLINE_ ref<json_base> json_deserialize(const string& str)
 {
     return json_deserialize(str, 0, str.size());
 }
+
+_INLINE_ ref<json_base> json_deserialize_from_file(const string& path)
+{
+    string content = "";
+    char buf[1024];
+    file f;
+    s64 try_read_len = 512;
+    s64 len = try_read_len;
+    if (!f.init_input(path.data()))
+    {
+        return ref<json_base>();
+    }
+    escape_function ef =
+        [=]() mutable
+        {
+            f.uninit();
+        };
+    while (len == try_read_len)
+    {
+        f.input(buf, try_read_len, len);
+        buf[len] = 0;
+        content += buf;
+    }
+    return json_deserialize(content);
+}

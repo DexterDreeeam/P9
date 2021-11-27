@@ -28,7 +28,7 @@ public:
     boole uninit();
 
 public:
-    boole output(const char* content, s64 write_len);
+    boole output(const void* content, s64 write_len);
 
     boole output(const char* content);
 

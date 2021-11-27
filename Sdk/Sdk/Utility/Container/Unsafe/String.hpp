@@ -693,6 +693,24 @@ public:
         return boole::False;
     }
 
+    boole start_with(const string& str) const noexcept
+    {
+        if (size() < str.size())
+        {
+            return boole::False;
+        }
+        return substr(0, str.size()) == str;
+    }
+
+    boole end_with(const string& str) const noexcept
+    {
+        if (size() < str.size())
+        {
+            return boole::False;
+        }
+        return substr(size() - str.size()) == str;
+    }
+
     string reverse() const noexcept
     {
         string rst = "";
