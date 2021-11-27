@@ -4,7 +4,7 @@ s64 handle_convert(s64 argc, char** argv)
 {
     if (argc != 2)
     {
-        print("Parameter number error, refer to --help for more information\n");
+        print("Parameter number error, refer to [help] for more information\n");
         return -1;
     }
     string input_file = argv[0];
