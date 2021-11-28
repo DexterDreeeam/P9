@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Interface.hpp"
+#include "../../Algebra/Interface.hpp"
+#include "Shader.hpp"
 
 namespace gpx
 {
@@ -13,10 +14,32 @@ struct pipeline_desc
     vector<ref<shader>>     _shaders;
 };
 
+/*
+ * Uninit -> InitingOrUniniting -> Inited
+ *                                 Inited -> SetupInProgress
+ *                                 Inited <- SetupInProgress
+ *                                 Inited ---------------------> ResourceLoadingOrUnloading -> ResourceLoaded
+ *                                                                                             ResourceLoaded -> CommandSubmitting
+ *                                                                                             ResourceLoaded <- CommandSubmitting
+ *                                 Inited <--------------------- ResourceLoadingOrUnloading <- ResourceLoaded
+ * Uninit <- InitingOrUniniting <- Inited
+ */
+
+enum class pipeline_state : s64
+{
+    Uninit,
+    InitingOrUniniting,
+    Inited,
+    SetupInProgress,
+    ResourceLoadingOrUnloading,
+    ResourceLoaded,
+    CommandSubmitting,
+};
+
 class pipeline
 {
 public:
-    pipeline() = default;
+    pipeline();
 
     virtual ~pipeline() = default;
 
@@ -24,15 +47,21 @@ public:
 
     virtual boole uninit() = 0;
 
-    virtual boole setup_vertices_buffer(ref<vertices_buffer> vertices_buffer) = 0;
-
-    virtual boole clear_vertices_buffer() = 0;
+    virtual boole setup_vertices(const vector<string>& vertices_viewer_vec) = 0;
 
     virtual boole load_resource() = 0;
 
     virtual boole unload_resource() = 0;
 
     virtual boole render() = 0;
+
+protected:
+    pipeline_state state() const;
+
+    boole transfer_state(pipeline_state from, pipeline_state to);
+
+private:
+    atom<s64>   _state;
 };
 
 }

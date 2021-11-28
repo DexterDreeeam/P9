@@ -29,6 +29,7 @@ class vulkan_runtime : public runtime
 {
     friend class glfw_window;
     friend class vulkan_pipeline;
+    friend class vulkan_vertices_viewer;
 
 public:
     vulkan_runtime(const runtime_desc& desc);
@@ -45,21 +46,35 @@ public:
 
     virtual vector<string> list_device() override;
 
+    // window
+
     virtual ref<window> build_window(const window_desc& desc) override;
 
     virtual boole remove_window(const string& window_name) override;
 
     virtual ref<window> get_window(const string& window_name) override;
 
+    // shader
+
     virtual ref<shader> build_shader(const shader_desc& desc) override;
+
+    // vertices viewer
+
+    virtual boole register_vertices_viewer(const vertices_viewer_desc& desc) override;
+
+    virtual boole unregister_vertices_viewer(const string& vertices_viewer) override;
+
+    virtual boole load_vertices_viewer(const string& vertices_viewer) override;
+
+    virtual boole unload_vertices_viewer(const string& vertices_viewer) override;
+
+    // pipeline
 
     virtual boole register_pipeline(const pipeline_desc& desc) override;
 
     virtual boole unregister_pipeline(const string& pipeline_name) override;
 
-    virtual boole setup_vertices_buffer(const string& pipeline_name, ref<vertices_buffer> buffer) override;
-
-    virtual boole clear_vertices_buffer(const string& pipeline_name) override;
+    virtual boole setup_pipeline_vertices_viewer(const string& pipeline_name, const vector<string>& viewers) override;
 
     virtual boole load_pipeline_resource(const string& pipeline_name) override;
 
@@ -76,7 +91,9 @@ public:
 
     ref<vulkan_window_context> get_window_context(const string& window_name);
 
-    ref<pipeline> get_pipeline(const string& pipeline_name);
+    ref<vulkan_vertices_viewer> get_vertices_viewer(const string& vertices_viewer);
+
+    ref<vulkan_pipeline> get_pipeline(const string& pipeline_name);
 
     boole window_start_callback(const string& window_name);
 
@@ -99,7 +116,7 @@ private:
 
 private:
     runtime_desc                  _desc;
-    obs<runtime>                  _self;
+    obs<vulkan_runtime>           _self;
 
     // vulkan core
     vector<const char*>           _vec_validation_layer;

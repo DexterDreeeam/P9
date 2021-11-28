@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Interface.hpp"
+#include "../../../Sdk/Interface.hpp"
 
 namespace gpx
 {

@@ -1,6 +1,8 @@
 #pragma once
 
-#include "Interface.hpp"
+#include "Pipeline.hpp"
+#include "Shader.hpp"
+#include "VerticesViewer.hpp"
 
 namespace gpx
 {
@@ -19,9 +21,6 @@ struct runtime_desc
     _type   type;
     boole   debug_mode;
 };
-
-class pipeline;
-class shader;
 
 class runtime
 {
@@ -61,15 +60,23 @@ public:
 
     virtual ref<shader> build_shader(const shader_desc& desc) = 0;
 
+    // vertices
+
+    virtual boole register_vertices_viewer(const vertices_viewer_desc& desc) = 0;
+
+    virtual boole unregister_vertices_viewer(const string& vertices_viewer) = 0;
+
+    virtual boole load_vertices_viewer(const string& vertices_viewer) = 0;
+
+    virtual boole unload_vertices_viewer(const string& vertices_viewer) = 0;
+
     // pipeline
 
     virtual boole register_pipeline(const pipeline_desc& desc) = 0;
 
     virtual boole unregister_pipeline(const string& pipeline_name) = 0;
 
-    virtual boole setup_vertices_buffer(const string& pipeline_name, ref<vertices_buffer> buffer) = 0;
-
-    virtual boole clear_vertices_buffer(const string& pipeline_name) = 0;
+    virtual boole setup_pipeline_vertices_viewer(const string& pipeline_name, const vector<string>& viewers) = 0;
 
     virtual boole load_pipeline_resource(const string& pipeline_name) = 0;
 

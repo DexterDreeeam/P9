@@ -125,14 +125,14 @@ _INLINE_ boole vertices_buffer::write_binary(const string& path) const
             f.uninit();
         };
 
-    vertices_buffer_binary_header header;
+    vertices_buffer_header header;
     header.vertex_type = vertices_type();
     header.vertices_count = vertices_count();
     header.vertices_data_size = vertices_data_size();
     header.indices_count = vertex_indices_count();
     header.indices_data_size = vertex_indices_data_size();
 
-    if (!f.output(&header, sizeof(vertices_buffer_binary_header)))
+    if (!f.output(&header, sizeof(vertices_buffer_header)))
     {
         return boole::False;
     }
@@ -157,7 +157,7 @@ _INLINE_ ref<vertices_buffer> vertices_buffer::load_from_json(const string& path
     {
         return ref<vertices_buffer>();
     }
-    auto rst = ref<vertices_buffer>();
+    auto rst = ref<vertices_buffer>::new_instance();
     if (json.ref_of<json_object>()->index("vertex_type")->value() == "\"POS_COLOR\"")
     {
         if (rst->setup_vertex_pos_color(vertices_json, fn_alloc))
@@ -183,7 +183,7 @@ _INLINE_ ref<vertices_buffer> vertices_buffer::load_from_binary(const string& pa
         };
 
     s64 len;
-    vertices_buffer_binary_header header;
+    vertices_buffer_header header;
     f.input(&header, sizeof(header), len);
     if (len != sizeof(header))
     {
@@ -193,6 +193,11 @@ _INLINE_ ref<vertices_buffer> vertices_buffer::load_from_binary(const string& pa
     auto rst = ref<vertices_buffer>::new_instance();
     s64 space = header.vertices_data_size + header.indices_data_size;
     rst->_data = fn_alloc(space);
+    if (!rst->_data)
+    {
+        assert(0);
+        return ref<vertices_buffer>();
+    }
     f.input(rst->_data, space, len);
     if (len != space)
     {
@@ -219,6 +224,10 @@ _INLINE_ boole vertices_buffer::setup_vertex_pos_color(ref<json_base> json, Allo
     _vertex_idx_data_size = 0;
     _vertex_idx_offset = _vertices_data_size;
     _data = fn_alloc(_vertices_data_size + _vertex_idx_data_size);
+    if (!_data)
+    {
+        return boole::False;
+    }
     json_cursor cursor(json);
     for (s64 i = 0; i < _vertices_count; ++i)
     {
@@ -226,9 +235,9 @@ _INLINE_ boole vertices_buffer::setup_vertex_pos_color(ref<json_base> json, Allo
         p->_pos.x() = cursor[i]["position"][0].as_number().as_f32();
         p->_pos.y() = cursor[i]["position"][1].as_number().as_f32();
         p->_pos.z() = cursor[i]["position"][2].as_number().as_f32();
-        p->_pos.x() = cursor[i]["color"][0].as_number().as_f32();
-        p->_pos.y() = cursor[i]["color"][1].as_number().as_f32();
-        p->_pos.z() = cursor[i]["color"][2].as_number().as_f32();
+        p->_color.x() = cursor[i]["color"][0].as_number().as_f32();
+        p->_color.y() = cursor[i]["color"][1].as_number().as_f32();
+        p->_color.z() = cursor[i]["color"][2].as_number().as_f32();
     }
     return boole::True;
 }

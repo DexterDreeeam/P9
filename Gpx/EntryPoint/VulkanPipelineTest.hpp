@@ -74,7 +74,7 @@ void vulkan_pipeline_test()
     vert_shader->unload();
     frag_shader->unload();
 
-    // build vertices buffer
+    // vertices buffer
     string vertices_file_name = "test2.p9vb";
     auto vertices_files = search_files(
         "../",
@@ -86,14 +86,23 @@ void vulkan_pipeline_test()
         });
     assert(vertices_files.size());
 
-    auto vertices_buf = gpx::vertices_buffer::load(vertices_files[0]);
-    checker = vertices_buf.has_value();
+    gpx::vertices_viewer_desc vv_desc;
+    vv_desc._name = "test2 vertices 1";
+    vv_desc._file_path = vertices_files[0];
+
+    checker = rt->register_vertices_viewer(vv_desc);
     assert(checker);
 
-    checker = rt->setup_vertices_buffer("Pavilion Nine Test Pipeline", vertices_buf);
+    checker = rt->load_vertices_viewer("test2 vertices 1");
     assert(checker);
+
+    vector<string> vv_names;
+    vv_names.push_back("test2 vertices 1");
 
     // load pipeline resource
+    checker = rt->setup_pipeline_vertices_viewer("Pavilion Nine Test Pipeline", vv_names);
+    assert(checker);
+
     checker = rt->load_pipeline_resource("Pavilion Nine Test Pipeline");
     assert(checker);
 
@@ -101,7 +110,7 @@ void vulkan_pipeline_test()
     u64 start_tick = tick::elapse();
     while (1)
     {
-        if (tick::elapse() - start_tick >= 4000)
+        if (tick::elapse() - start_tick >= 2000)
         {
             break;
         }
@@ -116,11 +125,10 @@ void vulkan_pipeline_test()
     checker = rt->unload_pipeline_resource("Pavilion Nine Test Pipeline");
     assert(checker);
 
-    checker = rt->clear_vertices_buffer("Pavilion Nine Test Pipeline");
-    assert(checker);
-
     // release resources
     checker = rt->unregister_pipeline("Pavilion Nine Test Pipeline");
+    assert(checker);
+    checker = rt->unload_vertices_viewer("test2 vertices 1");
     assert(checker);
     checker = wnd->stop();
     assert(checker);

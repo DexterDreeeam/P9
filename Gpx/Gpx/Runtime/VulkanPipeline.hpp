@@ -19,9 +19,7 @@ public:
 
     virtual boole uninit() override;
 
-    virtual boole setup_vertices_buffer(ref<vertices_buffer> vertices_buffer) override;
-
-    virtual boole clear_vertices_buffer() override;
+    virtual boole setup_vertices(const vector<string>& vertices_viewer_vec) override;
 
     virtual boole load_resource() override;
 
@@ -30,28 +28,15 @@ public:
     virtual boole render() override;
 
 private:
-    boole setup_vk_buffer(
-        sz_t size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
-        VkBuffer& buffer, VkDeviceMemory& bufferMemory);
-
-    boole copy_vk_buffer(const void* data, VkBuffer device_buf, sz_t size);
-
-    s64 get_vk_memory_type(VkMemoryRequirements& requirements, VkFlags needed_properties);
-
-private:
-    obs<vulkan_runtime>         _rt;
-    obs<vulkan_window_context>  _window_ctx;
-    VkPipelineLayout            _layout;
-    VkRenderPass                _render_pass;
-    VkPipeline                  _pipeline;
-    vector<VkFramebuffer>       _frame_buffer_vec;
-    vector<VkCommandBuffer>     _command_buffer_vec;
-
-    vector<
-        ref<vertices_buffer>
-    >                           _vertices_buffers;
-    vector<VkBuffer>            _vk_vertices_buffers;
-    vector<VkDeviceMemory>      _vk_vertices_memories;
+    obs<vulkan_runtime>             _rt;
+    obs<vulkan_window_context>      _window_ctx;
+    VkPipelineLayout                _layout;
+    VkRenderPass                    _render_pass;
+    VkPipeline                      _pipeline;
+    vector<VkFramebuffer>           _frame_buffer_vec;
+    vector<VkCommandBuffer>         _command_buffer_vec;
+    vector<VkBuffer>                _vk_vertices_buffers;
+    vector<vertices_buffer_header>  _vertices_buffer_headers;
 };
 
 }

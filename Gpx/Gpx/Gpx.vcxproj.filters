@@ -22,5 +22,7 @@
     <ClCompile Include="Runtime\Implementation\VulkanPipeline.cpp" />
     <ClCompile Include="Runtime\Implementation\VulkanShader.cpp" />
     <ClCompile Include="Runtime\Implementation\VulkanVerticesViewer.cpp" />
+    <ClCompile Include="Runtime\Implementation\VerticesViewer.cpp" />
+    <ClCompile Include="Runtime\Implementation\Pipeline.cpp" />
   </ItemGroup>
 </Project>

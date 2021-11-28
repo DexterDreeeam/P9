@@ -3,6 +3,7 @@
 #include "../VulkanRuntime.hpp"
 #include "../VulkanPipeline.hpp"
 #include "../VulkanShader.hpp"
+#include "../VulkanVerticesViewer.hpp"
 #include "../../Window/GlfwWindow.hpp"
 
 namespace gpx
@@ -56,7 +57,7 @@ vulkan_runtime::~vulkan_runtime()
 void vulkan_runtime::setup_self(obs<runtime> obs_rt)
 {
     AUTO_TRACE;
-    _self = obs_rt;
+    _self = obs_rt.obs_of<vulkan_runtime>();
 }
 
 boole vulkan_runtime::init(const string& preferred_device_name)
@@ -204,9 +205,31 @@ ref<vulkan_window_context> vulkan_runtime::get_window_context(const string& wind
     return ref<vulkan_window_context>();
 }
 
-ref<pipeline> vulkan_runtime::get_pipeline(const string& pipeline_name)
+ref<vulkan_vertices_viewer> vulkan_runtime::get_vertices_viewer(const string& vertices_viewer)
 {
-    ref<pipeline> ret;
+    ref<vulkan_vertices_viewer> ret;
+
+    if (!_vertices_viewer_map_lock.wait_read())
+    {
+        return ret;
+    }
+    escape_function ef =
+        [=]() mutable
+    {
+        _vertices_viewer_map_lock.read_release();
+    };
+
+    auto itr = _vertices_viewer_map.find(vertices_viewer);
+    if (itr != _vertices_viewer_map.end())
+    {
+        ret = itr->second;
+    }
+    return ret;
+}
+
+ref<vulkan_pipeline> vulkan_runtime::get_pipeline(const string& pipeline_name)
+{
+    ref<vulkan_pipeline> ret;
 
     if (!_pipeline_map_lock.wait_read())
     {
@@ -835,6 +858,61 @@ ref<shader> vulkan_runtime::build_shader(const shader_desc& desc)
     return r_shader;
 }
 
+boole vulkan_runtime::register_vertices_viewer(const vertices_viewer_desc& desc)
+{
+    AUTO_TRACE;
+
+    auto r_vv = ref<vulkan_vertices_viewer>::new_instance(desc, _self);
+
+    if (!_vertices_viewer_map_lock.wait_write())
+    {
+        return boole::False;
+    }
+    escape_function ef =
+        [=]() mutable
+    {
+        _vertices_viewer_map_lock.write_release();
+    };
+
+    if (_vertices_viewer_map.find(desc._name) != _vertices_viewer_map.end())
+    {
+        // already has a same name pipeline
+        return boole::False;
+    }
+
+    _vertices_viewer_map[desc._name] = r_vv;
+    return boole::True;
+}
+
+boole vulkan_runtime::unregister_vertices_viewer(const string& vertices_viewer)
+{
+    AUTO_TRACE;
+
+    if (!_vertices_viewer_map_lock.wait_write())
+    {
+        return boole::False;
+    }
+    escape_function ef =
+        [=]() mutable
+    {
+        _vertices_viewer_map_lock.write_release();
+    };
+
+    return _vertices_viewer_map.erase(vertices_viewer);
+}
+
+boole vulkan_runtime::load_vertices_viewer(const string& vertices_viewer)
+{
+    auto r_vv = get_vertices_viewer(vertices_viewer);
+    return r_vv->load();
+}
+
+boole vulkan_runtime::unload_vertices_viewer(const string& vertices_viewer)
+{
+    auto r_vv = get_vertices_viewer(vertices_viewer);
+    return r_vv->unload();
+}
+
 boole vulkan_runtime::register_pipeline(const pipeline_desc& desc)
 {
     AUTO_TRACE;
@@ -888,28 +966,15 @@ boole vulkan_runtime::unregister_pipeline(const string& pipeline_name)
     return _pipeline_map.erase(pipeline_name);
 }
 
-boole vulkan_runtime::setup_vertices_buffer(const string& pipeline_name, ref<vertices_buffer> buffer)
+boole vulkan_runtime::setup_pipeline_vertices_viewer(const string& pipeline_name, const vector<string>& viewers)
 {
-    AUTO_TRACE;
-
     auto p = get_pipeline(pipeline_name);
     if (p.empty())
     {
         return boole::False;
     }
-    return p->setup_vertices_buffer(buffer);
-}
 
-boole vulkan_runtime::clear_vertices_buffer(const string& pipeline_name)
-{
-    AUTO_TRACE;
-
-    auto p = get_pipeline(pipeline_name);
-    if (p.empty())
-    {
-        return boole::False;
-    }
-    return p->clear_vertices_buffer();
+    return p->setup_vertices(viewers);
 }
 
 boole vulkan_runtime::load_pipeline_resource(const string& pipeline_name)

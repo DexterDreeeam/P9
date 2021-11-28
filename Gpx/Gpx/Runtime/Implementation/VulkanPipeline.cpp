@@ -1,4 +1,5 @@
 
+#include "../../../Algebra/Interface.hpp"
 #include "../VulkanPipeline.hpp"
 #include "../VulkanShader.hpp"
 #include "../VulkanRuntime.hpp"
@@ -19,9 +20,8 @@ vulkan_pipeline::vulkan_pipeline(obs<vulkan_runtime> rt, obs<vulkan_window_conte
     _pipeline(nullptr),
     _frame_buffer_vec(),
     _command_buffer_vec(),
-    _vertices_buffers(),
     _vk_vertices_buffers(),
-    _vk_vertices_memories()
+    _vertices_buffer_headers()
 {
 }
 
@@ -53,6 +53,10 @@ boole vulkan_pipeline::init(const pipeline_desc& desc)
         return boole::False;
     }
 
+    if (!transfer_state(pipeline_state::Uninit, pipeline_state::InitingOrUniniting))
+    {
+        return boole::False;
+    }
     auto logical_device = rt->get_vk_logical_device();
 
     // pipeline shader stage
@@ -318,6 +322,7 @@ boole vulkan_pipeline::init(const pipeline_desc& desc)
         return boole::False;
     }
 
+    transfer_state(pipeline_state::InitingOrUniniting, pipeline_state::Inited);
     return boole::True;
 }
 
@@ -330,7 +335,12 @@ boole vulkan_pipeline::uninit()
     {
         return boole::False;
     }
+
+    transfer_state(pipeline_state::Inited, pipeline_state::InitingOrUniniting);
     auto logical_device = rt->get_vk_logical_device();
+
+    _vk_vertices_buffers.clear();
+    _vertices_buffer_headers.clear();
 
     if (_command_buffer_vec.size())
     {
@@ -361,22 +371,46 @@ boole vulkan_pipeline::uninit()
         vkDestroyPipelineLayout(logical_device, _layout, nullptr);
         _layout = nullptr;
     }
+
+    boole checker = transfer_state(pipeline_state::InitingOrUniniting, pipeline_state::Uninit);
+    assert(checker);
     return boole::True;
 }
 
-boole vulkan_pipeline::setup_vertices_buffer(ref<vertices_buffer> vertices_buffer)
+boole vulkan_pipeline::setup_vertices(const vector<string>& vertices_viewer_vec)
 {
     AUTO_TRACE;
+    auto rt = _rt.try_ref();
+    if (rt.empty())
+    {
+        return boole::False;
+    }
 
-    _vertices_buffers.push_back(vertices_buffer);
-    return boole::True;
-}
+    if (!transfer_state(pipeline_state::Inited, pipeline_state::SetupInProgress))
+    {
+        return boole::False;
+    }
+    escape_function ef_state =
+        [=]() mutable
+        {
+            transfer_state(pipeline_state::SetupInProgress, pipeline_state::Inited);
+        };
 
-boole vulkan_pipeline::clear_vertices_buffer()
-{
-    AUTO_TRACE;
+    _vk_vertices_buffers.clear();
+    _vertices_buffer_headers.clear();
+    for (auto& vv : vertices_viewer_vec)
+    {
+        auto r_vv = rt->get_vertices_viewer(vv);
+        if (r_vv->state() != vertices_viewer_state::Online)
+        {
+            _vk_vertices_buffers.clear();
+            _vertices_buffer_headers.clear();
+            return boole::False;
+        }
+        _vk_vertices_buffers.push_back(r_vv->_vk_buffer);
+        _vertices_buffer_headers.push_back(r_vv->_vb_header);
+    }
 
-    _vertices_buffers.clear();
     return boole::True;
 }
 
@@ -403,32 +437,6 @@ boole vulkan_pipeline::load_resource()
 
     auto logical_device = rt->get_vk_logical_device();
 
-    for (s64 buf_idx = 0; buf_idx < _vertices_buffers.size(); ++buf_idx)
-    {
-        VkBuffer device_buffer;
-        VkDeviceMemory device_memory;
-        sz_t buf_sz = _vertices_buffers[buf_idx]->vertices_data_size();
-        if (!setup_vk_buffer(
-                buf_sz,
-                VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                device_buffer, device_memory))
-        {
-            unload_resource();
-            return boole::False;
-        };
-
-        _vk_vertices_buffers.push_back(device_buffer);
-        _vk_vertices_memories.push_back(device_memory);
-
-        if (!copy_vk_buffer(
-                _vertices_buffers[buf_idx]->vertex_data(), device_buffer, buf_sz))
-        {
-            unload_resource();
-            return boole::False;
-        }
-    }
-
     // record command buffer
     s64 image_count = w_ctx->_image_view_vec.size();
     for (s64 i = 0; i < image_count; ++i)
@@ -454,15 +462,15 @@ boole vulkan_pipeline::load_resource()
         renderPassInfo.pClearValues = &clearColor;
 
         vector<VkDeviceSize> offsets;
-        offsets.resize(_vertices_buffers.size(), 0);
+        offsets.resize(_vk_vertices_buffers.size(), 0);
         s64 vertices_count = 0;
-        for (auto buf : _vertices_buffers)
+        for (auto h : _vertices_buffer_headers)
         {
-            vertices_count += buf->vertex_count();
+            vertices_count += h.vertices_count;
         }
         vkCmdBeginRenderPass(_command_buffer_vec[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
         vkCmdBindPipeline(_command_buffer_vec[i], VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline);
-        vkCmdBindVertexBuffers(_command_buffer_vec[i], 0, _vertices_buffers.size(), _vk_vertices_buffers.data(), offsets.data());
+        vkCmdBindVertexBuffers(_command_buffer_vec[i], 0, _vk_vertices_buffers.size(), _vk_vertices_buffers.data(), offsets.data());
         vkCmdDraw(_command_buffer_vec[i], vertices_count, 1, 0, 0);
         vkCmdEndRenderPass(_command_buffer_vec[i]);
 
@@ -482,28 +490,6 @@ L_error:
 boole vulkan_pipeline::unload_resource()
 {
     AUTO_TRACE;
-
-    if (!_pipeline || !_render_pass || !_layout)
-    {
-        return boole::False;
-    }
-    auto rt = _rt.try_ref();
-    if (rt.empty())
-    {
-        return boole::False;
-    }
-    auto logical_device = rt->get_vk_logical_device();
-
-    while (_vk_vertices_memories.size())
-    {
-        vkFreeMemory(logical_device, _vk_vertices_memories.back(), nullptr);
-        _vk_vertices_memories.pop_back();
-    }
-    while (_vk_vertices_buffers.size())
-    {
-        vkDestroyBuffer(logical_device, _vk_vertices_buffers.back(), nullptr);
-        _vk_vertices_buffers.pop_back();
-    }
     return boole::True;
 }
 
@@ -580,152 +566,6 @@ boole vulkan_pipeline::render()
     counter = (counter + 1) % w_ctx->_swap_chain_image_vec.size();
     w_ctx->_fence_counter = counter;
     return boole::True;
-}
-
-boole vulkan_pipeline::setup_vk_buffer(
-    sz_t size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
-    VkBuffer& buffer, VkDeviceMemory& bufferMemory)
-{
-    AUTO_TRACE;
-
-    auto rt = _rt.try_ref();
-    if (rt.empty())
-    {
-        return boole::False;
-    }
-
-    auto w_ctx = _window_ctx.try_ref();
-    if (w_ctx.empty())
-    {
-        return boole::False;
-    }
-
-    auto logical_device = rt->get_vk_logical_device();
-
-    VkBufferCreateInfo bufferInfo = {};
-    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    bufferInfo.size = size;
-    bufferInfo.usage = usage;
-    bufferInfo.sharingMode =
-        rt->_render_queue_family_idx == rt->_transfer_queue_family_idx ?
-        VK_SHARING_MODE_EXCLUSIVE : VK_SHARING_MODE_CONCURRENT;
-
-    if (vkCreateBuffer(logical_device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
-    {
-        return boole::False;
-    }
-
-    VkMemoryRequirements memRequirements;
-    vkGetBufferMemoryRequirements(logical_device, buffer, &memRequirements);
-
-    VkMemoryAllocateInfo allocInfo = {};
-    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    allocInfo.allocationSize = memRequirements.size;
-    allocInfo.memoryTypeIndex = get_vk_memory_type(memRequirements, properties);
-
-    if (vkAllocateMemory(logical_device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
-    {
-        vkDestroyBuffer(logical_device, buffer, nullptr);
-        return boole::False;
-    }
-
-    if (vkBindBufferMemory(logical_device, buffer, bufferMemory, 0) != VK_SUCCESS)
-    {
-        vkDestroyBuffer(logical_device, buffer, nullptr);
-        vkFreeMemory(logical_device, bufferMemory, nullptr);
-        return boole::False;
-    }
-
-    return boole::True;
-}
-
-boole vulkan_pipeline::copy_vk_buffer(const void* data, VkBuffer device_buf, sz_t size)
-{
-    AUTO_TRACE;
-
-    auto rt = _rt.try_ref();
-    if (rt.empty())
-    {
-        return boole::False;
-    }
-    auto logical_device = rt->_logical_device;
-    VkBuffer host_buffer;
-    VkDeviceMemory host_memory;
-    if (!setup_vk_buffer(
-            size,
-            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            host_buffer, host_memory))
-    {
-        return boole::False;
-    };
-    escape_function ef_release_buffer =
-        [=]() mutable
-        {
-            vkFreeMemory(logical_device, host_memory, nullptr);
-            vkDestroyBuffer(logical_device, host_buffer, nullptr);
-        };
-
-    void* mmap;
-    vkMapMemory(logical_device, host_memory, 0, size, 0, &mmap);
-    memory::copy(data, mmap, size);
-    vkUnmapMemory(logical_device, host_memory);
-
-    VkCommandBufferAllocateInfo allocInfo = {};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandPool = rt->_transfer_command_pool;
-    allocInfo.commandBufferCount = 1;
-
-    VkCommandBuffer commandBuffer;
-    if (vkAllocateCommandBuffers(logical_device, &allocInfo, &commandBuffer) != VK_SUCCESS)
-    {
-        return boole::False;
-    }
-    escape_function ef_release_command_buffer =
-        [=]() mutable
-        {
-            vkFreeCommandBuffers(logical_device, rt->_transfer_command_pool, 1, &commandBuffer);
-        };
-
-    VkBufferCopy copyRegion = {};
-    copyRegion.size = size;
-
-    VkCommandBufferBeginInfo beginInfo = {};
-    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-    VkSubmitInfo submitInfo = {};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &commandBuffer;
-
-    vkBeginCommandBuffer(commandBuffer, &beginInfo);
-    vkCmdCopyBuffer(commandBuffer, host_buffer, device_buf, 1, &copyRegion);
-    vkEndCommandBuffer(commandBuffer);
-    vkQueueSubmit(rt->_transfer_queue, 1, &submitInfo, VK_NULL_HANDLE);
-    vkQueueWaitIdle(rt->_transfer_queue);
-    return boole::True;
-}
-
-s64 vulkan_pipeline::get_vk_memory_type(VkMemoryRequirements& requirements, VkFlags needed_properties)
-{
-    auto rt = _rt.try_ref();
-    if (rt.empty())
-    {
-        return -1;
-    }
-    auto typeBits = requirements.memoryTypeBits;
-    VkPhysicalDeviceMemoryProperties memProperties;
-    vkGetPhysicalDeviceMemoryProperties(rt->_physical_device, &memProperties);
-    for (s64 i = 0; i < memProperties.memoryTypeCount; ++i)
-    {
-        if ((typeBits & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & needed_properties) == needed_properties)
-        {
-            return i;
-        }
-    }
-    return -1;
 }
 
 void setup_vertex_input_desc(

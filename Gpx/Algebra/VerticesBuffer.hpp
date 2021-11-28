@@ -3,7 +3,7 @@
 namespace gpx
 {
 
-struct vertices_buffer_binary_header
+struct vertices_buffer_header
 {
     gpx::vertex_type  vertex_type;
     s64               vertices_count;

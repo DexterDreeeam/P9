@@ -1,9 +1,15 @@
 #pragma once
 
-#include "Interface.hpp"
+#include "../../../Sdk/Interface.hpp"
 
 namespace gpx
 {
+
+struct vertices_viewer_desc
+{
+    string  _name;
+    string  _file_path;
+};
 
 enum class vertices_viewer_state : s64
 {
@@ -17,21 +23,21 @@ class runtime;
 class vertices_viewer
 {
 public:
-    vertices_viewer() = default;
+    vertices_viewer();
 
     virtual ~vertices_viewer() = default;
-
-    virtual boole init(const string& path, obs<runtime> rt) = 0;
-
-    virtual boole uninit() = 0;
 
     virtual boole load() = 0;
 
     virtual boole unload() = 0;
 
-private:
-    string         _name;
-    string         _file_path;
+public:
+    vertices_viewer_state state() const;
+
+protected:
+    boole transfer_state(vertices_viewer_state from, vertices_viewer_state to);
+
+protected:
     atom<s64>      _state;
 };
 
