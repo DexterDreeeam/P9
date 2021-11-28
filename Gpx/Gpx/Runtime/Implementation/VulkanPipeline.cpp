@@ -461,19 +461,15 @@ boole vulkan_pipeline::load_resource()
         renderPassInfo.clearValueCount = 1;
         renderPassInfo.pClearValues = &clearColor;
 
-        vector<VkDeviceSize> offsets;
-        offsets.resize(_vk_vertices_buffers.size(), 0);
-        s64 vertices_count = 0;
-        for (auto h : _vertices_buffer_headers)
-        {
-            vertices_count += h.vertices_count;
-        }
+        VkDeviceSize offsets[1] = { 0 };
         vkCmdBeginRenderPass(_command_buffer_vec[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
         vkCmdBindPipeline(_command_buffer_vec[i], VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline);
-        vkCmdBindVertexBuffers(_command_buffer_vec[i], 0, _vk_vertices_buffers.size(), _vk_vertices_buffers.data(), offsets.data());
-        vkCmdDraw(_command_buffer_vec[i], vertices_count, 1, 0, 0);
+        for (s64 j = 0; j < _vk_vertices_buffers.size(); ++j)
+        {
+            vkCmdBindVertexBuffers(_command_buffer_vec[i], 0, 1, &_vk_vertices_buffers[j], offsets);
+            vkCmdDraw(_command_buffer_vec[i], _vertices_buffer_headers[j].vertices_count, 1, 0, 0);
+        }
         vkCmdEndRenderPass(_command_buffer_vec[i]);
-
         if (vkEndCommandBuffer(_command_buffer_vec[i]) != VK_SUCCESS)
         {
             goto L_error;

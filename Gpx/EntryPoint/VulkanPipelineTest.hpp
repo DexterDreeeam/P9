@@ -75,29 +75,49 @@ void vulkan_pipeline_test()
     frag_shader->unload();
 
     // vertices buffer
-    string vertices_file_name = "test2.p9vb";
-    auto vertices_files = search_files(
+    string vertices_file_name_1 = "test2-1.p9vb";
+    string vertices_file_name_2 = "test2-2.p9vb";
+    auto vertices_files_1 = search_files(
         "../",
         [&](const string& path)
         {
             return
-                path.size() >= vertices_file_name.size() &&
-                path.substr(path.size() - vertices_file_name.size()) == vertices_file_name;
+                path.size() >= vertices_file_name_1.size() &&
+                path.substr(path.size() - vertices_file_name_1.size()) == vertices_file_name_1;
         });
-    assert(vertices_files.size());
+    assert(vertices_files_1.size());
+
+    auto vertices_files_2 = search_files(
+        "../",
+        [&](const string& path)
+    {
+        return
+            path.size() >= vertices_file_name_2.size() &&
+            path.substr(path.size() - vertices_file_name_2.size()) == vertices_file_name_2;
+    });
+    assert(vertices_files_2.size());
 
     gpx::vertices_viewer_desc vv_desc;
-    vv_desc._name = "test2 vertices 1";
-    vv_desc._file_path = vertices_files[0];
 
+    vv_desc._name = "test2 vertices 1";
+    vv_desc._file_path = vertices_files_1[0];
+    checker = rt->register_vertices_viewer(vv_desc);
+    assert(checker);
+
+    vv_desc._name = "test2 vertices 2";
+    vv_desc._file_path = vertices_files_2[0];
     checker = rt->register_vertices_viewer(vv_desc);
     assert(checker);
 
     checker = rt->load_vertices_viewer("test2 vertices 1");
     assert(checker);
 
+    checker = rt->load_vertices_viewer("test2 vertices 2");
+    assert(checker);
+
     vector<string> vv_names;
     vv_names.push_back("test2 vertices 1");
+    vv_names.push_back("test2 vertices 2");
 
     // load pipeline resource
     checker = rt->setup_pipeline_vertices_viewer("Pavilion Nine Test Pipeline", vv_names);
@@ -129,6 +149,8 @@ void vulkan_pipeline_test()
     checker = rt->unregister_pipeline("Pavilion Nine Test Pipeline");
     assert(checker);
     checker = rt->unload_vertices_viewer("test2 vertices 1");
+    assert(checker);
+    checker = rt->unload_vertices_viewer("test2 vertices 2");
     assert(checker);
     checker = wnd->stop();
     assert(checker);
