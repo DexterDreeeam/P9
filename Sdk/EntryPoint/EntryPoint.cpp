@@ -36,6 +36,7 @@ int main()
 
     while (!am_i_terminated())
     {
+        tick::sleep(1000);
         print("not teminated yet.\n");
         yield();
     }

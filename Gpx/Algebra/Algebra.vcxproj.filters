@@ -23,8 +23,7 @@
     <ClInclude Include="Mat\Mat4x3.hpp" />
     <ClInclude Include="MatMultiplication.hpp" />
     <ClInclude Include="Vertex\Vertex.hpp" />
-    <ClInclude Include="VerticesBuffer\VerticesBuffer.hpp" />
-    <ClInclude Include="VerticesBuffer\VerticesBufferPosColor.hpp" />
+    <ClInclude Include="VerticesBuffer.hpp" />
     <ClInclude Include="Vertex\VertexPosColor.hpp" />
   </ItemGroup>
   <ItemGroup>
@@ -49,6 +48,5 @@
     <None Include="Implementation\Mat4x4_Implementation.inl" />
     <None Include="Implementation\MatMultiplication_Implementation.inl" />
     <None Include="Implementation\VerticesBuffer_Implementation.inl" />
-    <None Include="Implementation\VerticesBufferPosColor_Implementation.inl" />
   </ItemGroup>
 </Project>

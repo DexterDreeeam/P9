@@ -54,22 +54,22 @@ _INLINE_ vec4& vec4::operator =(const vec4& vc4)
     return *this;
 }
 
-_INLINE_ f32 vec4::x() const
+_INLINE_ f32& vec4::x()
 {
     return _data._x;
 }
 
-_INLINE_ f32 vec4::y() const
+_INLINE_ f32& vec4::y()
 {
     return _data._y;
 }
 
-_INLINE_ f32 vec4::z() const
+_INLINE_ f32& vec4::z()
 {
     return _data._z;
 }
 
-_INLINE_ f32 vec4::w() const
+_INLINE_ f32& vec4::w()
 {
     return _data._w;
 }

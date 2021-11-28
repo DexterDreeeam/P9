@@ -8,4 +8,5 @@
 
 #include "Shader.hpp"
 #include "Pipeline.hpp"
+#include "VerticesViewer.hpp"
 #include "Runtime.hpp"

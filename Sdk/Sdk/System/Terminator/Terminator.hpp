@@ -18,6 +18,9 @@ namespace _InternalNs
 #define SERVICE_TERMINATE_SYMBOL_FILE_EXTENSION  ".terminating"
 const char* const service_terminate_symbol_file = P9_FOLDER SERVICE_NAME SERVICE_TERMINATE_SYMBOL_FILE_EXTENSION;
 
+class terminator;
+
+_INLINE_ terminator& get_terminator();
 
 class terminator
 {
@@ -47,7 +50,7 @@ public:
             tick::sleep(500);
             if (file::exist(service_terminate_symbol_file))
             {
-                global_terminator._need_terminate.set(1);
+                get_terminator()._need_terminate.set(1);
                 break;
             }
         }
@@ -67,15 +70,17 @@ public:
         }
     }
 
-    static terminator global_terminator;
-
 private:
     atom<s64> _check_running;
     atom<s64> _need_terminate;
     thread    _thrd;
 };
 
-_SELECTANY_ terminator terminator::global_terminator = terminator();
+_INLINE_ terminator& get_terminator()
+{
+    static terminator t;
+    return t;
+}
 
 }
 
@@ -101,5 +106,5 @@ _INLINE_ void terminate(const char* service_name)
 
 _INLINE_ boole am_i_terminated()
 {
-    return _InternalNs::terminator::global_terminator.check();
+    return _InternalNs::get_terminator().check();
 }

@@ -24,12 +24,12 @@ _INLINE_ vec2& vec2::operator =(const vec2& vc2)
     return *this;
 }
 
-_INLINE_ f32 vec2::x() const
+_INLINE_ f32& vec2::x()
 {
     return _data._x;
 }
 
-_INLINE_ f32 vec2::y() const
+_INLINE_ f32& vec2::y()
 {
     return _data._y;
 }

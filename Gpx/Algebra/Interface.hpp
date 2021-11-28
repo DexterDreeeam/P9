@@ -28,8 +28,7 @@
 #include "Vertex/Vertex.hpp"
 #include "Vertex/VertexPosColor.hpp"
 
-#include "VerticesBuffer/VerticesBuffer.hpp"
-#include "VerticesBuffer/VerticesBufferPosColor.hpp"
+#include "VerticesBuffer.hpp"
 
 // implementation
 
@@ -57,4 +56,3 @@
 #include "Implementation/MatMultiplication_Implementation.inl"
 
 #include "Implementation/VerticesBuffer_Implementation.inl"
-#include "Implementation/VerticesBufferPosColor_Implementation.inl"

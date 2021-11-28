@@ -1,11 +1,11 @@
 #pragma once
 
 #include "Interface.hpp"
+#include "VulkanPipeline.hpp"
+#include "VulkanVerticesViewer.hpp"
 
 namespace gpx
 {
-
-class vulkan_pipeline;
 
 struct vulkan_window_context
 {
@@ -127,6 +127,11 @@ private:
         string, ref<vulkan_pipeline>
     >                             _pipeline_map;
     rw_lock                       _pipeline_map_lock;
+
+    map<
+        string, ref<vulkan_vertices_viewer>
+    >                             _vertices_viewer_map;
+    rw_lock                       _vertices_viewer_map_lock;
 };
 
 }

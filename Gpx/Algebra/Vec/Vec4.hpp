@@ -128,13 +128,13 @@ public:
 
     vec4& operator =(const vec4& vc4);
 
-    f32 x() const;
+    f32& x();
 
-    f32 y() const;
+    f32& y();
 
-    f32 z() const;
+    f32& z();
 
-    f32 w() const;
+    f32& w();
 
     vec2 xy() const;
 

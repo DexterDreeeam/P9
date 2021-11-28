@@ -56,9 +56,9 @@ public:
 
     vec2& operator =(const vec2& vc2);
 
-    f32 x() const;
+    f32& x();
 
-    f32 y() const;
+    f32& y();
 
     vec2 xy() const;
 

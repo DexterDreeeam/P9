@@ -35,17 +35,17 @@ _INLINE_ vec3& vec3::operator =(const vec3& vc3)
     return *this;
 }
 
-_INLINE_ f32 vec3::x() const
+_INLINE_ f32& vec3::x()
 {
     return _data._x;
 }
 
-_INLINE_ f32 vec3::y() const
+_INLINE_ f32& vec3::y()
 {
     return _data._y;
 }
 
-_INLINE_ f32 vec3::z() const
+_INLINE_ f32& vec3::z()
 {
     return _data._z;
 }

@@ -29,13 +29,16 @@ vulkan_runtime::vulkan_runtime(const runtime_desc& desc) :
     _window_ctx_vec(),
     _window_ctx_vec_lock(),
     _pipeline_map(),
-    _pipeline_map_lock()
+    _pipeline_map_lock(),
+    _vertices_viewer_map(),
+    _vertices_viewer_map_lock()
 {
     AUTO_TRACE;
 
     _resource_lk.init();
     _window_ctx_vec_lock.init();
     _pipeline_map_lock.init();
+    _vertices_viewer_map_lock.init();
 }
 
 vulkan_runtime::~vulkan_runtime()
@@ -44,6 +47,7 @@ vulkan_runtime::~vulkan_runtime()
 
     uninit();
 
+    _vertices_viewer_map_lock.uninit();
     _pipeline_map_lock.uninit();
     _window_ctx_vec_lock.uninit();
     _resource_lk.uninit();

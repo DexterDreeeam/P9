@@ -80,11 +80,11 @@ public:
 
     vec3& operator =(const vec3& vc3);
 
-    f32 x() const;
+    f32& x();
 
-    f32 y() const;
+    f32& y();
 
-    f32 z() const;
+    f32& z();
 
     vec2 xy() const;
 
