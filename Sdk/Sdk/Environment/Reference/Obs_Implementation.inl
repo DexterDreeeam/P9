@@ -271,6 +271,12 @@ _INLINE_ bool obs<Ty>::operator !=(const obs<Other_Ty>& rhs) const
 }
 
 template<typename Ty>
+_INLINE_ obs<Ty>::obs(_RefNs::context<Ty>* ctx) :
+    _ctx(ctx)
+{
+}
+
+template<typename Ty>
 template<typename Other_Ty>
 obs<Other_Ty> obs<Ty>::obs_of()
 {

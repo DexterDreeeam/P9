@@ -43,7 +43,7 @@ public:
 public:
     // runtime
 
-    virtual boole init() = 0;
+    virtual boole init(const string& preferred_device_name = "") = 0;
 
     virtual boole uninit() = 0;
 
@@ -51,7 +51,7 @@ public:
 
     // window
 
-    virtual ref<window> build_window(const window_desc& desc, const string& preferred_device_name = "") = 0;
+    virtual ref<window> build_window(const window_desc& desc) = 0;
 
     virtual boole remove_window(const string& window_name) = 0;
 

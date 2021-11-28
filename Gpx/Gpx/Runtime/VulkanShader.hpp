@@ -5,14 +5,12 @@
 namespace gpx
 {
 
-struct vulkan_window_context;
-
 class vulkan_shader : public shader
 {
     friend class vulkan_pipeline;
 
 public:
-    vulkan_shader(const shader_desc& desc, obs<vulkan_window_context> w_ctx);
+    vulkan_shader(const shader_desc& desc, obs<runtime> rt);
 
     virtual ~vulkan_shader() override;
 
@@ -24,7 +22,7 @@ public:
 
 private:
     shader_desc                 _desc;
-    obs<vulkan_window_context>  _window_ctx;
+    obs<runtime>                _rt;
     VkShaderModule              _shader_module;
 };
 

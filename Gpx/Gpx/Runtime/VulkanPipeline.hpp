@@ -5,12 +5,13 @@
 namespace gpx
 {
 
+class vulkan_runtime;
 struct vulkan_window_context;
 
 class vulkan_pipeline : public pipeline
 {
 public:
-    vulkan_pipeline(obs<vulkan_window_context> w_ctx);
+    vulkan_pipeline(obs<vulkan_runtime> rt, obs<vulkan_window_context> w_ctx);
 
     virtual ~vulkan_pipeline() override;
 
@@ -38,6 +39,7 @@ private:
     s64 get_vk_memory_type(VkMemoryRequirements& requirements, VkFlags needed_properties);
 
 private:
+    obs<vulkan_runtime>         _rt;
     obs<vulkan_window_context>  _window_ctx;
     VkPipelineLayout            _layout;
     VkRenderPass                _render_pass;

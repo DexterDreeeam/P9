@@ -22,8 +22,14 @@ void vulkan_window_test()
     wnd_desc2.width = 720;
     wnd_desc2.height = 640;
 
+    gpx::window_desc wnd_desc3;
+    wnd_desc2.name = "Hello Pavilion Nine 3";
+    wnd_desc2.width = 360;
+    wnd_desc2.height = 480;
+
     auto wnd1 = rt->build_window(wnd_desc1);
     auto wnd2 = rt->build_window(wnd_desc2);
+    auto wnd3 = rt->build_window(wnd_desc3);
 
     checker = wnd1->start();
     assert(checker);
@@ -31,6 +37,11 @@ void vulkan_window_test()
     tick::sleep(100);
 
     checker = wnd2->start();
+    assert(checker);
+
+    tick::sleep(100);
+
+    checker = wnd3->start();
     assert(checker);
 
     tick::sleep(100);
@@ -48,6 +59,8 @@ void vulkan_window_test()
     checker = wnd1->stop();
     assert(checker);
     checker = wnd2->stop();
+    assert(checker);
+    checker = wnd3->stop();
     assert(checker);
 
     checker = rt->uninit();

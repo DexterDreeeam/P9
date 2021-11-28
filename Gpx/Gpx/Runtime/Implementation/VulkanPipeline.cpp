@@ -11,7 +11,8 @@ static void setup_vertex_input_desc(
     vector<VkVertexInputBindingDescription>& binding_vec,
     vector<VkVertexInputAttributeDescription>& attribute_vec);
 
-vulkan_pipeline::vulkan_pipeline(obs<vulkan_window_context> w_ctx) :
+vulkan_pipeline::vulkan_pipeline(obs<vulkan_runtime> rt, obs<vulkan_window_context> w_ctx) :
+    _rt(rt),
     _window_ctx(w_ctx),
     _layout(nullptr),
     _render_pass(nullptr),
@@ -40,11 +41,19 @@ boole vulkan_pipeline::init(const pipeline_desc& desc)
 {
     AUTO_TRACE;
 
+    auto rt = _rt.try_ref();
+    if (rt.empty())
+    {
+        return boole::False;
+    }
+
     auto w_ctx = _window_ctx.try_ref();
     if (w_ctx.empty())
     {
         return boole::False;
     }
+
+    auto logical_device = rt->get_vk_logical_device();
 
     // pipeline shader stage
     vector<VkPipelineShaderStageCreateInfo> stage_create_info_vec;
@@ -192,7 +201,7 @@ boole vulkan_pipeline::init(const pipeline_desc& desc)
     pipelineLayoutInfo.pSetLayouts = nullptr;
     pipelineLayoutInfo.pushConstantRangeCount = 0;
     pipelineLayoutInfo.pPushConstantRanges = nullptr;
-    if (vkCreatePipelineLayout(w_ctx->_logical_device, &pipelineLayoutInfo, nullptr, &_layout) != VK_SUCCESS)
+    if (vkCreatePipelineLayout(logical_device, &pipelineLayoutInfo, nullptr, &_layout) != VK_SUCCESS)
     {
         uninit();
         return boole::False;
@@ -238,7 +247,7 @@ boole vulkan_pipeline::init(const pipeline_desc& desc)
     renderPassInfo.dependencyCount = 1;
     renderPassInfo.pDependencies = &dependency;
 
-    if (vkCreateRenderPass(w_ctx->_logical_device, &renderPassInfo, nullptr, &_render_pass) != VK_SUCCESS)
+    if (vkCreateRenderPass(logical_device, &renderPassInfo, nullptr, &_render_pass) != VK_SUCCESS)
     {
         uninit();
         return boole::False;
@@ -264,7 +273,7 @@ boole vulkan_pipeline::init(const pipeline_desc& desc)
     pipelineInfo.basePipelineIndex = -1;
 
     if (vkCreateGraphicsPipelines(
-            w_ctx->_logical_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_pipeline) != VK_SUCCESS)
+            logical_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_pipeline) != VK_SUCCESS)
     {
         uninit();
         return boole::False;
@@ -287,7 +296,7 @@ boole vulkan_pipeline::init(const pipeline_desc& desc)
 
         VkFramebuffer fb;
         if (vkCreateFramebuffer(
-                w_ctx->_logical_device, &framebufferInfo, nullptr, &fb) != VK_SUCCESS)
+                logical_device, &framebufferInfo, nullptr, &fb) != VK_SUCCESS)
         {
             uninit();
             return boole::False;
@@ -297,12 +306,12 @@ boole vulkan_pipeline::init(const pipeline_desc& desc)
 
     // allocate command buffer
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = w_ctx->_render_command_pool;
+    allocInfo.commandPool = rt->_render_command_pool;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     allocInfo.commandBufferCount = (uint32_t)image_count;
     _command_buffer_vec.resize(image_count, nullptr);
     if (vkAllocateCommandBuffers(
-            w_ctx->_logical_device, &allocInfo, _command_buffer_vec.data()) != VK_SUCCESS)
+            logical_device, &allocInfo, _command_buffer_vec.data()) != VK_SUCCESS)
     {
         _command_buffer_vec.clear();
         uninit();
@@ -316,38 +325,40 @@ boole vulkan_pipeline::uninit()
 {
     AUTO_TRACE;
 
-    auto w_ctx = _window_ctx.try_ref();
-    if (w_ctx.empty())
+    auto rt = _rt.try_ref();
+    if (rt.empty())
     {
         return boole::False;
     }
+    auto logical_device = rt->get_vk_logical_device();
+
     if (_command_buffer_vec.size())
     {
         vkFreeCommandBuffers(
-            w_ctx->_logical_device,
-            w_ctx->_render_command_pool,
+            logical_device,
+            rt->_render_command_pool,
             _command_buffer_vec.size(),
             _command_buffer_vec.data());
         _command_buffer_vec.clear();
     }
     while (_frame_buffer_vec.size())
     {
-        vkDestroyFramebuffer(w_ctx->_logical_device, _frame_buffer_vec.back(), nullptr);
+        vkDestroyFramebuffer(logical_device, _frame_buffer_vec.back(), nullptr);
         _frame_buffer_vec.pop_back();
     }
     if (_pipeline)
     {
-        vkDestroyPipeline(w_ctx->_logical_device, _pipeline, nullptr);
+        vkDestroyPipeline(logical_device, _pipeline, nullptr);
         _pipeline = nullptr;
     }
     if (_render_pass)
     {
-        vkDestroyRenderPass(w_ctx->_logical_device, _render_pass, nullptr);
+        vkDestroyRenderPass(logical_device, _render_pass, nullptr);
         _render_pass = nullptr;
     }
     if (_layout)
     {
-        vkDestroyPipelineLayout(w_ctx->_logical_device, _layout, nullptr);
+        vkDestroyPipelineLayout(logical_device, _layout, nullptr);
         _layout = nullptr;
     }
     return boole::True;
@@ -378,13 +389,19 @@ boole vulkan_pipeline::load_resource()
         return boole::False;
     }
 
+    auto rt = _rt.try_ref();
+    if (rt.empty())
+    {
+        return boole::False;
+    }
+
     auto w_ctx = _window_ctx.try_ref();
     if (w_ctx.empty())
     {
         return boole::False;
     }
 
-    auto logical_device = w_ctx->_logical_device;
+    auto logical_device = rt->get_vk_logical_device();
 
     for (s64 buf_idx = 0; buf_idx < _vertices_buffers.size(); ++buf_idx)
     {
@@ -470,13 +487,13 @@ boole vulkan_pipeline::unload_resource()
     {
         return boole::False;
     }
-    auto w_ctx = _window_ctx.try_ref();
-    if (w_ctx.empty())
+    auto rt = _rt.try_ref();
+    if (rt.empty())
     {
         return boole::False;
     }
+    auto logical_device = rt->get_vk_logical_device();
 
-    auto logical_device = w_ctx->_logical_device;
     while (_vk_vertices_memories.size())
     {
         vkFreeMemory(logical_device, _vk_vertices_memories.back(), nullptr);
@@ -494,19 +511,26 @@ boole vulkan_pipeline::render()
 {
     AUTO_TRACE;
 
+    auto rt = _rt.try_ref();
+    if (rt.empty())
+    {
+        return boole::False;
+    }
+
     auto w_ctx = _window_ctx.try_ref();
     if (w_ctx.empty())
     {
         return boole::False;
     }
 
+    auto logical_device = rt->get_vk_logical_device();
     s64 counter = w_ctx->_fence_counter;
     u64 image_index = 0;
 
-    vkWaitForFences(w_ctx->_logical_device, 1, &w_ctx->_inflight_fence_vec[counter], VK_TRUE, u64_max);
+    vkWaitForFences(logical_device, 1, &w_ctx->_inflight_fence_vec[counter], VK_TRUE, u64_max);
 
     if (vkAcquireNextImageKHR(
-            w_ctx->_logical_device,
+            logical_device,
             w_ctx->_swap_chain,
             u64_max,
             w_ctx->_image_available_sema_vec[counter],
@@ -518,10 +542,10 @@ boole vulkan_pipeline::render()
 
     if (w_ctx->_reordered_fence_vec[image_index])
     {
-        vkWaitForFences(w_ctx->_logical_device, 1, &w_ctx->_reordered_fence_vec[image_index], VK_TRUE, u64_max);
+        vkWaitForFences(logical_device, 1, &w_ctx->_reordered_fence_vec[image_index], VK_TRUE, u64_max);
     }
     w_ctx->_reordered_fence_vec[image_index] = w_ctx->_inflight_fence_vec[counter];
-    vkResetFences(w_ctx->_logical_device, 1, &w_ctx->_inflight_fence_vec[counter]);
+    vkResetFences(logical_device, 1, &w_ctx->_inflight_fence_vec[counter]);
 
     VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
     VkSubmitInfo submitInfo = {};
@@ -534,7 +558,7 @@ boole vulkan_pipeline::render()
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = &w_ctx->_render_complete_sema_vec[counter];
 
-    if (vkQueueSubmit(w_ctx->_render_queue, 1, &submitInfo, w_ctx->_inflight_fence_vec[counter]) != VK_SUCCESS)
+    if (vkQueueSubmit(rt->_render_queue, 1, &submitInfo, w_ctx->_inflight_fence_vec[counter]) != VK_SUCCESS)
     {
         return boole::False;
     }
@@ -548,7 +572,7 @@ boole vulkan_pipeline::render()
     presentInfo.pImageIndices = (uint32_t*)&image_index;
     presentInfo.pResults = nullptr;
 
-    if (vkQueuePresentKHR(w_ctx->_present_queue, &presentInfo) != VK_SUCCESS)
+    if (vkQueuePresentKHR(rt->_present_queue, &presentInfo) != VK_SUCCESS)
     {
         return boole::False;
     }
@@ -564,20 +588,26 @@ boole vulkan_pipeline::setup_vk_buffer(
 {
     AUTO_TRACE;
 
+    auto rt = _rt.try_ref();
+    if (rt.empty())
+    {
+        return boole::False;
+    }
+
     auto w_ctx = _window_ctx.try_ref();
     if (w_ctx.empty())
     {
         return boole::False;
     }
 
-    auto logical_device = w_ctx->_logical_device;
+    auto logical_device = rt->get_vk_logical_device();
 
     VkBufferCreateInfo bufferInfo = {};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     bufferInfo.size = size;
     bufferInfo.usage = usage;
     bufferInfo.sharingMode =
-        w_ctx->_render_queue_family_idx == w_ctx->_transfer_queue_family_idx ?
+        rt->_render_queue_family_idx == rt->_transfer_queue_family_idx ?
         VK_SHARING_MODE_EXCLUSIVE : VK_SHARING_MODE_CONCURRENT;
 
     if (vkCreateBuffer(logical_device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
@@ -613,12 +643,12 @@ boole vulkan_pipeline::copy_vk_buffer(const void* data, VkBuffer device_buf, sz_
 {
     AUTO_TRACE;
 
-    auto w_ctx = _window_ctx.try_ref();
-    if (w_ctx.empty())
+    auto rt = _rt.try_ref();
+    if (rt.empty())
     {
         return boole::False;
     }
-    auto logical_device = w_ctx->_logical_device;
+    auto logical_device = rt->_logical_device;
     VkBuffer host_buffer;
     VkDeviceMemory host_memory;
     if (!setup_vk_buffer(
@@ -644,7 +674,7 @@ boole vulkan_pipeline::copy_vk_buffer(const void* data, VkBuffer device_buf, sz_
     VkCommandBufferAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandPool = w_ctx->_transfer_command_pool;
+    allocInfo.commandPool = rt->_transfer_command_pool;
     allocInfo.commandBufferCount = 1;
 
     VkCommandBuffer commandBuffer;
@@ -655,7 +685,7 @@ boole vulkan_pipeline::copy_vk_buffer(const void* data, VkBuffer device_buf, sz_
     escape_function ef_release_command_buffer =
         [=]() mutable
         {
-            vkFreeCommandBuffers(logical_device, w_ctx->_transfer_command_pool, 1, &commandBuffer);
+            vkFreeCommandBuffers(logical_device, rt->_transfer_command_pool, 1, &commandBuffer);
         };
 
     VkBufferCopy copyRegion = {};
@@ -673,21 +703,21 @@ boole vulkan_pipeline::copy_vk_buffer(const void* data, VkBuffer device_buf, sz_
     vkBeginCommandBuffer(commandBuffer, &beginInfo);
     vkCmdCopyBuffer(commandBuffer, host_buffer, device_buf, 1, &copyRegion);
     vkEndCommandBuffer(commandBuffer);
-    vkQueueSubmit(w_ctx->_transfer_queue, 1, &submitInfo, VK_NULL_HANDLE);
-    vkQueueWaitIdle(w_ctx->_transfer_queue);
+    vkQueueSubmit(rt->_transfer_queue, 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(rt->_transfer_queue);
     return boole::True;
 }
 
 s64 vulkan_pipeline::get_vk_memory_type(VkMemoryRequirements& requirements, VkFlags needed_properties)
 {
-    auto w_ctx = _window_ctx.try_ref();
-    if (w_ctx.empty())
+    auto rt = _rt.try_ref();
+    if (rt.empty())
     {
         return -1;
     }
     auto typeBits = requirements.memoryTypeBits;
     VkPhysicalDeviceMemoryProperties memProperties;
-    vkGetPhysicalDeviceMemoryProperties(w_ctx->_physical_device, &memProperties);
+    vkGetPhysicalDeviceMemoryProperties(rt->_physical_device, &memProperties);
     for (s64 i = 0; i < memProperties.memoryTypeCount; ++i)
     {
         if ((typeBits & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & needed_properties) == needed_properties)

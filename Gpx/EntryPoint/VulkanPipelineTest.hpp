@@ -48,7 +48,6 @@ void vulkan_pipeline_test()
     gpx::shader_desc shader_desc_1;
     shader_desc_1._type = gpx::shader_type::VERTEX;
     shader_desc_1._shader_name = "test vertex shader 1";
-    shader_desc_1._window_name = "Hello Pavilion Nine";
     shader_desc_1._shader_path = vertex_shader_files_found[0];
     auto vert_shader = rt->build_shader(shader_desc_1);
     checker = vert_shader.has_value();
@@ -57,7 +56,6 @@ void vulkan_pipeline_test()
     gpx::shader_desc shader_desc_2;
     shader_desc_2._type = gpx::shader_type::FRAGMENT;
     shader_desc_2._shader_name = "test fragment shader 1";
-    shader_desc_2._window_name = "Hello Pavilion Nine";
     shader_desc_2._shader_path = fragment_shader_files_found[0];
     auto frag_shader = rt->build_shader(shader_desc_2);
     checker = frag_shader.has_value();

@@ -10,16 +10,6 @@ class vulkan_pipeline;
 struct vulkan_window_context
 {
     ref<window>                _window;
-    string                     _preferred_device_name;
-
-    VkPhysicalDevice           _physical_device;
-    VkDevice                   _logical_device;
-    u64                        _render_queue_family_idx;
-    u64                        _present_queue_family_idx;
-    u64                        _transfer_queue_family_idx;
-    VkQueue                    _render_queue;
-    VkQueue                    _present_queue;
-    VkQueue                    _transfer_queue;
 
     VkSurfaceFormatKHR         _surface_format;
     VkPresentModeKHR           _present_mode;
@@ -27,9 +17,6 @@ struct vulkan_window_context
     VkSwapchainKHR             _swap_chain;
     vector<VkImage>            _swap_chain_image_vec;
     vector<VkImageView>        _image_view_vec;
-
-    VkCommandPool              _render_command_pool;
-    VkCommandPool              _transfer_command_pool;
 
     vector<VkSemaphore>        _image_available_sema_vec;
     vector<VkSemaphore>        _render_complete_sema_vec;
@@ -41,6 +28,7 @@ struct vulkan_window_context
 class vulkan_runtime : public runtime
 {
     friend class glfw_window;
+    friend class vulkan_pipeline;
 
 public:
     vulkan_runtime(const runtime_desc& desc);
@@ -51,13 +39,13 @@ public:
     virtual void setup_self(obs<runtime> obs_rt) override;
 
 public:
-    virtual boole init() override;
+    virtual boole init(const string& preferred_device_name = "") override;
 
     virtual boole uninit() override;
 
     virtual vector<string> list_device() override;
 
-    virtual ref<window> build_window(const window_desc& desc, const string& preferred_device_name = "") override;
+    virtual ref<window> build_window(const window_desc& desc) override;
 
     virtual boole remove_window(const string& window_name) override;
 
@@ -81,8 +69,10 @@ public:
 
     virtual boole wait_render_complete(const string& window_name) override;
 
-private:
+public:
     VkInstance get_vk_instance() { return *_instance.get(); }
+
+    VkDevice get_vk_logical_device() { return _logical_device; }
 
     ref<vulkan_window_context> get_window_context(const string& window_name);
 
@@ -96,7 +86,9 @@ private:
 
     boole build_device_image_resource(ref<vulkan_window_context> w_ctx);
 
-    boole clear_device_resource(ref<vulkan_window_context> w_ctx);
+    boole clear_device_hardware_resource();
+
+    boole clear_device_image_resource(ref<vulkan_window_context> w_ctx);
 
 private:
     static VKAPI_ATTR VkBool32 VKAPI_CALL debug_cb(
@@ -112,6 +104,18 @@ private:
     // vulkan core
     vector<const char*>           _vec_validation_layer;
     static atom<VkInstance*>      _instance;
+    lock                          _resource_lk;
+    string                        _preferred_device_name;
+    VkPhysicalDevice              _physical_device;
+    VkDevice                      _logical_device;
+    u64                           _render_queue_family_idx;
+    u64                           _present_queue_family_idx;
+    u64                           _transfer_queue_family_idx;
+    VkQueue                       _render_queue;
+    VkQueue                       _present_queue;
+    VkQueue                       _transfer_queue;
+    VkCommandPool                 _render_command_pool;
+    VkCommandPool                 _transfer_command_pool;
 
     // window resource
     vector<

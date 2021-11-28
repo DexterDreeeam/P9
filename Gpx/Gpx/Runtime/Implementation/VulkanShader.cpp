@@ -6,9 +6,9 @@
 namespace gpx
 {
 
-vulkan_shader::vulkan_shader(const shader_desc& desc, obs<vulkan_window_context> w_ctx) :
+vulkan_shader::vulkan_shader(const shader_desc& desc, obs<runtime> rt) :
     _desc(desc),
-    _window_ctx(w_ctx),
+    _rt(rt),
     _shader_module(nullptr)
 {
 }
@@ -20,8 +20,8 @@ vulkan_shader::~vulkan_shader()
 
 boole vulkan_shader::load(const string& shader_path)
 {
-    auto w_ctx = _window_ctx.try_ref().ref_of<vulkan_window_context>();
-    if (w_ctx.empty())
+    auto rt = _rt.try_ref().ref_of<vulkan_runtime>();
+    if (rt.empty())
     {
         return boole::False;
     }
@@ -51,7 +51,7 @@ boole vulkan_shader::load(const string& shader_path)
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     createInfo.codeSize = (size_t)f_len;
     createInfo.pCode = pointer_convert(buf, 0, uint32_t*);
-    if (vkCreateShaderModule(w_ctx->_logical_device, &createInfo, nullptr, &_shader_module) != VK_SUCCESS)
+    if (vkCreateShaderModule(rt->get_vk_logical_device(), &createInfo, nullptr, &_shader_module) != VK_SUCCESS)
     {
         return boole::False;
     }
@@ -61,8 +61,8 @@ boole vulkan_shader::load(const string& shader_path)
 
 boole vulkan_shader::unload()
 {
-    auto w_ctx = _window_ctx.try_ref().ref_of<vulkan_window_context>();
-    if (w_ctx.empty())
+    auto rt = _rt.try_ref().ref_of<vulkan_runtime>();
+    if (rt.empty())
     {
         return boole::False;
     }
@@ -71,7 +71,7 @@ boole vulkan_shader::unload()
     {
         return boole::False;
     }
-    vkDestroyShaderModule(w_ctx->_logical_device, shader_module, nullptr);
+    vkDestroyShaderModule(rt->get_vk_logical_device(), shader_module, nullptr);
     _shader_module = nullptr;
     return boole::True;
 }

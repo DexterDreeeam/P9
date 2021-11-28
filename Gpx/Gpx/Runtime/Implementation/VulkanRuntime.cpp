@@ -14,6 +14,18 @@ vulkan_runtime::vulkan_runtime(const runtime_desc& desc) :
     runtime(),
     _desc(desc),
     _self(),
+    _resource_lk(),
+    _preferred_device_name(),
+    _physical_device(nullptr),
+    _logical_device(nullptr),
+    _render_queue_family_idx(-1),
+    _present_queue_family_idx(-1),
+    _transfer_queue_family_idx(-1),
+    _render_queue(nullptr),
+    _present_queue(nullptr),
+    _transfer_queue(nullptr),
+    _render_command_pool(nullptr),
+    _transfer_command_pool(nullptr),
     _window_ctx_vec(),
     _window_ctx_vec_lock(),
     _pipeline_map(),
@@ -21,6 +33,7 @@ vulkan_runtime::vulkan_runtime(const runtime_desc& desc) :
 {
     AUTO_TRACE;
 
+    _resource_lk.init();
     _window_ctx_vec_lock.init();
     _pipeline_map_lock.init();
 }
@@ -33,6 +46,7 @@ vulkan_runtime::~vulkan_runtime()
 
     _pipeline_map_lock.uninit();
     _window_ctx_vec_lock.uninit();
+    _resource_lk.uninit();
 }
 
 void vulkan_runtime::setup_self(obs<runtime> obs_rt)
@@ -41,7 +55,7 @@ void vulkan_runtime::setup_self(obs<runtime> obs_rt)
     _self = obs_rt;
 }
 
-boole vulkan_runtime::init()
+boole vulkan_runtime::init(const string& preferred_device_name)
 {
     AUTO_TRACE;
 
@@ -107,12 +121,16 @@ boole vulkan_runtime::init()
         return boole::False;
     }
 
+    _preferred_device_name = preferred_device_name;
     return boole::True;
 }
 
 boole vulkan_runtime::uninit()
 {
     AUTO_TRACE;
+
+    clear_device_hardware_resource();
+    _preferred_device_name = "";
 
     auto* ins = _instance.get();
     if (ins == nullptr)
@@ -214,6 +232,13 @@ boole vulkan_runtime::window_start_callback(const string& window_name)
         return boole::False;
     }
 
+    _resource_lk.wait_acquire();
+    escape_function ef_lk =
+        [=]() mutable
+        {
+            _resource_lk.release();
+        };
+
     sz_t device_count = 0;
     vkEnumeratePhysicalDevices(get_vk_instance(), (uint32_t*)&device_count, nullptr);
 
@@ -232,7 +257,7 @@ boole vulkan_runtime::window_start_callback(const string& window_name)
 
         string device_str = "";
         device_str += deviceProperties.deviceName;
-        if (device_str == w_ctx->_preferred_device_name)
+        if (device_str == _preferred_device_name)
         {
             target_device = vec_device[i];
             break;
@@ -260,7 +285,7 @@ boole vulkan_runtime::window_start_callback(const string& window_name)
 
         for (auto& p : vec_device_score)
         {
-            if (build_device_hardware_resource(p.first, w_ctx) && build_device_image_resource(w_ctx))
+            if (build_device_hardware_resource(p.first, w_ctx), build_device_image_resource(w_ctx))
             {
                 return boole::True;
             }
@@ -270,8 +295,6 @@ boole vulkan_runtime::window_start_callback(const string& window_name)
     {
         return boole::True;
     }
-
-    clear_device_resource(w_ctx);
     return boole::False;
 }
 
@@ -285,13 +308,18 @@ boole vulkan_runtime::window_stop_callback(const string& window_name)
         return boole::False;
     }
 
-    return clear_device_resource(w_ctx);
+    return clear_device_image_resource(w_ctx);
 }
 
 boole vulkan_runtime::build_device_hardware_resource(VkPhysicalDevice physical_device, ref<vulkan_window_context> w_ctx)
 {
     AUTO_TRACE;
     assert(physical_device);
+
+    if (_logical_device)
+    {
+        return boole::True;
+    }
 
     // find right queue family
     // find right queue index
@@ -420,6 +448,7 @@ boole vulkan_runtime::build_device_hardware_resource(VkPhysicalDevice physical_d
 
     if (vk_rst != VK_SUCCESS)
     {
+        clear_device_hardware_resource();
         return boole::False;
     }
 
@@ -432,29 +461,28 @@ boole vulkan_runtime::build_device_hardware_resource(VkPhysicalDevice physical_d
     poolInfo.queueFamilyIndex = render_queue_family_idx;
     if (vkCreateCommandPool(logical_device, &poolInfo, nullptr, &render_cp) != VK_SUCCESS)
     {
-        vkDestroyDevice(logical_device, nullptr);
+        clear_device_hardware_resource();
         return boole::False;
     }
     poolInfo.queueFamilyIndex = transfer_queue_family_idx;
     if (vkCreateCommandPool(logical_device, &poolInfo, nullptr, &transfer_cp) != VK_SUCCESS)
     {
-        vkDestroyCommandPool(logical_device, render_cp, nullptr);
-        vkDestroyDevice(logical_device, nullptr);
+        clear_device_hardware_resource();
         return boole::False;
     }
 
-    w_ctx->_physical_device = physical_device;
-    w_ctx->_logical_device = logical_device;
+    _physical_device = physical_device;
+    _logical_device = logical_device;
 
-    w_ctx->_render_queue_family_idx = render_queue_family_idx;
-    w_ctx->_transfer_queue_family_idx = transfer_queue_family_idx;
-    w_ctx->_present_queue_family_idx = present_queue_family_idx;
-    vkGetDeviceQueue(logical_device, render_queue_family_idx, render_queue_family_queue_idx, &w_ctx->_render_queue);
-    vkGetDeviceQueue(logical_device, transfer_queue_family_idx, transfer_queue_family_queue_idx, &w_ctx->_transfer_queue);
-    vkGetDeviceQueue(logical_device, present_queue_family_idx, present_queue_family_queue_idx, &w_ctx->_present_queue);
+    _render_queue_family_idx = render_queue_family_idx;
+    _transfer_queue_family_idx = transfer_queue_family_idx;
+    _present_queue_family_idx = present_queue_family_idx;
+    vkGetDeviceQueue(logical_device, render_queue_family_idx, render_queue_family_queue_idx, &_render_queue);
+    vkGetDeviceQueue(logical_device, transfer_queue_family_idx, transfer_queue_family_queue_idx, &_transfer_queue);
+    vkGetDeviceQueue(logical_device, present_queue_family_idx, present_queue_family_queue_idx, &_present_queue);
 
-    w_ctx->_render_command_pool = render_cp;
-    w_ctx->_transfer_command_pool = transfer_cp;
+    _render_command_pool = render_cp;
+    _transfer_command_pool = transfer_cp;
 
     return boole::True;
 }
@@ -467,21 +495,21 @@ boole vulkan_runtime::build_device_image_resource(ref<vulkan_window_context> w_c
 
     VkSurfaceCapabilitiesKHR surfaceCapabilities;
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
-        w_ctx->_physical_device, surface, &surfaceCapabilities);
+        _physical_device, surface, &surfaceCapabilities);
 
     // surface format
     boole is_format_chosen = boole::False;
     sz_t format_count = 0;
     vector<VkSurfaceFormatKHR> vec_format;
     vkGetPhysicalDeviceSurfaceFormatsKHR(
-        w_ctx->_physical_device, surface, (uint32_t*)&format_count, nullptr);
+        _physical_device, surface, (uint32_t*)&format_count, nullptr);
     if (format_count == 0)
     {
         return boole::False;
     }
     vec_format = vector<VkSurfaceFormatKHR>(format_count);
     vkGetPhysicalDeviceSurfaceFormatsKHR(
-        w_ctx->_physical_device, surface, (uint32_t*)&format_count, vec_format.data());
+        _physical_device, surface, (uint32_t*)&format_count, vec_format.data());
     for (auto& f : vec_format)
     {
         if (f.format == VK_FORMAT_B8G8R8A8_SRGB && f.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
@@ -500,14 +528,14 @@ boole vulkan_runtime::build_device_image_resource(ref<vulkan_window_context> w_c
     sz_t present_mode_count = 0;
     vector<VkPresentModeKHR> vec_present_mode;
     vkGetPhysicalDeviceSurfacePresentModesKHR(
-        w_ctx->_physical_device, surface, (uint32_t*)&present_mode_count, nullptr);
+        _physical_device, surface, (uint32_t*)&present_mode_count, nullptr);
     if (present_mode_count == 0)
     {
         return boole::False;
     }
     vec_present_mode = vector<VkPresentModeKHR>(present_mode_count);
     vkGetPhysicalDeviceSurfacePresentModesKHR(
-        w_ctx->_physical_device, surface, (uint32_t*)&present_mode_count, vec_present_mode.data());
+        _physical_device, surface, (uint32_t*)&present_mode_count, vec_present_mode.data());
     for (auto& pm : vec_present_mode)
     {
         if (pm == VK_PRESENT_MODE_MAILBOX_KHR)
@@ -542,7 +570,7 @@ boole vulkan_runtime::build_device_image_resource(ref<vulkan_window_context> w_c
     preferred_image_count = math::clamp(preferred_image_count, surfaceCapabilities.minImageCount, surfaceCapabilities.maxImageCount);
 
     // swap chain
-    uint32_t queueFamilyIndices[] = { (uint32_t)w_ctx->_render_queue_family_idx, (uint32_t)w_ctx->_present_queue_family_idx };
+    uint32_t queueFamilyIndices[] = { (uint32_t)_render_queue_family_idx, (uint32_t)_present_queue_family_idx };
     VkSwapchainCreateInfoKHR createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
     createInfo.surface = surface;
@@ -564,19 +592,20 @@ boole vulkan_runtime::build_device_image_resource(ref<vulkan_window_context> w_c
         createInfo.queueFamilyIndexCount = 2;
         createInfo.pQueueFamilyIndices = queueFamilyIndices;
     }
-    if (vkCreateSwapchainKHR(w_ctx->_logical_device, &createInfo, nullptr, &w_ctx->_swap_chain) != VK_SUCCESS)
+    if (vkCreateSwapchainKHR(_logical_device, &createInfo, nullptr, &w_ctx->_swap_chain) != VK_SUCCESS)
     {
+        clear_device_image_resource(w_ctx);
         return boole::False;
     }
 
     // swap chain image
     sz_t image_count = 0;
-    vkGetSwapchainImagesKHR(w_ctx->_logical_device, w_ctx->_swap_chain, (uint32_t*)&image_count, nullptr);
+    vkGetSwapchainImagesKHR(_logical_device, w_ctx->_swap_chain, (uint32_t*)&image_count, nullptr);
     w_ctx->_swap_chain_image_vec = vector<VkImage>(image_count);
     if (vkGetSwapchainImagesKHR(
-        w_ctx->_logical_device, w_ctx->_swap_chain, (uint32_t*)&image_count, w_ctx->_swap_chain_image_vec.data()) != VK_SUCCESS)
+        _logical_device, w_ctx->_swap_chain, (uint32_t*)&image_count, w_ctx->_swap_chain_image_vec.data()) != VK_SUCCESS)
     {
-        clear_device_resource(w_ctx);
+        clear_device_image_resource(w_ctx);
         return boole::False;
     }
 
@@ -599,9 +628,9 @@ boole vulkan_runtime::build_device_image_resource(ref<vulkan_window_context> w_c
         createInfo.subresourceRange.baseArrayLayer = 0;
         createInfo.subresourceRange.layerCount = 1;
 
-        if (vkCreateImageView(w_ctx->_logical_device, &createInfo, nullptr, &w_ctx->_image_view_vec[i]) != VK_SUCCESS)
+        if (vkCreateImageView(_logical_device, &createInfo, nullptr, &w_ctx->_image_view_vec[i]) != VK_SUCCESS)
         {
-            clear_device_resource(w_ctx);
+            clear_device_image_resource(w_ctx);
             return boole::False;
         }
     }
@@ -618,21 +647,21 @@ boole vulkan_runtime::build_device_image_resource(ref<vulkan_window_context> w_c
     {
         VkSemaphore sema;
         VkFence fence;
-        if (vkCreateSemaphore(w_ctx->_logical_device, &semaphoreInfo, nullptr, &sema) != VK_SUCCESS)
+        if (vkCreateSemaphore(_logical_device, &semaphoreInfo, nullptr, &sema) != VK_SUCCESS)
         {
-            clear_device_resource(w_ctx);
+            clear_device_image_resource(w_ctx);
             return boole::False;
         }
         w_ctx->_image_available_sema_vec.push_back(sema);
-        if (vkCreateSemaphore(w_ctx->_logical_device, &semaphoreInfo, nullptr, &sema) != VK_SUCCESS)
+        if (vkCreateSemaphore(_logical_device, &semaphoreInfo, nullptr, &sema) != VK_SUCCESS)
         {
-            clear_device_resource(w_ctx);
+            clear_device_image_resource(w_ctx);
             return boole::False;
         }
         w_ctx->_render_complete_sema_vec.push_back(sema);
-        if (vkCreateFence(w_ctx->_logical_device, &fenceInfo, nullptr, &fence) != VK_SUCCESS)
+        if (vkCreateFence(_logical_device, &fenceInfo, nullptr, &fence) != VK_SUCCESS)
         {
-            clear_device_resource(w_ctx);
+            clear_device_image_resource(w_ctx);
             return boole::False;
         }
         w_ctx->_inflight_fence_vec.push_back(fence);
@@ -644,61 +673,89 @@ boole vulkan_runtime::build_device_image_resource(ref<vulkan_window_context> w_c
     return boole::True;
 }
 
-boole vulkan_runtime::clear_device_resource(ref<vulkan_window_context> w_ctx)
+boole vulkan_runtime::clear_device_hardware_resource()
 {
     AUTO_TRACE;
 
-    while (w_ctx->_image_available_sema_vec.size())
-    {
-        vkDestroySemaphore(w_ctx->_logical_device, w_ctx->_image_available_sema_vec.back(), nullptr);
-        w_ctx->_image_available_sema_vec.pop_back();
-    }
-    while (w_ctx->_render_complete_sema_vec.size())
-    {
-        vkDestroySemaphore(w_ctx->_logical_device, w_ctx->_render_complete_sema_vec.back(), nullptr);
-        w_ctx->_render_complete_sema_vec.pop_back();
-    }
-    while (w_ctx->_inflight_fence_vec.size())
-    {
-        vkDestroyFence(w_ctx->_logical_device, w_ctx->_inflight_fence_vec.back(), nullptr);
-        w_ctx->_inflight_fence_vec.pop_back();
-    }
-    w_ctx->_reordered_fence_vec.clear();
-    w_ctx->_fence_counter = 0;
+    _resource_lk.wait_acquire();
+    escape_function ef_lk =
+        [=]() mutable
+        {
+            _resource_lk.release();
+        };
 
-    while (w_ctx->_image_view_vec.size())
+    if (_render_command_pool)
     {
-        vkDestroyImageView(w_ctx->_logical_device, w_ctx->_image_view_vec.back(), nullptr);
-        w_ctx->_image_view_vec.pop_back();
+        vkDestroyCommandPool(_logical_device, _render_command_pool, nullptr);
+        _render_command_pool = nullptr;
     }
-    if (w_ctx->_swap_chain)
+    if (_transfer_command_pool)
     {
-        vkDestroySwapchainKHR(w_ctx->_logical_device, w_ctx->_swap_chain, nullptr);
-        w_ctx->_swap_chain = nullptr;
+        vkDestroyCommandPool(_logical_device, _transfer_command_pool, nullptr);
+        _transfer_command_pool = nullptr;
     }
-    if (w_ctx->_render_command_pool)
+    if (_logical_device)
     {
-        vkDestroyCommandPool(w_ctx->_logical_device, w_ctx->_render_command_pool, nullptr);
-        w_ctx->_render_command_pool = nullptr;
-    }
-    if (w_ctx->_transfer_command_pool)
-    {
-        vkDestroyCommandPool(w_ctx->_logical_device, w_ctx->_transfer_command_pool, nullptr);
-        w_ctx->_transfer_command_pool = nullptr;
-    }
-    if (w_ctx->_logical_device)
-    {
-        vkDestroyDevice(w_ctx->_logical_device, nullptr);
-        w_ctx->_physical_device = nullptr;
-        w_ctx->_logical_device = nullptr;
-        w_ctx->_render_queue = nullptr;
-        w_ctx->_transfer_queue = nullptr;
-        w_ctx->_present_queue = nullptr;
+        vkDestroyDevice(_logical_device, nullptr);
+        _physical_device = nullptr;
+        _logical_device = nullptr;
+        _render_queue = nullptr;
+        _transfer_queue = nullptr;
+        _present_queue = nullptr;
+        _render_queue_family_idx = -1;
+        _present_queue_family_idx = -1;
+        _transfer_queue_family_idx = -1;
     }
     return boole::True;
 }
 
-ref<window> vulkan_runtime::build_window(const window_desc& desc, const string& preferred_device_name)
+boole vulkan_runtime::clear_device_image_resource(ref<vulkan_window_context> w_ctx)
+{
+    AUTO_TRACE;
+
+    _resource_lk.wait_acquire();
+    escape_function ef_lk =
+        [=]() mutable
+        {
+            _resource_lk.release();
+        };
+
+    if (w_ctx.empty())
+    {
+        return boole::False;
+    }
+
+    while (w_ctx->_image_available_sema_vec.size())
+    {
+        vkDestroySemaphore(_logical_device, w_ctx->_image_available_sema_vec.back(), nullptr);
+        w_ctx->_image_available_sema_vec.pop_back();
+    }
+    while (w_ctx->_render_complete_sema_vec.size())
+    {
+        vkDestroySemaphore(_logical_device, w_ctx->_render_complete_sema_vec.back(), nullptr);
+        w_ctx->_render_complete_sema_vec.pop_back();
+    }
+    while (w_ctx->_inflight_fence_vec.size())
+    {
+        vkDestroyFence(_logical_device, w_ctx->_inflight_fence_vec.back(), nullptr);
+        w_ctx->_inflight_fence_vec.pop_back();
+    }
+    w_ctx->_reordered_fence_vec.clear();
+    w_ctx->_fence_counter = 0;
+    while (w_ctx->_image_view_vec.size())
+    {
+        vkDestroyImageView(_logical_device, w_ctx->_image_view_vec.back(), nullptr);
+        w_ctx->_image_view_vec.pop_back();
+    }
+    if (w_ctx->_swap_chain)
+    {
+        vkDestroySwapchainKHR(_logical_device, w_ctx->_swap_chain, nullptr);
+        w_ctx->_swap_chain = nullptr;
+    }
+    return boole::True;
+}
+
+ref<window> vulkan_runtime::build_window(const window_desc& desc)
 {
     AUTO_TRACE;
 
@@ -717,11 +774,8 @@ ref<window> vulkan_runtime::build_window(const window_desc& desc, const string& 
 
     auto w_ctx = ref<vulkan_window_context>::new_instance();
     w_ctx->_window = wnd;
-    w_ctx->_preferred_device_name = preferred_device_name;
-    w_ctx->_logical_device = nullptr;
     w_ctx->_swap_chain = nullptr;
     _window_ctx_vec.push_back(w_ctx);
-
     return wnd;
 }
 
@@ -769,13 +823,7 @@ ref<shader> vulkan_runtime::build_shader(const shader_desc& desc)
 {
     AUTO_TRACE;
 
-    auto w_ctx = get_window_context(desc._window_name);
-    if (w_ctx.empty())
-    {
-        return ref<shader>();
-    }
-
-    auto r_shader = ref<vulkan_shader>::new_instance(desc, w_ctx);
+    auto r_shader = ref<vulkan_shader>::new_instance(desc, _self);
     if (!r_shader->load(desc._shader_path))
     {
         return ref<shader>();
@@ -793,7 +841,7 @@ boole vulkan_runtime::register_pipeline(const pipeline_desc& desc)
         return boole::False;
     }
 
-    auto r_pipeline = ref<vulkan_pipeline>::new_instance(w_ctx);
+    auto r_pipeline = ref<vulkan_pipeline>::new_instance(_self.obs_of<vulkan_runtime>(), w_ctx);
     if (!r_pipeline->init(desc))
     {
         return boole::False;
@@ -908,7 +956,7 @@ boole vulkan_runtime::wait_render_complete(const string& window_name)
     {
         return boole::False;
     }
-    if (vkDeviceWaitIdle(w_ctx->_logical_device) != VK_SUCCESS)
+    if (vkDeviceWaitIdle(_logical_device) != VK_SUCCESS)
     {
         return boole::False;
     }

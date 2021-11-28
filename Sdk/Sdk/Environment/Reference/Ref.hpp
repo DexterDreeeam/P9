@@ -56,7 +56,7 @@ public:
     const Ty& operator *() const;
 
 private:
-    ref(_RefNs::context<Ty>* ctx);
+    explicit ref(_RefNs::context<Ty>* ctx);
 
 public:
     template<typename Other_Ty>
