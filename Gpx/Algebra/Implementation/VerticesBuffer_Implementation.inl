@@ -153,19 +153,41 @@ _INLINE_ ref<vertices_buffer> vertices_buffer::load_from_json(const string& path
         return ref<vertices_buffer>();
     }
     auto vertices_json = json->index("vertices");
+    s64 vertices_space = 0;
     if (vertices_json.empty())
     {
         return ref<vertices_buffer>();
     }
+    auto indices_json = json->index("indices");
+    s64 indices_count = 0;
+    s64 indices_space = 0;
+    if (indices_json.has_value())
+    {
+        indices_count = indices_json->size();
+        indices_space = indices_count * sizeof(vertex_index);
+    }
     auto rst = ref<vertices_buffer>::new_instance();
     if (json.ref_of<json_object>()->index("vertex_type")->value() == "\"POS_COLOR\"")
     {
-        if (rst->setup_vertex_pos_color(vertices_json, fn_alloc))
+        vertices_space = rst->setup_vertex_pos_color(vertices_json, fn_alloc, indices_space);
+        if (vertices_space <= 0)
         {
-            return rst;
+            return ref<vertices_buffer>();
         }
     }
-    return ref<vertices_buffer>();
+    if (indices_json.has_value())
+    {
+        auto cursor = json_cursor(indices_json);
+        for (s64 i = 0; i < indices_count; ++i)
+        {
+            vertex_index* p = pointer_convert(rst->_data, vertices_space + i * sizeof(vertex_index), vertex_index*);
+            p->_idx = cursor[i].as_number().as_f32();
+        }
+    }
+    rst->_vertex_idx_count = indices_count;
+    rst->_vertex_idx_data_size = indices_space;
+    rst->_vertex_idx_offset = vertices_space;
+    return rst;
 }
 
 template<typename Alloc_Fn_Ty>
@@ -215,15 +237,12 @@ _INLINE_ ref<vertices_buffer> vertices_buffer::load_from_binary(const string& pa
 }
 
 template<typename Alloc_Fn_Ty>
-_INLINE_ boole vertices_buffer::setup_vertex_pos_color(ref<json_base> json, Alloc_Fn_Ty fn_alloc)
+_INLINE_ s64 vertices_buffer::setup_vertex_pos_color(ref<json_base> json, Alloc_Fn_Ty fn_alloc, s64 indices_space)
 {
     _vertices_count = json->size();
     _vertices_data_size = _vertices_count * sizeof(vertex_pos_color);
     _vertices_offset = 0;
-    _vertex_idx_count = 0;
-    _vertex_idx_data_size = 0;
-    _vertex_idx_offset = _vertices_data_size;
-    _data = fn_alloc(_vertices_data_size + _vertex_idx_data_size);
+    _data = fn_alloc(_vertices_data_size + indices_space);
     if (!_data)
     {
         return boole::False;

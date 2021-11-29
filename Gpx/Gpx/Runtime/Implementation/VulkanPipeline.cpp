@@ -21,6 +21,7 @@ vulkan_pipeline::vulkan_pipeline(obs<vulkan_runtime> rt, obs<vulkan_window_conte
     _frame_buffer_vec(),
     _command_buffer_vec(),
     _vk_vertices_buffers(),
+    _vk_indices_buffers(),
     _vertices_buffer_headers()
 {
 }
@@ -340,6 +341,7 @@ boole vulkan_pipeline::uninit()
     auto logical_device = rt->get_vk_logical_device();
 
     _vk_vertices_buffers.clear();
+    _vk_indices_buffers.clear();
     _vertices_buffer_headers.clear();
 
     if (_command_buffer_vec.size())
@@ -396,19 +398,22 @@ boole vulkan_pipeline::setup_vertices(const vector<string>& vertices_viewer_vec)
             transfer_state(pipeline_state::SetupInProgress, pipeline_state::Inited);
         };
 
-    _vk_vertices_buffers.clear();
     _vertices_buffer_headers.clear();
+    _vk_vertices_buffers.clear();
+    _vk_indices_buffers.clear();
     for (auto& vv : vertices_viewer_vec)
     {
         auto r_vv = rt->get_vertices_viewer(vv);
         if (r_vv->state() != vertices_viewer_state::Online)
         {
-            _vk_vertices_buffers.clear();
             _vertices_buffer_headers.clear();
+            _vk_vertices_buffers.clear();
+            _vk_indices_buffers.clear();
             return boole::False;
         }
-        _vk_vertices_buffers.push_back(r_vv->_vk_buffer);
         _vertices_buffer_headers.push_back(r_vv->_vb_header);
+        _vk_vertices_buffers.push_back(r_vv->_vk_buffer);
+        _vk_vertices_buffers.push_back(r_vv->_vk_buffer_indices);
     }
 
     return boole::True;
@@ -461,13 +466,26 @@ boole vulkan_pipeline::load_resource()
         renderPassInfo.clearValueCount = 1;
         renderPassInfo.pClearValues = &clearColor;
 
-        VkDeviceSize offsets[1] = { 0 };
+        vector<VkDeviceSize> offsets;
         vkCmdBeginRenderPass(_command_buffer_vec[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
         vkCmdBindPipeline(_command_buffer_vec[i], VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline);
-        for (s64 j = 0; j < _vk_vertices_buffers.size(); ++j)
+        for (s64 j = 0; j < _vertices_buffer_headers.size(); ++j)
         {
-            vkCmdBindVertexBuffers(_command_buffer_vec[i], 0, 1, &_vk_vertices_buffers[j], offsets);
-            vkCmdDraw(_command_buffer_vec[i], _vertices_buffer_headers[j].vertices_count, 1, 0, 0);
+            if (_vertices_buffer_headers[j].indices_count > 0)
+            {
+                s64 offset_idx = offsets.size();
+                offsets.push_back(0);
+                vkCmdBindVertexBuffers(_command_buffer_vec[i], 0, 1, &_vk_vertices_buffers[j], &offsets[offset_idx]);
+                vkCmdBindIndexBuffer(_command_buffer_vec[i], _vk_indices_buffers[j], 0, VK_INDEX_TYPE_UINT32);
+                vkCmdDrawIndexed(_command_buffer_vec[i], _vertices_buffer_headers[j].indices_count, 1, 0, 0, 0);
+            }
+            else
+            {
+                s64 offset_idx = offsets.size();
+                offsets.push_back(0);
+                vkCmdBindVertexBuffers(_command_buffer_vec[i], 0, 1, &_vk_vertices_buffers[j], &offsets[offset_idx]);
+                vkCmdDraw(_command_buffer_vec[i], _vertices_buffer_headers[j].vertices_count, 1, 0, 0);
+            }
         }
         vkCmdEndRenderPass(_command_buffer_vec[i]);
         if (vkEndCommandBuffer(_command_buffer_vec[i]) != VK_SUCCESS)

@@ -36,6 +36,7 @@ private:
     vector<VkFramebuffer>           _frame_buffer_vec;
     vector<VkCommandBuffer>         _command_buffer_vec;
     vector<VkBuffer>                _vk_vertices_buffers;
+    vector<VkBuffer>                _vk_indices_buffers;
     vector<vertices_buffer_header>  _vertices_buffer_headers;
 };
 
