@@ -75,7 +75,7 @@ void vulkan_indices_buffer_test()
     frag_shader->unload();
 
     // vertices buffer
-    string vertices_file_name_3 = "test2-3.vertices.json";
+    string vertices_file_name_3 = "test2-3.p9vb";
     auto vertices_files_3 = search_files(
         "../",
         [&](const string& path)
@@ -110,7 +110,7 @@ void vulkan_indices_buffer_test()
     u64 start_tick = tick::elapse();
     while (1)
     {
-        if (tick::elapse() - start_tick >= 2000)
+        if (tick::elapse() - start_tick >= 1000)
         {
             break;
         }

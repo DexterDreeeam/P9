@@ -245,7 +245,7 @@ _INLINE_ s64 vertices_buffer::setup_vertex_pos_color(ref<json_base> json, Alloc_
     _data = fn_alloc(_vertices_data_size + indices_space);
     if (!_data)
     {
-        return boole::False;
+        return -1;
     }
     json_cursor cursor(json);
     for (s64 i = 0; i < _vertices_count; ++i)
@@ -258,7 +258,7 @@ _INLINE_ s64 vertices_buffer::setup_vertex_pos_color(ref<json_base> json, Alloc_
         p->_color.y() = cursor[i]["color"][1].as_number().as_f32();
         p->_color.z() = cursor[i]["color"][2].as_number().as_f32();
     }
-    return boole::True;
+    return _vertices_data_size;
 }
 
 }

@@ -14,5 +14,7 @@
     <None Include="Shader\Vulkan\Glsl\test2.vert" />
     <None Include="Vertices\test2.vertices.json" />
     <None Include="Vertices\test2-3.vertices.json" />
+    <None Include="Vertices\test2-1.vertices.json" />
+    <None Include="Vertices\test2-2.vertices.json" />
   </ItemGroup>
 </Project>

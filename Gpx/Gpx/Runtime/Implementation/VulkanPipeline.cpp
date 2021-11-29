@@ -398,22 +398,22 @@ boole vulkan_pipeline::setup_vertices(const vector<string>& vertices_viewer_vec)
             transfer_state(pipeline_state::SetupInProgress, pipeline_state::Inited);
         };
 
-    _vertices_buffer_headers.clear();
     _vk_vertices_buffers.clear();
     _vk_indices_buffers.clear();
+    _vertices_buffer_headers.clear();
     for (auto& vv : vertices_viewer_vec)
     {
         auto r_vv = rt->get_vertices_viewer(vv);
         if (r_vv->state() != vertices_viewer_state::Online)
         {
-            _vertices_buffer_headers.clear();
             _vk_vertices_buffers.clear();
             _vk_indices_buffers.clear();
+            _vertices_buffer_headers.clear();
             return boole::False;
         }
-        _vertices_buffer_headers.push_back(r_vv->_vb_header);
         _vk_vertices_buffers.push_back(r_vv->_vk_buffer);
-        _vk_vertices_buffers.push_back(r_vv->_vk_buffer_indices);
+        _vk_indices_buffers.push_back(r_vv->_vk_buffer_indices);
+        _vertices_buffer_headers.push_back(r_vv->_vb_header);
     }
 
     return boole::True;

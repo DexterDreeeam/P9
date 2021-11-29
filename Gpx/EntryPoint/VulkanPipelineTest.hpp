@@ -130,7 +130,7 @@ void vulkan_pipeline_test()
     u64 start_tick = tick::elapse();
     while (1)
     {
-        if (tick::elapse() - start_tick >= 2000)
+        if (tick::elapse() - start_tick >= 1000)
         {
             break;
         }
