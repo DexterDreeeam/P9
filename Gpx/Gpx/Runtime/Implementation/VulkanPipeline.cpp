@@ -15,6 +15,7 @@ static void setup_vertex_input_desc(
 vulkan_pipeline::vulkan_pipeline(obs<vulkan_runtime> rt, obs<vulkan_window_context> w_ctx) :
     _rt(rt),
     _window_ctx(w_ctx),
+    _dynamic_memory_layout(nullptr),
     _layout(nullptr),
     _render_pass(nullptr),
     _pipeline(nullptr),
@@ -200,10 +201,36 @@ boole vulkan_pipeline::init(const pipeline_desc& desc)
     */
 
     // pipeline layout setting, including uniform variable
-    VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+    s64 binding_idx = 0;
+    vector<VkDescriptorSetLayoutBinding> dynamic_memory_layout_bindings;
+    for (auto& dm : desc._dynamic_memories)
+    {
+        auto r_dm = rt->get_dynamic_memory(dm);
+        VkDescriptorSetLayoutBinding layout_binding = {};
+        layout_binding.binding = binding_idx++;
+        layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        layout_binding.descriptorCount = 1;
+        layout_binding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+        layout_binding.pImmutableSamplers = nullptr;
+        dynamic_memory_layout_bindings.push_back(layout_binding);
+    }
+
+    VkDescriptorSetLayoutCreateInfo dynamic_memory_layout = {};
+    dynamic_memory_layout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    dynamic_memory_layout.bindingCount = dynamic_memory_layout_bindings.size();
+    dynamic_memory_layout.pBindings = dynamic_memory_layout_bindings.data();
+
+    if (vkCreateDescriptorSetLayout(
+            logical_device, &dynamic_memory_layout, nullptr, &_dynamic_memory_layout) != VK_SUCCESS)
+    {
+        uninit();
+        return boole::False;
+    }
+
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 0;
-    pipelineLayoutInfo.pSetLayouts = nullptr;
+    pipelineLayoutInfo.setLayoutCount = 1;
+    pipelineLayoutInfo.pSetLayouts = &_dynamic_memory_layout;
     pipelineLayoutInfo.pushConstantRangeCount = 0;
     pipelineLayoutInfo.pPushConstantRanges = nullptr;
     if (vkCreatePipelineLayout(logical_device, &pipelineLayoutInfo, nullptr, &_layout) != VK_SUCCESS)
@@ -372,6 +399,11 @@ boole vulkan_pipeline::uninit()
     {
         vkDestroyPipelineLayout(logical_device, _layout, nullptr);
         _layout = nullptr;
+    }
+    if (_dynamic_memory_layout)
+    {
+        vkDestroyDescriptorSetLayout(logical_device, _dynamic_memory_layout, nullptr);
+        _dynamic_memory_layout = nullptr;
     }
 
     boole checker = transfer_state(pipeline_state::InitingOrUniniting, pipeline_state::Uninit);

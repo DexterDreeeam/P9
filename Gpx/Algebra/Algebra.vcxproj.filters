@@ -21,10 +21,11 @@
     <ClInclude Include="Mat\Mat4x1.hpp" />
     <ClInclude Include="Mat\Mat4x2.hpp" />
     <ClInclude Include="Mat\Mat4x3.hpp" />
-    <ClInclude Include="MatMultiplication.hpp" />
+    <ClInclude Include="MatTransfer\MatMultiplication.hpp" />
     <ClInclude Include="Vertex\Vertex.hpp" />
     <ClInclude Include="VerticesBuffer.hpp" />
     <ClInclude Include="Vertex\VertexPosColor.hpp" />
+    <ClInclude Include="MatTransfer\TransitionMatrixGroup.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Implementation\Vec2_Implementation.inl" />

@@ -32,7 +32,9 @@ vulkan_runtime::vulkan_runtime(const runtime_desc& desc) :
     _pipeline_map(),
     _pipeline_map_lock(),
     _vertices_viewer_map(),
-    _vertices_viewer_map_lock()
+    _vertices_viewer_map_lock(),
+    _dynamic_memory_map(),
+    _dynamic_memory_map_lock()
 {
     AUTO_TRACE;
 
@@ -40,6 +42,7 @@ vulkan_runtime::vulkan_runtime(const runtime_desc& desc) :
     _window_ctx_vec_lock.init();
     _pipeline_map_lock.init();
     _vertices_viewer_map_lock.init();
+    _dynamic_memory_map_lock.init();
 }
 
 vulkan_runtime::~vulkan_runtime()
@@ -48,6 +51,7 @@ vulkan_runtime::~vulkan_runtime()
 
     uninit();
 
+    _dynamic_memory_map_lock.uninit();
     _vertices_viewer_map_lock.uninit();
     _pipeline_map_lock.uninit();
     _window_ctx_vec_lock.uninit();
@@ -225,6 +229,26 @@ ref<vulkan_vertices_viewer> vulkan_runtime::get_vertices_viewer(const string& ve
         ret = itr->second;
     }
     return ret;
+}
+
+ref<vulkan_dynamic_memory> vulkan_runtime::get_dynamic_memory(const string& dynamic_memory)
+{
+    if (!_dynamic_memory_map_lock.wait_read())
+    {
+        return ref<vulkan_dynamic_memory>();
+    }
+    escape_function ef =
+        [=]() mutable
+    {
+        _dynamic_memory_map_lock.read_release();
+    };
+
+    auto itr = _dynamic_memory_map.find(dynamic_memory);
+    if (itr != _dynamic_memory_map.end())
+    {
+        return itr->second;
+    }
+    return ref<vulkan_dynamic_memory>();
 }
 
 ref<vulkan_pipeline> vulkan_runtime::get_pipeline(const string& pipeline_name)
@@ -858,6 +882,83 @@ ref<shader> vulkan_runtime::build_shader(const shader_desc& desc)
     return r_shader;
 }
 
+boole vulkan_runtime::register_dynamic_memory(const dynamic_memory_desc& desc)
+{
+    AUTO_TRACE;
+
+    auto r_dm = ref<vulkan_dynamic_memory>::new_instance(_self);
+    if (!r_dm->init(desc))
+    {
+        return boole::False;
+    }
+
+    escape_function ef_uninit =
+        [=]() mutable
+        {
+            r_dm->uninit();
+        };
+
+    if (!_dynamic_memory_map_lock.wait_write())
+    {
+        return boole::False;
+    }
+
+    escape_function ef_release_lock =
+        [=]() mutable
+        {
+            _dynamic_memory_map_lock.write_release();
+        };
+
+    if (_dynamic_memory_map.find(desc._name) != _dynamic_memory_map.end())
+    {
+        // already has a same name dm
+        return boole::False;
+    }
+
+    ef_uninit.disable();
+    _dynamic_memory_map[desc._name] = r_dm;
+    return boole::True;
+}
+
+boole vulkan_runtime::unregister_dynamic_memory(const string& dynamic_memory)
+{
+    AUTO_TRACE;
+
+    auto r_dm = get_dynamic_memory(dynamic_memory);
+    if (r_dm.empty())
+    {
+        return boole::False;
+    }
+    if (!r_dm->uninit())
+    {
+        return boole::False;
+    }
+
+    if (!_dynamic_memory_map_lock.wait_write())
+    {
+        return boole::False;
+    }
+    escape_function ef =
+        [=]() mutable
+    {
+        _dynamic_memory_map_lock.write_release();
+    };
+
+    return _dynamic_memory_map.erase(dynamic_memory);
+}
+
+boole vulkan_runtime::update_dynamic_memory(const string& dynamic_memory, void* src)
+{
+    AUTO_TRACE;
+
+    auto r_dm = get_dynamic_memory(dynamic_memory);
+    if (r_dm.empty())
+    {
+        return boole::False;
+    }
+    return r_dm->update(src);
+}
+
 boole vulkan_runtime::register_vertices_viewer(const vertices_viewer_desc& desc)
 {
     AUTO_TRACE;
@@ -904,12 +1005,20 @@ boole vulkan_runtime::unregister_vertices_viewer(const string& vertices_viewer)
 boole vulkan_runtime::load_vertices_viewer(const string& vertices_viewer)
 {
     auto r_vv = get_vertices_viewer(vertices_viewer);
+    if (r_vv.empty())
+    {
+        return boole::False;
+    }
     return r_vv->load();
 }
 
 boole vulkan_runtime::unload_vertices_viewer(const string& vertices_viewer)
 {
     auto r_vv = get_vertices_viewer(vertices_viewer);
+    if (r_vv.empty())
+    {
+        return boole::False;
+    }
     return r_vv->unload();
 }
 
@@ -1030,6 +1139,122 @@ boole vulkan_runtime::wait_render_complete(const string& window_name)
         return boole::False;
     }
     return boole::True;
+}
+
+boole vulkan_runtime::setup_vk_buffer(
+    VkDevice logical_device, VkPhysicalDevice device, sz_t size,
+    boole single_queue_family, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
+    VkBuffer& buffer, VkDeviceMemory& bufferMemory)
+{
+    AUTO_TRACE;
+
+    VkBuffer vk_buffer;
+    VkDeviceMemory vk_memory;
+
+    VkBufferCreateInfo bufferInfo = {};
+    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    bufferInfo.size = size;
+    bufferInfo.usage = usage;
+    bufferInfo.sharingMode =
+        //rt->_render_queue_family_idx == rt->_transfer_queue_family_idx ?
+        single_queue_family ? VK_SHARING_MODE_EXCLUSIVE : VK_SHARING_MODE_CONCURRENT;
+
+    if (vkCreateBuffer(logical_device, &bufferInfo, nullptr, &vk_buffer) != VK_SUCCESS)
+    {
+        return boole::False;
+    }
+
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(logical_device, vk_buffer, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = get_vk_memory_type(device, memRequirements, properties);
+
+    if (vkAllocateMemory(logical_device, &allocInfo, nullptr, &vk_memory) != VK_SUCCESS)
+    {
+        vkDestroyBuffer(logical_device, vk_buffer, nullptr);
+        return boole::False;
+    }
+
+    if (vkBindBufferMemory(logical_device, vk_buffer, vk_memory, 0) != VK_SUCCESS)
+    {
+        vkDestroyBuffer(logical_device, vk_buffer, nullptr);
+        vkFreeMemory(logical_device, vk_memory, nullptr);
+        return boole::False;
+    }
+
+    buffer = vk_buffer;
+    bufferMemory = vk_memory;
+    return boole::True;
+}
+
+boole vulkan_runtime::clear_vk_buffer(VkDevice logical_device, VkBuffer buffer, VkDeviceMemory bufferMemory)
+{
+    vkDestroyBuffer(logical_device, buffer, nullptr);
+    vkFreeMemory(logical_device, bufferMemory, nullptr);
+    return boole::True;
+}
+
+boole vulkan_runtime::copy_vk_buffer(
+    VkDevice logical_device, VkCommandPool transfer_command_pool, VkQueue transfer_queue,
+    VkBuffer host_buf, s64 host_offset, VkBuffer device_buf, sz_t size)
+{
+    AUTO_TRACE;
+
+    VkCommandBufferAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandPool = transfer_command_pool;
+    allocInfo.commandBufferCount = 1;
+
+    VkCommandBuffer commandBuffer;
+    if (vkAllocateCommandBuffers(logical_device, &allocInfo, &commandBuffer) != VK_SUCCESS)
+    {
+        return boole::False;
+    }
+    escape_function ef_release_command_buffer =
+        [=]() mutable
+    {
+        vkFreeCommandBuffers(logical_device, transfer_command_pool, 1, &commandBuffer);
+    };
+
+    VkBufferCopy copyRegion = {};
+    copyRegion.srcOffset = host_offset;
+    copyRegion.dstOffset = 0;
+    copyRegion.size = size;
+
+    VkCommandBufferBeginInfo beginInfo = {};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+
+    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+    vkCmdCopyBuffer(commandBuffer, host_buf, device_buf, 1, &copyRegion);
+    vkEndCommandBuffer(commandBuffer);
+    vkQueueSubmit(transfer_queue, 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(transfer_queue);
+    return boole::True;
+}
+
+s64 vulkan_runtime::get_vk_memory_type(VkPhysicalDevice device, VkMemoryRequirements& requirements, VkFlags needed_properties)
+{
+    auto typeBits = requirements.memoryTypeBits;
+    VkPhysicalDeviceMemoryProperties memProperties;
+    vkGetPhysicalDeviceMemoryProperties(device, &memProperties);
+    for (s64 i = 0; i < memProperties.memoryTypeCount; ++i)
+    {
+        if ((typeBits & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & needed_properties) == needed_properties)
+        {
+            return i;
+        }
+    }
+    return -1;
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL vulkan_runtime::debug_cb(

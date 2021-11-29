@@ -7,6 +7,7 @@
     <ClInclude Include="VulkanWindowTest.hpp" />
     <ClInclude Include="VulkanPipelineTest.hpp" />
     <ClInclude Include="VulkanIndicesBufferTest.hpp" />
+    <ClInclude Include="VulkanTransitionMatrixTest.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="_compile_windows_vulkan_shaders.ps1" />
@@ -16,5 +17,9 @@
     <None Include="Vertices\test2-3.vertices.json" />
     <None Include="Vertices\test2-1.vertices.json" />
     <None Include="Vertices\test2-2.vertices.json" />
+    <None Include="Shader\Vulkan\Glsl\test1.frag" />
+    <None Include="Shader\Vulkan\Glsl\test1.vert" />
+    <None Include="Shader\Vulkan\Glsl\test3.vert" />
+    <None Include="Shader\Vulkan\Glsl\test3.frag" />
   </ItemGroup>
 </Project>

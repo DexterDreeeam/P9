@@ -30,6 +30,7 @@ public:
 private:
     obs<vulkan_runtime>             _rt;
     obs<vulkan_window_context>      _window_ctx;
+    VkDescriptorSetLayout           _dynamic_memory_layout;
     VkPipelineLayout                _layout;
     VkRenderPass                    _render_pass;
     VkPipeline                      _pipeline;

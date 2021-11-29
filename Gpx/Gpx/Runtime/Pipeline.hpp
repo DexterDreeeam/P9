@@ -12,6 +12,7 @@ struct pipeline_desc
     string                  _pipeline_name;
     vertex_type             _vertex_type;
     vector<ref<shader>>     _shaders;
+    vector<string>          _dynamic_memories;
 };
 
 /*

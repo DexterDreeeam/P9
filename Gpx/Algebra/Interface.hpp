@@ -23,7 +23,8 @@
 #include "Mat/Mat4x3.hpp"
 #include "Mat/Mat4x4.hpp"
 
-#include "MatMultiplication.hpp"
+#include "MatTransfer/MatMultiplication.hpp"
+#include "MatTransfer/TransitionMatrixGroup.hpp"
 
 #include "Vertex/Vertex.hpp"
 #include "Vertex/VertexPosColor.hpp"

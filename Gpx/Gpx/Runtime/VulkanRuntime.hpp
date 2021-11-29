@@ -3,6 +3,7 @@
 #include "Interface.hpp"
 #include "VulkanPipeline.hpp"
 #include "VulkanVerticesViewer.hpp"
+#include "VulkanDynamicMemory.hpp"
 
 namespace gpx
 {
@@ -58,6 +59,14 @@ public:
 
     virtual ref<shader> build_shader(const shader_desc& desc) override;
 
+    // dynamic memory
+
+    virtual boole register_dynamic_memory(const dynamic_memory_desc& desc) override;
+
+    virtual boole unregister_dynamic_memory(const string& dynamic_memory) override;
+
+    virtual boole update_dynamic_memory(const string& dynamic_memory, void* src) override;
+
     // vertices viewer
 
     virtual boole register_vertices_viewer(const vertices_viewer_desc& desc) override;
@@ -89,9 +98,13 @@ public:
 
     VkDevice get_vk_logical_device() { return _logical_device; }
 
+    VkPhysicalDevice get_vk_physical_device() { return _physical_device; }
+
     ref<vulkan_window_context> get_window_context(const string& window_name);
 
     ref<vulkan_vertices_viewer> get_vertices_viewer(const string& vertices_viewer);
+
+    ref<vulkan_dynamic_memory> get_dynamic_memory(const string& dynamic_memory);
 
     ref<vulkan_pipeline> get_pipeline(const string& pipeline_name);
 
@@ -106,6 +119,21 @@ public:
     boole clear_device_hardware_resource();
 
     boole clear_device_image_resource(ref<vulkan_window_context> w_ctx);
+
+public:
+    static boole setup_vk_buffer(
+        VkDevice logical_device, VkPhysicalDevice device, sz_t size,
+        boole single_queue_family, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
+        VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+
+    static boole clear_vk_buffer(VkDevice logical_device, VkBuffer buffer, VkDeviceMemory bufferMemory);
+
+    static boole copy_vk_buffer(
+        VkDevice logical_device, VkCommandPool transfer_command_pool, VkQueue transfer_queue,
+        VkBuffer host_buf, s64 host_offset, VkBuffer device_buf, sz_t size);
+
+    static s64 get_vk_memory_type(VkPhysicalDevice device, VkMemoryRequirements& requirements, VkFlags needed_properties);
+
 
 private:
     static VKAPI_ATTR VkBool32 VKAPI_CALL debug_cb(
@@ -149,6 +177,11 @@ private:
         string, ref<vulkan_vertices_viewer>
     >                             _vertices_viewer_map;
     rw_lock                       _vertices_viewer_map_lock;
+
+    map<
+        string, ref<vulkan_dynamic_memory>
+    >                             _dynamic_memory_map;
+    rw_lock                       _dynamic_memory_map_lock;
 };
 
 }

@@ -71,6 +71,16 @@ public:
         return *this;
     }
 
+    void disable()
+    {
+        if (_release)
+        {
+            _release->disable();
+            delete _release;
+            _release = nullptr;
+        }
+    }
+
 private:
     internal_release_base* _release;
 };

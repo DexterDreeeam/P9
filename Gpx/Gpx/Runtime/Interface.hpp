@@ -7,6 +7,7 @@
 #include "../Window/Interface.hpp"
 
 #include "Shader.hpp"
-#include "Pipeline.hpp"
 #include "VerticesViewer.hpp"
+#include "DynamicMemory.hpp"
+#include "Pipeline.hpp"
 #include "Runtime.hpp"

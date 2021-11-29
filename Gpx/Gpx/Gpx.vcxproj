@@ -12,11 +12,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Interface.hpp" />
+    <ClInclude Include="Runtime\DynamicMemory.hpp" />
     <ClInclude Include="Runtime\Interface.hpp" />
     <ClInclude Include="Runtime\Pipeline.hpp" />
     <ClInclude Include="Runtime\Runtime.hpp" />
     <ClInclude Include="Runtime\Shader.hpp" />
     <ClInclude Include="Runtime\VerticesViewer.hpp" />
+    <ClInclude Include="Runtime\VulkanDynamicMemory.hpp" />
     <ClInclude Include="Runtime\VulkanPipeline.hpp" />
     <ClInclude Include="Runtime\VulkanRuntime.hpp" />
     <ClInclude Include="Runtime\VulkanShader.hpp" />
@@ -29,6 +31,7 @@
     <ClCompile Include="Runtime\Implementation\Pipeline.cpp" />
     <ClCompile Include="Runtime\Implementation\Runtime.cpp" />
     <ClCompile Include="Runtime\Implementation\VerticesViewer.cpp" />
+    <ClCompile Include="Runtime\Implementation\VulkanDynamicMemory.cpp" />
     <ClCompile Include="Runtime\Implementation\VulkanPipeline.cpp" />
     <ClCompile Include="Runtime\Implementation\VulkanRuntime.cpp" />
     <ClCompile Include="Runtime\Implementation\VulkanShader.cpp" />

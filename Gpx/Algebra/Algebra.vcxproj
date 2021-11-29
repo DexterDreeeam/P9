@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Interface.hpp" />
+    <ClInclude Include="MatTransfer\TransitionMatrixGroup.hpp" />
     <ClInclude Include="Mat\Mat1x1.hpp" />
     <ClInclude Include="Mat\Mat1x2.hpp" />
     <ClInclude Include="Mat\Mat1x3.hpp" />
@@ -28,7 +29,7 @@
     <ClInclude Include="Mat\Mat4x2.hpp" />
     <ClInclude Include="Mat\Mat4x3.hpp" />
     <ClInclude Include="Mat\Mat4x4.hpp" />
-    <ClInclude Include="MatMultiplication.hpp" />
+    <ClInclude Include="MatTransfer\MatMultiplication.hpp" />
     <ClInclude Include="Vec\Vec2.hpp" />
     <ClInclude Include="Vec\Vec3.hpp" />
     <ClInclude Include="Vec\Vec4.hpp" />

@@ -36,7 +36,7 @@ public:
         f32 v21 = 0, f32 v22 = 0,
         f32 v31 = 0, f32 v32 = 0);
 
-    explicit mat3x2(vec2 vc2_1 = vec2(), vec2 vc2_2 = vec2(), vec2 vc2_3 = vec2());
+    explicit mat3x2(vec2 vc2_1, vec2 vc2_2 = vec2(), vec2 vc2_3 = vec2());
 
     mat3x2(const mat3x2& rhs);
 

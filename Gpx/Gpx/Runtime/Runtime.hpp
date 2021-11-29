@@ -60,6 +60,14 @@ public:
 
     virtual ref<shader> build_shader(const shader_desc& desc) = 0;
 
+    // dynamic memory
+
+    virtual boole register_dynamic_memory(const dynamic_memory_desc& desc) = 0;
+
+    virtual boole unregister_dynamic_memory(const string& dynamic_memory) = 0;
+
+    virtual boole update_dynamic_memory(const string& dynamic_memory, void* src) = 0;
+
     // vertices
 
     virtual boole register_vertices_viewer(const vertices_viewer_desc& desc) = 0;

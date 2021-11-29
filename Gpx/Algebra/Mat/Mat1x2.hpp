@@ -29,7 +29,7 @@ class mat1x2
 public:
     explicit mat1x2(f32 v11 = 0, f32 v12 = 0);
 
-    explicit mat1x2(vec2 vc2 = vec2());
+    explicit mat1x2(vec2 vc2);
 
     mat1x2(const mat1x2& rhs);
 

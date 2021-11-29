@@ -39,7 +39,7 @@ public:
         f32 v31 = 0, f32 v32 = 0, f32 v33 = 0,
         f32 v41 = 0, f32 v42 = 0, f32 v43 = 0);
 
-    explicit mat4x3(vec3 vc3_1 = vec3(), vec3 vc3_2 = vec3(), vec3 vc3_3 = vec3(), vec3 vc3_4 = vec3());
+    explicit mat4x3(vec3 vc3_1, vec3 vc3_2 = vec3(), vec3 vc3_3 = vec3(), vec3 vc3_4 = vec3());
 
     mat4x3(const mat4x3& rhs);
 
