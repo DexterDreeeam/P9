@@ -26,8 +26,8 @@ private:
     dynamic_memory_desc            _desc;
     obs<vulkan_runtime>            _rt;
 
-    VkBuffer                       _buffer;
-    VkDeviceMemory                 _memory;
+    vector<VkBuffer>               _buffer_vec;
+    vector<VkDeviceMemory>         _memory_vec;
 };
 
 }

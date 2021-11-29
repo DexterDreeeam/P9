@@ -31,6 +31,7 @@ class vulkan_runtime : public runtime
     friend class glfw_window;
     friend class vulkan_pipeline;
     friend class vulkan_vertices_viewer;
+    friend class vulkan_dynamic_memory;
 
 public:
     vulkan_runtime(const runtime_desc& desc);

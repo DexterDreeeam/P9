@@ -19,6 +19,7 @@ struct runtime_desc
     };
 
     _type   type;
+    s64     frame_count;
     boole   debug_mode;
 };
 

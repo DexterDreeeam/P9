@@ -311,7 +311,7 @@ boole vulkan_pipeline::init(const pipeline_desc& desc)
         return boole::False;
     }
 
-    s64 image_count = w_ctx->_image_view_vec.size();
+    s64 image_count = rt->_desc.frame_count;
     VkCommandBufferAllocateInfo allocInfo = {};
 
     // frame buffer
@@ -475,7 +475,7 @@ boole vulkan_pipeline::load_resource()
     auto logical_device = rt->get_vk_logical_device();
 
     // record command buffer
-    s64 image_count = w_ctx->_image_view_vec.size();
+    s64 image_count = rt->_desc.frame_count;
     for (s64 i = 0; i < image_count; ++i)
     {
         VkCommandBufferBeginInfo beginInfo = {};

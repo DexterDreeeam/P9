@@ -617,15 +617,14 @@ boole vulkan_runtime::build_device_image_resource(ref<vulkan_window_context> w_c
     }
 
     // swap chain image count
-    u64 preferred_image_count = 3;
-    preferred_image_count = math::clamp(preferred_image_count, surfaceCapabilities.minImageCount, surfaceCapabilities.maxImageCount);
+    _desc.frame_count = math::clamp(_desc.frame_count, surfaceCapabilities.minImageCount, surfaceCapabilities.maxImageCount);
 
     // swap chain
     uint32_t queueFamilyIndices[] = { (uint32_t)_render_queue_family_idx, (uint32_t)_present_queue_family_idx };
     VkSwapchainCreateInfoKHR createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
     createInfo.surface = surface;
-    createInfo.minImageCount = preferred_image_count;
+    createInfo.minImageCount = _desc.frame_count;
     createInfo.imageFormat = w_ctx->_surface_format.format;
     createInfo.imageColorSpace = w_ctx->_surface_format.colorSpace;
     createInfo.imageExtent = w_ctx->_swap_chain_extent;
