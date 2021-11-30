@@ -590,19 +590,30 @@ boole vulkan_pipeline::load_resource()
         vkCmdBindPipeline(_command_buffer_vec[i], VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline);
         for (s64 j = 0; j < _vertices_buffer_headers.size(); ++j)
         {
+            s64 offset_idx = offsets.size();
+            offsets.push_back(0);
+            vkCmdBindVertexBuffers(_command_buffer_vec[i], 0, 1, &_vk_vertices_buffers[j], &offsets[offset_idx]);
+
+            if (_descriptor_set_vec.size())
+            {
+                vkCmdBindDescriptorSets(
+                    _command_buffer_vec[i],
+                    VK_PIPELINE_BIND_POINT_GRAPHICS,
+                    _layout,
+                    0,
+                    _descriptor_set_vec.size(),
+                    _descriptor_set_vec.data(),
+                    0,
+                    nullptr);
+            }
+
             if (_vertices_buffer_headers[j].indices_count > 0)
             {
-                s64 offset_idx = offsets.size();
-                offsets.push_back(0);
-                vkCmdBindVertexBuffers(_command_buffer_vec[i], 0, 1, &_vk_vertices_buffers[j], &offsets[offset_idx]);
                 vkCmdBindIndexBuffer(_command_buffer_vec[i], _vk_indices_buffers[j], 0, VK_INDEX_TYPE_UINT32);
                 vkCmdDrawIndexed(_command_buffer_vec[i], _vertices_buffer_headers[j].indices_count, 1, 0, 0, 0);
             }
             else
             {
-                s64 offset_idx = offsets.size();
-                offsets.push_back(0);
-                vkCmdBindVertexBuffers(_command_buffer_vec[i], 0, 1, &_vk_vertices_buffers[j], &offsets[offset_idx]);
                 vkCmdDraw(_command_buffer_vec[i], _vertices_buffer_headers[j].vertices_count, 1, 0, 0);
             }
         }

@@ -154,7 +154,7 @@ boole vulkan_dynamic_memory::update(void* src)
 
     u64 update_idx = (_buffer_in_use + 1) % 2;
     void* mmap;
-    if (!vkMapMemory(logical_device, _memory[update_idx], 0, _desc._size, 0, &mmap))
+    if (vkMapMemory(logical_device, _memory[update_idx], 0, _desc._size, 0, &mmap) != VK_SUCCESS)
     {
         return boole::False;
     }

@@ -87,7 +87,7 @@ void vulkan_transition_matrix_test()
     frag_shader->unload();
 
     // vertices buffer
-    string vertices_file_name_3 = "test3.p9vb";
+    string vertices_file_name_3 = "test3.vertices.json";
     auto vertices_files_3 = search_files(
         "../",
         [&](const string& path)

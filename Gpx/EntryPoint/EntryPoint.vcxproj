@@ -30,6 +30,7 @@
     <None Include="Vertices\test2-2.vertices.json" />
     <None Include="Vertices\test2-3.vertices.json" />
     <None Include="Vertices\test2.vertices.json" />
+    <None Include="Vertices\test3.vertices.json" />
     <None Include="_compile_windows_vulkan_shaders.ps1" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
