@@ -13,9 +13,13 @@ static void setup_vertex_input_desc(
     vector<VkVertexInputAttributeDescription>& attribute_vec);
 
 vulkan_pipeline::vulkan_pipeline(obs<vulkan_runtime> rt, obs<vulkan_window_context> w_ctx) :
+    _name(),
     _rt(rt),
     _window_ctx(w_ctx),
-    _dynamic_memory_layout(nullptr),
+    _descriptor_pool(nullptr),
+    _descriptor_set_vec(),
+    _dynamic_memory_layout_vec(),
+    _dynamic_memory_vec(),
     _layout(nullptr),
     _render_pass(nullptr),
     _pipeline(nullptr),
@@ -200,37 +204,96 @@ boole vulkan_pipeline::init(const pipeline_desc& desc)
     dynamicState.pDynamicStates = dynamicStates;
     */
 
-    // pipeline layout setting, including uniform variable
+    // pipeline descriptor
     s64 binding_idx = 0;
-    vector<VkDescriptorSetLayoutBinding> dynamic_memory_layout_bindings;
-    for (auto& dm : desc._dynamic_memories)
+    s64 dynamic_memory_cnt = desc._dynamic_memories.size();
+    if (dynamic_memory_cnt > 0)
     {
-        auto r_dm = rt->get_dynamic_memory(dm);
-        VkDescriptorSetLayoutBinding layout_binding = {};
-        layout_binding.binding = binding_idx++;
-        layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        layout_binding.descriptorCount = 1;
-        layout_binding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-        layout_binding.pImmutableSamplers = nullptr;
-        dynamic_memory_layout_bindings.push_back(layout_binding);
-    }
+        for (auto& dm : desc._dynamic_memories)
+        {
+            VkDescriptorSetLayoutBinding layout_binding = {};
+            layout_binding.binding = binding_idx++;
+            layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            layout_binding.descriptorCount = 1;
+            layout_binding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+            layout_binding.pImmutableSamplers = nullptr;
 
-    VkDescriptorSetLayoutCreateInfo dynamic_memory_layout = {};
-    dynamic_memory_layout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    dynamic_memory_layout.bindingCount = dynamic_memory_layout_bindings.size();
-    dynamic_memory_layout.pBindings = dynamic_memory_layout_bindings.data();
+            VkDescriptorSetLayoutCreateInfo dynamic_memory_layout = {};
+            dynamic_memory_layout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+            dynamic_memory_layout.bindingCount = 1;
+            dynamic_memory_layout.pBindings = &layout_binding;
 
-    if (vkCreateDescriptorSetLayout(
-            logical_device, &dynamic_memory_layout, nullptr, &_dynamic_memory_layout) != VK_SUCCESS)
-    {
-        uninit();
-        return boole::False;
+            VkDescriptorSetLayout layout;
+            if (vkCreateDescriptorSetLayout(
+                    logical_device, &dynamic_memory_layout, nullptr, &layout) != VK_SUCCESS)
+            {
+                uninit();
+                return boole::False;
+            }
+            _dynamic_memory_layout_vec.push_back(layout);
+        }
+
+        VkDescriptorPoolSize descriptor_pool_size = {};
+        descriptor_pool_size.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        descriptor_pool_size.descriptorCount = dynamic_memory_cnt;
+
+        VkDescriptorPoolCreateInfo descriptor_pool_info = {};
+        descriptor_pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+        descriptor_pool_info.poolSizeCount = 1;
+        descriptor_pool_info.pPoolSizes = &descriptor_pool_size;
+        descriptor_pool_info.maxSets = dynamic_memory_cnt;
+
+        if (vkCreateDescriptorPool(logical_device, &descriptor_pool_info, nullptr, &_descriptor_pool) != VK_SUCCESS)
+        {
+            return boole::False;
+        }
+
+        _descriptor_set_vec.resize(dynamic_memory_cnt, nullptr);
+        VkDescriptorSetAllocateInfo descriptor_set_alloc_info = {};
+        descriptor_set_alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+        descriptor_set_alloc_info.descriptorPool = _descriptor_pool;
+        descriptor_set_alloc_info.descriptorSetCount = dynamic_memory_cnt;
+        descriptor_set_alloc_info.pSetLayouts = _dynamic_memory_layout_vec.data();
+
+        if (vkAllocateDescriptorSets(
+                logical_device, &descriptor_set_alloc_info, _descriptor_set_vec.data()) != VK_SUCCESS)
+        {
+            uninit();
+            return boole::False;
+        }
+
+        binding_idx = 0;
+        for (auto& dm : desc._dynamic_memories)
+        {
+            auto r_dm = rt->get_dynamic_memory(dm);
+            if (r_dm.empty())
+            {
+                return boole::False;
+            }
+
+            VkWriteDescriptorSet write_ds = {};
+            write_ds.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            write_ds.dstSet = _descriptor_set_vec[binding_idx];
+            write_ds.dstBinding = 0;
+            write_ds.dstArrayElement = 0;
+            write_ds.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            write_ds.descriptorCount = 1;
+            write_ds.pBufferInfo = nullptr;
+
+            if (!r_dm->add_pipeline_descriptor_set(desc._pipeline_name, write_ds))
+            {
+                return boole::False;
+            }
+
+            _dynamic_memory_vec.push_back(r_dm);
+            ++binding_idx;
+        }
     }
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 1;
-    pipelineLayoutInfo.pSetLayouts = &_dynamic_memory_layout;
+    pipelineLayoutInfo.setLayoutCount = _dynamic_memory_layout_vec.size();
+    pipelineLayoutInfo.pSetLayouts = _dynamic_memory_layout_vec.data();
     pipelineLayoutInfo.pushConstantRangeCount = 0;
     pipelineLayoutInfo.pPushConstantRanges = nullptr;
     if (vkCreatePipelineLayout(logical_device, &pipelineLayoutInfo, nullptr, &_layout) != VK_SUCCESS)
@@ -350,6 +413,8 @@ boole vulkan_pipeline::init(const pipeline_desc& desc)
         return boole::False;
     }
 
+    _name = desc._pipeline_name;
+
     transfer_state(pipeline_state::InitingOrUniniting, pipeline_state::Inited);
     return boole::True;
 }
@@ -400,10 +465,32 @@ boole vulkan_pipeline::uninit()
         vkDestroyPipelineLayout(logical_device, _layout, nullptr);
         _layout = nullptr;
     }
-    if (_dynamic_memory_layout)
+
+    while (_dynamic_memory_vec.size())
     {
-        vkDestroyDescriptorSetLayout(logical_device, _dynamic_memory_layout, nullptr);
-        _dynamic_memory_layout = nullptr;
+        if (!_dynamic_memory_vec.back()->remove_pipeline_descriptor_set(_name))
+        {
+            return boole::False;
+        }
+        _dynamic_memory_vec.pop_back();
+    }
+
+    if (_descriptor_set_vec.size())
+    {
+        vkFreeDescriptorSets(logical_device, _descriptor_pool, _descriptor_set_vec.size(), _descriptor_set_vec.data());
+        _descriptor_set_vec.clear();
+    }
+
+    if (_descriptor_pool)
+    {
+        vkDestroyDescriptorPool(logical_device, _descriptor_pool, nullptr);
+        _descriptor_pool = nullptr;
+    }
+
+    while (_dynamic_memory_layout_vec.size())
+    {
+        vkDestroyDescriptorSetLayout(logical_device, _dynamic_memory_layout_vec.back(), nullptr);
+        _dynamic_memory_layout_vec.pop_back();
     }
 
     boole checker = transfer_state(pipeline_state::InitingOrUniniting, pipeline_state::Uninit);

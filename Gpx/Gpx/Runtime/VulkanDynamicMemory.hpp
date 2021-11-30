@@ -22,12 +22,26 @@ public:
 
     boole uninit();
 
-private:
-    dynamic_memory_desc            _desc;
-    obs<vulkan_runtime>            _rt;
+public:
+    boole add_pipeline_descriptor_set(const string& pipeline_name, const VkWriteDescriptorSet& ds);
 
-    vector<VkBuffer>               _buffer_vec;
-    vector<VkDeviceMemory>         _memory_vec;
+    boole remove_pipeline_descriptor_set(const string& pipeline_name);
+
+private:
+    dynamic_memory_desc           _desc;
+    obs<vulkan_runtime>           _rt;
+
+    map<
+        string, VkWriteDescriptorSet
+    >                             _descriptor_set_update_map;
+    mutex                         _descriptor_set_update_map_lock;
+
+    VkBuffer                      _buffer[2];
+    VkDeviceMemory                _memory[2];
+    VkDescriptorBufferInfo        _buffer_info[2];
+    u64                           _buffer_in_use;
+
+    mutex                         _update_lock;
 };
 
 }

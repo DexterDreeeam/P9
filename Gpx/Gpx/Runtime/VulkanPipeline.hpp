@@ -6,6 +6,9 @@ namespace gpx
 {
 
 class vulkan_runtime;
+
+class vulkan_dynamic_memory;
+
 struct vulkan_window_context;
 
 class vulkan_pipeline : public pipeline
@@ -28,14 +31,25 @@ public:
     virtual boole render() override;
 
 private:
+    string                          _name;
+
     obs<vulkan_runtime>             _rt;
     obs<vulkan_window_context>      _window_ctx;
-    VkDescriptorSetLayout           _dynamic_memory_layout;
+
+    VkDescriptorPool                _descriptor_pool;
+    vector<VkDescriptorSet>         _descriptor_set_vec;
+    vector<VkDescriptorSetLayout>   _dynamic_memory_layout_vec;
+    vector<
+        ref<vulkan_dynamic_memory>
+    >                               _dynamic_memory_vec;
+
     VkPipelineLayout                _layout;
     VkRenderPass                    _render_pass;
     VkPipeline                      _pipeline;
+
     vector<VkFramebuffer>           _frame_buffer_vec;
     vector<VkCommandBuffer>         _command_buffer_vec;
+
     vector<VkBuffer>                _vk_vertices_buffers;
     vector<VkBuffer>                _vk_indices_buffers;
     vector<vertices_buffer_header>  _vertices_buffer_headers;
