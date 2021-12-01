@@ -18,7 +18,7 @@ public:
 
     virtual ~vulkan_pipeline() override;
 
-    virtual boole init(const pipeline_desc& desc) override;
+    virtual boole init(const pipeline_desc& desc, obs<pipeline> self) override;
 
     virtual boole uninit() override;
 
@@ -30,18 +30,33 @@ public:
 
     virtual boole render() override;
 
+public:
+    void alert_dynamic_memory_change(obs<vulkan_dynamic_memory> ob_dm);
+
+private:
+    void update_dynamic_memory(s64 image_idx);
+
 private:
     string                          _name;
+    obs<vulkan_pipeline>            _self;
 
     obs<vulkan_runtime>             _rt;
     obs<vulkan_window_context>      _window_ctx;
 
-    VkDescriptorPool                _descriptor_pool;
-    vector<VkDescriptorSet>         _descriptor_set_vec;
-    vector<VkDescriptorSetLayout>   _dynamic_memory_layout_vec;
+    vector<VkDescriptorPool>        _descriptor_pool_vec;
+    vector<
+        vector<VkDescriptorSet>
+    >                               _descriptor_set_vvec;
     vector<
         ref<vulkan_dynamic_memory>
     >                               _dynamic_memory_vec;
+    vector<VkBuffer>                _dynamic_memory_buffer_vec;
+    vector<VkDeviceMemory>          _dynamic_memory_memory_vec;
+
+    vector<
+        pair<mutex, set<ref<vulkan_dynamic_memory>>>
+    >                               _dynamic_memory_updating_queue;
+
 
     VkPipelineLayout                _layout;
     VkRenderPass                    _render_pass;

@@ -7,7 +7,7 @@
     <ClInclude Include="VulkanWindowTest.hpp" />
     <ClInclude Include="VulkanPipelineTest.hpp" />
     <ClInclude Include="VulkanIndicesBufferTest.hpp" />
-    <ClInclude Include="VulkanTransitionMatrixTest.hpp" />
+    <ClInclude Include="VulkanUniformBufferTest.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="_compile_windows_vulkan_shaders.ps1" />

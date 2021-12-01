@@ -16,7 +16,7 @@
   <ItemGroup>
     <ClInclude Include="VulkanIndicesBufferTest.hpp" />
     <ClInclude Include="VulkanPipelineTest.hpp" />
-    <ClInclude Include="VulkanTransitionMatrixTest.hpp" />
+    <ClInclude Include="VulkanUniformBufferTest.hpp" />
     <ClInclude Include="VulkanWindowTest.hpp" />
   </ItemGroup>
   <ItemGroup>

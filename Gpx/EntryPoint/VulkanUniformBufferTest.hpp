@@ -1,13 +1,13 @@
 #pragma once
 
-void vulkan_transition_matrix_test()
+void vulkan_uniform_buffer_test()
 {
     boole checker;
 
     // create runtime
     gpx::runtime_desc rt_desc;
     rt_desc.type = gpx::runtime_desc::_type::Vulkan;
-    rt_desc.frame_count = 3;
+    rt_desc.frame_count = 5;
     rt_desc.debug_mode = boole::True;
     auto rt = gpx::runtime::build(rt_desc);
     checker = rt->init();
@@ -63,10 +63,10 @@ void vulkan_transition_matrix_test()
     assert(checker);
 
     // register dynamic memory
-    gpx::transition_matrix_group tmg = {};
+    gpx::vec3 color_v3 = { 1.0, 1.0, 1.0 };
     gpx::dynamic_memory_desc dynamic_memory_desc;
     dynamic_memory_desc._name = "Pavilion Nine Test Dynamic Memory";
-    dynamic_memory_desc._size = sizeof(tmg);
+    dynamic_memory_desc._size = sizeof(color_v3);
 
     checker = rt->register_dynamic_memory(dynamic_memory_desc);
     assert(checker);
@@ -129,8 +129,12 @@ void vulkan_transition_matrix_test()
         checker = wnd->poll_event();
         assert(checker);
 
-        tmg; // todo update
-        checker = rt->update_dynamic_memory("Pavilion Nine Test Dynamic Memory", &tmg);
+        s64 diff = tick::elapse() - start_tick;
+        color_v3.x() = (diff / (f32)1000);
+        color_v3.y() = (((diff + 333) % 1000) / (f32)1000);
+        color_v3.z() = (((diff + 666) % 1000) / (f32)1000);
+
+        checker = rt->update_dynamic_memory("Pavilion Nine Test Dynamic Memory", &color_v3);
         assert(checker);
 
         checker = rt->render("Pavilion Nine Test Pipeline");

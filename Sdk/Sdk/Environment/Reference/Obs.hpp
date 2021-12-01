@@ -80,6 +80,10 @@ public:
 
     boole empty() const { return !has_value(); }
 
+    Ty* raw_ptr() { return _ctx.get() ? _ctx.get()->_ptr : nullptr; }
+
+    const Ty* raw_ptr() const { return _ctx.get() ? _ctx.get()->_ptr : nullptr; }
+
     void clear();
 
 private:

@@ -19,6 +19,8 @@ public:
 
     virtual ~dynamic_memory() = default;
 
+    virtual s64 memory_size() = 0;
+
     virtual boole update(void* src) = 0;
 };
 

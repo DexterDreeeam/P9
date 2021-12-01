@@ -44,7 +44,7 @@ public:
 
     virtual ~pipeline() = default;
 
-    virtual boole init(const pipeline_desc& desc) = 0;
+    virtual boole init(const pipeline_desc& desc, obs<pipeline> self) = 0;
 
     virtual boole uninit() = 0;
 

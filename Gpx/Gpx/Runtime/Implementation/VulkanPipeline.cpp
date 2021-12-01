@@ -14,12 +14,15 @@ static void setup_vertex_input_desc(
 
 vulkan_pipeline::vulkan_pipeline(obs<vulkan_runtime> rt, obs<vulkan_window_context> w_ctx) :
     _name(),
+    _self(),
     _rt(rt),
     _window_ctx(w_ctx),
-    _descriptor_pool(nullptr),
-    _descriptor_set_vec(),
-    _dynamic_memory_layout_vec(),
+    _descriptor_pool_vec(),
+    _descriptor_set_vvec(),
     _dynamic_memory_vec(),
+    _dynamic_memory_buffer_vec(),
+    _dynamic_memory_memory_vec(),
+    _dynamic_memory_updating_queue(),
     _layout(nullptr),
     _render_pass(nullptr),
     _pipeline(nullptr),
@@ -43,7 +46,7 @@ vulkan_pipeline::~vulkan_pipeline()
 // 2. build fixed-function stage config, such as input assembly format, rasterizer config
 // 3. specify pipeline layout, indicate our vertices data or uniform variable
 // 4. specify frame buffer and render pass, indicate buffers used in renderring process and define render pass flow
-boole vulkan_pipeline::init(const pipeline_desc& desc)
+boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
 {
     AUTO_TRACE;
 
@@ -59,11 +62,14 @@ boole vulkan_pipeline::init(const pipeline_desc& desc)
         return boole::False;
     }
 
+    _self = self.obs_of<vulkan_pipeline>();
+
     if (!transfer_state(pipeline_state::Uninit, pipeline_state::InitingOrUniniting))
     {
         return boole::False;
     }
     auto logical_device = rt->get_vk_logical_device();
+    s64 image_count = rt->_desc.frame_count;
 
     // pipeline shader stage
     vector<VkPipelineShaderStageCreateInfo> stage_create_info_vec;
@@ -204,15 +210,25 @@ boole vulkan_pipeline::init(const pipeline_desc& desc)
     dynamicState.pDynamicStates = dynamicStates;
     */
 
-    // pipeline descriptor
-    s64 binding_idx = 0;
+    // descriptor
+    vector<VkDescriptorSetLayout> ds_layout_vec;
+    escape_function ef =
+        [&]() mutable
+        {
+            while (ds_layout_vec.size())
+            {
+                vkDestroyDescriptorSetLayout(logical_device, ds_layout_vec.back(), nullptr);
+                ds_layout_vec.pop_back();
+            }
+        };
+
     s64 dynamic_memory_cnt = desc._dynamic_memories.size();
     if (dynamic_memory_cnt > 0)
     {
-        for (auto& dm : desc._dynamic_memories)
+        for (s64 i = 0; i < dynamic_memory_cnt; ++i)
         {
             VkDescriptorSetLayoutBinding layout_binding = {};
-            layout_binding.binding = binding_idx++;
+            layout_binding.binding = i;
             layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
             layout_binding.descriptorCount = 1;
             layout_binding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
@@ -230,8 +246,10 @@ boole vulkan_pipeline::init(const pipeline_desc& desc)
                 uninit();
                 return boole::False;
             }
-            _dynamic_memory_layout_vec.push_back(layout);
+            ds_layout_vec.push_back(layout);
         }
+
+        _descriptor_set_vvec.resize(image_count);
 
         VkDescriptorPoolSize descriptor_pool_size = {};
         descriptor_pool_size.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -239,30 +257,37 @@ boole vulkan_pipeline::init(const pipeline_desc& desc)
 
         VkDescriptorPoolCreateInfo descriptor_pool_info = {};
         descriptor_pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+        descriptor_pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
         descriptor_pool_info.poolSizeCount = 1;
         descriptor_pool_info.pPoolSizes = &descriptor_pool_size;
         descriptor_pool_info.maxSets = dynamic_memory_cnt;
 
-        if (vkCreateDescriptorPool(logical_device, &descriptor_pool_info, nullptr, &_descriptor_pool) != VK_SUCCESS)
+        _descriptor_pool_vec.resize(image_count, nullptr);
+
+        for (s64 i = 0; i < image_count; ++i)
         {
-            return boole::False;
+            if (vkCreateDescriptorPool(logical_device, &descriptor_pool_info, nullptr, &_descriptor_pool_vec[i]) != VK_SUCCESS)
+            {
+                uninit();
+                return boole::False;
+            }
+
+            VkDescriptorSetAllocateInfo descriptor_set_alloc_info = {};
+            descriptor_set_alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+            descriptor_set_alloc_info.descriptorPool = _descriptor_pool_vec[i];
+            descriptor_set_alloc_info.descriptorSetCount = dynamic_memory_cnt;
+            descriptor_set_alloc_info.pSetLayouts = ds_layout_vec.data();
+
+            _descriptor_set_vvec[i].resize(dynamic_memory_cnt, nullptr);
+            if (vkAllocateDescriptorSets(
+                    logical_device, &descriptor_set_alloc_info, _descriptor_set_vvec[i].data()) != VK_SUCCESS)
+            {
+                uninit();
+                return boole::False;
+            }
         }
 
-        _descriptor_set_vec.resize(dynamic_memory_cnt, nullptr);
-        VkDescriptorSetAllocateInfo descriptor_set_alloc_info = {};
-        descriptor_set_alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-        descriptor_set_alloc_info.descriptorPool = _descriptor_pool;
-        descriptor_set_alloc_info.descriptorSetCount = dynamic_memory_cnt;
-        descriptor_set_alloc_info.pSetLayouts = _dynamic_memory_layout_vec.data();
-
-        if (vkAllocateDescriptorSets(
-                logical_device, &descriptor_set_alloc_info, _descriptor_set_vec.data()) != VK_SUCCESS)
-        {
-            uninit();
-            return boole::False;
-        }
-
-        binding_idx = 0;
+        s64 binding_idx = 0;
         for (auto& dm : desc._dynamic_memories)
         {
             auto r_dm = rt->get_dynamic_memory(dm);
@@ -271,18 +296,49 @@ boole vulkan_pipeline::init(const pipeline_desc& desc)
                 return boole::False;
             }
 
-            VkWriteDescriptorSet write_ds = {};
-            write_ds.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            write_ds.dstSet = _descriptor_set_vec[binding_idx];
-            write_ds.dstBinding = 0;
-            write_ds.dstArrayElement = 0;
-            write_ds.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            write_ds.descriptorCount = 1;
-            write_ds.pBufferInfo = nullptr;
-
-            if (!r_dm->add_pipeline_descriptor_set(desc._pipeline_name, write_ds))
+            for (s64 i = 0; i < image_count; ++i)
             {
-                return boole::False;
+                VkBuffer buffer;
+                VkDeviceMemory memory;
+                if (!vulkan_runtime::setup_vk_buffer(
+                        logical_device,
+                        rt->get_vk_physical_device(),
+                        r_dm->memory_size(),
+                        rt->_render_queue_family_idx == rt->_transfer_queue_family_idx,
+                        VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                        buffer,
+                        memory))
+                {
+                    vulkan_runtime::clear_vk_buffer(logical_device, buffer, memory);
+                    uninit();
+                    return boole::False;
+                }
+
+                _dynamic_memory_buffer_vec.push_back(buffer);
+                _dynamic_memory_memory_vec.push_back(memory);
+
+                VkDescriptorBufferInfo bufferInfo = {};
+                bufferInfo.buffer = buffer;
+                bufferInfo.offset = 0;
+                bufferInfo.range = r_dm->memory_size();
+
+                VkWriteDescriptorSet write_ds = {};
+                write_ds.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                write_ds.dstSet = _descriptor_set_vvec[i][binding_idx];
+                write_ds.dstBinding = 0;
+                write_ds.dstArrayElement = 0;
+                write_ds.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                write_ds.descriptorCount = 1;
+                write_ds.pBufferInfo = &bufferInfo;
+
+                vkUpdateDescriptorSets(logical_device, 1, &write_ds, 0, nullptr);
+
+                if (!r_dm->add_pipeline_memory(_self, memory))
+                {
+                    uninit();
+                    return boole::False;
+                }
             }
 
             _dynamic_memory_vec.push_back(r_dm);
@@ -290,10 +346,18 @@ boole vulkan_pipeline::init(const pipeline_desc& desc)
         }
     }
 
+    for (s64 i = 0; i < image_count; ++i)
+    {
+        mutex m;
+        m.init();
+        _dynamic_memory_updating_queue.push_back(make_pair(m, set<ref<vulkan_dynamic_memory>>()));
+    }
+
+    // pipeline layout
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = _dynamic_memory_layout_vec.size();
-    pipelineLayoutInfo.pSetLayouts = _dynamic_memory_layout_vec.data();
+    pipelineLayoutInfo.setLayoutCount = ds_layout_vec.size();
+    pipelineLayoutInfo.pSetLayouts = ds_layout_vec.data();
     pipelineLayoutInfo.pushConstantRangeCount = 0;
     pipelineLayoutInfo.pPushConstantRanges = nullptr;
     if (vkCreatePipelineLayout(logical_device, &pipelineLayoutInfo, nullptr, &_layout) != VK_SUCCESS)
@@ -374,7 +438,6 @@ boole vulkan_pipeline::init(const pipeline_desc& desc)
         return boole::False;
     }
 
-    s64 image_count = rt->_desc.frame_count;
     VkCommandBufferAllocateInfo allocInfo = {};
 
     // frame buffer
@@ -465,32 +528,41 @@ boole vulkan_pipeline::uninit()
         vkDestroyPipelineLayout(logical_device, _layout, nullptr);
         _layout = nullptr;
     }
-
+    while (_dynamic_memory_updating_queue.size())
+    {
+        _dynamic_memory_updating_queue.back().first.uninit();
+        _dynamic_memory_updating_queue.pop_back();
+    }
     while (_dynamic_memory_vec.size())
     {
-        if (!_dynamic_memory_vec.back()->remove_pipeline_descriptor_set(_name))
+        if (!_dynamic_memory_vec.back()->remove_pipeline_memory(_self))
         {
             return boole::False;
         }
         _dynamic_memory_vec.pop_back();
     }
-
-    if (_descriptor_set_vec.size())
+    while (_dynamic_memory_buffer_vec.size())
     {
-        vkFreeDescriptorSets(logical_device, _descriptor_pool, _descriptor_set_vec.size(), _descriptor_set_vec.data());
-        _descriptor_set_vec.clear();
+        assert(_dynamic_memory_memory_vec.size());
+        vulkan_runtime::clear_vk_buffer(logical_device, _dynamic_memory_buffer_vec.back(), _dynamic_memory_memory_vec.back());
+        _dynamic_memory_buffer_vec.pop_back();
+        _dynamic_memory_memory_vec.pop_back();
     }
 
-    if (_descriptor_pool)
+    while (_descriptor_set_vvec.size() && _descriptor_set_vvec.back().size() == 0)
     {
-        vkDestroyDescriptorPool(logical_device, _descriptor_pool, nullptr);
-        _descriptor_pool = nullptr;
+        _descriptor_set_vvec.pop_back();
     }
-
-    while (_dynamic_memory_layout_vec.size())
+    while (_descriptor_pool_vec.size() && _descriptor_pool_vec.back() == nullptr)
     {
-        vkDestroyDescriptorSetLayout(logical_device, _dynamic_memory_layout_vec.back(), nullptr);
-        _dynamic_memory_layout_vec.pop_back();
+        _descriptor_pool_vec.pop_back();
+    }
+    while (_descriptor_set_vvec.size() && _descriptor_pool_vec.size())
+    {
+        vkFreeDescriptorSets(logical_device, _descriptor_pool_vec.back(), _descriptor_set_vvec.back().size(), _descriptor_set_vvec.back().data());
+        _descriptor_set_vvec.pop_back();
+        vkDestroyDescriptorPool(logical_device, _descriptor_pool_vec.back(), nullptr);
+        _descriptor_pool_vec.pop_back();
     }
 
     boole checker = transfer_state(pipeline_state::InitingOrUniniting, pipeline_state::Uninit);
@@ -588,24 +660,25 @@ boole vulkan_pipeline::load_resource()
         vector<VkDeviceSize> offsets;
         vkCmdBeginRenderPass(_command_buffer_vec[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
         vkCmdBindPipeline(_command_buffer_vec[i], VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline);
+
+        if (_descriptor_set_vvec.size() && _descriptor_set_vvec[i].size())
+        {
+            vkCmdBindDescriptorSets(
+                _command_buffer_vec[i],
+                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                _layout,
+                0,
+                _descriptor_set_vvec[i].size(),
+                _descriptor_set_vvec[i].data(),
+                0,
+                nullptr);
+        }
+
         for (s64 j = 0; j < _vertices_buffer_headers.size(); ++j)
         {
             s64 offset_idx = offsets.size();
             offsets.push_back(0);
             vkCmdBindVertexBuffers(_command_buffer_vec[i], 0, 1, &_vk_vertices_buffers[j], &offsets[offset_idx]);
-
-            if (_descriptor_set_vec.size())
-            {
-                vkCmdBindDescriptorSets(
-                    _command_buffer_vec[i],
-                    VK_PIPELINE_BIND_POINT_GRAPHICS,
-                    _layout,
-                    0,
-                    _descriptor_set_vec.size(),
-                    _descriptor_set_vec.data(),
-                    0,
-                    nullptr);
-            }
 
             if (_vertices_buffer_headers[j].indices_count > 0)
             {
@@ -677,6 +750,8 @@ boole vulkan_pipeline::render()
     w_ctx->_reordered_fence_vec[image_index] = w_ctx->_inflight_fence_vec[counter];
     vkResetFences(logical_device, 1, &w_ctx->_inflight_fence_vec[counter]);
 
+    update_dynamic_memory(image_index);
+
     VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -710,6 +785,46 @@ boole vulkan_pipeline::render()
     counter = (counter + 1) % w_ctx->_swap_chain_image_vec.size();
     w_ctx->_fence_counter = counter;
     return boole::True;
+}
+
+void vulkan_pipeline::alert_dynamic_memory_change(obs<vulkan_dynamic_memory> ob_dm)
+{
+    for (auto& p : _dynamic_memory_updating_queue)
+    {
+        auto r_dm = ob_dm.try_ref();
+        if (r_dm.has_value())
+        {
+            p.first.wait_acquire();
+            p.second.insert(r_dm);
+            p.first.release();
+        }
+    }
+}
+
+void vulkan_pipeline::update_dynamic_memory(s64 image_idx)
+{
+    if (image_idx >= _dynamic_memory_updating_queue.size())
+    {
+        return;
+    }
+
+    auto& p = _dynamic_memory_updating_queue[image_idx];
+    p.first.wait_acquire();
+    escape_function ef_lock_release =
+        [=]() mutable
+        {
+            p.first.release();
+        };
+
+    for (auto r_dm : p.second)
+    {
+        if (!r_dm->update_pipeline_memory(_self, image_idx))
+        {
+            assert(0);
+        }
+    }
+
+    p.second.clear();
 }
 
 void setup_vertex_input_desc(

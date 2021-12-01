@@ -886,7 +886,7 @@ boole vulkan_runtime::register_dynamic_memory(const dynamic_memory_desc& desc)
     AUTO_TRACE;
 
     auto r_dm = ref<vulkan_dynamic_memory>::new_instance(_self);
-    if (!r_dm->init(desc))
+    if (!r_dm->init(desc, r_dm))
     {
         return boole::False;
     }
@@ -1032,7 +1032,7 @@ boole vulkan_runtime::register_pipeline(const pipeline_desc& desc)
     }
 
     auto r_pipeline = ref<vulkan_pipeline>::new_instance(_self.obs_of<vulkan_runtime>(), w_ctx);
-    if (!r_pipeline->init(desc))
+    if (!r_pipeline->init(desc, r_pipeline.ref_of<pipeline>()))
     {
         return boole::False;
     }

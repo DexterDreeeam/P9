@@ -3,6 +3,77 @@
 class set_comparer
 {
 public:
+    s64 operator()(const void* const v1, const void* const v2)
+    {
+        auto r1 = (u64)v1;
+        auto r2 = (u64)v2;
+        if (r1 == r2)
+        {
+            return 0;
+        }
+        else if (r1 < r2)
+        {
+            return -1;
+        }
+        else if (r1 > r2)
+        {
+            return 1;
+        }
+        else
+        {
+            assert(0);
+            return 0;
+        }
+    }
+
+    template<typename Ty>
+    s64 operator()(const ref<Ty>& v1, const ref<Ty>& v2)
+    {
+        auto r1 = (u64)v1.raw_ptr();
+        auto r2 = (u64)v2.raw_ptr();
+        if (r1 == r2)
+        {
+            return 0;
+        }
+        else if (r1 < r2)
+        {
+            return -1;
+        }
+        else if (r1 > r2)
+        {
+            return 1;
+        }
+        else
+        {
+            assert(0);
+            return 0;
+        }
+    }
+
+    template<typename Ty>
+    s64 operator()(const obs<Ty>& v1, const obs<Ty>& v2)
+    {
+        auto r1 = (u64)v1.raw_ptr();
+        auto r2 = (u64)v2.raw_ptr();
+        if (r1 == r2)
+        {
+            return 0;
+        }
+        else if (r1 < r2)
+        {
+            return -1;
+        }
+        else if (r1 > r2)
+        {
+            return 1;
+        }
+        else
+        {
+            assert(0);
+            return 0;
+        }
+    }
+
     template<typename Ty>
     s64 operator ()(const Ty& v1, const Ty& v2)
     {

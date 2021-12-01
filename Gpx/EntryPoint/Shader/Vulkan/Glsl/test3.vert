@@ -13,22 +13,16 @@ out vec3 out_Color;
 //==========================================
 
 layout(binding = 0)
-uniform transfer_matrix_group
+uniform _uni_Color
 {
-    mat4 model;
-    mat4 view;
-    mat4 proj;
-} trans_mat;
+    vec3 v3;
+} uni_Color;
 
 //==========================================
 
 void main()
 {
     vec4 pos = vec4(in_Position, 1.0);
-    pos = trans_mat.model * pos;
-    pos = trans_mat.view * pos;
-    pos = trans_mat.proj * pos;
-
     gl_Position = pos;
-    out_Color = in_Color;
+    out_Color = uni_Color.v3;
 }
