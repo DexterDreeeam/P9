@@ -60,6 +60,10 @@ public:
 
     f32& y();
 
+    f32 x() const;
+
+    f32 y() const;
+
     vec2 xy() const;
 
     vec2 yx() const;

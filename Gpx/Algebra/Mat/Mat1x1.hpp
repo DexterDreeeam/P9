@@ -34,6 +34,8 @@ public:
     mat1x1& operator =(const mat1x1& rhs);
 
 public:
+    static mat1x1 identity();
+
     f32 r1() const;
 
     f32 c1() const;

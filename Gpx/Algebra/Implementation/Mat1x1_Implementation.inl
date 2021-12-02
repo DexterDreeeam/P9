@@ -19,6 +19,11 @@ _INLINE_ mat1x1& mat1x1::operator =(const mat1x1& rhs)
     return *this;
 }
 
+_INLINE_ mat1x1 mat1x1::identity()
+{
+    return mat1x1(1.0f);
+}
+
 _INLINE_ f32 mat1x1::r1() const
 {
     return _data._11;

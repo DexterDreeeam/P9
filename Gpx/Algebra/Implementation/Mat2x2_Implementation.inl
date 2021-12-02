@@ -28,6 +28,13 @@ _INLINE_ mat2x2& mat2x2::operator =(const mat2x2& rhs)
     return *this;
 }
 
+_INLINE_ mat2x2 mat2x2::identity()
+{
+    return mat2x2(
+        1.0f, 0.0f,
+        0.0f, 1.0f);
+}
+
 _INLINE_ vec2 mat2x2::r1() const
 {
     return vec2(_data._r1);

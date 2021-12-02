@@ -74,6 +74,26 @@ _INLINE_ f32& vec4::w()
     return _data._w;
 }
 
+_INLINE_ f32 vec4::x() const
+{
+    return _data._x;
+}
+
+_INLINE_ f32 vec4::y() const
+{
+    return _data._y;
+}
+
+_INLINE_ f32 vec4::z() const
+{
+    return _data._z;
+}
+
+_INLINE_ f32 vec4::w() const
+{
+    return _data._w;
+}
+
 _INLINE_ vec2 vec4::xy() const
 {
     return vec2(_data._x, _data._y);

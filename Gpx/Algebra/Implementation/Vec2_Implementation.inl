@@ -34,6 +34,16 @@ _INLINE_ f32& vec2::y()
     return _data._y;
 }
 
+_INLINE_ f32 vec2::x() const
+{
+    return _data._x;
+}
+
+_INLINE_ f32 vec2::y() const
+{
+    return _data._y;
+}
+
 _INLINE_ vec2 vec2::xy() const
 {
     return vec2(_data._x, _data._y);

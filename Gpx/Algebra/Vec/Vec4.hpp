@@ -136,6 +136,14 @@ public:
 
     f32& w();
 
+    f32 x() const;
+
+    f32 y() const;
+
+    f32 z() const;
+
+    f32 w() const;
+
     vec2 xy() const;
 
     vec2 xz() const;

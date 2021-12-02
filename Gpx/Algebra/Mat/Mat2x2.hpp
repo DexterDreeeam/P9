@@ -40,6 +40,8 @@ public:
     mat2x2& operator =(const mat2x2& rhs);
 
 public:
+    static mat2x2 identity();
+
     vec2 r1() const;
 
     vec2 r2() const;

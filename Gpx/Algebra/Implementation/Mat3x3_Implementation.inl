@@ -30,6 +30,14 @@ _INLINE_ mat3x3& mat3x3::operator =(const mat3x3& rhs)
     return *this;
 }
 
+_INLINE_ mat3x3 mat3x3::identity()
+{
+    return mat3x3(
+        1.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 1.0f);
+}
+
 _INLINE_ vec3 mat3x3::r1() const
 {
     return _data._r1;

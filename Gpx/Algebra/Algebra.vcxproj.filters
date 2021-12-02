@@ -26,6 +26,8 @@
     <ClInclude Include="VerticesBuffer.hpp" />
     <ClInclude Include="Vertex\VertexPosColor.hpp" />
     <ClInclude Include="MatTransfer\TransitionMatrixGroup.hpp" />
+    <ClInclude Include="Definition.hpp" />
+    <ClInclude Include="Mat_Vulkan\TransformMat.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Implementation\Vec2_Implementation.inl" />
@@ -49,5 +51,6 @@
     <None Include="Implementation\Mat4x4_Implementation.inl" />
     <None Include="Implementation\MatMultiplication_Implementation.inl" />
     <None Include="Implementation\VerticesBuffer_Implementation.inl" />
+    <None Include="Mat_Vulkan\TransformMat_Implementation.inl" />
   </ItemGroup>
 </Project>

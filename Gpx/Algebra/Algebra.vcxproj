@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Definition.hpp" />
     <ClInclude Include="Interface.hpp" />
     <ClInclude Include="MatTransfer\TransitionMatrixGroup.hpp" />
     <ClInclude Include="Mat\Mat1x1.hpp" />
@@ -30,6 +31,7 @@
     <ClInclude Include="Mat\Mat4x3.hpp" />
     <ClInclude Include="Mat\Mat4x4.hpp" />
     <ClInclude Include="MatTransfer\MatMultiplication.hpp" />
+    <ClInclude Include="Mat_Vulkan\TransformMat.hpp" />
     <ClInclude Include="Vec\Vec2.hpp" />
     <ClInclude Include="Vec\Vec3.hpp" />
     <ClInclude Include="Vec\Vec4.hpp" />
@@ -59,6 +61,7 @@
     <None Include="Implementation\Vec3_Implementation.inl" />
     <None Include="Implementation\Vec4_Implementation.inl" />
     <None Include="Implementation\VerticesBuffer_Implementation.inl" />
+    <None Include="Mat_Vulkan\TransformMat_Implementation.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

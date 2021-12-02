@@ -32,6 +32,15 @@ _INLINE_ mat4x4& mat4x4::operator =(const mat4x4& rhs)
     return *this;
 }
 
+_INLINE_ mat4x4 mat4x4::identity()
+{
+    return mat4x4(
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f);
+}
+
 _INLINE_ vec4 mat4x4::r1() const
 {
     return _data._r1;

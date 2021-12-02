@@ -72,6 +72,11 @@ _INLINE_ f64 math::radian_to_degree(f64 x)
     return 57.295779513082320876798154814105 * x;
 }
 
+_INLINE_ f64 math::pi()
+{
+    return 3.14159265358979323846264338327950288419716939937510;
+}
+
 _INLINE_ constexpr u64 math::kilobyte()
 {
     return 1024ULL;

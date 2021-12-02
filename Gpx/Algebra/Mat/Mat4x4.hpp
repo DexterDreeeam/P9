@@ -46,6 +46,8 @@ public:
     mat4x4& operator =(const mat4x4& rhs);
 
 public:
+    static mat4x4 identity();
+
     vec4 r1() const;
 
     vec4 r2() const;

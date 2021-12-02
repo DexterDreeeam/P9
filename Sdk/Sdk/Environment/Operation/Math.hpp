@@ -34,6 +34,8 @@ public:
 
     static f64 radian_to_degree(f64 x);
 
+    static f64 pi();
+
     static f64 tan(f64 x);
 
     static f64 sin(f64 x);

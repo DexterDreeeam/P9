@@ -12,5 +12,8 @@ int main(int argc, char* argv[])
     vulkan_pipeline_test();
     vulkan_indices_buffer_test();
     vulkan_uniform_buffer_test();
+
+    auto m = gpx::transform<gpx::algebra_type::Vulkan>::rotate_x(math::pi() / 3);
+
     return 0;
 }

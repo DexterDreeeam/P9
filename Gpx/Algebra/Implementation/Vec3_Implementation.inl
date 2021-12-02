@@ -50,6 +50,21 @@ _INLINE_ f32& vec3::z()
     return _data._z;
 }
 
+_INLINE_ f32 vec3::x() const
+{
+    return _data._x;
+}
+
+_INLINE_ f32 vec3::y() const
+{
+    return _data._y;
+}
+
+_INLINE_ f32 vec3::z() const
+{
+    return _data._z;
+}
+
 _INLINE_ vec2 vec3::xy() const
 {
     return vec2(_data._x, _data._y);

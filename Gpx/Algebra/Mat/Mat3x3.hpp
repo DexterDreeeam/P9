@@ -43,6 +43,8 @@ public:
     mat3x3& operator =(const mat3x3& rhs);
 
 public:
+    static mat3x3 identity();
+
     vec3 r1() const;
 
     vec3 r2() const;
