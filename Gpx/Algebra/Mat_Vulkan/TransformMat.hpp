@@ -12,7 +12,11 @@ class transform<algebra_type::Vulkan>
 public:
     static mat4x4 translate(const vec3& v);
 
+    static mat4x4 translate(const vec4& v);
+
     static mat4x4 scale(f32 scalar);
+
+    static mat4x4 scale(f32 x_scalar, f32 y_scalar, f32 z_scalar);
 
     static mat4x4 rotate_x(f32 radian);
 

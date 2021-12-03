@@ -12,6 +12,16 @@ _INLINE_ mat4x4 transform<algebra_type::Vulkan>::translate(const vec3& v)
         0.0f, 0.0f, 0.0f, 1.0f);
 }
 
+_INLINE_ mat4x4 transform<algebra_type::Vulkan>::translate(const vec4& v)
+{
+    assert(v.w() == 0);
+    return mat4x4(
+        1.0f, 0.0f, 0.0f, v.x(),
+        0.0f, 1.0f, 0.0f, v.y(),
+        0.0f, 0.0f, 1.0f, v.z(),
+        0.0f, 0.0f, 0.0f, 1.0f);
+}
+
 _INLINE_ mat4x4 transform<algebra_type::Vulkan>::scale(f32 scalar)
 {
     f32 s = scalar;
@@ -19,6 +29,15 @@ _INLINE_ mat4x4 transform<algebra_type::Vulkan>::scale(f32 scalar)
            s, 0.0f, 0.0f, 0.0f,
         0.0f,    s, 0.0f, 0.0f,
         0.0f, 0.0f,    s, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f);
+}
+
+_INLINE_ mat4x4 transform<algebra_type::Vulkan>::scale(f32 xs, f32 ys, f32 zs)
+{
+    return mat4x4(
+          xs, 0.0f, 0.0f, 0.0f,
+        0.0f,   ys, 0.0f, 0.0f,
+        0.0f, 0.0f,   zs, 0.0f,
         0.0f, 0.0f, 0.0f, 1.0f);
 }
 
