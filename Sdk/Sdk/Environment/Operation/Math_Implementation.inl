@@ -85,7 +85,7 @@ _INLINE_ constexpr f64 math::pi()
 
 _INLINE_ constexpr f64 math::epsilon()
 {
-    return 1e-7;
+    return 1e-5;
 }
 
 _INLINE_ constexpr u64 math::kilobyte()

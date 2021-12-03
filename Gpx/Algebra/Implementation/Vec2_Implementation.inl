@@ -67,4 +67,14 @@ _INLINE_ f32 vec2::operator *(const vec2& vc2) const
     return dot(vc2);
 }
 
+_INLINE_ f32 vec2::norm_sq() const
+{
+    return _data._x * _data._x + _data._y * _data._y;
+}
+
+_INLINE_ f32 vec2::norm() const
+{
+    return math::square_root(norm_sq());
+}
+
 }

@@ -73,6 +73,10 @@ public:
 
     f32 operator *(const vec2& vc2) const;
 
+    f32 norm_sq() const;
+
+    f32 norm() const;
+
 public:
     vec2_data _data;
 };

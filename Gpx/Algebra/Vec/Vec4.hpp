@@ -267,9 +267,13 @@ public:
 public:
     f32 dot(const vec4& vc4) const;
 
+    f32 operator *(const vec4& vc4) const;
+
     vec4 cross(const vec4& vc4) const;
 
-    f32 operator *(const vec4& vc4) const;
+    f32 norm_sq() const;
+
+    f32 norm() const;
 
 public:
     vec4_data _data;
