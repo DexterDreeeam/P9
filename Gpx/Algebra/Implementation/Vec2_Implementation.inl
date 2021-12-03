@@ -24,6 +24,21 @@ _INLINE_ vec2& vec2::operator =(const vec2& vc2)
     return *this;
 }
 
+_INLINE_ vec2 vec2::operator -() const
+{
+    return vec2(-_data._x, -_data._y);
+}
+
+_INLINE_ vec2 vec2::operator +(const vec2& vc2) const
+{
+    return vec2(_data._x + vc2._data._x, _data._y + vc2._data._y);
+}
+
+_INLINE_ vec2 vec2::operator -(const vec2& vc2) const
+{
+    return vec2(_data._x - vc2._data._x, _data._y - vc2._data._y);
+}
+
 _INLINE_ f32& vec2::x()
 {
     return _data._x;
@@ -75,6 +90,21 @@ _INLINE_ f32 vec2::norm_sq() const
 _INLINE_ f32 vec2::norm() const
 {
     return math::square_root(norm_sq());
+}
+
+_INLINE_ void vec2::self_normalize()
+{
+    f32 n = norm();
+    assert(n > math::epsilon());
+    _data._x /= n;
+    _data._y /= n;
+}
+
+_INLINE_ vec2 vec2::normalize() const
+{
+    vec2 v(*this);
+    v.self_normalize();
+    return v;
 }
 
 }

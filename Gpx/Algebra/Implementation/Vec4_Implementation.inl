@@ -54,6 +54,26 @@ _INLINE_ vec4& vec4::operator =(const vec4& vc4)
     return *this;
 }
 
+_INLINE_ vec4 vec4::operator -() const
+{
+    return vec4(-_data._x, -_data._y, -_data._z, -_data._w);
+}
+
+_INLINE_ vec4 vec4::operator +(const vec4& vc4) const
+{
+    return vec4(_data._x + vc4._data._x, _data._y + vc4._data._y, _data._z + vc4._data._z, _data._w + vc4._data._w);
+}
+
+_INLINE_ vec4 vec4::operator -(const vec4& vc4) const
+{
+    return vec4(_data._x - vc4._data._x, _data._y - vc4._data._y, _data._z - vc4._data._z, _data._w - vc4._data._w);
+}
+
+_INLINE_ vec3 vec4::to_vec3() const
+{
+    return vec3(_data._x, _data._y, _data._z);
+}
+
 _INLINE_ f32& vec4::x()
 {
     return _data._x;
@@ -431,6 +451,23 @@ _INLINE_ f32 vec4::norm() const
 {
     assert(_data._w == 0);
     return math::square_root(norm_sq());
+}
+
+_INLINE_ void vec4::self_normalize()
+{
+    f32 n = norm();
+    assert(n > math::epsilon());
+    _data._x /= n;
+    _data._y /= n;
+    _data._z /= n;
+    _data._w /= n;
+}
+
+_INLINE_ vec4 vec4::normalize() const
+{
+    vec4 v(*this);
+    v.self_normalize();
+    return v;
 }
 
 }

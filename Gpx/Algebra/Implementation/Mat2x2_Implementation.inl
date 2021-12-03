@@ -35,6 +35,18 @@ _INLINE_ mat2x2 mat2x2::identity()
         0.0f, 1.0f);
 }
 
+_INLINE_ void mat2x2::self_transpose()
+{
+    swap(_data._r1._y, _data._r2._x);
+}
+
+_INLINE_ mat2x2 mat2x2::transpose() const
+{
+    mat2x2 m(*this);
+    m.self_transpose();
+    return m;
+}
+
 _INLINE_ vec2 mat2x2::r1() const
 {
     return vec2(_data._r1);

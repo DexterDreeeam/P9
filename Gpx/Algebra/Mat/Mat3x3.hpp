@@ -45,6 +45,10 @@ public:
 public:
     static mat3x3 identity();
 
+    void self_transpose();
+
+    mat3x3 transpose() const;
+
     vec3 r1() const;
 
     vec3 r2() const;

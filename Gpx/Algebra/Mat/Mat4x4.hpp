@@ -48,6 +48,14 @@ public:
 public:
     static mat4x4 identity();
 
+    void self_transpose();
+
+    mat4x4 transpose() const;
+
+    void self_add(const mat4x4 mat);
+
+    mat4x4 add(const mat4x4 mat) const;
+
     vec4 r1() const;
 
     vec4 r2() const;

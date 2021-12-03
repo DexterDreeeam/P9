@@ -41,6 +41,53 @@ _INLINE_ mat4x4 mat4x4::identity()
         0.0f, 0.0f, 0.0f, 1.0f);
 }
 
+_INLINE_ void mat4x4::self_transpose()
+{
+    swap(_data._r1._y, _data._r2._x);
+    swap(_data._r1._z, _data._r3._x);
+    swap(_data._r1._w, _data._r4._x);
+    swap(_data._r2._z, _data._r3._y);
+    swap(_data._r2._w, _data._r4._y);
+    swap(_data._r3._w, _data._r4._z);
+}
+
+_INLINE_ mat4x4 mat4x4::transpose() const
+{
+    mat4x4 m(*this);
+    m.self_transpose();
+    return m;
+}
+
+_INLINE_ void mat4x4::self_add(const mat4x4 mat)
+{
+    _data._r1._x += mat._data._r1._x;
+    _data._r1._y += mat._data._r1._y;
+    _data._r1._z += mat._data._r1._z;
+    _data._r1._w += mat._data._r1._w;
+
+    _data._r2._x += mat._data._r2._x;
+    _data._r2._y += mat._data._r2._y;
+    _data._r2._z += mat._data._r2._z;
+    _data._r2._w += mat._data._r2._w;
+
+    _data._r3._x += mat._data._r3._x;
+    _data._r3._y += mat._data._r3._y;
+    _data._r3._z += mat._data._r3._z;
+    _data._r3._w += mat._data._r3._w;
+
+    _data._r4._x += mat._data._r4._x;
+    _data._r4._y += mat._data._r4._y;
+    _data._r4._z += mat._data._r4._z;
+    _data._r4._w += mat._data._r4._w;
+}
+
+_INLINE_ mat4x4 mat4x4::add(const mat4x4 mat) const
+{
+    mat4x4 m(*this);
+    m.self_add(mat);
+    return m;
+}
+
 _INLINE_ vec4 mat4x4::r1() const
 {
     return _data._r1;

@@ -56,6 +56,12 @@ public:
 
     vec2& operator =(const vec2& vc2);
 
+    vec2 operator -() const;
+
+    vec2 operator +(const vec2& vc2) const;
+
+    vec2 operator -(const vec2& vc2) const;
+
     f32& x();
 
     f32& y();
@@ -76,6 +82,10 @@ public:
     f32 norm_sq() const;
 
     f32 norm() const;
+
+    void self_normalize();
+
+    vec2 normalize() const;
 
 public:
     vec2_data _data;

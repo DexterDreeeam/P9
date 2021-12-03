@@ -35,6 +35,21 @@ _INLINE_ vec3& vec3::operator =(const vec3& vc3)
     return *this;
 }
 
+_INLINE_ vec3 vec3::operator -() const
+{
+    return vec3(-_data._x, -_data._y, -_data._z);
+}
+
+_INLINE_ vec3 vec3::operator +(const vec3& vc3) const
+{
+    return vec3(_data._x + vc3._data._x, _data._y + vc3._data._y, _data._z + vc3._data._z);
+}
+
+_INLINE_ vec3 vec3::operator -(const vec3& vc3) const
+{
+    return vec3(_data._x - vc3._data._x, _data._y - vc3._data._y, _data._z - vc3._data._z);
+}
+
 _INLINE_ f32& vec3::x()
 {
     return _data._x;
@@ -155,6 +170,22 @@ _INLINE_ f32 vec3::norm_sq() const
 _INLINE_ f32 vec3::norm() const
 {
     return math::square_root(norm_sq());
+}
+
+_INLINE_ void vec3::self_normalize()
+{
+    f32 n = norm();
+    assert(n > math::epsilon());
+    _data._x /= n;
+    _data._y /= n;
+    _data._z /= n;
+}
+
+_INLINE_ vec3 vec3::normalize() const
+{
+    vec3 v(*this);
+    v.self_normalize();
+    return v;
 }
 
 }

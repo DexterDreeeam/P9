@@ -128,6 +128,14 @@ public:
 
     vec4& operator =(const vec4& vc4);
 
+    vec4 operator -() const;
+
+    vec4 operator +(const vec4& vc4) const;
+
+    vec4 operator -(const vec4& vc4) const;
+
+    vec3 to_vec3() const;
+
     f32& x();
 
     f32& y();
@@ -274,6 +282,10 @@ public:
     f32 norm_sq() const;
 
     f32 norm() const;
+
+    void self_normalize();
+
+    vec4 normalize() const;
 
 public:
     vec4_data _data;

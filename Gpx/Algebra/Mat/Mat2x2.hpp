@@ -42,6 +42,10 @@ public:
 public:
     static mat2x2 identity();
 
+    void self_transpose();
+
+    mat2x2 transpose() const;
+
     vec2 r1() const;
 
     vec2 r2() const;

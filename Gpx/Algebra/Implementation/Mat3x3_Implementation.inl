@@ -38,6 +38,20 @@ _INLINE_ mat3x3 mat3x3::identity()
         0.0f, 0.0f, 1.0f);
 }
 
+_INLINE_ void mat3x3::self_transpose()
+{
+    swap(_data._r1._y, _data._r2._x);
+    swap(_data._r1._z, _data._r3._x);
+    swap(_data._r2._z, _data._r3._y);
+}
+
+_INLINE_ mat3x3 mat3x3::transpose() const
+{
+    mat3x3 m(*this);
+    m.self_transpose();
+    return m;
+}
+
 _INLINE_ vec3 mat3x3::r1() const
 {
     return _data._r1;

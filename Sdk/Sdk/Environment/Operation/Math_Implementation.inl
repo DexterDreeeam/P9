@@ -58,8 +58,12 @@ _INLINE_ f64 math::square_root_inv(f64 x)
     i = 0x5fe6ec85e7de30da - (i >> 1);
     x = *reinterpret_cast<f64*>(&i);
     x = x * (threehalfs - (k * x * x));
-    //x = x * (threehalfs - (k * x * x));
-    //x = x * (threehalfs - (k * x * x));
+    x = x * (threehalfs - (k * x * x));
+    x = x * (threehalfs - (k * x * x));
+    x = x * (threehalfs - (k * x * x));
+    x = x * (threehalfs - (k * x * x));
+    x = x * (threehalfs - (k * x * x));
+    x = x * (threehalfs - (k * x * x));
     return x;
 }
 

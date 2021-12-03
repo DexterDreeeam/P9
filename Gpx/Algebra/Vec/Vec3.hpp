@@ -80,6 +80,12 @@ public:
 
     vec3& operator =(const vec3& vc3);
 
+    vec3 operator -() const;
+
+    vec3 operator +(const vec3& vc3) const;
+
+    vec3 operator -(const vec3& vc3) const;
+
     f32& x();
 
     f32& y();
@@ -126,6 +132,10 @@ public:
     f32 norm_sq() const;
 
     f32 norm() const;
+
+    void self_normalize();
+
+    vec3 normalize() const;
 
 public:
     vec3_data _data;
