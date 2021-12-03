@@ -36,6 +36,12 @@ _INLINE_ Ty1 math::floor(Ty1 x, Ty2 mod)
     return x / mod * mod;
 }
 
+_INLINE_ boole math::equal(f64 x, f64 y)
+{
+    f64 diff = x - y;
+    return diff >= -epsilon() && diff <= epsilon();
+}
+
 template<typename Ty>
 _INLINE_ Ty math::square(Ty x)
 {
@@ -72,9 +78,14 @@ _INLINE_ f64 math::radian_to_degree(f64 x)
     return 57.295779513082320876798154814105 * x;
 }
 
-_INLINE_ f64 math::pi()
+_INLINE_ constexpr f64 math::pi()
 {
     return 3.14159265358979323846264338327950288419716939937510;
+}
+
+_INLINE_ constexpr f64 math::epsilon()
+{
+    return 1e-7;
 }
 
 _INLINE_ constexpr u64 math::kilobyte()

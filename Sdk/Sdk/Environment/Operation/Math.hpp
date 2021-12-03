@@ -23,6 +23,8 @@ public:
 
     static f64 power(f64 x, f64 exp);
 
+    static boole equal(f64 x, f64 y);
+
     template<typename Ty>
     static Ty square(Ty x);
 
@@ -33,8 +35,6 @@ public:
     static f64 degree_to_radian(f64 x);
 
     static f64 radian_to_degree(f64 x);
-
-    static f64 pi();
 
     static f64 tan(f64 x);
 
@@ -47,6 +47,10 @@ public:
     static f64 asin(f64 x);
 
     static f64 acos(f64 x);
+
+    static constexpr f64 pi();
+
+    static constexpr f64 epsilon();
 
     static constexpr u64 kilobyte();
 
