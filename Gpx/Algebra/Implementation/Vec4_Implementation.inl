@@ -404,6 +404,18 @@ _INLINE_ f32 vec4::dot(const vec4& vc4) const
     return rst;
 }
 
+_INLINE_ vec4 vec4::cross(const vec4& vc4) const
+{
+    assert(_data._w == 0);
+    assert(vc4._data._w == 0);
+
+    return vec4(
+        _data._y * vc4._data._z - _data._z * vc4._data._y,
+        _data._z * vc4._data._x - _data._x * vc4._data._z,
+        _data._x * vc4._data._y - _data._y * vc4._data._x,
+        0);
+}
+
 _INLINE_ f32 vec4::operator *(const vec4& vc4) const
 {
     return dot(vc4);

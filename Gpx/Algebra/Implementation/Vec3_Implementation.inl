@@ -134,6 +134,14 @@ _INLINE_ f32 vec3::dot(const vec3& vc3) const
     return rst;
 }
 
+_INLINE_ vec3 vec3::cross(const vec3& vc3) const
+{
+    return vec3(
+        _data._y * vc3._data._z - _data._z * vc3._data._y,
+        _data._z * vc3._data._x - _data._x * vc3._data._z,
+        _data._x * vc3._data._y - _data._y * vc3._data._x);
+}
+
 _INLINE_ f32 vec3::operator *(const vec3& vc3) const
 {
     return dot(vc3);

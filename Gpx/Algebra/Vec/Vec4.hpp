@@ -267,6 +267,8 @@ public:
 public:
     f32 dot(const vec4& vc4) const;
 
+    vec4 cross(const vec4& vc4) const;
+
     f32 operator *(const vec4& vc4) const;
 
 public:

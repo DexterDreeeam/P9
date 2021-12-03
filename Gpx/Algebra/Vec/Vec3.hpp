@@ -119,6 +119,8 @@ public:
 public:
     f32 dot(const vec3& vc3) const;
 
+    vec3 cross(const vec3& vc3) const;
+
     f32 operator *(const vec3& vc3) const;
 
 public:
