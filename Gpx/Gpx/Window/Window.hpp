@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Interface.hpp"
-
 namespace gpx
 {
 

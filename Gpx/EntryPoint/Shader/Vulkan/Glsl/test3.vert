@@ -18,11 +18,17 @@ uniform _uni_Color
     vec3 v3;
 } uni_Color;
 
+layout(binding = 1)
+uniform _uni_Tsf
+{
+    mat4 tsf;
+} uni_Tsf;
+
 //==========================================
 
 void main()
 {
     vec4 pos = vec4(in_Position, 1.0);
-    gl_Position = pos;
+    gl_Position = uni_Tsf.tsf * pos;
     out_Color = uni_Color.v3;
 }

@@ -287,6 +287,10 @@ public:
 
     vec4 normalize() const;
 
+    void self_homogenize();
+
+    vec4 homogenize() const;
+
 public:
     vec4_data _data;
 };

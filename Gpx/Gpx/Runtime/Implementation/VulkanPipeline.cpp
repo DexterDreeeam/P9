@@ -18,7 +18,7 @@ vulkan_pipeline::vulkan_pipeline(obs<vulkan_runtime> rt, obs<vulkan_window_conte
     _rt(rt),
     _window_ctx(w_ctx),
     _descriptor_pool_vec(),
-    _descriptor_set_vvec(),
+    _descriptor_set_vec(),
     _dynamic_memory_vec(),
     _dynamic_memory_buffer_vec(),
     _dynamic_memory_memory_vec(),
@@ -211,20 +211,21 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
     */
 
     // descriptor
-    vector<VkDescriptorSetLayout> ds_layout_vec;
+
+    VkDescriptorSetLayout ds_layout = nullptr;
     escape_function ef =
         [&]() mutable
         {
-            while (ds_layout_vec.size())
+            if (ds_layout)
             {
-                vkDestroyDescriptorSetLayout(logical_device, ds_layout_vec.back(), nullptr);
-                ds_layout_vec.pop_back();
+                vkDestroyDescriptorSetLayout(logical_device, ds_layout, nullptr);
             }
         };
 
     s64 dynamic_memory_cnt = desc._dynamic_memories.size();
     if (dynamic_memory_cnt > 0)
     {
+        vector<VkDescriptorSetLayoutBinding> binding_vec;
         for (s64 i = 0; i < dynamic_memory_cnt; ++i)
         {
             VkDescriptorSetLayoutBinding layout_binding = {};
@@ -233,23 +234,20 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
             layout_binding.descriptorCount = 1;
             layout_binding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
             layout_binding.pImmutableSamplers = nullptr;
-
-            VkDescriptorSetLayoutCreateInfo dynamic_memory_layout = {};
-            dynamic_memory_layout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-            dynamic_memory_layout.bindingCount = 1;
-            dynamic_memory_layout.pBindings = &layout_binding;
-
-            VkDescriptorSetLayout layout;
-            if (vkCreateDescriptorSetLayout(
-                    logical_device, &dynamic_memory_layout, nullptr, &layout) != VK_SUCCESS)
-            {
-                uninit();
-                return boole::False;
-            }
-            ds_layout_vec.push_back(layout);
+            binding_vec.push_back(layout_binding);
         }
+        VkDescriptorSetLayoutCreateInfo dynamic_memory_layout = {};
+        dynamic_memory_layout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        dynamic_memory_layout.bindingCount = binding_vec.size();
+        dynamic_memory_layout.pBindings = binding_vec.data();
 
-        _descriptor_set_vvec.resize(image_count);
+        if (vkCreateDescriptorSetLayout(
+                logical_device, &dynamic_memory_layout, nullptr, &ds_layout) != VK_SUCCESS)
+        {
+            uninit();
+            return boole::False;
+        }
+        _descriptor_set_vec.resize(image_count);
 
         VkDescriptorPoolSize descriptor_pool_size = {};
         descriptor_pool_size.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -260,7 +258,7 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
         descriptor_pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
         descriptor_pool_info.poolSizeCount = 1;
         descriptor_pool_info.pPoolSizes = &descriptor_pool_size;
-        descriptor_pool_info.maxSets = dynamic_memory_cnt;
+        descriptor_pool_info.maxSets = 1;
 
         _descriptor_pool_vec.resize(image_count, nullptr);
 
@@ -275,12 +273,11 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
             VkDescriptorSetAllocateInfo descriptor_set_alloc_info = {};
             descriptor_set_alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
             descriptor_set_alloc_info.descriptorPool = _descriptor_pool_vec[i];
-            descriptor_set_alloc_info.descriptorSetCount = dynamic_memory_cnt;
-            descriptor_set_alloc_info.pSetLayouts = ds_layout_vec.data();
+            descriptor_set_alloc_info.descriptorSetCount = 1;
+            descriptor_set_alloc_info.pSetLayouts = &ds_layout;
 
-            _descriptor_set_vvec[i].resize(dynamic_memory_cnt, nullptr);
             if (vkAllocateDescriptorSets(
-                    logical_device, &descriptor_set_alloc_info, _descriptor_set_vvec[i].data()) != VK_SUCCESS)
+                    logical_device, &descriptor_set_alloc_info, &_descriptor_set_vec[i]) != VK_SUCCESS)
             {
                 uninit();
                 return boole::False;
@@ -325,8 +322,8 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
 
                 VkWriteDescriptorSet write_ds = {};
                 write_ds.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-                write_ds.dstSet = _descriptor_set_vvec[i][binding_idx];
-                write_ds.dstBinding = 0;
+                write_ds.dstSet = _descriptor_set_vec[i];
+                write_ds.dstBinding = binding_idx;
                 write_ds.dstArrayElement = 0;
                 write_ds.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
                 write_ds.descriptorCount = 1;
@@ -356,8 +353,8 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
     // pipeline layout
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = ds_layout_vec.size();
-    pipelineLayoutInfo.pSetLayouts = ds_layout_vec.data();
+    pipelineLayoutInfo.setLayoutCount = 1;
+    pipelineLayoutInfo.pSetLayouts = &ds_layout;
     pipelineLayoutInfo.pushConstantRangeCount = 0;
     pipelineLayoutInfo.pPushConstantRanges = nullptr;
     if (vkCreatePipelineLayout(logical_device, &pipelineLayoutInfo, nullptr, &_layout) != VK_SUCCESS)
@@ -477,7 +474,6 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
     }
 
     _name = desc._pipeline_name;
-
     transfer_state(pipeline_state::InitingOrUniniting, pipeline_state::Inited);
     return boole::True;
 }
@@ -549,18 +545,18 @@ boole vulkan_pipeline::uninit()
         _dynamic_memory_memory_vec.pop_back();
     }
 
-    while (_descriptor_set_vvec.size() && _descriptor_set_vvec.back().size() == 0)
+    while (_descriptor_set_vec.size() && _descriptor_set_vec.back() == nullptr)
     {
-        _descriptor_set_vvec.pop_back();
+        _descriptor_set_vec.pop_back();
     }
     while (_descriptor_pool_vec.size() && _descriptor_pool_vec.back() == nullptr)
     {
         _descriptor_pool_vec.pop_back();
     }
-    while (_descriptor_set_vvec.size() && _descriptor_pool_vec.size())
+    while (_descriptor_set_vec.size() && _descriptor_pool_vec.size())
     {
-        vkFreeDescriptorSets(logical_device, _descriptor_pool_vec.back(), _descriptor_set_vvec.back().size(), _descriptor_set_vvec.back().data());
-        _descriptor_set_vvec.pop_back();
+        vkFreeDescriptorSets(logical_device, _descriptor_pool_vec.back(), 1, &_descriptor_set_vec.back());
+        _descriptor_set_vec.pop_back();
         vkDestroyDescriptorPool(logical_device, _descriptor_pool_vec.back(), nullptr);
         _descriptor_pool_vec.pop_back();
     }
@@ -661,15 +657,15 @@ boole vulkan_pipeline::load_resource()
         vkCmdBeginRenderPass(_command_buffer_vec[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
         vkCmdBindPipeline(_command_buffer_vec[i], VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline);
 
-        if (_descriptor_set_vvec.size() && _descriptor_set_vvec[i].size())
+        if (_descriptor_set_vec.size())
         {
             vkCmdBindDescriptorSets(
                 _command_buffer_vec[i],
                 VK_PIPELINE_BIND_POINT_GRAPHICS,
                 _layout,
                 0,
-                _descriptor_set_vvec[i].size(),
-                _descriptor_set_vvec[i].data(),
+                1,
+                &_descriptor_set_vec[i],
                 0,
                 nullptr);
         }

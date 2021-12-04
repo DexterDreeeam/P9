@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../../External/Vulkan/Windows/Header/vulkan/vulkan.h"
+#define GLFW_INCLUDE_VULKAN
+#include "../../External/Vulkan/Windows/Header/glfw3.h"
 #include "../Runtime/Interface.hpp"
-#include "../Runtime/VulkanRuntime.hpp"
 
 namespace gpx
 {

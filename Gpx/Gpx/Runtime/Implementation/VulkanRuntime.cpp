@@ -1124,15 +1124,10 @@ boole vulkan_runtime::render(const string& pipeline_name)
     return p->render();
 }
 
-boole vulkan_runtime::wait_render_complete(const string& window_name)
+boole vulkan_runtime::wait_render_complete()
 {
     AUTO_TRACE;
 
-    auto w_ctx = get_window_context(window_name);
-    if (w_ctx.empty())
-    {
-        return boole::False;
-    }
     if (vkDeviceWaitIdle(_logical_device) != VK_SUCCESS)
     {
         return boole::False;

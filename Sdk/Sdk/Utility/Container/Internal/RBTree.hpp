@@ -627,6 +627,7 @@ namespace RBTreeNs
 
         bool validation()
         {
+            allocator.self_check();
             if (sz == 0 && myhead()->left == nullptr)
             {
                 return true;
@@ -693,7 +694,7 @@ namespace RBTreeNs
             }
             else if (left_test == empty_branch)
             {
-                if (mycolor != RB_TREE_BLACK || right_test.first != 0 || mykey >= right_test.second)
+                if (mycolor != RB_TREE_BLACK || right_test.first != 0 || Cmp_Ty()(mykey, right_test.second) >= 0)
                 {
                     return test_error;
                 }
@@ -701,7 +702,7 @@ namespace RBTreeNs
             }
             else if (right_test == empty_branch)
             {
-                if (mycolor != RB_TREE_BLACK || left_test.first != 0 || mykey <= left_test.third)
+                if (mycolor != RB_TREE_BLACK || left_test.first != 0 || Cmp_Ty()(mykey, left_test.third) <= 0)
                 {
                     return test_error;
                 }
@@ -709,7 +710,9 @@ namespace RBTreeNs
             }
             else
             {
-                if (left_test.first != right_test.first || mykey <= left_test.third || mykey >= right_test.second)
+                if (left_test.first != right_test.first ||
+                    Cmp_Ty()(mykey, left_test.third) <= 0 ||
+                    Cmp_Ty()(mykey, right_test.second) >= 0)
                 {
                     return test_error;
                 }

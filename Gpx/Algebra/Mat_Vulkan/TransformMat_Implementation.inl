@@ -3,17 +3,33 @@
 namespace gpx
 {
 
+template<>
 template<typename ...Args>
 _INLINE_ vec4 transform<algebra_type::Vulkan>::act(const vec4& v, const mat4x4& m, Args ...args)
 {
     return act(act(v, m), args...);
 }
 
+template<>
 _INLINE_ vec4 transform<algebra_type::Vulkan>::act(const vec4& v, const mat4x4& m)
 {
     return vec4(m.r1() * v, m.r2() * v, m.r3() * v, m.r4() * v);
 }
 
+template<>
+template<typename ...Args>
+_INLINE_ mat4x4 transform<algebra_type::Vulkan>::act(const mat4x4& m1, const mat4x4& m2, Args ...args)
+{
+    return act(act(m1, m2), args...);
+}
+
+template<>
+_INLINE_ mat4x4 transform<algebra_type::Vulkan>::act(const mat4x4& m1, const mat4x4& m2)
+{
+    return m2 * m1;
+}
+
+template<>
 _INLINE_ mat4x4 transform<algebra_type::Vulkan>::translate(const vec3& v)
 {
     return mat4x4(
@@ -23,12 +39,14 @@ _INLINE_ mat4x4 transform<algebra_type::Vulkan>::translate(const vec3& v)
         0.0f, 0.0f, 0.0f, 1.0f);
 }
 
+template<>
 _INLINE_ mat4x4 transform<algebra_type::Vulkan>::translate(const vec4& v)
 {
     assert(v.w() == 0);
     return translate(v.to_vec3());
 }
 
+template<>
 _INLINE_ mat4x4 transform<algebra_type::Vulkan>::scale(f32 scalar)
 {
     f32 s = scalar;
@@ -39,6 +57,7 @@ _INLINE_ mat4x4 transform<algebra_type::Vulkan>::scale(f32 scalar)
         0.0f, 0.0f, 0.0f, 1.0f);
 }
 
+template<>
 _INLINE_ mat4x4 transform<algebra_type::Vulkan>::scale(f32 xs, f32 ys, f32 zs)
 {
     return mat4x4(
@@ -48,6 +67,7 @@ _INLINE_ mat4x4 transform<algebra_type::Vulkan>::scale(f32 xs, f32 ys, f32 zs)
         0.0f, 0.0f, 0.0f, 1.0f);
 }
 
+template<>
 _INLINE_ mat4x4 transform<algebra_type::Vulkan>::rotate_x(f32 radian)
 {
     f32 sin = math::sin(radian);
@@ -59,6 +79,7 @@ _INLINE_ mat4x4 transform<algebra_type::Vulkan>::rotate_x(f32 radian)
         0.0f, 0.0f, 0.0f, 1.0f);
 }
 
+template<>
 _INLINE_ mat4x4 transform<algebra_type::Vulkan>::rotate_y(f32 radian)
 {
     f32 sin = math::sin(radian);
@@ -70,6 +91,7 @@ _INLINE_ mat4x4 transform<algebra_type::Vulkan>::rotate_y(f32 radian)
         0.0f, 0.0f, 0.0f, 1.0f);
 }
 
+template<>
 _INLINE_ mat4x4 transform<algebra_type::Vulkan>::rotate_z(f32 radian)
 {
     f32 sin = math::sin(radian);
@@ -81,6 +103,7 @@ _INLINE_ mat4x4 transform<algebra_type::Vulkan>::rotate_z(f32 radian)
         0.0f, 0.0f, 0.0f, 1.0f);
 }
 
+template<>
 _INLINE_ mat4x4 transform<algebra_type::Vulkan>::rotate(const vec3& direction, f32 radian)
 {
     // Rodrigues Rotation Formula
@@ -107,6 +130,7 @@ _INLINE_ mat4x4 transform<algebra_type::Vulkan>::rotate(const vec3& direction, f
                        0,                0,                0,  1);
 }
 
+template<>
 _INLINE_ mat4x4 transform<algebra_type::Vulkan>::rotate(const vec4& direction, f32 radian)
 {
     assert(direction.w() == 0);
@@ -146,6 +170,7 @@ _INLINE_ mat4x4 transform<algebra_type::Vulkan>::rotate(const vec4& direction, f
 //     0, 0, 1, -Pos_z,
 //     0, 0, 0,      1
 // ]
+template<>
 _INLINE_ mat4x4 transform<algebra_type::Vulkan>::view(const vec3& view_pos, const vec3& view_target, const vec3& up)
 {
     vec3 n_look_at = (view_target - view_pos).normalize();
@@ -159,9 +184,85 @@ _INLINE_ mat4x4 transform<algebra_type::Vulkan>::view(const vec3& view_pos, cons
                     0,             0,             0,                                                                                      1);
 }
 
+template<>
 _INLINE_ mat4x4 transform<algebra_type::Vulkan>::view(const vec4& view_pos, const vec4& view_target, const vec4& up)
 {
     return view(view_pos.to_vec3(), view_target.to_vec3(), up.to_vec3());
+}
+
+template<>
+_INLINE_ mat4x4 transform<algebra_type::Vulkan>::ortho_project(f32 width, f32 height, f32 sight_distance)
+{
+    assert(width > math::epsilon());
+    assert(height > math::epsilon());
+    assert(sight_distance > math::epsilon());
+
+    f32 sx = 2 / width;
+    f32 sy = 2 / height;
+    f32 sz = 1 / sight_distance;
+    return mat4x4(
+        sx,  0,  0, 0,
+         0, sy,  0, 0,
+         0,  0, sz, 0,
+         0,  0,  0, 1);
+}
+
+//
+// M_persp = M_orth * M_fc
+//
+// M_orth = [
+//     2/width,        0,            0,                0,
+//           0, 2/height,            0,                0,
+//           0,        0, 1/(far-near), -near/(far-near),
+//           0,        0,            0,                1
+// ]
+//
+// frustum -> cuboid
+// M_fc = [
+//     near,    0,        0,         0,
+//        0, near,        0,         0,
+//        0,    0, near+far, -near*far,
+//        0,    0,        1,         0
+// ]
+//
+// M_fc * [ x, y, z ]
+// [   near*x,   near*y, near*z+far*z-near*far, z ]
+// [ near/z*x, near/z*y,   near+far-near*far/z, 1 ]
+//
+// M_persp = [
+//     2*near/width,             0,              0,                    0,
+//                0, 2*near/height,              0,                    0,
+//                0,             0, far/(far-near), -near*far/(far-near),
+//                0,             0,              1,                    0
+// ]
+//
+// height/2 = tan(fov/2) * near
+// width = height * aspect
+//
+template<>
+_INLINE_ mat4x4 transform<algebra_type::Vulkan>::persp_project(f32 fov, f32 aspect, f32 near, f32 far)
+{
+    assert(fov > math::epsilon() && fov < math::pi());
+    assert(aspect > math::epsilon());
+    assert(near > math::epsilon());
+    assert(far > near);
+
+    f32 tan_f2 = math::tan(fov / 2);
+    f32 height = tan_f2 * near * 2;
+    f32 width = height * aspect;
+    f32 distance = far - near;
+
+    return mat4x4(
+        2*near/width,             0,            0,                    0,
+                   0, 2*near/height,            0,                    0,
+                   0,             0, far/distance, -(near*far)/distance,
+                   0,             0,            1,                    0);
+}
+
+template<>
+_INLINE_ mat4x4 transform<algebra_type::Vulkan>::perspective(f32 fov, f32 aspect, f32 near, f32 far)
+{
+    return persp_project(fov, aspect, near, far);
 }
 
 }

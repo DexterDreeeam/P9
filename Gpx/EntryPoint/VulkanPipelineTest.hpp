@@ -140,7 +140,7 @@ void vulkan_pipeline_test()
         checker = rt->render("Pavilion Nine Test Pipeline");
         assert(checker);
     }
-    checker = rt->wait_render_complete("Hello Pavilion Nine");
+    checker = rt->wait_render_complete();
     assert(checker);
 
     checker = rt->unload_pipeline_resource("Pavilion Nine Test Pipeline");

@@ -92,7 +92,7 @@ public:
 
     virtual boole render(const string& pipeline_name) override;
 
-    virtual boole wait_render_complete(const string& window_name) override;
+    virtual boole wait_render_complete() override;
 
 public:
     VkInstance get_vk_instance() { return *_instance.get(); }

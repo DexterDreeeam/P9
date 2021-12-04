@@ -2,7 +2,6 @@
 
 namespace SlotAllocatorNs
 {
-
     const s64 slot_allocator_default_cap = 4LL;
 
     template<s64 DataSz>
@@ -43,7 +42,7 @@ namespace SlotAllocatorNs
             cap(slot_allocator_default_cap),
             slot_head()
         {
-            block_head = pointer_convert(memory::alloc<void>(sizeof(_block<DataSz>) + sizeof(_slot<DataSz>) * cap), 0, _block<DataSz>*);
+            block_head = memory::alloc<_block<DataSz>>(sizeof(_block<DataSz>) + sizeof(_slot<DataSz>) * cap);
             block_head->next = nullptr;
             block_head->slots_cnt = cap;
 
@@ -62,7 +61,7 @@ namespace SlotAllocatorNs
             cap(cap),
             slot_head()
         {
-            block_head = pointer_convert(memory::alloc<void>(sizeof(_block<DataSz>) + sizeof(_slot<DataSz>) * cap), 0, _block<DataSz>*);
+            block_head = memory::alloc<_block<DataSz>>(sizeof(_block<DataSz>) + sizeof(_slot<DataSz>) * cap);
             block_head->next = nullptr;
             block_head->slots_cnt = cap;
 
@@ -75,6 +74,8 @@ namespace SlotAllocatorNs
                 slot->next->prev = slot;
             }
         }
+
+        slot_allocator(const Self_Ty& rhs) = delete;
 
         slot_allocator(Self_Ty&& rhs) noexcept :
             size(rhs.size),
@@ -114,22 +115,25 @@ namespace SlotAllocatorNs
             rhs.slot_head.prev = nullptr;
             rhs.slot_head.next = nullptr;
             rhs.block_head = nullptr;
+
             return *this;
         }
 
         ~slot_allocator() noexcept
         {
             _block<DataSz>* blk = block_head;
+            block_head = nullptr;
             while (blk)
             {
                 _block<DataSz>* blk_next = blk->next;
-                memory::free(pointer_convert(blk, 0, void*));
+                memory::free(blk);
                 blk = blk_next;
             }
         }
 
         void* get() noexcept
         {
+            auto* head_addr = &slot_head;
             if (size == 0)
             {
                 append_block(cap);
@@ -142,7 +146,8 @@ namespace SlotAllocatorNs
             slot->next = nullptr;
             slot->prev = nullptr;
 
-            return pointer_convert(slot, 0, void*);
+            assert(self_check());
+            return slot;
         }
 
         void put(void* p) noexcept
@@ -154,12 +159,28 @@ namespace SlotAllocatorNs
             slot->next->prev = slot;
 
             ++size;
+            assert(self_check());
+        }
+
+        boole self_check()
+        {
+            auto* p = slot_head.next;
+            while (p != nullptr && p != &slot_head)
+            {
+                assert(p->prev);
+                assert(p->prev->next == p);
+                assert(p->next);
+                assert(p->next->prev == p);
+                p = p->next;
+            }
+            assert(p == &slot_head);
+            return boole::True;
         }
 
     private:
         void append_block(s64 block_sz)
         {
-            _block<DataSz>* new_block = pointer_convert(memory::alloc<void>(sizeof(_block<DataSz>) + sizeof(_slot<DataSz>) * block_sz), 0, _block<DataSz>*);
+            _block<DataSz>* new_block = memory::alloc<_block<DataSz>>(sizeof(_block<DataSz>) + sizeof(_slot<DataSz>) * block_sz);
             assert(new_block);
             new_block->slots_cnt = block_sz;
 

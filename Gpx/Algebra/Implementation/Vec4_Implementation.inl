@@ -470,4 +470,21 @@ _INLINE_ vec4 vec4::normalize() const
     return v;
 }
 
+_INLINE_ void vec4::self_homogenize()
+{
+    assert(_data._w > math::epsilon());
+    f32 w = _data._w;
+    _data._x /= w;
+    _data._y /= w;
+    _data._z /= w;
+    _data._w = 1;
+}
+
+_INLINE_ vec4 vec4::homogenize() const
+{
+    vec4 v(*this);
+    v.self_homogenize();
+    return v;
+}
+
 }

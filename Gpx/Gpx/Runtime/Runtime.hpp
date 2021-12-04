@@ -93,7 +93,7 @@ public:
 
     virtual boole render(const string& pipeline_name) = 0;
 
-    virtual boole wait_render_complete(const string& window_name) = 0;
+    virtual boole wait_render_complete() = 0;
 };
 
 }

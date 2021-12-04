@@ -4,16 +4,18 @@ namespace gpx
 {
 
 template<algebra_type AlgType>
-class transform;
-
-template<>
-class transform<algebra_type::Vulkan>
+class transform
 {
 public:
     template<typename ...Args>
     static vec4 act(const vec4& v, const mat4x4& m, Args ...args);
 
     static vec4 act(const vec4& v, const mat4x4& m);
+
+    template<typename ...Args>
+    static mat4x4 act(const mat4x4& m1, const mat4x4& m2, Args ...args);
+
+    static mat4x4 act(const mat4x4& m1, const mat4x4& m2);
 
     static mat4x4 translate(const vec3& v);
 
@@ -36,6 +38,12 @@ public:
     static mat4x4 view(const vec3& view_pos, const vec3& view_target, const vec3& up);
 
     static mat4x4 view(const vec4& view_pos, const vec4& view_target, const vec4& up);
+
+    static mat4x4 ortho_project(f32 width, f32 height, f32 sight_distance);
+
+    static mat4x4 persp_project(f32 fov, f32 aspect, f32 near, f32 far);
+
+    static mat4x4 perspective(f32 fov, f32 aspect, f32 near, f32 far);
 };
 
 }

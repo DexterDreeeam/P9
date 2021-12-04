@@ -1,5 +1,7 @@
 #pragma once
 
+#define GLFW_INCLUDE_VULKAN
+#include "../../External/Vulkan/Windows/Header/glfw3.h"
 #include "Interface.hpp"
 
 namespace gpx
@@ -44,9 +46,7 @@ private:
     obs<vulkan_window_context>      _window_ctx;
 
     vector<VkDescriptorPool>        _descriptor_pool_vec;
-    vector<
-        vector<VkDescriptorSet>
-    >                               _descriptor_set_vvec;
+    vector<VkDescriptorSet>         _descriptor_set_vec;
     vector<
         ref<vulkan_dynamic_memory>
     >                               _dynamic_memory_vec;

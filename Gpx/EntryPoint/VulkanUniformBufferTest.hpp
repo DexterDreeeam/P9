@@ -64,11 +64,19 @@ void vulkan_uniform_buffer_test()
 
     // register dynamic memory
     gpx::vec3 color_v3 = { 1.0, 1.0, 1.0 };
-    gpx::dynamic_memory_desc dynamic_memory_desc;
-    dynamic_memory_desc._name = "Pavilion Nine Test Dynamic Memory";
-    dynamic_memory_desc._size = sizeof(color_v3);
+    gpx::dynamic_memory_desc dynamic_memory_desc1;
+    dynamic_memory_desc1._name = "Pavilion Nine Test Dynamic Memory 1";
+    dynamic_memory_desc1._size = sizeof(color_v3);
 
-    checker = rt->register_dynamic_memory(dynamic_memory_desc);
+    checker = rt->register_dynamic_memory(dynamic_memory_desc1);
+    assert(checker);
+
+    gpx::mat4x4 transform_mat = gpx::mat4x4::identity();
+    gpx::dynamic_memory_desc dynamic_memory_desc2;
+    dynamic_memory_desc2._name = "Pavilion Nine Test Dynamic Memory 2";
+    dynamic_memory_desc2._size = sizeof(transform_mat);
+
+    checker = rt->register_dynamic_memory(dynamic_memory_desc2);
     assert(checker);
 
     // register pipeline
@@ -78,7 +86,8 @@ void vulkan_uniform_buffer_test()
     pipeline_desc._vertex_type = gpx::vertex_pos_color::type();
     pipeline_desc._shaders.push_back(vert_shader);
     pipeline_desc._shaders.push_back(frag_shader);
-    pipeline_desc._dynamic_memories.push_back("Pavilion Nine Test Dynamic Memory");
+    pipeline_desc._dynamic_memories.push_back("Pavilion Nine Test Dynamic Memory 1");
+    pipeline_desc._dynamic_memories.push_back("Pavilion Nine Test Dynamic Memory 2");
 
     checker = rt->register_pipeline(pipeline_desc);
     assert(checker);
@@ -99,7 +108,6 @@ void vulkan_uniform_buffer_test()
     assert(vertices_files_3.size());
 
     gpx::vertices_viewer_desc vv_desc;
-
     vv_desc._name = "test 3 vertices";
     vv_desc._file_path = vertices_files_3[0];
     checker = rt->register_vertices_viewer(vv_desc);
@@ -122,7 +130,7 @@ void vulkan_uniform_buffer_test()
     u64 start_tick = tick::elapse();
     while (1)
     {
-        if (tick::elapse() - start_tick >= 1000)
+        if (tick::elapse() - start_tick >= 2000)
         {
             break;
         }
@@ -133,20 +141,31 @@ void vulkan_uniform_buffer_test()
         color_v3.x() = (diff / (f32)1000);
         color_v3.y() = (((diff + 333) % 1000) / (f32)1000);
         color_v3.z() = (((diff + 666) % 1000) / (f32)1000);
+        checker = rt->update_dynamic_memory("Pavilion Nine Test Dynamic Memory 1", &color_v3);
+        assert(checker);
 
-        checker = rt->update_dynamic_memory("Pavilion Nine Test Dynamic Memory", &color_v3);
+        using tsf = gpx::transform<gpx::algebra_type::Vulkan>;
+        auto model = tsf::rotate_z((f32)diff / 1000 * math::pi());
+        auto view = tsf::view(gpx::vec3(1,1,1), gpx::vec3(0,0,0), gpx::vec3(0, 0, 1));
+        auto proj = tsf::perspective(math::pi() / 2, (f32)wnd_desc.width / wnd_desc.height, 0.1, 10);
+        transform_mat = tsf::act(model, view, proj);
+
+        transform_mat = gpx::mat4x4::identity();
+        checker = rt->update_dynamic_memory("Pavilion Nine Test Dynamic Memory 2", &transform_mat);
         assert(checker);
 
         checker = rt->render("Pavilion Nine Test Pipeline");
         assert(checker);
     }
-    checker = rt->wait_render_complete("Hello Pavilion Nine");
+    checker = rt->wait_render_complete();
     assert(checker);
 
     // release resources
     checker = rt->unload_pipeline_resource("Pavilion Nine Test Pipeline");
     assert(checker);
-    checker = rt->unregister_dynamic_memory("Pavilion Nine Test Dynamic Memory");
+    checker = rt->unregister_dynamic_memory("Pavilion Nine Test Dynamic Memory 1");
+    assert(checker);
+    checker = rt->unregister_dynamic_memory("Pavilion Nine Test Dynamic Memory 2");
     assert(checker);
     checker = rt->unregister_pipeline("Pavilion Nine Test Pipeline");
     assert(checker);

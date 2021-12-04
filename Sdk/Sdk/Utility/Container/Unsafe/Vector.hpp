@@ -918,20 +918,24 @@ private:
         {
             return;
         }
-        void* p_tobe_release = elem;
-        while (sz + add > cap)
+        s64 new_cap = cap;
+        while (sz + add > new_cap)
         {
-            cap = cap == 0 ? vector_unit_extent : (cap << 1);
-            assert(cap <= vector_cap_max);
+            new_cap = new_cap == 0 ? vector_unit_extent : (new_cap << 1);
+            assert(new_cap <= vector_cap_max);
         }
+        Ty* new_elem = memory::alloc<Ty>(sizeof(Ty) * new_cap);
+        for (s64 i = 0; i < sz; ++i)
+        {
+            new (new_elem + i) Ty(right_value_type(elem[i]));
+            (&elem[i])->~Ty();
+        }
+        void* p_tobe_release = elem;
+        elem = new_elem;
+        cap = new_cap;
         if (p_tobe_release)
         {
-            elem = (Ty*)memory::alloc_copy<void>(p_tobe_release, sizeof(Ty) * cap, sizeof(Ty) * sz);
             memory::free(p_tobe_release);
-        }
-        else
-        {
-            elem = (Ty*)memory::alloc<void>(sizeof(Ty) * cap);
         }
     }
 
