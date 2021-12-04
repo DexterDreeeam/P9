@@ -25,17 +25,32 @@ _INLINE_ mat3x1& mat3x1::operator =(const mat3x1& rhs)
     return *this;
 }
 
-_INLINE_ f32 mat3x1::r1() const
+_INLINE_ f32& mat3x1::r1()
 {
     return _data._r1;
 }
 
-_INLINE_ f32 mat3x1::r2() const
+_INLINE_ f32& mat3x1::r2()
 {
     return _data._r2;
 }
 
-_INLINE_ f32 mat3x1::r3() const
+_INLINE_ f32& mat3x1::r3()
+{
+    return _data._r3;
+}
+
+_INLINE_ const f32& mat3x1::r1() const
+{
+    return _data._r1;
+}
+
+_INLINE_ const f32& mat3x1::r2() const
+{
+    return _data._r2;
+}
+
+_INLINE_ const f32& mat3x1::r3() const
 {
     return _data._r3;
 }

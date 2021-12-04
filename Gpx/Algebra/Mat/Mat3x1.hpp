@@ -41,11 +41,17 @@ public:
     mat3x1& operator =(const mat3x1& rhs);
 
 public:
-    f32 r1() const;
+    f32& r1();
 
-    f32 r2() const;
+    f32& r2();
 
-    f32 r3() const;
+    f32& r3();
+
+    const f32& r1() const;
+
+    const f32& r2() const;
+
+    const f32& r3() const;
 
     vec3 c1() const;
 

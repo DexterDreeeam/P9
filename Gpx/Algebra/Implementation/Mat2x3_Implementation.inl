@@ -28,12 +28,22 @@ _INLINE_ mat2x3& mat2x3::operator =(const mat2x3& rhs)
     return *this;
 }
 
-_INLINE_ vec3 mat2x3::r1() const
+_INLINE_ vec3& mat2x3::r1()
 {
     return _data._r1;
 }
 
-_INLINE_ vec3 mat2x3::r2() const
+_INLINE_ vec3& mat2x3::r2()
+{
+    return _data._r2;
+}
+
+_INLINE_ const vec3& mat2x3::r1() const
+{
+    return _data._r1;
+}
+
+_INLINE_ const vec3& mat2x3::r2() const
 {
     return _data._r2;
 }
@@ -41,22 +51,22 @@ _INLINE_ vec3 mat2x3::r2() const
 _INLINE_ vec2 mat2x3::c1() const
 {
     return vec2(
-        _data._r1._x,
-        _data._r2._x);
+        _data._r1.x(),
+        _data._r2.x());
 }
 
 _INLINE_ vec2 mat2x3::c2() const
 {
     return vec2(
-        _data._r1._y,
-        _data._r2._y);
+        _data._r1.y(),
+        _data._r2.y());
 }
 
 _INLINE_ vec2 mat2x3::c3() const
 {
     return vec2(
-        _data._r1._z,
-        _data._r2._z);
+        _data._r1.z(),
+        _data._r2.z());
 }
 
 }

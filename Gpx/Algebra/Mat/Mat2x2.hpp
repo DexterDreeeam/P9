@@ -5,7 +5,7 @@ namespace gpx
 
 struct mat2x2_data
 {
-    mat2x2_data(const vec2_data& vc2_1, const vec2_data& vc2_2) :
+    mat2x2_data(const vec2& vc2_1, const vec2& vc2_2) :
         _r1(vc2_1), _r2(vc2_2)
     {
     }
@@ -22,8 +22,8 @@ struct mat2x2_data
         return *this;
     }
 
-    vec2_data _r1;
-    vec2_data _r2;
+    vec2 _r1;
+    vec2 _r2;
 };
 
 class mat2x2
@@ -46,9 +46,13 @@ public:
 
     mat2x2 transpose() const;
 
-    vec2 r1() const;
+    vec2& r1();
 
-    vec2 r2() const;
+    vec2& r2();
+
+    const vec2& r1() const;
+
+    const vec2& r2() const;
 
     vec2 c1() const;
 

@@ -34,7 +34,12 @@ _INLINE_ mat1x1 mat1x1::transpose() const
     return mat1x1(*this);
 }
 
-_INLINE_ f32 mat1x1::r1() const
+_INLINE_ f32& mat1x1::r1()
+{
+    return _data._11;
+}
+
+_INLINE_ const f32& mat1x1::r1() const
 {
     return _data._11;
 }

@@ -5,7 +5,7 @@ namespace gpx
 
 struct mat1x4_data
 {
-    mat1x4_data(const vec4_data& vc4) :
+    mat1x4_data(const vec4& vc4) :
         _r1(vc4)
     {
     }
@@ -21,7 +21,7 @@ struct mat1x4_data
         return *this;
     }
 
-    vec4_data _r1;
+    vec4 _r1;
 };
 
 class mat1x4
@@ -36,7 +36,9 @@ public:
     mat1x4& operator =(const mat1x4& rhs);
 
 public:
-    vec4 r1() const;
+    vec4& r1();
+
+    const vec4& r1() const;
 
     f32 c1() const;
 

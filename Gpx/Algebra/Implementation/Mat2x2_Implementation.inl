@@ -37,7 +37,7 @@ _INLINE_ mat2x2 mat2x2::identity()
 
 _INLINE_ void mat2x2::self_transpose()
 {
-    swap(_data._r1._y, _data._r2._x);
+    swap(_data._r1.y(), _data._r2.x());
 }
 
 _INLINE_ mat2x2 mat2x2::transpose() const
@@ -47,28 +47,38 @@ _INLINE_ mat2x2 mat2x2::transpose() const
     return m;
 }
 
-_INLINE_ vec2 mat2x2::r1() const
+_INLINE_ vec2& mat2x2::r1()
 {
-    return vec2(_data._r1);
+    return _data._r1;
 }
 
-_INLINE_ vec2 mat2x2::r2() const
+_INLINE_ vec2& mat2x2::r2()
 {
-    return vec2(_data._r2);
+    return _data._r2;
+}
+
+_INLINE_ const vec2& mat2x2::r1() const
+{
+    return _data._r1;
+}
+
+_INLINE_ const vec2& mat2x2::r2() const
+{
+    return _data._r2;
 }
 
 _INLINE_ vec2 mat2x2::c1() const
 {
     return vec2(
-        _data._r1._x,
-        _data._r2._x);
+        _data._r1.x(),
+        _data._r2.x());
 }
 
 _INLINE_ vec2 mat2x2::c2() const
 {
     return vec2(
-        _data._r1._y,
-        _data._r2._y);
+        _data._r1.y(),
+        _data._r2.y());
 }
 
 }

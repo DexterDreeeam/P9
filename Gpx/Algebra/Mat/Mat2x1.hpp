@@ -38,9 +38,13 @@ public:
     mat2x1& operator =(const mat2x1& rhs);
 
 public:
-    f32 r1() const;
+    f32& r1();
 
-    f32 r2() const;
+    f32& r2();
+
+    const f32& r1() const;
+
+    const f32& r2() const;
 
     vec2 c1() const;
 

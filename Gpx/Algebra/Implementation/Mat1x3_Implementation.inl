@@ -24,24 +24,29 @@ _INLINE_ mat1x3& mat1x3::operator =(const mat1x3& rhs)
     return *this;
 }
 
-_INLINE_ vec3 mat1x3::r1() const
+_INLINE_ vec3& mat1x3::r1()
 {
-    return vec3(_data._r1);
+    return _data._r1;
+}
+
+_INLINE_ const vec3& mat1x3::r1() const
+{
+    return _data._r1;
 }
 
 _INLINE_ f32 mat1x3::c1() const
 {
-    return _data._r1._x;
+    return _data._r1.x();
 }
 
 _INLINE_ f32 mat1x3::c2() const
 {
-    return _data._r1._y;
+    return _data._r1.y();
 }
 
 _INLINE_ f32 mat1x3::c3() const
 {
-    return _data._r1._z;
+    return _data._r1.z();
 }
 
 }

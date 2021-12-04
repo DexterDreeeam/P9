@@ -145,12 +145,16 @@ void vulkan_uniform_buffer_test()
         assert(checker);
 
         using tsf = gpx::transform<gpx::algebra_type::Vulkan>;
-        auto model = tsf::rotate_z((f32)diff / 1000 * math::pi());
-        auto view = tsf::view(gpx::vec3(1,1,1), gpx::vec3(0,0,0), gpx::vec3(0, 0, 1));
+        auto model = gpx::mat4x4::identity();// tsf::rotate_z((f32)diff / 1000 * math::pi());
+        auto view = tsf::view(gpx::vec3(0.1,0.1,3), gpx::vec3(0,0,0), gpx::vec3(0, 0, 1));
         auto proj = tsf::perspective(math::pi() / 2, (f32)wnd_desc.width / wnd_desc.height, 0.1, 10);
         transform_mat = tsf::act(model, view, proj);
 
-        transform_mat = gpx::mat4x4::identity();
+        //transform_mat = gpx::mat4x4::identity();
+        //transform_mat.r1().x() = 0.5;
+        //transform_mat.r2().y() = 0.5;
+        //transform_mat.r3().z() = 0.5;
+        //transform_mat.r4().w() = 2;
         checker = rt->update_dynamic_memory("Pavilion Nine Test Dynamic Memory 2", &transform_mat);
         assert(checker);
 

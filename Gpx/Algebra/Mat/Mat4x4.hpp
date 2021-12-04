@@ -5,7 +5,7 @@ namespace gpx
 
 struct mat4x4_data
 {
-    mat4x4_data(const vec4_data& vc4_1, const vec4_data& vc4_2, const vec4_data& vc4_3, const vec4_data& vc4_4) :
+    mat4x4_data(const vec4& vc4_1, const vec4& vc4_2, const vec4& vc4_3, const vec4& vc4_4) :
         _r1(vc4_1), _r2(vc4_2), _r3(vc4_3), _r4(vc4_4)
     {
     }
@@ -24,10 +24,10 @@ struct mat4x4_data
         return *this;
     }
 
-    vec4_data _r1;
-    vec4_data _r2;
-    vec4_data _r3;
-    vec4_data _r4;
+    vec4 _r1;
+    vec4 _r2;
+    vec4 _r3;
+    vec4 _r4;
 };
 
 class mat4x4
@@ -56,13 +56,21 @@ public:
 
     mat4x4 add(const mat4x4 mat) const;
 
-    vec4 r1() const;
+    vec4& r1();
 
-    vec4 r2() const;
+    vec4& r2();
 
-    vec4 r3() const;
+    vec4& r3();
 
-    vec4 r4() const;
+    vec4& r4();
+
+    const vec4& r1() const;
+
+    const vec4& r2() const;
+
+    const vec4& r3() const;
+
+    const vec4& r4() const;
 
     vec4 c1() const;
 

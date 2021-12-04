@@ -5,7 +5,7 @@ namespace gpx
 
 struct mat3x3_data
 {
-    mat3x3_data(const vec3_data& vc3_1, const vec3_data& vc3_2, const vec3_data& vc3_3) :
+    mat3x3_data(const vec3& vc3_1, const vec3& vc3_2, const vec3& vc3_3) :
         _r1(vc3_1), _r2(vc3_2), _r3(vc3_3)
     {
     }
@@ -23,9 +23,9 @@ struct mat3x3_data
         return *this;
     }
 
-    vec3_data _r1;
-    vec3_data _r2;
-    vec3_data _r3;
+    vec3 _r1;
+    vec3 _r2;
+    vec3 _r3;
 };
 
 class mat3x3
@@ -49,11 +49,17 @@ public:
 
     mat3x3 transpose() const;
 
-    vec3 r1() const;
+    vec3& r1();
 
-    vec3 r2() const;
+    vec3& r2();
 
-    vec3 r3() const;
+    vec3& r3();
+
+    const vec3& r1() const;
+
+    const vec3& r2() const;
+
+    const vec3& r3() const;
 
     vec3 c1() const;
 

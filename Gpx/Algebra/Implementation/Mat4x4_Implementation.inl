@@ -43,12 +43,12 @@ _INLINE_ mat4x4 mat4x4::identity()
 
 _INLINE_ void mat4x4::self_transpose()
 {
-    swap(_data._r1._y, _data._r2._x);
-    swap(_data._r1._z, _data._r3._x);
-    swap(_data._r1._w, _data._r4._x);
-    swap(_data._r2._z, _data._r3._y);
-    swap(_data._r2._w, _data._r4._y);
-    swap(_data._r3._w, _data._r4._z);
+    swap(_data._r1.y(), _data._r2.x());
+    swap(_data._r1.z(), _data._r3.x());
+    swap(_data._r1.w(), _data._r4.x());
+    swap(_data._r2.z(), _data._r3.y());
+    swap(_data._r2.w(), _data._r4.y());
+    swap(_data._r3.w(), _data._r4.z());
 }
 
 _INLINE_ mat4x4 mat4x4::transpose() const
@@ -60,25 +60,25 @@ _INLINE_ mat4x4 mat4x4::transpose() const
 
 _INLINE_ void mat4x4::self_add(const mat4x4 mat)
 {
-    _data._r1._x += mat._data._r1._x;
-    _data._r1._y += mat._data._r1._y;
-    _data._r1._z += mat._data._r1._z;
-    _data._r1._w += mat._data._r1._w;
+    _data._r1.x() += mat._data._r1.x();
+    _data._r1.y() += mat._data._r1.y();
+    _data._r1.z() += mat._data._r1.z();
+    _data._r1.w() += mat._data._r1.w();
 
-    _data._r2._x += mat._data._r2._x;
-    _data._r2._y += mat._data._r2._y;
-    _data._r2._z += mat._data._r2._z;
-    _data._r2._w += mat._data._r2._w;
+    _data._r2.x() += mat._data._r2.x();
+    _data._r2.y() += mat._data._r2.y();
+    _data._r2.z() += mat._data._r2.z();
+    _data._r2.w() += mat._data._r2.w();
 
-    _data._r3._x += mat._data._r3._x;
-    _data._r3._y += mat._data._r3._y;
-    _data._r3._z += mat._data._r3._z;
-    _data._r3._w += mat._data._r3._w;
+    _data._r3.x() += mat._data._r3.x();
+    _data._r3.y() += mat._data._r3.y();
+    _data._r3.z() += mat._data._r3.z();
+    _data._r3.w() += mat._data._r3.w();
 
-    _data._r4._x += mat._data._r4._x;
-    _data._r4._y += mat._data._r4._y;
-    _data._r4._z += mat._data._r4._z;
-    _data._r4._w += mat._data._r4._w;
+    _data._r4.x() += mat._data._r4.x();
+    _data._r4.y() += mat._data._r4.y();
+    _data._r4.z() += mat._data._r4.z();
+    _data._r4.w() += mat._data._r4.w();
 }
 
 _INLINE_ mat4x4 mat4x4::add(const mat4x4 mat) const
@@ -88,22 +88,42 @@ _INLINE_ mat4x4 mat4x4::add(const mat4x4 mat) const
     return m;
 }
 
-_INLINE_ vec4 mat4x4::r1() const
+_INLINE_ vec4& mat4x4::r1()
 {
     return _data._r1;
 }
 
-_INLINE_ vec4 mat4x4::r2() const
+_INLINE_ vec4& mat4x4::r2()
 {
     return _data._r2;
 }
 
-_INLINE_ vec4 mat4x4::r3() const
+_INLINE_ vec4& mat4x4::r3()
 {
     return _data._r3;
 }
 
-_INLINE_ vec4 mat4x4::r4() const
+_INLINE_ vec4& mat4x4::r4()
+{
+    return _data._r4;
+}
+
+_INLINE_ const vec4& mat4x4::r1() const
+{
+    return _data._r1;
+}
+
+_INLINE_ const vec4& mat4x4::r2() const
+{
+    return _data._r2;
+}
+
+_INLINE_ const vec4& mat4x4::r3() const
+{
+    return _data._r3;
+}
+
+_INLINE_ const vec4& mat4x4::r4() const
 {
     return _data._r4;
 }
@@ -111,37 +131,37 @@ _INLINE_ vec4 mat4x4::r4() const
 _INLINE_ vec4 mat4x4::c1() const
 {
     return vec4(
-        _data._r1._x,
-        _data._r2._x,
-        _data._r3._x,
-        _data._r4._x);
+        _data._r1.x(),
+        _data._r2.x(),
+        _data._r3.x(),
+        _data._r4.x());
 }
 
 _INLINE_ vec4 mat4x4::c2() const
 {
     return vec4(
-        _data._r1._y,
-        _data._r2._y,
-        _data._r3._y,
-        _data._r4._y);
+        _data._r1.y(),
+        _data._r2.y(),
+        _data._r3.y(),
+        _data._r4.y());
 }
 
 _INLINE_ vec4 mat4x4::c3() const
 {
     return vec4(
-        _data._r1._z,
-        _data._r2._z,
-        _data._r3._z,
-        _data._r4._z);
+        _data._r1.z(),
+        _data._r2.z(),
+        _data._r3.z(),
+        _data._r4.z());
 }
 
 _INLINE_ vec4 mat4x4::c4() const
 {
     return vec4(
-        _data._r1._w,
-        _data._r2._w,
-        _data._r3._w,
-        _data._r4._w);
+        _data._r1.w(),
+        _data._r2.w(),
+        _data._r3.w(),
+        _data._r4.w());
 }
 
 }

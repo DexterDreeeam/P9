@@ -28,12 +28,22 @@ _INLINE_ mat2x4& mat2x4::operator =(const mat2x4& rhs)
     return *this;
 }
 
-_INLINE_ vec4 mat2x4::r1() const
+_INLINE_ vec4& mat2x4::r1()
 {
     return _data._r1;
 }
 
-_INLINE_ vec4 mat2x4::r2() const
+_INLINE_ vec4& mat2x4::r2()
+{
+    return _data._r2;
+}
+
+_INLINE_ const vec4& mat2x4::r1() const
+{
+    return _data._r1;
+}
+
+_INLINE_ const vec4& mat2x4::r2() const
 {
     return _data._r2;
 }
@@ -41,29 +51,29 @@ _INLINE_ vec4 mat2x4::r2() const
 _INLINE_ vec2 mat2x4::c1() const
 {
     return vec2(
-        _data._r1._x,
-        _data._r2._x);
+        _data._r1.x(),
+        _data._r2.x());
 }
 
 _INLINE_ vec2 mat2x4::c2() const
 {
     return vec2(
-        _data._r1._y,
-        _data._r2._y);
+        _data._r1.y(),
+        _data._r2.y());
 }
 
 _INLINE_ vec2 mat2x4::c3() const
 {
     return vec2(
-        _data._r1._z,
-        _data._r2._z);
+        _data._r1.z(),
+        _data._r2.z());
 }
 
 _INLINE_ vec2 mat2x4::c4() const
 {
     return vec2(
-        _data._r1._w,
-        _data._r2._w);
+        _data._r1.w(),
+        _data._r2.w());
 }
 
 }

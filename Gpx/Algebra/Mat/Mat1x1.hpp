@@ -40,7 +40,9 @@ public:
 
     mat1x1 transpose() const;
 
-    f32 r1() const;
+    f32& r1();
+
+    const f32& r1() const;
 
     f32 c1() const;
 
