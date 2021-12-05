@@ -353,7 +353,7 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
     // pipeline layout
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 1;
+    pipelineLayoutInfo.setLayoutCount = ds_layout != nullptr ? 1 : 0;
     pipelineLayoutInfo.pSetLayouts = &ds_layout;
     pipelineLayoutInfo.pushConstantRangeCount = 0;
     pipelineLayoutInfo.pPushConstantRanges = nullptr;

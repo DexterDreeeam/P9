@@ -3,7 +3,7 @@
 namespace gpx
 {
 
-enum class algebra_type : s64
+enum algebra_type
 {
     Vulkan,
     DirectX,

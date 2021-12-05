@@ -2,6 +2,7 @@
 
 void vulkan_uniform_buffer_test()
 {
+    using tsf = gpx::transform<gpx::Vulkan>;
     boole checker;
 
     // create runtime
@@ -71,7 +72,7 @@ void vulkan_uniform_buffer_test()
     checker = rt->register_dynamic_memory(dynamic_memory_desc1);
     assert(checker);
 
-    gpx::mat4x4 transform_mat = gpx::mat4x4::identity();
+    tsf::MatTy transform_mat = tsf::MatTy::identity();
     gpx::dynamic_memory_desc dynamic_memory_desc2;
     dynamic_memory_desc2._name = "Pavilion Nine Test Dynamic Memory 2";
     dynamic_memory_desc2._size = sizeof(transform_mat);
@@ -96,7 +97,7 @@ void vulkan_uniform_buffer_test()
     frag_shader->unload();
 
     // vertices buffer
-    string vertices_file_name_3 = "test3.vertices.json";
+    string vertices_file_name_3 = "test3-1.vertices.json";
     auto vertices_files_3 = search_files(
         "../",
         [&](const string& path)
@@ -130,7 +131,7 @@ void vulkan_uniform_buffer_test()
     u64 start_tick = tick::elapse();
     while (1)
     {
-        if (tick::elapse() - start_tick >= 2000)
+        if (tick::elapse() - start_tick >= 1000)
         {
             break;
         }
@@ -144,17 +145,11 @@ void vulkan_uniform_buffer_test()
         checker = rt->update_dynamic_memory("Pavilion Nine Test Dynamic Memory 1", &color_v3);
         assert(checker);
 
-        using tsf = gpx::transform<gpx::algebra_type::Vulkan>;
-        auto model = gpx::mat4x4::identity();// tsf::rotate_z((f32)diff / 1000 * math::pi());
-        auto view = tsf::view(gpx::vec3(0.1,0.1,3), gpx::vec3(0,0,0), gpx::vec3(0, 0, 1));
-        auto proj = tsf::perspective(math::pi() / 2, (f32)wnd_desc.width / wnd_desc.height, 0.1, 10);
+        auto model = tsf::rotate_z((f32)diff / 1000 * math::pi());
+        auto view = tsf::view(gpx::vec3(3, 0, 1), gpx::vec3(0, 0, 0), gpx::vec3(0, 0, 1));
+        auto proj = tsf::perspective(math::pi() / 3, (f32)wnd_desc.width / wnd_desc.height, 0.1, 10);
         transform_mat = tsf::act(model, view, proj);
 
-        //transform_mat = gpx::mat4x4::identity();
-        //transform_mat.r1().x() = 0.5;
-        //transform_mat.r2().y() = 0.5;
-        //transform_mat.r3().z() = 0.5;
-        //transform_mat.r4().w() = 2;
         checker = rt->update_dynamic_memory("Pavilion Nine Test Dynamic Memory 2", &transform_mat);
         assert(checker);
 

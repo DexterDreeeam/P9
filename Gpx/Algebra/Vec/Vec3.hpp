@@ -1,144 +1,79 @@
 #pragma once
 
+#include "Vec.hpp"
+
 namespace gpx
 {
 
-union vec3_data
+class vec3 : public vec<3, f32>
 {
-    vec3_data(f32 x, f32 y, f32 z) :
-        _x(x),
-        _y(y),
-        _z(z)
-    {
-    }
-
-    vec3_data(const vec2_data& vc2, f32 z) :
-        _x(vc2._x),
-        _y(vc2._y),
-        _z(z)
-    {
-    }
-
-    vec3_data(f32 x, const vec2_data& vc2) :
-        _x(x),
-        _y(vc2._x),
-        _z(vc2._y)
-    {
-    }
-
-    vec3_data(const vec3_data& vc3) :
-        _x(vc3._x),
-        _y(vc3._y),
-        _z(vc3._z)
-    {
-    }
-
-    vec3_data& operator =(const vec3_data& vc3)
-    {
-        _x = vc3._x;
-        _y = vc3._y;
-        _z = vc3._z;
-        return *this;
-    }
-
-    struct
-    {
-        f32 _x;
-        f32 _y;
-        f32 _z;
-    };
-
-    struct
-    {
-        f32 _r;
-        f32 _g;
-        f32 _b;
-    };
-
-    struct
-    {
-        f32 _s;
-        f32 _t;
-        f32 _p;
-    };
-
-    f32 _v[3];
-};
-
-class vec3
-{
-public:
-    vec3(f32 x = 0, f32 y = 0, f32 z = 0);
-
-    vec3(const vec2& vc2, f32 z = 0);
-
-    vec3(f32 x, const vec2& vc2);
-
-    vec3(const vec3& vc3);
-
-    vec3(const vec3_data& vc3);
-
-    vec3& operator =(const vec3& vc3);
-
-    vec3 operator -() const;
-
-    vec3 operator +(const vec3& vc3) const;
-
-    vec3 operator -(const vec3& vc3) const;
-
-    f32& x();
-
-    f32& y();
-
-    f32& z();
-
-    f32 x() const;
-
-    f32 y() const;
-
-    f32 z() const;
-
-    vec2 xy() const;
-
-    vec2 xz() const;
-
-    vec2 yx() const;
-
-    vec2 yz() const;
-
-    vec2 zx() const;
-
-    vec2 zy() const;
-
-    vec3 xyz() const;
-
-    vec3 xzy() const;
-
-    vec3 yxz() const;
-
-    vec3 yzx() const;
-
-    vec3 zxy() const;
-
-    vec3 zyx() const;
+    using BaseTy = vec<3, f32>;
 
 public:
-    f32 dot(const vec3& vc3) const;
+    vec3(f32 x = 0, f32 y = 0, f32 z = 0) :
+        vec(x, y, z)
+    {
+    }
 
-    f32 operator *(const vec3& vc3) const;
+    vec3(const vec3& rhs) :
+        vec(rhs)
+    {
+    }
 
-    vec3 cross(const vec3& vc3) const;
+    vec3(const BaseTy& rhs) :
+        vec(rhs)
+    {
+    }
 
-    f32 norm_sq() const;
-
-    f32 norm() const;
-
-    void self_normalize();
-
-    vec3 normalize() const;
+    ~vec3() = default;
 
 public:
-    vec3_data _data;
+    void self_cross(const vec3& rhs)
+    {
+        f32 new_x = y() * rhs.z() - z() * rhs.y();
+        f32 new_y = z() * rhs.x() - x() * rhs.z();
+        f32 new_z = x() * rhs.y() - y() * rhs.x();
+        x() = new_x;
+        y() = new_y;
+        z() = new_z;
+    }
+
+    vec3 cross(const vec3& rhs) const
+    {
+        vec3 v(*this);
+        v.self_cross(rhs);
+        return v;
+    }
+
+    f32& x()
+    {
+        return vec::at(0);
+    }
+
+    f32 x() const
+    {
+        return vec::at(0);
+    }
+
+    f32& y()
+    {
+        return vec::at(1);
+    }
+
+    f32 y() const
+    {
+        return vec::at(1);
+    }
+
+    f32& z()
+    {
+        return vec::at(2);
+    }
+
+    f32 z() const
+    {
+        return vec::at(2);
+    }
 };
 
 }

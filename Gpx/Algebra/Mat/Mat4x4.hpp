@@ -1,87 +1,60 @@
 #pragma once
 
+#include "Mat.hpp"
+
 namespace gpx
 {
 
-struct mat4x4_data
+template<mat_major Major = mat_major::Row>
+class mat4x4;
+
+template<mat_major Major>
+class mat4x4 : public mat<4, 4, f32, Major>
 {
-    mat4x4_data(const vec4& vc4_1, const vec4& vc4_2, const vec4& vc4_3, const vec4& vc4_4) :
-        _r1(vc4_1), _r2(vc4_2), _r3(vc4_3), _r4(vc4_4)
+    using SelfTy = mat4x4<Major>;
+    using BaseTy = mat<4, 4, f32, Major>;
+
+public:
+    mat4x4() :
+        BaseTy()
     {
     }
 
-    mat4x4_data(const mat4x4_data& m44) :
-        _r1(m44._r1), _r2(m44._r2), _r3(m44._r3), _r4(m44._r4)
+    mat4x4(const SelfTy& rhs) :
+        BaseTy(rhs)
     {
     }
 
-    mat4x4_data& operator =(const mat4x4_data& rhs)
+    mat4x4(const BaseTy& rhs) :
+        BaseTy(rhs)
     {
-        _r1 = rhs._r1;
-        _r2 = rhs._r2;
-        _r3 = rhs._r3;
-        _r4 = rhs._r4;
-        return *this;
     }
 
-    vec4 _r1;
-    vec4 _r2;
-    vec4 _r3;
-    vec4 _r4;
-};
+    template<typename ...Args>
+    mat4x4(Args ...args) :
+        BaseTy(args...)
+    {
+    }
 
-class mat4x4
-{
-public:
-    explicit mat4x4(
-        f32 v11 = 0, f32 v12 = 0, f32 v13 = 0, f32 v14 = 0,
-        f32 v21 = 0, f32 v22 = 0, f32 v23 = 0, f32 v24 = 0,
-        f32 v31 = 0, f32 v32 = 0, f32 v33 = 0, f32 v34 = 0,
-        f32 v41 = 0, f32 v42 = 0, f32 v43 = 0, f32 v44 = 0);
-
-    explicit mat4x4(vec4 vc4_1, vec4 vc4_2 = vec4(), vec4 vc4_3 = vec4(), vec4 vc4_4 = vec4());
-
-    mat4x4(const mat4x4& rhs);
-
-    mat4x4& operator =(const mat4x4& rhs);
+    ~mat4x4() = default;
 
 public:
-    static mat4x4 identity();
+    void self_transpose()
+    {
+        swap(BaseTy::at(0, 1), BaseTy::at(1, 0));
+        swap(BaseTy::at(0, 2), BaseTy::at(2, 0));
+        swap(BaseTy::at(0, 3), BaseTy::at(3, 0));
+        swap(BaseTy::at(1, 2), BaseTy::at(2, 1));
+        swap(BaseTy::at(1, 3), BaseTy::at(3, 1));
+        swap(BaseTy::at(2, 3), BaseTy::at(3, 2));
+    }
 
-    void self_transpose();
-
-    mat4x4 transpose() const;
-
-    void self_add(const mat4x4 mat);
-
-    mat4x4 add(const mat4x4 mat) const;
-
-    vec4& r1();
-
-    vec4& r2();
-
-    vec4& r3();
-
-    vec4& r4();
-
-    const vec4& r1() const;
-
-    const vec4& r2() const;
-
-    const vec4& r3() const;
-
-    const vec4& r4() const;
-
-    vec4 c1() const;
-
-    vec4 c2() const;
-
-    vec4 c3() const;
-
-    vec4 c4() const;
-
-public:
-    mat4x4_data _data;
+    SelfTy transpose() const
+    {
+        SelfTy m(*this);
+        m.self_transpose();
+        return m;
+    }
 };
 
 }

@@ -13,55 +13,21 @@
   <ItemGroup>
     <ClInclude Include="Definition.hpp" />
     <ClInclude Include="Interface.hpp" />
-    <ClInclude Include="MatTransfer\TransitionMatrixGroup.hpp" />
-    <ClInclude Include="Mat\Mat1x1.hpp" />
-    <ClInclude Include="Mat\Mat1x2.hpp" />
-    <ClInclude Include="Mat\Mat1x3.hpp" />
-    <ClInclude Include="Mat\Mat1x4.hpp" />
-    <ClInclude Include="Mat\Mat2x1.hpp" />
-    <ClInclude Include="Mat\Mat2x2.hpp" />
-    <ClInclude Include="Mat\Mat2x3.hpp" />
-    <ClInclude Include="Mat\Mat2x4.hpp" />
-    <ClInclude Include="Mat\Mat3x1.hpp" />
-    <ClInclude Include="Mat\Mat3x2.hpp" />
-    <ClInclude Include="Mat\Mat3x3.hpp" />
-    <ClInclude Include="Mat\Mat3x4.hpp" />
-    <ClInclude Include="Mat\Mat4x1.hpp" />
-    <ClInclude Include="Mat\Mat4x2.hpp" />
-    <ClInclude Include="Mat\Mat4x3.hpp" />
     <ClInclude Include="Mat\Mat4x4.hpp" />
-    <ClInclude Include="MatTransfer\MatMultiplication.hpp" />
-    <ClInclude Include="Mat_Vulkan\TransformMat.hpp" />
+    <ClInclude Include="Mat\Mat.hpp" />
+    <ClInclude Include="Mat\Transform.hpp" />
+    <ClInclude Include="Vec\Vec1.hpp" />
     <ClInclude Include="Vec\Vec2.hpp" />
     <ClInclude Include="Vec\Vec3.hpp" />
     <ClInclude Include="Vec\Vec4.hpp" />
+    <ClInclude Include="Vec\Vec.hpp" />
     <ClInclude Include="Vertex\Vertex.hpp" />
     <ClInclude Include="Vertex\VertexPosColor.hpp" />
-    <ClInclude Include="VerticesBuffer.hpp" />
+    <ClInclude Include="Vertex\VerticesBuffer.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Implementation\Mat1x1_Implementation.inl" />
-    <None Include="Implementation\Mat1x2_Implementation.inl" />
-    <None Include="Implementation\Mat1x3_Implementation.inl" />
-    <None Include="Implementation\Mat1x4_Implementation.inl" />
-    <None Include="Implementation\Mat2x1_Implementation.inl" />
-    <None Include="Implementation\Mat2x2_Implementation.inl" />
-    <None Include="Implementation\Mat2x3_Implementation.inl" />
-    <None Include="Implementation\Mat2x4_Implementation.inl" />
-    <None Include="Implementation\Mat3x1_Implementation.inl" />
-    <None Include="Implementation\Mat3x2_Implementation.inl" />
-    <None Include="Implementation\Mat3x3_Implementation.inl" />
-    <None Include="Implementation\Mat3x4_Implementation.inl" />
-    <None Include="Implementation\Mat4x1_Implementation.inl" />
-    <None Include="Implementation\Mat4x2_Implementation.inl" />
-    <None Include="Implementation\Mat4x3_Implementation.inl" />
-    <None Include="Implementation\Mat4x4_Implementation.inl" />
-    <None Include="Implementation\MatMultiplication_Implementation.inl" />
-    <None Include="Implementation\Vec2_Implementation.inl" />
-    <None Include="Implementation\Vec3_Implementation.inl" />
-    <None Include="Implementation\Vec4_Implementation.inl" />
-    <None Include="Implementation\VerticesBuffer_Implementation.inl" />
-    <None Include="Mat_Vulkan\TransformMat_Implementation.inl" />
+    <None Include="Mat\Transform_Implementation.inl" />
+    <None Include="Vertex\VerticesBuffer_Implementation.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
