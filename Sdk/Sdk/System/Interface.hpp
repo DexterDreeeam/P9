@@ -2,6 +2,8 @@
 
 #include "../Environment/Interface.hpp"
 
+#include "AutoMemory/AutoMemory.hpp"
+
 #include "Logger/AutoTrace.hpp"
 #include "Logger/Logger.hpp"
 
