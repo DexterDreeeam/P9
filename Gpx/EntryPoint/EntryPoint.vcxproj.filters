@@ -8,6 +8,7 @@
     <ClInclude Include="VulkanPipelineTest.hpp" />
     <ClInclude Include="VulkanIndicesBufferTest.hpp" />
     <ClInclude Include="VulkanUniformBufferTest.hpp" />
+    <ClInclude Include="VulkanTextureTest.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="_compile_windows_vulkan_shaders.ps1" />
@@ -22,5 +23,9 @@
     <None Include="Shader\Vulkan\Glsl\test3.vert" />
     <None Include="Shader\Vulkan\Glsl\test3.frag" />
     <None Include="Vertices\test3-1.vertices.json" />
+    <None Include="Shader\Vulkan\Glsl\test3-2.vert" />
+    <None Include="Shader\Vulkan\Glsl\test3-2.frag" />
+    <None Include="_convert_windows_resource.ps1" />
+    <None Include="Vertices\test3-2.vertices.json" />
   </ItemGroup>
 </Project>

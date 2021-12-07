@@ -1,7 +1,6 @@
 
 #include "../Interface.hpp"
-#include "../VulkanRuntime.hpp"
-#include "../VulkanVerticesViewer.hpp"
+#include "../VulkanInterface.hpp"
 
 namespace gpx
 {
@@ -76,8 +75,7 @@ boole vulkan_vertices_viewer::load()
     escape_function ef_release_host_buffer =
         [=]() mutable
         {
-            vkDestroyBuffer(logical_device, host_buffer, nullptr);
-            vkFreeMemory(logical_device, host_memory, nullptr);
+            vulkan_runtime::clear_vk_buffer(logical_device, host_buffer, host_memory);
         };
 
     boole rst = boole::False;
@@ -171,24 +169,16 @@ boole vulkan_vertices_viewer::unload()
 
     auto logical_device = rt->get_vk_logical_device();
 
-    if (_vk_buffer)
+    if (_vk_buffer && _vk_memory)
     {
-        vkDestroyBuffer(logical_device, _vk_buffer, nullptr);
+        vulkan_runtime::clear_vk_buffer(logical_device, _vk_buffer, _vk_memory);
         _vk_buffer = nullptr;
-    }
-    if (_vk_memory)
-    {
-        vkFreeMemory(logical_device, _vk_memory, nullptr);
         _vk_memory = nullptr;
     }
-    if (_vk_buffer_indices)
+    if (_vk_buffer_indices && _vk_memory_indices)
     {
-        vkDestroyBuffer(logical_device, _vk_buffer_indices, nullptr);
+        vulkan_runtime::clear_vk_buffer(logical_device, _vk_buffer_indices, _vk_memory_indices);
         _vk_buffer_indices = nullptr;
-    }
-    if (_vk_memory_indices)
-    {
-        vkFreeMemory(logical_device, _vk_memory_indices, nullptr);
         _vk_memory_indices = nullptr;
     }
 

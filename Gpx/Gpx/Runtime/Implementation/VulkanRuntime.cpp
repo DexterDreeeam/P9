@@ -1,10 +1,7 @@
 
-#include "../Interface.hpp"
-#include "../VulkanRuntime.hpp"
-#include "../VulkanPipeline.hpp"
-#include "../VulkanShader.hpp"
-#include "../VulkanVerticesViewer.hpp"
 #include "../../Window/GlfwWindow.hpp"
+#include "../Interface.hpp"
+#include "../VulkanInterface.hpp"
 
 namespace gpx
 {
@@ -33,6 +30,8 @@ vulkan_runtime::vulkan_runtime(const runtime_desc& desc) :
     _pipeline_map_lock(),
     _vertices_viewer_map(),
     _vertices_viewer_map_lock(),
+    _texture_viewer_map(),
+    _texture_viewer_map_lock(),
     _dynamic_memory_map(),
     _dynamic_memory_map_lock()
 {
@@ -42,6 +41,7 @@ vulkan_runtime::vulkan_runtime(const runtime_desc& desc) :
     _window_ctx_vec_lock.init();
     _pipeline_map_lock.init();
     _vertices_viewer_map_lock.init();
+    _texture_viewer_map_lock.init();
     _dynamic_memory_map_lock.init();
 }
 
@@ -52,6 +52,7 @@ vulkan_runtime::~vulkan_runtime()
     uninit();
 
     _dynamic_memory_map_lock.uninit();
+    _texture_viewer_map_lock.uninit();
     _vertices_viewer_map_lock.uninit();
     _pipeline_map_lock.uninit();
     _window_ctx_vec_lock.uninit();
@@ -225,6 +226,28 @@ ref<vulkan_vertices_viewer> vulkan_runtime::get_vertices_viewer(const string& ve
 
     auto itr = _vertices_viewer_map.find(vertices_viewer);
     if (itr != _vertices_viewer_map.end())
+    {
+        ret = itr->second;
+    }
+    return ret;
+}
+
+ref<vulkan_texture_viewer> vulkan_runtime::get_texture_viewer(const string& texture_viewer)
+{
+    ref<vulkan_texture_viewer> ret;
+
+    if (!_texture_viewer_map_lock.wait_read())
+    {
+        return ret;
+    }
+    escape_function ef =
+        [=]() mutable
+    {
+        _texture_viewer_map_lock.read_release();
+    };
+
+    auto itr = _texture_viewer_map.find(texture_viewer);
+    if (itr != _texture_viewer_map.end())
     {
         ret = itr->second;
     }
@@ -1021,6 +1044,69 @@ boole vulkan_runtime::unload_vertices_viewer(const string& vertices_viewer)
     return r_vv->unload();
 }
 
+boole vulkan_runtime::register_texture_viewer(const texture_viewer_desc& desc)
+{
+    AUTO_TRACE;
+
+    auto r_vv = ref<vulkan_texture_viewer>::new_instance(desc, _self);
+
+    if (!_texture_viewer_map_lock.wait_write())
+    {
+        return boole::False;
+    }
+    escape_function ef =
+        [=]() mutable
+    {
+        _texture_viewer_map_lock.write_release();
+    };
+
+    if (_texture_viewer_map.find(desc._name) != _texture_viewer_map.end())
+    {
+        // already has a same name pipeline
+        return boole::False;
+    }
+
+    _texture_viewer_map[desc._name] = r_vv;
+    return boole::True;
+}
+
+boole vulkan_runtime::unregister_texture_viewer(const string& texture_viewer)
+{
+    AUTO_TRACE;
+
+    if (!_texture_viewer_map_lock.wait_write())
+    {
+        return boole::False;
+    }
+    escape_function ef =
+        [=]() mutable
+    {
+        _texture_viewer_map_lock.write_release();
+    };
+
+    return _texture_viewer_map.erase(texture_viewer);
+}
+
+boole vulkan_runtime::load_texture_viewer(const string& texture_viewer)
+{
+    auto r_vv = get_texture_viewer(texture_viewer);
+    if (r_vv.empty())
+    {
+        return boole::False;
+    }
+    return r_vv->load();
+}
+
+boole vulkan_runtime::unload_texture_viewer(const string& texture_viewer)
+{
+    auto r_vv = get_texture_viewer(texture_viewer);
+    if (r_vv.empty())
+    {
+        return boole::False;
+    }
+    return r_vv->unload();
+}
+
 boole vulkan_runtime::register_pipeline(const pipeline_desc& desc)
 {
     AUTO_TRACE;
@@ -1236,6 +1322,131 @@ boole vulkan_runtime::copy_vk_buffer(
     return boole::True;
 }
 
+boole vulkan_runtime::setup_vk_image(
+    VkDevice logical_device, VkPhysicalDevice physical_device, s64 width, s64 height,
+    VkImage& image, VkDeviceMemory& imageMemory)
+{
+    AUTO_TRACE;
+
+    boole rst = boole::False;
+    VkImage vk_image;
+    VkDeviceMemory vk_memory;
+
+    escape_function ef_error_handle =
+        [&]() mutable
+        {
+            if (vk_memory)
+            {
+                vkFreeMemory(logical_device, vk_memory, nullptr);
+            }
+            if (vk_image)
+            {
+                vkDestroyImage(logical_device, vk_image, nullptr);
+            }
+        };
+
+    VkImageCreateInfo imageInfo = {};
+    imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    imageInfo.imageType = VK_IMAGE_TYPE_2D;
+    imageInfo.extent.width = width;
+    imageInfo.extent.height = height;
+    imageInfo.extent.depth = 1;
+    imageInfo.mipLevels = 1;
+    imageInfo.arrayLayers = 1;
+    imageInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
+    imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+    imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+    imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+    imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    if (vkCreateImage(logical_device, &imageInfo, nullptr, &vk_image) != VK_SUCCESS)
+    {
+        return boole::False;
+    }
+
+    VkMemoryRequirements memRequirements;
+    vkGetImageMemoryRequirements(logical_device, vk_image, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = get_vk_memory_type(physical_device, memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+    if (vkAllocateMemory(logical_device, &allocInfo, nullptr, &vk_memory) != VK_SUCCESS)
+    {
+        return boole::False;
+    }
+
+    if (vkBindImageMemory(logical_device, vk_image, vk_memory, 0) != VK_SUCCESS)
+    {
+        return boole::False;
+    }
+
+    ef_error_handle.disable();
+    image = vk_image;
+    imageMemory = vk_memory;
+    return boole::True;
+}
+
+boole vulkan_runtime::clear_vk_image(VkDevice logical_device, VkImage image, VkDeviceMemory imageMemory)
+{
+    vkDestroyImage(logical_device, image, nullptr);
+    vkFreeMemory(logical_device, imageMemory, nullptr);
+    return boole::True;
+}
+
+boole vulkan_runtime::copy_vk_buffer_to_image(
+    VkDevice logical_device, VkCommandPool transfer_command_pool, VkQueue transfer_queue,
+    VkBuffer host_buf, s64 host_offset, VkImage device_image, s64 width, s64 height)
+{
+    AUTO_TRACE;
+
+    VkCommandBufferAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandPool = transfer_command_pool;
+    allocInfo.commandBufferCount = 1;
+
+    VkCommandBuffer commandBuffer;
+    if (vkAllocateCommandBuffers(logical_device, &allocInfo, &commandBuffer) != VK_SUCCESS)
+    {
+        return boole::False;
+    }
+    escape_function ef_release_command_buffer =
+        [=]() mutable
+        {
+            vkFreeCommandBuffers(logical_device, transfer_command_pool, 1, &commandBuffer);
+        };
+
+    VkBufferImageCopy region = {};
+    region.bufferOffset = host_offset;
+    region.bufferRowLength = 0;
+    region.bufferImageHeight = 0;
+    region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    region.imageSubresource.mipLevel = 0;
+    region.imageSubresource.baseArrayLayer = 0;
+    region.imageSubresource.layerCount = 1;
+    region.imageOffset = { 0, 0, 0 };
+    region.imageExtent = { (u32)width, (u32)height, 1 };
+
+    VkCommandBufferBeginInfo beginInfo = {};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+
+    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+    vkCmdCopyBufferToImage(commandBuffer, host_buf, device_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+    vkEndCommandBuffer(commandBuffer);
+    vkQueueSubmit(transfer_queue, 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(transfer_queue);
+    return boole::True;
+}
+
 s64 vulkan_runtime::get_vk_memory_type(VkPhysicalDevice device, VkMemoryRequirements& requirements, VkFlags needed_properties)
 {
     auto typeBits = requirements.memoryTypeBits;
@@ -1249,6 +1460,99 @@ s64 vulkan_runtime::get_vk_memory_type(VkPhysicalDevice device, VkMemoryRequirem
         }
     }
     return -1;
+}
+
+// convert step:
+// 1. Get ready for transition
+//        VK_IMAGE_LAYOUT_UNDEFINED -> VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
+// 2. Get ready for sampling
+//        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL -> VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+boole vulkan_runtime::convert_vk_image_layout(
+    VkDevice logical_device, VkCommandPool transfer_command_pool, VkQueue transfer_queue,
+    VkImage image, s64 convert_step)
+{
+    AUTO_TRACE;
+
+    VkImageLayout old_layout;
+    VkAccessFlagBits old_access;
+    VkPipelineStageFlagBits old_stage_flag;
+
+    VkImageLayout new_layout;
+    VkAccessFlagBits new_access;
+    VkPipelineStageFlagBits new_stage_flag;
+
+    switch (convert_step)
+    {
+    case 1:
+        old_layout = VK_IMAGE_LAYOUT_UNDEFINED;
+        old_access = VK_ACCESS_NONE_KHR;
+        old_stage_flag = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+        new_layout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        new_access = VK_ACCESS_TRANSFER_WRITE_BIT;
+        new_stage_flag = VK_PIPELINE_STAGE_TRANSFER_BIT;
+        break;
+
+    case 2:
+        old_layout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        old_access = VK_ACCESS_TRANSFER_WRITE_BIT;
+        old_stage_flag = VK_PIPELINE_STAGE_TRANSFER_BIT;
+        new_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        new_access = VK_ACCESS_SHADER_READ_BIT;
+        new_stage_flag = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+        break;
+
+    default:
+        return boole::False;
+    }
+
+    VkCommandBufferAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandPool = transfer_command_pool;
+    allocInfo.commandBufferCount = 1;
+
+    VkCommandBuffer commandBuffer;
+    if (vkAllocateCommandBuffers(logical_device, &allocInfo, &commandBuffer) != VK_SUCCESS)
+    {
+        return boole::False;
+    }
+    escape_function ef_release_command_buffer =
+        [=]() mutable
+        {
+            vkFreeCommandBuffers(logical_device, transfer_command_pool, 1, &commandBuffer);
+        };
+
+    VkImageMemoryBarrier barrier = {};
+    barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    barrier.oldLayout = old_layout;
+    barrier.newLayout = new_layout;
+    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.image = image;
+    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    barrier.subresourceRange.baseMipLevel = 0;
+    barrier.subresourceRange.levelCount = 1;
+    barrier.subresourceRange.baseArrayLayer = 0;
+    barrier.subresourceRange.layerCount = 1;
+    barrier.srcAccessMask = old_access;
+    barrier.dstAccessMask = new_access;
+
+    VkCommandBufferBeginInfo beginInfo = {};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+
+    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+    vkCmdPipelineBarrier(
+        commandBuffer, old_stage_flag, new_stage_flag, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+    vkEndCommandBuffer(commandBuffer);
+    vkQueueSubmit(transfer_queue, 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(transfer_queue);
+    return boole::True;
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL vulkan_runtime::debug_cb(

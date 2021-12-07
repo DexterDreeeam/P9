@@ -1,7 +1,6 @@
 
-#include "../VulkanRuntime.hpp"
-#include "../VulkanPipeline.hpp"
-#include "../VulkanShader.hpp"
+#include "../Interface.hpp"
+#include "../VulkanInterface.hpp"
 
 namespace gpx
 {

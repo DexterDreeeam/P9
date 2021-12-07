@@ -393,6 +393,18 @@ public:
         }
     }
 
+    vector(sz_t init_sz, const Ty& e) :
+        elem(memory::alloc<Ty>(sizeof(Ty)* _ceil_align(init_sz))),
+        cap(_ceil_align(init_sz)),
+        sz(init_sz)
+    {
+        assert(sz >= 0 && sz <= cap);
+        for (s64 i = 0; i < sz; ++i)
+        {
+            new (&elem[i]) Ty(e);
+        }
+    }
+
     template<typename ...Args>
     vector(Args...args) :
         elem((Ty*)memory::alloc<void>(sizeof(Ty) * _ceil_align(sizeof...(args)))),

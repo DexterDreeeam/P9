@@ -70,6 +70,16 @@ public:
 
     virtual boole unload_vertices_viewer(const string& vertices_viewer) = 0;
 
+    // texture
+
+    virtual boole register_texture_viewer(const texture_viewer_desc& texture_viewer) = 0;
+
+    virtual boole unregister_texture_viewer(const string& texture_viewer) = 0;
+
+    virtual boole load_texture_viewer(const string& texture_viewer) = 0;
+
+    virtual boole unload_texture_viewer(const string& texture_viewer) = 0;
+
     // pipeline
 
     virtual boole register_pipeline(const pipeline_desc& desc) = 0;

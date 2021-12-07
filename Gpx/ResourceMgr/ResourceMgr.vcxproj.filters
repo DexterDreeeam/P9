@@ -6,6 +6,7 @@
     <ClInclude Include="Vertex\VertexPosColor.hpp" />
     <ClInclude Include="Interface.hpp" />
     <ClInclude Include="Texture\Texture.hpp" />
+    <ClInclude Include="Vertex\VertexPosTexture.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Vertex\VerticesBuffer_Implementation.inl" />

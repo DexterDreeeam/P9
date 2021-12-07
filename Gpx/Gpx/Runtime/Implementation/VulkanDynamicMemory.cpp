@@ -1,6 +1,6 @@
 
-#include "../VulkanDynamicMemory.hpp"
-#include "../VulkanRuntime.hpp"
+#include "../Interface.hpp"
+#include "../VulkanInterface.hpp"
 
 namespace gpx
 {

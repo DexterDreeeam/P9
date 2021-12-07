@@ -1,5 +1,5 @@
 
-#include "../Pipeline.hpp"
+#include "../Interface.hpp"
 
 namespace gpx
 {

@@ -1,9 +1,6 @@
 #pragma once
 
 #include "Interface.hpp"
-#include "VulkanPipeline.hpp"
-#include "VulkanVerticesViewer.hpp"
-#include "VulkanDynamicMemory.hpp"
 
 namespace gpx
 {
@@ -31,6 +28,7 @@ class vulkan_runtime : public runtime
     friend class glfw_window;
     friend class vulkan_pipeline;
     friend class vulkan_vertices_viewer;
+    friend class vulkan_texture_viewer;
     friend class vulkan_dynamic_memory;
 
 public:
@@ -78,6 +76,16 @@ public:
 
     virtual boole unload_vertices_viewer(const string& vertices_viewer) override;
 
+    // texture
+
+    virtual boole register_texture_viewer(const texture_viewer_desc& texture_viewer) override;
+
+    virtual boole unregister_texture_viewer(const string& texture_viewer) override;
+
+    virtual boole load_texture_viewer(const string& texture_viewer) override;
+
+    virtual boole unload_texture_viewer(const string& texture_viewer) override;
+
     // pipeline
 
     virtual boole register_pipeline(const pipeline_desc& desc) override;
@@ -104,6 +112,8 @@ public:
     ref<vulkan_window_context> get_window_context(const string& window_name);
 
     ref<vulkan_vertices_viewer> get_vertices_viewer(const string& vertices_viewer);
+
+    ref<vulkan_texture_viewer> get_texture_viewer(const string& texture_viewer);
 
     ref<vulkan_dynamic_memory> get_dynamic_memory(const string& dynamic_memory);
 
@@ -133,8 +143,27 @@ public:
         VkDevice logical_device, VkCommandPool transfer_command_pool, VkQueue transfer_queue,
         VkBuffer host_buf, s64 host_offset, VkBuffer device_buf, sz_t size);
 
+    static boole setup_vk_image(
+        VkDevice logical_device, VkPhysicalDevice physical_device, s64 width, s64 height,
+        VkImage& image, VkDeviceMemory& imageMemory);
+
+    static boole clear_vk_image(VkDevice logical_device, VkImage image, VkDeviceMemory imageMemory);
+
+    static boole copy_vk_buffer_to_image(
+        VkDevice logical_device, VkCommandPool transfer_command_pool, VkQueue transfer_queue,
+        VkBuffer host_buf, s64 host_offset, VkImage device_image, s64 width, s64 height);
+
     static s64 get_vk_memory_type(VkPhysicalDevice device, VkMemoryRequirements& requirements, VkFlags needed_properties);
 
+private:
+    // convert step:
+    // 1. Get ready for transition
+    //        VK_IMAGE_LAYOUT_UNDEFINED -> VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
+    // 2. Get ready for sampling
+    //        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL -> VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+    static boole convert_vk_image_layout(
+        VkDevice logical_device, VkCommandPool transfer_command_pool, VkQueue transfer_queue,
+        VkImage image, s64 convert_step);
 
 private:
     static VKAPI_ATTR VkBool32 VKAPI_CALL debug_cb(
@@ -178,6 +207,11 @@ private:
         string, ref<vulkan_vertices_viewer>
     >                             _vertices_viewer_map;
     rw_lock                       _vertices_viewer_map_lock;
+
+    map<
+        string, ref<vulkan_texture_viewer>
+    >                             _texture_viewer_map;
+    rw_lock                       _texture_viewer_map_lock;
 
     map<
         string, ref<vulkan_dynamic_memory>

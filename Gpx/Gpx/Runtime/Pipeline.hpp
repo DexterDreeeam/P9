@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../ResourceMgr/Interface.hpp"
-#include "Shader.hpp"
+#include "Interface.hpp"
 
 namespace gpx
 {
@@ -13,6 +13,7 @@ struct pipeline_desc
     vertex_type             _vertex_type;
     vector<ref<shader>>     _shaders;
     vector<string>          _dynamic_memories;
+    vector<string>          _texture_viewers;
 };
 
 /*

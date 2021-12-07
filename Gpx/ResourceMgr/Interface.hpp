@@ -5,6 +5,7 @@
 
 #include "Vertex/Vertex.hpp"
 #include "Vertex/VertexPosColor.hpp"
+#include "Vertex/VertexPosTexture.hpp"
 #include "Vertex/VerticesBuffer.hpp"
 
 #include "Texture/Texture.hpp"

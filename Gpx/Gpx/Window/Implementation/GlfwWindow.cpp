@@ -1,6 +1,6 @@
 
-#define VK_USE_PLATFORM_WIN32_KHR
-#include "../../Runtime/VulkanRuntime.hpp"
+#include "../../Runtime/Interface.hpp"
+#include "../../Runtime/VulkanInterface.hpp"
 #include "../Interface.hpp"
 #include "../GlfwWindow.hpp"
 

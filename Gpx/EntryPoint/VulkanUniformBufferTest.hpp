@@ -8,7 +8,7 @@ void vulkan_uniform_buffer_test()
     // create runtime
     gpx::runtime_desc rt_desc;
     rt_desc.type = gpx::Vulkan;
-    rt_desc.frame_count = 5;
+    rt_desc.frame_count = 3;
     rt_desc.debug_mode = boole::True;
     auto rt = gpx::runtime::build(rt_desc);
     checker = rt->init();
@@ -97,7 +97,7 @@ void vulkan_uniform_buffer_test()
     frag_shader->unload();
 
     // vertices buffer
-    string vertices_file_name_3 = "test3-1.vertices.json";
+    string vertices_file_name_3 = "test3-1.p9vb";
     auto vertices_files_3 = search_files(
         "../",
         [&](const string& path)

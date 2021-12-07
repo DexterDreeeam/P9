@@ -62,6 +62,9 @@ private:
     template<typename Alloc_Fn_Ty>
     s64 setup_vertex_pos_color(ref<json_base> json, Alloc_Fn_Ty fn_alloc, s64 indices_space);
 
+    template<typename Alloc_Fn_Ty>
+    s64 setup_vertex_pos_texture(ref<json_base> json, Alloc_Fn_Ty fn_alloc, s64 indices_space);
+
 protected:
     void*         _data;
     void*         _internal_data;

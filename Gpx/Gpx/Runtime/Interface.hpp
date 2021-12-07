@@ -5,6 +5,7 @@
 #include "../Window/Interface.hpp"
 
 #include "Shader.hpp"
+#include "TextureViewer.hpp"
 #include "VerticesViewer.hpp"
 #include "DynamicMemory.hpp"
 #include "Pipeline.hpp"

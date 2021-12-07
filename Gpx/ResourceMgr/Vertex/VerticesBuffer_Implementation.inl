@@ -170,11 +170,16 @@ _INLINE_ ref<vertices_buffer> vertices_buffer::load_from_json(const string& path
     if (json.ref_of<json_object>()->index("vertex_type")->value() == "\"POS_COLOR\"")
     {
         vertices_space = rst->setup_vertex_pos_color(vertices_json, fn_alloc, indices_space);
-        if (vertices_space <= 0)
-        {
-            return ref<vertices_buffer>();
-        }
     }
+    else if (json.ref_of<json_object>()->index("vertex_type")->value() == "\"POS_TEXTURE\"")
+    {
+        vertices_space = rst->setup_vertex_pos_texture(vertices_json, fn_alloc, indices_space);
+    }
+    if (vertices_space <= 0)
+    {
+        return ref<vertices_buffer>();
+    }
+
     if (indices_json.has_value())
     {
         auto cursor = json_cursor(indices_json);
@@ -257,6 +262,30 @@ _INLINE_ s64 vertices_buffer::setup_vertex_pos_color(ref<json_base> json, Alloc_
         p->_color.x() = cursor[i]["color"][0].as_number().as_f32();
         p->_color.y() = cursor[i]["color"][1].as_number().as_f32();
         p->_color.z() = cursor[i]["color"][2].as_number().as_f32();
+    }
+    return _vertices_data_size;
+}
+
+template<typename Alloc_Fn_Ty>
+_INLINE_ s64 vertices_buffer::setup_vertex_pos_texture(ref<json_base> json, Alloc_Fn_Ty fn_alloc, s64 indices_space)
+{
+    _vertices_count = json->size();
+    _vertices_data_size = _vertices_count * sizeof(vertex_pos_texture);
+    _vertices_offset = 0;
+    _data = fn_alloc(_vertices_data_size + indices_space);
+    if (!_data)
+    {
+        return -1;
+    }
+    json_cursor cursor(json);
+    for (s64 i = 0; i < _vertices_count; ++i)
+    {
+        auto* p = pointer_convert(_data, i * sizeof(vertex_pos_texture), vertex_pos_texture*);
+        p->_pos.x() = cursor[i]["position"][0].as_number().as_f32();
+        p->_pos.y() = cursor[i]["position"][1].as_number().as_f32();
+        p->_pos.z() = cursor[i]["position"][2].as_number().as_f32();
+        p->_texture.x() = cursor[i]["texture"][0].as_number().as_f32();
+        p->_texture.y() = cursor[i]["texture"][1].as_number().as_f32();
     }
     return _vertices_data_size;
 }

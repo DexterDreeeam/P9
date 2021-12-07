@@ -1,5 +1,5 @@
 
-#include "../VerticesViewer.hpp"
+#include "../Interface.hpp"
 
 namespace gpx
 {

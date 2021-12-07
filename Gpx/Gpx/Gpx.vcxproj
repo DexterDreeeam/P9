@@ -17,11 +17,14 @@
     <ClInclude Include="Runtime\Pipeline.hpp" />
     <ClInclude Include="Runtime\Runtime.hpp" />
     <ClInclude Include="Runtime\Shader.hpp" />
+    <ClInclude Include="Runtime\TextureViewer.hpp" />
     <ClInclude Include="Runtime\VerticesViewer.hpp" />
     <ClInclude Include="Runtime\VulkanDynamicMemory.hpp" />
+    <ClInclude Include="Runtime\VulkanInterface.hpp" />
     <ClInclude Include="Runtime\VulkanPipeline.hpp" />
     <ClInclude Include="Runtime\VulkanRuntime.hpp" />
     <ClInclude Include="Runtime\VulkanShader.hpp" />
+    <ClInclude Include="Runtime\VulkanTextureViewer.hpp" />
     <ClInclude Include="Runtime\VulkanVerticesViewer.hpp" />
     <ClInclude Include="Window\Interface.hpp" />
     <ClInclude Include="Window\Window.hpp" />
@@ -30,11 +33,13 @@
   <ItemGroup>
     <ClCompile Include="Runtime\Implementation\Pipeline.cpp" />
     <ClCompile Include="Runtime\Implementation\Runtime.cpp" />
+    <ClCompile Include="Runtime\Implementation\TextureViewer.cpp" />
     <ClCompile Include="Runtime\Implementation\VerticesViewer.cpp" />
     <ClCompile Include="Runtime\Implementation\VulkanDynamicMemory.cpp" />
     <ClCompile Include="Runtime\Implementation\VulkanPipeline.cpp" />
     <ClCompile Include="Runtime\Implementation\VulkanRuntime.cpp" />
     <ClCompile Include="Runtime\Implementation\VulkanShader.cpp" />
+    <ClCompile Include="Runtime\Implementation\VulkanTextureViewer.cpp" />
     <ClCompile Include="Runtime\Implementation\VulkanVerticesViewer.cpp" />
     <ClCompile Include="Window\Implementation\GlfwWindow.cpp" />
   </ItemGroup>

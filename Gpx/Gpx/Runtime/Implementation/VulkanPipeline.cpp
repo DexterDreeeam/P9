@@ -1,8 +1,6 @@
 
-#include "../../../Algebra/Interface.hpp"
-#include "../VulkanPipeline.hpp"
-#include "../VulkanShader.hpp"
-#include "../VulkanRuntime.hpp"
+#include "../Interface.hpp"
+#include "../VulkanInterface.hpp"
 
 namespace gpx
 {
@@ -17,7 +15,7 @@ vulkan_pipeline::vulkan_pipeline(obs<vulkan_runtime> rt, obs<vulkan_window_conte
     _self(),
     _rt(rt),
     _window_ctx(w_ctx),
-    _descriptor_pool_vec(),
+    _descriptor_pool(nullptr),
     _descriptor_set_vec(),
     _dynamic_memory_vec(),
     _dynamic_memory_buffer_vec(),
@@ -70,6 +68,12 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
     }
     auto logical_device = rt->get_vk_logical_device();
     s64 image_count = rt->_desc.frame_count;
+
+    escape_function ef_uninit =
+        [=]() mutable
+        {
+            uninit();
+        };
 
     // pipeline shader stage
     vector<VkPipelineShaderStageCreateInfo> stage_create_info_vec;
@@ -223,78 +227,102 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
         };
 
     s64 dynamic_memory_cnt = desc._dynamic_memories.size();
-    if (dynamic_memory_cnt > 0)
+    s64 texture_view_cnt = desc._texture_viewers.size();
+    if (dynamic_memory_cnt + texture_view_cnt > 0)
     {
         vector<VkDescriptorSetLayoutBinding> binding_vec;
+        s64 binding = 0;
         for (s64 i = 0; i < dynamic_memory_cnt; ++i)
         {
             VkDescriptorSetLayoutBinding layout_binding = {};
-            layout_binding.binding = i;
+            layout_binding.binding = binding++;
             layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
             layout_binding.descriptorCount = 1;
             layout_binding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
             layout_binding.pImmutableSamplers = nullptr;
             binding_vec.push_back(layout_binding);
         }
-        VkDescriptorSetLayoutCreateInfo dynamic_memory_layout = {};
-        dynamic_memory_layout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-        dynamic_memory_layout.bindingCount = binding_vec.size();
-        dynamic_memory_layout.pBindings = binding_vec.data();
+        for (s64 i = 0; i < texture_view_cnt; ++i)
+        {
+            VkDescriptorSetLayoutBinding layout_binding = {};
+            layout_binding.binding = binding++;
+            layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            layout_binding.descriptorCount = 1;
+            layout_binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+            layout_binding.pImmutableSamplers = nullptr;
+            binding_vec.push_back(layout_binding);
+        }
+        VkDescriptorSetLayoutCreateInfo ds_layout_info = {};
+        ds_layout_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        ds_layout_info.bindingCount = binding_vec.size();
+        ds_layout_info.pBindings = binding_vec.data();
 
         if (vkCreateDescriptorSetLayout(
-                logical_device, &dynamic_memory_layout, nullptr, &ds_layout) != VK_SUCCESS)
+                logical_device, &ds_layout_info, nullptr, &ds_layout) != VK_SUCCESS)
         {
-            uninit();
             return boole::False;
         }
-        _descriptor_set_vec.resize(image_count);
 
-        VkDescriptorPoolSize descriptor_pool_size = {};
-        descriptor_pool_size.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        descriptor_pool_size.descriptorCount = dynamic_memory_cnt;
+        vector<VkDescriptorPoolSize> pool_size_vec;
+        if (dynamic_memory_cnt > 0)
+        {
+            VkDescriptorPoolSize pool_size = {};
+            pool_size.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            pool_size.descriptorCount = dynamic_memory_cnt;
+            pool_size_vec.push_back(pool_size);
+        }
+        if (texture_view_cnt > 0)
+        {
+            VkDescriptorPoolSize pool_size = {};
+            pool_size.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            pool_size.descriptorCount = texture_view_cnt;
+            pool_size_vec.push_back(pool_size);
+        }
 
         VkDescriptorPoolCreateInfo descriptor_pool_info = {};
         descriptor_pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
         descriptor_pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-        descriptor_pool_info.poolSizeCount = 1;
-        descriptor_pool_info.pPoolSizes = &descriptor_pool_size;
-        descriptor_pool_info.maxSets = 1;
+        descriptor_pool_info.poolSizeCount = pool_size_vec.size();
+        descriptor_pool_info.pPoolSizes = pool_size_vec.data();
+        descriptor_pool_info.maxSets = image_count;
 
-        _descriptor_pool_vec.resize(image_count, nullptr);
+        if (vkCreateDescriptorPool(logical_device, &descriptor_pool_info, nullptr, &_descriptor_pool) != VK_SUCCESS)
+        {
+            return boole::False;
+        }
+
+        _descriptor_set_vec.resize(image_count, nullptr);
+        vector<VkDescriptorSetLayout> ds_layout_vec((sz_t)image_count, ds_layout);
+
+        VkDescriptorSetAllocateInfo descriptor_set_alloc_info = {};
+        descriptor_set_alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+        descriptor_set_alloc_info.descriptorPool = _descriptor_pool;
+        descriptor_set_alloc_info.descriptorSetCount = image_count;
+        descriptor_set_alloc_info.pSetLayouts = ds_layout_vec.data();
+
+        if (vkAllocateDescriptorSets(
+            logical_device, &descriptor_set_alloc_info, _descriptor_set_vec.data()) != VK_SUCCESS)
+        {
+            return boole::False;
+        }
 
         for (s64 i = 0; i < image_count; ++i)
         {
-            if (vkCreateDescriptorPool(logical_device, &descriptor_pool_info, nullptr, &_descriptor_pool_vec[i]) != VK_SUCCESS)
-            {
-                uninit();
-                return boole::False;
-            }
+            mutex m;
+            m.init();
+            _dynamic_memory_updating_queue.push_back(make_pair(m, set<ref<vulkan_dynamic_memory>>()));
 
-            VkDescriptorSetAllocateInfo descriptor_set_alloc_info = {};
-            descriptor_set_alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-            descriptor_set_alloc_info.descriptorPool = _descriptor_pool_vec[i];
-            descriptor_set_alloc_info.descriptorSetCount = 1;
-            descriptor_set_alloc_info.pSetLayouts = &ds_layout;
-
-            if (vkAllocateDescriptorSets(
-                    logical_device, &descriptor_set_alloc_info, &_descriptor_set_vec[i]) != VK_SUCCESS)
+            binding = 0;
+            vector<VkDescriptorBufferInfo> buffer_info_vec;
+            vector<VkDescriptorImageInfo> image_info_vec;
+            vector<VkWriteDescriptorSet> write_ds_vec;
+            for (auto& dm : desc._dynamic_memories)
             {
-                uninit();
-                return boole::False;
-            }
-        }
-
-        s64 binding_idx = 0;
-        for (auto& dm : desc._dynamic_memories)
-        {
-            auto r_dm = rt->get_dynamic_memory(dm);
-            if (r_dm.empty())
-            {
-                return boole::False;
-            }
-
-            for (s64 i = 0; i < image_count; ++i)
-            {
+                auto r_dm = rt->get_dynamic_memory(dm);
+                if (r_dm.empty())
+                {
+                    return boole::False;
+                }
                 VkBuffer buffer;
                 VkDeviceMemory memory;
                 if (!vulkan_runtime::setup_vk_buffer(
@@ -307,47 +335,67 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
                         buffer,
                         memory))
                 {
-                    vulkan_runtime::clear_vk_buffer(logical_device, buffer, memory);
-                    uninit();
                     return boole::False;
                 }
-
                 _dynamic_memory_buffer_vec.push_back(buffer);
                 _dynamic_memory_memory_vec.push_back(memory);
+                if (i == 0)
+                {
+                    // add dynamic memory once
+                    _dynamic_memory_vec.push_back(r_dm);
+                }
+                if (!r_dm->add_pipeline_memory(_self, memory))
+                {
+                    return boole::False;
+                }
 
                 VkDescriptorBufferInfo bufferInfo = {};
                 bufferInfo.buffer = buffer;
                 bufferInfo.offset = 0;
                 bufferInfo.range = r_dm->memory_size();
 
+                buffer_info_vec.push_back(bufferInfo);
+
                 VkWriteDescriptorSet write_ds = {};
                 write_ds.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
                 write_ds.dstSet = _descriptor_set_vec[i];
-                write_ds.dstBinding = binding_idx;
+                write_ds.dstBinding = binding++;
                 write_ds.dstArrayElement = 0;
                 write_ds.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
                 write_ds.descriptorCount = 1;
-                write_ds.pBufferInfo = &bufferInfo;
+                write_ds.pBufferInfo = &buffer_info_vec.back();
 
-                vkUpdateDescriptorSets(logical_device, 1, &write_ds, 0, nullptr);
-
-                if (!r_dm->add_pipeline_memory(_self, memory))
-                {
-                    uninit();
-                    return boole::False;
-                }
+                write_ds_vec.push_back(write_ds);
             }
 
-            _dynamic_memory_vec.push_back(r_dm);
-            ++binding_idx;
-        }
-    }
+            for (auto& tv : desc._texture_viewers)
+            {
+                auto r_tv = rt->get_texture_viewer(tv);
+                if (r_tv.empty() || r_tv->state() != texture_viewer_state::Online)
+                {
+                    return boole::False;
+                }
 
-    for (s64 i = 0; i < image_count; ++i)
-    {
-        mutex m;
-        m.init();
-        _dynamic_memory_updating_queue.push_back(make_pair(m, set<ref<vulkan_dynamic_memory>>()));
+                VkDescriptorImageInfo imageInfo = {};
+                imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                imageInfo.imageView = r_tv->_vk_image_view;
+                imageInfo.sampler = r_tv->_vk_sampler;
+
+                image_info_vec.push_back(imageInfo);
+
+                VkWriteDescriptorSet write_ds = {};
+                write_ds.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                write_ds.dstSet = _descriptor_set_vec[i];
+                write_ds.dstBinding = binding++;
+                write_ds.dstArrayElement = 0;
+                write_ds.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                write_ds.descriptorCount = 1;
+                write_ds.pImageInfo = &image_info_vec.back();
+
+                write_ds_vec.push_back(write_ds);
+            }
+            vkUpdateDescriptorSets(logical_device, write_ds_vec.size(), write_ds_vec.data(), 0, nullptr);
+        }
     }
 
     // pipeline layout
@@ -359,7 +407,6 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
     pipelineLayoutInfo.pPushConstantRanges = nullptr;
     if (vkCreatePipelineLayout(logical_device, &pipelineLayoutInfo, nullptr, &_layout) != VK_SUCCESS)
     {
-        uninit();
         return boole::False;
     }
 
@@ -405,7 +452,6 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
 
     if (vkCreateRenderPass(logical_device, &renderPassInfo, nullptr, &_render_pass) != VK_SUCCESS)
     {
-        uninit();
         return boole::False;
     }
 
@@ -431,7 +477,6 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
     if (vkCreateGraphicsPipelines(
             logical_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_pipeline) != VK_SUCCESS)
     {
-        uninit();
         return boole::False;
     }
 
@@ -453,7 +498,6 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
         if (vkCreateFramebuffer(
                 logical_device, &framebufferInfo, nullptr, &fb) != VK_SUCCESS)
         {
-            uninit();
             return boole::False;
         }
         _frame_buffer_vec.push_back(fb);
@@ -469,11 +513,11 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
             logical_device, &allocInfo, _command_buffer_vec.data()) != VK_SUCCESS)
     {
         _command_buffer_vec.clear();
-        uninit();
         return boole::False;
     }
 
     _name = desc._pipeline_name;
+    ef_uninit.disable();
     transfer_state(pipeline_state::InitingOrUniniting, pipeline_state::Inited);
     return boole::True;
 }
@@ -549,16 +593,15 @@ boole vulkan_pipeline::uninit()
     {
         _descriptor_set_vec.pop_back();
     }
-    while (_descriptor_pool_vec.size() && _descriptor_pool_vec.back() == nullptr)
+    if (_descriptor_set_vec.size() && _descriptor_pool)
     {
-        _descriptor_pool_vec.pop_back();
+        vkFreeDescriptorSets(logical_device, _descriptor_pool, _descriptor_set_vec.size(), _descriptor_set_vec.data());
+        _descriptor_set_vec.clear();
     }
-    while (_descriptor_set_vec.size() && _descriptor_pool_vec.size())
+    if (_descriptor_pool)
     {
-        vkFreeDescriptorSets(logical_device, _descriptor_pool_vec.back(), 1, &_descriptor_set_vec.back());
-        _descriptor_set_vec.pop_back();
-        vkDestroyDescriptorPool(logical_device, _descriptor_pool_vec.back(), nullptr);
-        _descriptor_pool_vec.pop_back();
+        vkDestroyDescriptorPool(logical_device, _descriptor_pool, nullptr);
+        _descriptor_pool = nullptr;
     }
 
     boole checker = transfer_state(pipeline_state::InitingOrUniniting, pipeline_state::Uninit);
@@ -854,6 +897,27 @@ void setup_vertex_input_desc(
         attribute_vec.push_back(attribute_desc);
 
         break;
+
+    case vertex_pos_texture::type():
+        binding_desc.binding = 0;
+        binding_desc.stride = sizeof(vertex_pos_texture);
+        binding_desc.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+        binding_vec.push_back(binding_desc);
+
+        attribute_desc.binding = 0;
+        attribute_desc.location = 0;
+        attribute_desc.format = VK_FORMAT_R32G32B32_SFLOAT;
+        attribute_desc.offset = class_offset(vertex_pos_texture, _pos);
+        attribute_vec.push_back(attribute_desc);
+
+        attribute_desc.binding = 0;
+        attribute_desc.location = 1;
+        attribute_desc.format = VK_FORMAT_R32G32_SFLOAT;
+        attribute_desc.offset = class_offset(vertex_pos_texture, _texture);
+        attribute_vec.push_back(attribute_desc);
+
+        break;
+
     default:
         assert(0);
         break;

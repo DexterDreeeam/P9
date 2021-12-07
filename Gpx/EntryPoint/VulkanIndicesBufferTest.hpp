@@ -111,7 +111,7 @@ void vulkan_indices_buffer_test()
     u64 start_tick = tick::elapse();
     while (1)
     {
-        if (tick::elapse() - start_tick >= 1000)
+        if (tick::elapse() - start_tick >= 500)
         {
             break;
         }

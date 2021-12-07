@@ -15,6 +15,7 @@
     <ClInclude Include="Texture\Texture.hpp" />
     <ClInclude Include="Vertex\Vertex.hpp" />
     <ClInclude Include="Vertex\VertexPosColor.hpp" />
+    <ClInclude Include="Vertex\VertexPosTexture.hpp" />
     <ClInclude Include="Vertex\VerticesBuffer.hpp" />
   </ItemGroup>
   <ItemGroup>

@@ -17,7 +17,7 @@ struct texture_info
     boole             is_valid;
     s64               width;
     s64               height;
-    ref<auto_memory>  memory;
+    ref<auto_memory>  r_mem;
 };
 
 class texture
@@ -25,7 +25,9 @@ class texture
     static const string file_extension;
 
 public:
-    static texture_info load(const string& path)
+    // texture_info r_mem will be null if load_with_allocator is called directly
+    template<typename Alloc_Fn_Ty>
+    static texture_info load_with_allocator(const string& path, Alloc_Fn_Ty fn_alloc)
     {
         texture_info info = {};
         info.is_valid = boole::False;
@@ -42,9 +44,9 @@ public:
         }
         escape_function ef =
             [=]() mutable
-            {
-                f.uninit();
-            };
+        {
+            f.uninit();
+        };
 
         texture_header header = {};
         s64 actual_read;
@@ -53,8 +55,8 @@ public:
             return info;
         }
 
-        auto r_mem = ref<auto_memory>::new_instance(header.memory_length);
-        if (!f.input(r_mem->addr(), header.memory_length, actual_read) || actual_read != header.memory_length)
+        void* addr = fn_alloc(header.memory_length);
+        if (!f.input(addr, header.memory_length, actual_read) || actual_read != header.memory_length)
         {
             return info;
         }
@@ -62,7 +64,24 @@ public:
         info.is_valid = boole::True;
         info.width = header.width;
         info.height = header.height;
-        info.memory = r_mem;
+        return info;
+    }
+
+    static texture_info load(const string& path)
+    {
+        ref<auto_memory> r_m;
+        auto info = load_with_allocator(
+            path,
+            [&](sz_t sz) mutable
+            {
+                r_m = ref<auto_memory>::new_instance(sz);
+                return r_m->addr();
+            });
+
+        if (r_m.has_value())
+        {
+            info.r_mem = r_m;
+        }
         return info;
     }
 };
