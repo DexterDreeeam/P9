@@ -14,8 +14,9 @@
     <ClCompile Include="GpxTool.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="HandleConvert.hpp" />
+    <ClInclude Include="HandleVerticesConvert.hpp" />
     <ClInclude Include="HandleHelp.hpp" />
+    <ClInclude Include="HandleTextureConvert.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

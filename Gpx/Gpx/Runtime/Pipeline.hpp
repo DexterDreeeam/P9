@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Algebra/Interface.hpp"
+#include "../../ResourceMgr/Interface.hpp"
 #include "Shader.hpp"
 
 namespace gpx

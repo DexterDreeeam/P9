@@ -9,18 +9,9 @@ namespace gpx
 
 struct runtime_desc
 {
-    enum class _type : s64
-    {
-        None = 0,
-
-        Vulkan,
-
-        DirectX,
-    };
-
-    _type   type;
-    s64     frame_count;
-    boole   debug_mode;
+    environment_type  type;
+    s64               frame_count;
+    boole             debug_mode;
 };
 
 class runtime

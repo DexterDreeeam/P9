@@ -13,7 +13,7 @@ ref<runtime> runtime::build(const runtime_desc& desc)
 
     switch (desc.type)
     {
-    case runtime_desc::_type::Vulkan:
+    case Vulkan:
         ret = ref<vulkan_runtime>::new_instance(desc).ref_of<runtime>();
         break;
 

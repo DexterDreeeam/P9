@@ -5,6 +5,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HandleHelp.hpp" />
-    <ClInclude Include="HandleConvert.hpp" />
+    <ClInclude Include="HandleVerticesConvert.hpp" />
+    <ClInclude Include="HandleTextureConvert.hpp" />
   </ItemGroup>
 </Project>

@@ -54,7 +54,7 @@ public:
 
 }
 
-template<algebra_type AlgType>
+template<environment_type AlgType>
 class transform;
 
 template<>

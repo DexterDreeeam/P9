@@ -6,10 +6,6 @@
     <ClInclude Include="Vec\Vec2.hpp" />
     <ClInclude Include="Vec\Vec3.hpp" />
     <ClInclude Include="Vec\Vec4.hpp" />
-    <ClInclude Include="Vertex\Vertex.hpp" />
-    <ClInclude Include="Vertex\VerticesBuffer.hpp" />
-    <ClInclude Include="Vertex\VertexPosColor.hpp" />
-    <ClInclude Include="Definition.hpp" />
     <ClInclude Include="Mat\Transform.hpp" />
     <ClInclude Include="Mat\Mat.hpp" />
     <ClInclude Include="Vec\Vec.hpp" />
@@ -17,6 +13,5 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Mat\Transform_Implementation.inl" />
-    <None Include="Vertex\VerticesBuffer_Implementation.inl" />
   </ItemGroup>
 </Project>

@@ -11,7 +11,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Definition.hpp" />
     <ClInclude Include="Interface.hpp" />
     <ClInclude Include="Mat\Mat4x4.hpp" />
     <ClInclude Include="Mat\Mat.hpp" />
@@ -21,13 +20,9 @@
     <ClInclude Include="Vec\Vec3.hpp" />
     <ClInclude Include="Vec\Vec4.hpp" />
     <ClInclude Include="Vec\Vec.hpp" />
-    <ClInclude Include="Vertex\Vertex.hpp" />
-    <ClInclude Include="Vertex\VertexPosColor.hpp" />
-    <ClInclude Include="Vertex\VerticesBuffer.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Mat\Transform_Implementation.inl" />
-    <None Include="Vertex\VerticesBuffer_Implementation.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

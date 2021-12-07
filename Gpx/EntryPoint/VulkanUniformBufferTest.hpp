@@ -7,7 +7,7 @@ void vulkan_uniform_buffer_test()
 
     // create runtime
     gpx::runtime_desc rt_desc;
-    rt_desc.type = gpx::runtime_desc::_type::Vulkan;
+    rt_desc.type = gpx::Vulkan;
     rt_desc.frame_count = 5;
     rt_desc.debug_mode = boole::True;
     auto rt = gpx::runtime::build(rt_desc);

@@ -6,7 +6,7 @@
 #include "VulkanIndicesBufferTest.hpp"
 #include "VulkanUniformBufferTest.hpp"
 
-using tt = gpx::transform<gpx::algebra_type::Vulkan>;
+using tt = gpx::transform<gpx::Vulkan>;
 
 int main(int argc, char* argv[])
 {
