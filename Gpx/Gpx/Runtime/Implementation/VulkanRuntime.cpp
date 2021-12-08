@@ -16,6 +16,7 @@ vulkan_runtime::vulkan_runtime(const runtime_desc& desc) :
     _preferred_device_name(),
     _physical_device(nullptr),
     _logical_device(nullptr),
+    _msaa(VK_SAMPLE_COUNT_1_BIT),
     _render_queue_family_idx(-1),
     _present_queue_family_idx(-1),
     _transfer_queue_family_idx(-1),
@@ -395,10 +396,31 @@ boole vulkan_runtime::build_device_hardware_resource(VkPhysicalDevice physical_d
         return boole::True;
     }
 
+    // find right msaa flag
     // find right queue family
     // find right queue index
     // create logical device
     // create command pool
+
+    VkPhysicalDeviceProperties physicalDeviceProperties;
+    vkGetPhysicalDeviceProperties(physical_device, &physicalDeviceProperties);
+    VkSampleCountFlags msaa_limit =
+        physicalDeviceProperties.limits.framebufferColorSampleCounts & physicalDeviceProperties.limits.framebufferDepthSampleCounts;
+
+    s64 msaa_level = math::clamp(_desc.msaa_level, 0, 6);
+    VkSampleCountFlagBits target_msaa = VK_SAMPLE_COUNT_1_BIT;
+    while (1)
+    {
+        VkSampleCountFlagBits next_msaa = (VkSampleCountFlagBits)((u64)target_msaa << 1);
+        if (msaa_level > 0 && (msaa_limit & next_msaa))
+        {
+            target_msaa = next_msaa;
+            --msaa_level;
+            continue;
+        }
+        break;
+    }
+    _msaa = target_msaa;
 
     sz_t queue_family_count = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(physical_device, (uint32_t*)&queue_family_count, nullptr);
@@ -650,7 +672,7 @@ boole vulkan_runtime::build_device_image_resource(ref<vulkan_window_context> w_c
 
     // swap chain
     uint32_t queueFamilyIndices[] = { (uint32_t)_render_queue_family_idx, (uint32_t)_present_queue_family_idx };
-    VkSwapchainCreateInfoKHR createInfo{};
+    VkSwapchainCreateInfoKHR createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
     createInfo.surface = surface;
     createInfo.minImageCount = _desc.frame_count;
@@ -711,6 +733,75 @@ boole vulkan_runtime::build_device_image_resource(ref<vulkan_window_context> w_c
         }
     }
 
+    // msaa image
+    if (_msaa != VK_SAMPLE_COUNT_1_BIT)
+    {
+        VkImageCreateInfo msaaImageInfo = {};
+        msaaImageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+        msaaImageInfo.imageType = VK_IMAGE_TYPE_2D;
+        msaaImageInfo.extent.width = w_ctx->_swap_chain_extent.width;
+        msaaImageInfo.extent.height = w_ctx->_swap_chain_extent.height;
+        msaaImageInfo.extent.depth = 1;
+        msaaImageInfo.mipLevels = 1;
+        msaaImageInfo.arrayLayers = 1;
+        msaaImageInfo.format = w_ctx->_surface_format.format;
+        msaaImageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+        msaaImageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        msaaImageInfo.usage = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        msaaImageInfo.samples = _msaa;
+        msaaImageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+        for (s64 i = 0; i < image_count; ++i)
+        {
+            VkImage msaa_image;
+            if (vkCreateImage(_logical_device, &msaaImageInfo, nullptr, &msaa_image) != VK_SUCCESS)
+            {
+                return boole::False;
+            }
+            w_ctx->_msaa_image_vec.push_back(msaa_image);
+        }
+
+        VkMemoryRequirements msaa_memory_requirements;
+        vkGetImageMemoryRequirements(_logical_device, w_ctx->_msaa_image_vec[0], &msaa_memory_requirements);
+
+        VkMemoryAllocateInfo msaaAllocInfo = {};
+        msaaAllocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+        msaaAllocInfo.allocationSize = msaa_memory_requirements.size;
+        msaaAllocInfo.memoryTypeIndex = get_vk_memory_type(_physical_device, msaa_memory_requirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+        for (s64 i = 0; i < image_count; ++i)
+        {
+            VkDeviceMemory msaa_memory;
+            if (vkAllocateMemory(_logical_device, &msaaAllocInfo, nullptr, &msaa_memory) != VK_SUCCESS)
+            {
+                return boole::False;
+            }
+            w_ctx->_msaa_image_memory_vec.push_back(msaa_memory);
+            vkBindImageMemory(_logical_device, w_ctx->_msaa_image_vec[i], msaa_memory, 0);
+
+            VkImageViewCreateInfo msaaViewInfo = {};
+            msaaViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+            msaaViewInfo.image = w_ctx->_msaa_image_vec[i];
+            msaaViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+            msaaViewInfo.format = w_ctx->_surface_format.format;
+            msaaViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            msaaViewInfo.subresourceRange.baseMipLevel = 0;
+            msaaViewInfo.subresourceRange.levelCount = 1;
+            msaaViewInfo.subresourceRange.baseArrayLayer = 0;
+            msaaViewInfo.subresourceRange.layerCount = 1;
+
+            VkImageView msaa_view;
+            if (vkCreateImageView(_logical_device, &msaaViewInfo, nullptr, &msaa_view) != VK_SUCCESS)
+            {
+                return boole::False;
+            }
+            w_ctx->_msaa_image_view_vec.push_back(msaa_view);
+
+            vulkan_runtime::convert_vk_image_layout(
+                _logical_device, _transfer_command_pool, _transfer_queue, w_ctx->_msaa_image_vec[i], 4);
+        }
+    }
+
     // depth image
     vector<VkFormat> depth_format_candidate = { VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT, VK_FORMAT_D16_UNORM_S8_UINT };
     VkFormat depth_format = VK_FORMAT_UNDEFINED;
@@ -742,7 +833,7 @@ boole vulkan_runtime::build_device_image_resource(ref<vulkan_window_context> w_c
     depthInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
     depthInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     depthInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-    depthInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+    depthInfo.samples = _msaa;
     depthInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
     for (s64 i = 0; i < image_count; ++i)
@@ -899,6 +990,21 @@ boole vulkan_runtime::clear_device_image_resource(ref<vulkan_window_context> w_c
     }
     w_ctx->_reordered_fence_vec.clear();
     w_ctx->_fence_counter = 0;
+    while (w_ctx->_msaa_image_view_vec.size())
+    {
+        vkDestroyImageView(_logical_device, w_ctx->_msaa_image_view_vec.back(), nullptr);
+        w_ctx->_msaa_image_view_vec.pop_back();
+    }
+    while (w_ctx->_msaa_image_memory_vec.size())
+    {
+        vkFreeMemory(_logical_device, w_ctx->_msaa_image_memory_vec.back(), nullptr);
+        w_ctx->_msaa_image_memory_vec.pop_back();
+    }
+    while (w_ctx->_msaa_image_vec.size())
+    {
+        vkDestroyImage(_logical_device, w_ctx->_msaa_image_vec.back(), nullptr);
+        w_ctx->_msaa_image_vec.pop_back();
+    }
     while (w_ctx->_depth_image_view_vec.size())
     {
         vkDestroyImageView(_logical_device, w_ctx->_depth_image_view_vec.back(), nullptr);
@@ -1616,6 +1722,16 @@ boole vulkan_runtime::convert_vk_image_layout(
         new_access = (VkAccessFlagBits)(VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT);
         new_stage_flag = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
         aspect_mask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+        break;
+
+    case 4:
+        old_layout = VK_IMAGE_LAYOUT_UNDEFINED;
+        old_access = VK_ACCESS_NONE_KHR;
+        old_stage_flag = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+        new_layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        new_access = (VkAccessFlagBits)(VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
+        new_stage_flag = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        aspect_mask = VK_IMAGE_ASPECT_COLOR_BIT;
         break;
 
     default:

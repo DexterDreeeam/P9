@@ -11,6 +11,7 @@ struct runtime_desc
 {
     environment_type  type;
     s64               frame_count;
+    s64               msaa_level; // 0 ~ 6, sample count 2^0 ~ 2^6
     boole             debug_mode;
 };
 

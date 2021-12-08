@@ -11,7 +11,6 @@
     <ClInclude Include="VulkanTextureTest.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="_compile_windows_vulkan_shaders.ps1" />
     <None Include="Shader\Vulkan\Glsl\test2.frag" />
     <None Include="Shader\Vulkan\Glsl\test2.vert" />
     <None Include="Vertices\test2.vertices.json" />
@@ -25,7 +24,6 @@
     <None Include="Vertices\test3-1.vertices.json" />
     <None Include="Shader\Vulkan\Glsl\test3-2.vert" />
     <None Include="Shader\Vulkan\Glsl\test3-2.frag" />
-    <None Include="_convert_windows_resource.ps1" />
     <None Include="Vertices\test3-2.vertices.json" />
   </ItemGroup>
 </Project>

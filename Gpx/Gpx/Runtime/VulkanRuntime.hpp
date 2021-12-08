@@ -16,6 +16,10 @@ struct vulkan_window_context
     vector<VkImage>            _swap_chain_image_vec;
     vector<VkImageView>        _image_view_vec;
 
+    vector<VkImage>            _msaa_image_vec;
+    vector<VkDeviceMemory>     _msaa_image_memory_vec;
+    vector<VkImageView>        _msaa_image_view_vec;
+
     VkFormat                   _depth_format;
     vector<VkImage>            _depth_image_vec;
     vector<VkDeviceMemory>     _depth_image_memory_vec;
@@ -205,6 +209,7 @@ private:
     string                        _preferred_device_name;
     VkPhysicalDevice              _physical_device;
     VkDevice                      _logical_device;
+    VkSampleCountFlagBits         _msaa;
     u64                           _render_queue_family_idx;
     u64                           _present_queue_family_idx;
     u64                           _transfer_queue_family_idx;

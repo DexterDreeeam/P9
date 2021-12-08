@@ -7,6 +7,7 @@ void vulkan_window_test()
     gpx::runtime_desc rt_desc;
     rt_desc.type = gpx::Vulkan;
     rt_desc.frame_count = 3;
+    rt_desc.msaa_level = 0;
     rt_desc.debug_mode = boole::False;
 
     auto rt = gpx::runtime::build(rt_desc);

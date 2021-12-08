@@ -68,6 +68,7 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
     }
     auto logical_device = rt->get_vk_logical_device();
     s64 image_count = rt->_desc.frame_count;
+    boole msaa_enable = w_ctx->_msaa_image_vec.size() == image_count;
 
     escape_function ef_uninit =
         [=]() mutable
@@ -170,7 +171,7 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
     VkPipelineMultisampleStateCreateInfo multisampling = {};
     multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     multisampling.sampleShadingEnable = VK_FALSE;
-    multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+    multisampling.rasterizationSamples = rt->_msaa;
     multisampling.minSampleShading = 1.0f;
     multisampling.pSampleMask = nullptr;
     multisampling.alphaToCoverageEnable = VK_FALSE;
@@ -419,24 +420,20 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
     // pipeline frame buffer setting
     vector<VkAttachmentDescription> attachment_vec;
 
-    VkAttachmentDescription colorAttachment = {};
-    colorAttachment.format = w_ctx->_surface_format.format;
-    colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-    attachment_vec.push_back(colorAttachment);
-
-    VkAttachmentReference colorAttachmentRef = {};
-    colorAttachmentRef.attachment = 0;
-    colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    VkAttachmentDescription outputAttachment = {};
+    outputAttachment.format = w_ctx->_surface_format.format;
+    outputAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    outputAttachment.loadOp = msaa_enable ? VK_ATTACHMENT_LOAD_OP_DONT_CARE : VK_ATTACHMENT_LOAD_OP_CLEAR;
+    outputAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    outputAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    outputAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    outputAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    outputAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    attachment_vec.push_back(outputAttachment);
 
     VkAttachmentDescription depthAttachment = {};
     depthAttachment.format = w_ctx->_depth_format;
-    depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    depthAttachment.samples = rt->_msaa;
     depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -445,18 +442,41 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
     depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
     attachment_vec.push_back(depthAttachment);
 
+    VkAttachmentDescription msaaAttachment = {};
+    msaaAttachment.format = w_ctx->_surface_format.format;
+    msaaAttachment.samples = rt->_msaa;;
+    msaaAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    msaaAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    msaaAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    msaaAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    msaaAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    msaaAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    if (msaa_enable)
+    {
+        attachment_vec.push_back(msaaAttachment);
+    }
+
+    VkAttachmentReference outputAttachmentRef = {};
+    outputAttachmentRef.attachment = 0;
+    outputAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
     VkAttachmentReference depthAttachmentRef = {};
     depthAttachmentRef.attachment = 1;
     depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+    VkAttachmentReference msaaAttachmentRef = {};
+    msaaAttachmentRef.attachment = 2;
+    msaaAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
     // pipeline render pass setting
     VkSubpassDescription subpass = {};
     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
     subpass.colorAttachmentCount = 1;
-    subpass.pColorAttachments = &colorAttachmentRef;
+    subpass.pColorAttachments = msaa_enable ? &msaaAttachmentRef : &outputAttachmentRef;
     subpass.pDepthStencilAttachment = &depthAttachmentRef;
+    subpass.pResolveAttachments = msaa_enable ? &outputAttachmentRef : nullptr;
 
-    VkSubpassDependency dependency{};
+    VkSubpassDependency dependency = {};
     dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
     dependency.dstSubpass = 0;
     dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
@@ -508,13 +528,22 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
     // frame buffer
     for (s64 i = 0; i < image_count; ++i)
     {
-        VkImageView attach_array[2] = { w_ctx->_image_view_vec[i], w_ctx->_depth_image_view_vec[i] };
+        // 0 -> swapchain image
+        // 1 -> depth_stencil image
+        // 2 -> msaa image [optional]
+        vector<VkImageView> attach_vec;
+        attach_vec.push_back(w_ctx->_image_view_vec[i]);
+        attach_vec.push_back(w_ctx->_depth_image_view_vec[i]);
+        if (msaa_enable)
+        {
+            attach_vec.push_back(w_ctx->_msaa_image_view_vec[i]);
+        }
 
         VkFramebufferCreateInfo framebufferInfo = {};
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         framebufferInfo.renderPass = _render_pass;
-        framebufferInfo.attachmentCount = 2;
-        framebufferInfo.pAttachments = attach_array;
+        framebufferInfo.attachmentCount = attach_vec.size();
+        framebufferInfo.pAttachments = attach_vec.data();
         framebufferInfo.width = w_ctx->_swap_chain_extent.width;
         framebufferInfo.height = w_ctx->_swap_chain_extent.height;
         framebufferInfo.layers = 1;
@@ -711,9 +740,11 @@ boole vulkan_pipeline::load_resource()
             goto L_error;
         }
 
-        VkClearValue clearValues[2];
+        // output, depth, msaa
+        VkClearValue clearValues[3];
         clearValues[0].color = { 0.008f, 0.008f, 0.012f, 1.0f };
         clearValues[1].depthStencil = { 1.0f, 0 };
+        clearValues[2].color = { 0.008f, 0.008f, 0.012f, 1.0f };
 
         VkRenderPassBeginInfo renderPassInfo = {};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -721,7 +752,7 @@ boole vulkan_pipeline::load_resource()
         renderPassInfo.framebuffer = _frame_buffer_vec[i];
         renderPassInfo.renderArea.offset = { 0, 0 };
         renderPassInfo.renderArea.extent = w_ctx->_swap_chain_extent;
-        renderPassInfo.clearValueCount = 2;
+        renderPassInfo.clearValueCount = 3; //rt->_msaa == VK_SAMPLE_COUNT_1_BIT ? 2 : 3;
         renderPassInfo.pClearValues = clearValues;
 
         vector<VkDeviceSize> offsets;

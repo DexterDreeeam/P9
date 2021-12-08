@@ -9,6 +9,7 @@ void vulkan_texture_test()
     gpx::runtime_desc rt_desc;
     rt_desc.type = gpx::Vulkan;
     rt_desc.frame_count = 5;
+    rt_desc.msaa_level = 4;
     rt_desc.debug_mode = boole::True;
     auto rt = gpx::runtime::build(rt_desc);
     checker = rt->init();
@@ -17,8 +18,8 @@ void vulkan_texture_test()
     // create window
     gpx::window_desc wnd_desc;
     wnd_desc.name = "Hello Pavilion Nine";
-    wnd_desc.width = 240;
-    wnd_desc.height = 180;
+    wnd_desc.width = 480;
+    wnd_desc.height = 360;
     auto wnd = rt->build_window(wnd_desc);
     checker = wnd->start();
     assert(checker);

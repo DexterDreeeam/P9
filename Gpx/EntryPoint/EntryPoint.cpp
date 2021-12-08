@@ -16,6 +16,5 @@ int main(int argc, char* argv[])
     vulkan_indices_buffer_test();
     vulkan_uniform_buffer_test();
     vulkan_texture_test();
-
     return 0;
 }
