@@ -182,6 +182,12 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
     depthStencil.depthTestEnable = VK_TRUE;
     depthStencil.depthWriteEnable = VK_TRUE;
     depthStencil.depthCompareOp = VK_COMPARE_OP_LESS; // near[0.0] to far[1.0]
+    depthStencil.depthBoundsTestEnable = VK_FALSE; // custimized depth bound, instead of 0 -> 1
+    depthStencil.minDepthBounds = 0;
+    depthStencil.maxDepthBounds = 1;
+    depthStencil.stencilTestEnable = VK_FALSE;
+    depthStencil.front = {};
+    depthStencil.back = {};
 
     // pipeline color blending
     VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
@@ -411,7 +417,8 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
     }
 
     // pipeline frame buffer setting
-    vector<VkAttachmentDescription> colorAttachment_vec;
+    vector<VkAttachmentDescription> attachment_vec;
+
     VkAttachmentDescription colorAttachment = {};
     colorAttachment.format = w_ctx->_surface_format.format;
     colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -421,30 +428,46 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
     colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-    colorAttachment_vec.push_back(colorAttachment);
+    attachment_vec.push_back(colorAttachment);
 
-    // pipeline render pass setting
     VkAttachmentReference colorAttachmentRef = {};
     colorAttachmentRef.attachment = 0;
     colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
+    VkAttachmentDescription depthAttachment = {};
+    depthAttachment.format = w_ctx->_depth_format;
+    depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    attachment_vec.push_back(depthAttachment);
+
+    VkAttachmentReference depthAttachmentRef = {};
+    depthAttachmentRef.attachment = 1;
+    depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+    // pipeline render pass setting
     VkSubpassDescription subpass = {};
     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
     subpass.colorAttachmentCount = 1;
     subpass.pColorAttachments = &colorAttachmentRef;
+    subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
     VkSubpassDependency dependency{};
     dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
     dependency.dstSubpass = 0;
-    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
     dependency.srcAccessMask = 0;
-    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
     VkRenderPassCreateInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    renderPassInfo.attachmentCount = colorAttachment_vec.size();
-    renderPassInfo.pAttachments = colorAttachment_vec.data();
+    renderPassInfo.attachmentCount = attachment_vec.size();
+    renderPassInfo.pAttachments = attachment_vec.data();
     renderPassInfo.subpassCount = 1;
     renderPassInfo.pSubpasses = &subpass;
     renderPassInfo.dependencyCount = 1;
@@ -485,11 +508,13 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
     // frame buffer
     for (s64 i = 0; i < image_count; ++i)
     {
+        VkImageView attach_array[2] = { w_ctx->_image_view_vec[i], w_ctx->_depth_image_view_vec[i] };
+
         VkFramebufferCreateInfo framebufferInfo = {};
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         framebufferInfo.renderPass = _render_pass;
-        framebufferInfo.attachmentCount = 1;
-        framebufferInfo.pAttachments = &w_ctx->_image_view_vec[i];
+        framebufferInfo.attachmentCount = 2;
+        framebufferInfo.pAttachments = attach_array;
         framebufferInfo.width = w_ctx->_swap_chain_extent.width;
         framebufferInfo.height = w_ctx->_swap_chain_extent.height;
         framebufferInfo.layers = 1;
@@ -686,15 +711,18 @@ boole vulkan_pipeline::load_resource()
             goto L_error;
         }
 
-        VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+        VkClearValue clearValues[2];
+        clearValues[0].color = { 0.008f, 0.008f, 0.012f, 1.0f };
+        clearValues[1].depthStencil = { 1.0f, 0 };
+
         VkRenderPassBeginInfo renderPassInfo = {};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
         renderPassInfo.renderPass = _render_pass;
         renderPassInfo.framebuffer = _frame_buffer_vec[i];
         renderPassInfo.renderArea.offset = { 0, 0 };
         renderPassInfo.renderArea.extent = w_ctx->_swap_chain_extent;
-        renderPassInfo.clearValueCount = 1;
-        renderPassInfo.pClearValues = &clearColor;
+        renderPassInfo.clearValueCount = 2;
+        renderPassInfo.pClearValues = clearValues;
 
         vector<VkDeviceSize> offsets;
         vkCmdBeginRenderPass(_command_buffer_vec[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);

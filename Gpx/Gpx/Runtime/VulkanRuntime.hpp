@@ -16,6 +16,11 @@ struct vulkan_window_context
     vector<VkImage>            _swap_chain_image_vec;
     vector<VkImageView>        _image_view_vec;
 
+    VkFormat                   _depth_format;
+    vector<VkImage>            _depth_image_vec;
+    vector<VkDeviceMemory>     _depth_image_memory_vec;
+    vector<VkImageView>        _depth_image_view_vec;
+
     vector<VkSemaphore>        _image_available_sema_vec;
     vector<VkSemaphore>        _render_complete_sema_vec;
     vector<VkFence>            _inflight_fence_vec;

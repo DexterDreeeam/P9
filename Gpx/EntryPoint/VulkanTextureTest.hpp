@@ -144,7 +144,7 @@ void vulkan_texture_test()
     u64 start_tick = tick::elapse();
     while (1)
     {
-        if (tick::elapse() - start_tick >= 1500)
+        if (tick::elapse() - start_tick >= 1000)
         {
             break;
         }
@@ -152,7 +152,7 @@ void vulkan_texture_test()
         assert(checker);
 
         s64 diff = tick::elapse() - start_tick;
-        auto model = tsf::rotate_z((f32)diff / 1000 * math::pi());
+        auto model = tsf::rotate_z((f32)diff / 500 * math::pi());
         auto view = tsf::view(gpx::vec3(2, 0, 2), gpx::vec3(0, 0, 0), gpx::vec3(0, 0, 1));
         auto proj = tsf::perspective(math::pi() / 4, (f32)wnd_desc.width / wnd_desc.height, 0.1, 10);
         transform_mat = tsf::act(model, view, proj);

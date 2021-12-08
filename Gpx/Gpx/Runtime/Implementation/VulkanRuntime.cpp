@@ -565,6 +565,12 @@ boole vulkan_runtime::build_device_image_resource(ref<vulkan_window_context> w_c
 {
     AUTO_TRACE;
 
+    escape_function ef_error_clear_resource =
+        [=]() mutable
+        {
+            clear_device_image_resource(w_ctx);
+        };
+
     VkSurfaceKHR surface = w_ctx->_window.ref_of<glfw_window>()->_surface;
 
     VkSurfaceCapabilitiesKHR surfaceCapabilities;
@@ -667,7 +673,6 @@ boole vulkan_runtime::build_device_image_resource(ref<vulkan_window_context> w_c
     }
     if (vkCreateSwapchainKHR(_logical_device, &createInfo, nullptr, &w_ctx->_swap_chain) != VK_SUCCESS)
     {
-        clear_device_image_resource(w_ctx);
         return boole::False;
     }
 
@@ -678,7 +683,6 @@ boole vulkan_runtime::build_device_image_resource(ref<vulkan_window_context> w_c
     if (vkGetSwapchainImagesKHR(
         _logical_device, w_ctx->_swap_chain, (uint32_t*)&image_count, w_ctx->_swap_chain_image_vec.data()) != VK_SUCCESS)
     {
-        clear_device_image_resource(w_ctx);
         return boole::False;
     }
 
@@ -703,9 +707,92 @@ boole vulkan_runtime::build_device_image_resource(ref<vulkan_window_context> w_c
 
         if (vkCreateImageView(_logical_device, &createInfo, nullptr, &w_ctx->_image_view_vec[i]) != VK_SUCCESS)
         {
-            clear_device_image_resource(w_ctx);
             return boole::False;
         }
+    }
+
+    // depth image
+    vector<VkFormat> depth_format_candidate = { VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT, VK_FORMAT_D16_UNORM_S8_UINT };
+    VkFormat depth_format = VK_FORMAT_UNDEFINED;
+    for (auto fmt : depth_format_candidate)
+    {
+        VkFormatProperties props;
+        vkGetPhysicalDeviceFormatProperties(_physical_device, fmt, &props);
+        if (props.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
+        {
+            depth_format = fmt;
+            break;
+        }
+    }
+    if (depth_format == VK_FORMAT_UNDEFINED)
+    {
+        return boole::False;
+    }
+    w_ctx->_depth_format = depth_format;
+
+    VkImageCreateInfo depthInfo = {};
+    depthInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    depthInfo.imageType = VK_IMAGE_TYPE_2D;
+    depthInfo.extent.width = w_ctx->_swap_chain_extent.width;
+    depthInfo.extent.height = w_ctx->_swap_chain_extent.height;
+    depthInfo.extent.depth = 1;
+    depthInfo.mipLevels = 1;
+    depthInfo.arrayLayers = 1;
+    depthInfo.format = depth_format;
+    depthInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+    depthInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    depthInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+    depthInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+    depthInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    for (s64 i = 0; i < image_count; ++i)
+    {
+        VkImage depth_image;
+        if (vkCreateImage(_logical_device, &depthInfo, nullptr, &depth_image) != VK_SUCCESS)
+        {
+            return boole::False;
+        }
+        w_ctx->_depth_image_vec.push_back(depth_image);
+    }
+
+    VkMemoryRequirements depth_memory_requirements;
+    vkGetImageMemoryRequirements(_logical_device, w_ctx->_depth_image_vec[0], &depth_memory_requirements);
+
+    VkMemoryAllocateInfo depthAllocInfo = {};
+    depthAllocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    depthAllocInfo.allocationSize  = depth_memory_requirements.size;
+    depthAllocInfo.memoryTypeIndex = get_vk_memory_type(_physical_device, depth_memory_requirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+    for (s64 i = 0; i < image_count; ++i)
+    {
+        VkDeviceMemory depth_memory;
+        if (vkAllocateMemory(_logical_device, &depthAllocInfo, nullptr, &depth_memory) != VK_SUCCESS)
+        {
+            return boole::False;
+        }
+        w_ctx->_depth_image_memory_vec.push_back(depth_memory);
+        vkBindImageMemory(_logical_device, w_ctx->_depth_image_vec[i], depth_memory, 0);
+
+        VkImageViewCreateInfo depthViewInfo = {};
+        depthViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        depthViewInfo.image = w_ctx->_depth_image_vec[i];
+        depthViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        depthViewInfo.format = depth_format;
+        depthViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+        depthViewInfo.subresourceRange.baseMipLevel = 0;
+        depthViewInfo.subresourceRange.levelCount = 1;
+        depthViewInfo.subresourceRange.baseArrayLayer = 0;
+        depthViewInfo.subresourceRange.layerCount = 1;
+
+        VkImageView depth_view;
+        if (vkCreateImageView(_logical_device, &depthViewInfo, nullptr, &depth_view) != VK_SUCCESS)
+        {
+            return boole::False;
+        }
+        w_ctx->_depth_image_view_vec.push_back(depth_view);
+
+        vulkan_runtime::convert_vk_image_layout(
+            _logical_device, _transfer_command_pool, _transfer_queue, w_ctx->_depth_image_vec[i], 3);
     }
 
     // semaphore & fence
@@ -722,19 +809,16 @@ boole vulkan_runtime::build_device_image_resource(ref<vulkan_window_context> w_c
         VkFence fence;
         if (vkCreateSemaphore(_logical_device, &semaphoreInfo, nullptr, &sema) != VK_SUCCESS)
         {
-            clear_device_image_resource(w_ctx);
             return boole::False;
         }
         w_ctx->_image_available_sema_vec.push_back(sema);
         if (vkCreateSemaphore(_logical_device, &semaphoreInfo, nullptr, &sema) != VK_SUCCESS)
         {
-            clear_device_image_resource(w_ctx);
             return boole::False;
         }
         w_ctx->_render_complete_sema_vec.push_back(sema);
         if (vkCreateFence(_logical_device, &fenceInfo, nullptr, &fence) != VK_SUCCESS)
         {
-            clear_device_image_resource(w_ctx);
             return boole::False;
         }
         w_ctx->_inflight_fence_vec.push_back(fence);
@@ -742,7 +826,7 @@ boole vulkan_runtime::build_device_image_resource(ref<vulkan_window_context> w_c
     w_ctx->_reordered_fence_vec.clear();
     w_ctx->_reordered_fence_vec.resize(w_ctx->_swap_chain_image_vec.size(), nullptr);
     w_ctx->_fence_counter = 0;
-
+    ef_error_clear_resource.disable();
     return boole::True;
 }
 
@@ -815,6 +899,21 @@ boole vulkan_runtime::clear_device_image_resource(ref<vulkan_window_context> w_c
     }
     w_ctx->_reordered_fence_vec.clear();
     w_ctx->_fence_counter = 0;
+    while (w_ctx->_depth_image_view_vec.size())
+    {
+        vkDestroyImageView(_logical_device, w_ctx->_depth_image_view_vec.back(), nullptr);
+        w_ctx->_depth_image_view_vec.pop_back();
+    }
+    while (w_ctx->_depth_image_memory_vec.size())
+    {
+        vkFreeMemory(_logical_device, w_ctx->_depth_image_memory_vec.back(), nullptr);
+        w_ctx->_depth_image_memory_vec.pop_back();
+    }
+    while (w_ctx->_depth_image_vec.size())
+    {
+        vkDestroyImage(_logical_device, w_ctx->_depth_image_vec.back(), nullptr);
+        w_ctx->_depth_image_vec.pop_back();
+    }
     while (w_ctx->_image_view_vec.size())
     {
         vkDestroyImageView(_logical_device, w_ctx->_image_view_vec.back(), nullptr);
@@ -1463,10 +1562,15 @@ s64 vulkan_runtime::get_vk_memory_type(VkPhysicalDevice device, VkMemoryRequirem
 }
 
 // convert step:
-// 1. Get ready for transition
+//
+// 1. Texture get ready for transfer
 //        VK_IMAGE_LAYOUT_UNDEFINED -> VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
-// 2. Get ready for sampling
+//
+// 2. Texture get ready for sampling
 //        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL -> VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+//
+// 3. Depth get ready for Z-Buffer recording
+//        VK_IMAGE_LAYOUT_UNDEFINED -> VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
 boole vulkan_runtime::convert_vk_image_layout(
     VkDevice logical_device, VkCommandPool transfer_command_pool, VkQueue transfer_queue,
     VkImage image, s64 convert_step)
@@ -1481,6 +1585,8 @@ boole vulkan_runtime::convert_vk_image_layout(
     VkAccessFlagBits new_access;
     VkPipelineStageFlagBits new_stage_flag;
 
+    VkImageAspectFlags aspect_mask;
+
     switch (convert_step)
     {
     case 1:
@@ -1490,6 +1596,7 @@ boole vulkan_runtime::convert_vk_image_layout(
         new_layout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
         new_access = VK_ACCESS_TRANSFER_WRITE_BIT;
         new_stage_flag = VK_PIPELINE_STAGE_TRANSFER_BIT;
+        aspect_mask = VK_IMAGE_ASPECT_COLOR_BIT;
         break;
 
     case 2:
@@ -1499,6 +1606,17 @@ boole vulkan_runtime::convert_vk_image_layout(
         new_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         new_access = VK_ACCESS_SHADER_READ_BIT;
         new_stage_flag = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+        aspect_mask = VK_IMAGE_ASPECT_COLOR_BIT;
+        break;
+
+    case 3:
+        old_layout = VK_IMAGE_LAYOUT_UNDEFINED;
+        old_access = VK_ACCESS_NONE_KHR;
+        old_stage_flag = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+        new_layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        new_access = (VkAccessFlagBits)(VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT);
+        new_stage_flag = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+        aspect_mask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
         break;
 
     default:
@@ -1529,7 +1647,7 @@ boole vulkan_runtime::convert_vk_image_layout(
     barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.image = image;
-    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    barrier.subresourceRange.aspectMask = aspect_mask;
     barrier.subresourceRange.baseMipLevel = 0;
     barrier.subresourceRange.levelCount = 1;
     barrier.subresourceRange.baseArrayLayer = 0;
