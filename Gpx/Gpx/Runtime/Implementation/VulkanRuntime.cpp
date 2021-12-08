@@ -1421,8 +1421,9 @@ boole vulkan_runtime::copy_vk_buffer(
     return boole::True;
 }
 
-boole vulkan_runtime::setup_vk_image(
-    VkDevice logical_device, VkPhysicalDevice physical_device, s64 width, s64 height,
+boole vulkan_runtime::setup_vk_texture_image(
+    VkDevice logical_device, VkPhysicalDevice physical_device,
+    s64 width, s64 height, s64 mipmap_level,
     VkImage& image, VkDeviceMemory& imageMemory)
 {
     AUTO_TRACE;
@@ -1450,12 +1451,12 @@ boole vulkan_runtime::setup_vk_image(
     imageInfo.extent.width = width;
     imageInfo.extent.height = height;
     imageInfo.extent.depth = 1;
-    imageInfo.mipLevels = 1;
+    imageInfo.mipLevels = mipmap_level;
     imageInfo.arrayLayers = 1;
     imageInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
     imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
     imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+    imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | (mipmap_level > 1 ? VK_IMAGE_USAGE_TRANSFER_SRC_BIT : 0);
     imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
     imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
@@ -1495,7 +1496,7 @@ boole vulkan_runtime::clear_vk_image(VkDevice logical_device, VkImage image, VkD
     return boole::True;
 }
 
-boole vulkan_runtime::copy_vk_buffer_to_image(
+boole vulkan_runtime::copy_vk_buffer_to_texture_image(
     VkDevice logical_device, VkCommandPool transfer_command_pool, VkQueue transfer_queue,
     VkBuffer host_buf, s64 host_offset, VkImage device_image, s64 width, s64 height)
 {
@@ -1561,19 +1562,9 @@ s64 vulkan_runtime::get_vk_memory_type(VkPhysicalDevice device, VkMemoryRequirem
     return -1;
 }
 
-// convert step:
-//
-// 1. Texture get ready for transfer
-//        VK_IMAGE_LAYOUT_UNDEFINED -> VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
-//
-// 2. Texture get ready for sampling
-//        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL -> VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-//
-// 3. Depth get ready for Z-Buffer recording
-//        VK_IMAGE_LAYOUT_UNDEFINED -> VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
 boole vulkan_runtime::convert_vk_image_layout(
     VkDevice logical_device, VkCommandPool transfer_command_pool, VkQueue transfer_queue,
-    VkImage image, s64 convert_step)
+    VkImage image, s64 convert_step, s64 mipmap_level, s64 mipmap_base_width, s64 mipmap_base_height)
 {
     AUTO_TRACE;
 
@@ -1586,6 +1577,7 @@ boole vulkan_runtime::convert_vk_image_layout(
     VkPipelineStageFlagBits new_stage_flag;
 
     VkImageAspectFlags aspect_mask;
+    s64 mipmap = 1;
 
     switch (convert_step)
     {
@@ -1597,9 +1589,16 @@ boole vulkan_runtime::convert_vk_image_layout(
         new_access = VK_ACCESS_TRANSFER_WRITE_BIT;
         new_stage_flag = VK_PIPELINE_STAGE_TRANSFER_BIT;
         aspect_mask = VK_IMAGE_ASPECT_COLOR_BIT;
+        mipmap = mipmap_level;
         break;
 
     case 2:
+        if (mipmap_level > 1)
+        {
+            return convert_vk_image_mipmap_layout(
+                logical_device, transfer_command_pool, transfer_queue, image,
+                mipmap_level, mipmap_base_width, mipmap_base_height);
+        }
         old_layout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
         old_access = VK_ACCESS_TRANSFER_WRITE_BIT;
         old_stage_flag = VK_PIPELINE_STAGE_TRANSFER_BIT;
@@ -1649,7 +1648,7 @@ boole vulkan_runtime::convert_vk_image_layout(
     barrier.image = image;
     barrier.subresourceRange.aspectMask = aspect_mask;
     barrier.subresourceRange.baseMipLevel = 0;
-    barrier.subresourceRange.levelCount = 1;
+    barrier.subresourceRange.levelCount = mipmap;
     barrier.subresourceRange.baseArrayLayer = 0;
     barrier.subresourceRange.layerCount = 1;
     barrier.srcAccessMask = old_access;
@@ -1668,6 +1667,117 @@ boole vulkan_runtime::convert_vk_image_layout(
     vkCmdPipelineBarrier(
         commandBuffer, old_stage_flag, new_stage_flag, 0, 0, nullptr, 0, nullptr, 1, &barrier);
     vkEndCommandBuffer(commandBuffer);
+    vkQueueSubmit(transfer_queue, 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(transfer_queue);
+    return boole::True;
+}
+
+boole vulkan_runtime::convert_vk_image_mipmap_layout(
+    VkDevice logical_device, VkCommandPool transfer_command_pool, VkQueue transfer_queue,
+    VkImage image, s64 mipmap_level, s64 mipmap_base_width, s64 mipmap_base_height)
+{
+    AUTO_TRACE;
+
+    VkCommandBufferAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandPool = transfer_command_pool;
+    allocInfo.commandBufferCount = 1;
+
+    VkCommandBuffer commandBuffer;
+    if (vkAllocateCommandBuffers(logical_device, &allocInfo, &commandBuffer) != VK_SUCCESS)
+    {
+        return boole::False;
+    }
+    escape_function ef_release_command_buffer =
+        [=]() mutable
+        {
+            vkFreeCommandBuffers(logical_device, transfer_command_pool, 1, &commandBuffer);
+        };
+
+    VkCommandBufferBeginInfo beginInfo = {};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+    VkImageMemoryBarrier barrier = {};
+    barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.image = image;
+    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    barrier.subresourceRange.levelCount = 1;
+    barrier.subresourceRange.baseArrayLayer = 0;
+    barrier.subresourceRange.layerCount = 1;
+
+    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+    for (s64 i = 1; i < mipmap_level; ++i)
+    {
+        barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+        barrier.subresourceRange.baseMipLevel = i - 1;
+        barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+
+        vkCmdPipelineBarrier(
+            commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+
+        s64 next_width = mipmap_base_width;
+        s64 next_height = mipmap_base_height;
+        if (mipmap_base_width >= mipmap_base_factor && mipmap_base_height >= mipmap_base_factor)
+        {
+            next_width = mipmap_base_width / mipmap_base_factor;
+            next_height = mipmap_base_height / mipmap_base_factor;
+        }
+
+        VkImageBlit blit = {};
+        blit.srcOffsets[0] = { 0, 0, 0 };
+        blit.srcOffsets[1] = { (s32)mipmap_base_width, (s32)mipmap_base_height, 1};
+        blit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        blit.srcSubresource.mipLevel = i - 1;
+        blit.srcSubresource.baseArrayLayer = 0;
+        blit.srcSubresource.layerCount = 1;
+        blit.dstOffsets[0] = { 0, 0, 0 };
+        blit.dstOffsets[1] = { (s32)next_width, (s32)next_height, 1 };
+        blit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        blit.dstSubresource.mipLevel = i;
+        blit.dstSubresource.baseArrayLayer = 0;
+        blit.dstSubresource.layerCount = 1;
+
+        vkCmdBlitImage(
+            commandBuffer,
+            image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            1, &blit, VK_FILTER_LINEAR);
+
+        barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+        barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+        barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+        vkCmdPipelineBarrier(
+            commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+
+        mipmap_base_width = next_width;
+        mipmap_base_height = next_height;
+    }
+
+    barrier.subresourceRange.baseMipLevel = mipmap_level - 1;
+    barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+    vkCmdPipelineBarrier(
+        commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+
+    vkEndCommandBuffer(commandBuffer);
+
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+
     vkQueueSubmit(transfer_queue, 1, &submitInfo, VK_NULL_HANDLE);
     vkQueueWaitIdle(transfer_queue);
     return boole::True;

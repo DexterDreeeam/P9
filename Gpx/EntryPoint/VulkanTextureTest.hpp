@@ -87,6 +87,7 @@ void vulkan_texture_test()
     gpx::texture_viewer_desc tv_desc;
     tv_desc._name = "test 3 texture";
     tv_desc._file_path = texture_files[0];
+    tv_desc._mipmap_enable = boole::True;
     checker = rt->register_texture_viewer(tv_desc);
     assert(checker);
 

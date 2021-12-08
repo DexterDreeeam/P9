@@ -37,6 +37,10 @@ class vulkan_runtime : public runtime
     friend class vulkan_dynamic_memory;
 
 public:
+    // actually, only 2 is valid for vulkan
+    static const s64 mipmap_base_factor = 2;
+
+public:
     vulkan_runtime(const runtime_desc& desc);
 
     virtual ~vulkan_runtime() override;
@@ -148,13 +152,14 @@ public:
         VkDevice logical_device, VkCommandPool transfer_command_pool, VkQueue transfer_queue,
         VkBuffer host_buf, s64 host_offset, VkBuffer device_buf, sz_t size);
 
-    static boole setup_vk_image(
-        VkDevice logical_device, VkPhysicalDevice physical_device, s64 width, s64 height,
+    static boole setup_vk_texture_image(
+        VkDevice logical_device, VkPhysicalDevice physical_device,
+        s64 width, s64 height, s64 mipmap_level,
         VkImage& image, VkDeviceMemory& imageMemory);
 
     static boole clear_vk_image(VkDevice logical_device, VkImage image, VkDeviceMemory imageMemory);
 
-    static boole copy_vk_buffer_to_image(
+    static boole copy_vk_buffer_to_texture_image(
         VkDevice logical_device, VkCommandPool transfer_command_pool, VkQueue transfer_queue,
         VkBuffer host_buf, s64 host_offset, VkImage device_image, s64 width, s64 height);
 
@@ -162,13 +167,25 @@ public:
 
 private:
     // convert step:
-    // 1. Get ready for transition
+    //
+    // 1. Texture get ready for transfer
     //        VK_IMAGE_LAYOUT_UNDEFINED -> VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
-    // 2. Get ready for sampling
+    //
+    // 2. Texture get ready for sampling
     //        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL -> VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+    //
+    // 3. Depth get ready for Z-Buffer recording
+    //        VK_IMAGE_LAYOUT_UNDEFINED -> VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+    //
+    // mipmap_level
+    //     Valid only if convert_step is 1 or 2
     static boole convert_vk_image_layout(
         VkDevice logical_device, VkCommandPool transfer_command_pool, VkQueue transfer_queue,
-        VkImage image, s64 convert_step);
+        VkImage image, s64 convert_step, s64 mipmap_level = 1, s64 mipmap_base_width = 0, s64 mipmap_base_height = 0);
+
+    static boole convert_vk_image_mipmap_layout(
+        VkDevice logical_device, VkCommandPool transfer_command_pool, VkQueue transfer_queue,
+        VkImage image, s64 mipmap_level, s64 mipmap_base_width, s64 mipmap_base_height);
 
 private:
     static VKAPI_ATTR VkBool32 VKAPI_CALL debug_cb(

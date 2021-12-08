@@ -9,6 +9,7 @@ struct texture_viewer_desc
 {
     string  _name;
     string  _file_path;
+    boole   _mipmap_enable;
 };
 
 enum class texture_viewer_state : s64
