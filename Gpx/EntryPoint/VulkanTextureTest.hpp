@@ -18,8 +18,8 @@ void vulkan_texture_test()
     // create window
     gpx::window_desc wnd_desc;
     wnd_desc.name = "Hello Pavilion Nine";
-    wnd_desc.width = 480 * 2;
-    wnd_desc.height = 360 * 2;
+    wnd_desc.width = 480;
+    wnd_desc.height = 360;
     auto wnd = rt->build_window(wnd_desc);
     checker = wnd->start();
     assert(checker);
@@ -170,15 +170,18 @@ void vulkan_texture_test()
     assert(checker);
 
     // main loop
-    u64 start_tick = tick::elapse();
+    f64 start_tick = quartz::count_ms();
     boole texture_placed = boole::False;
+
     while (1)
     {
-        if (tick::elapse() - start_tick >= 4000)
+        f64 now = quartz::count_ms();
+        f64 diff = now - start_tick;
+        if (diff >= 4000)
         {
             break;
         }
-        else if (tick::elapse() - start_tick >= 2000 && !texture_placed)
+        else if (diff >= 2000 && !texture_placed)
         {
             vector<string> tv_vec_sign = { "test 3 texture sign" };
             checker = rt->update_pipeline_texture_viewer("Pavilion Nine Test Pipeline", tv_vec_sign);
@@ -189,9 +192,8 @@ void vulkan_texture_test()
         checker = wnd->poll_event();
         assert(checker);
 
-        s64 diff = tick::elapse() - start_tick;
-        auto model = tsf::rotate_z((f32)diff / 2000 * math::pi());
-        auto view = tsf::view(gpx::vec3(2, 0, 2), gpx::vec3(0, 0, 0), gpx::vec3(0, 0, 1));
+        auto model = tsf::rotate_z(diff / 2000 * math::pi());
+        auto view = tsf::view(gpx::vec3(2.5, 0, 2), gpx::vec3(0, 0, -0.5), gpx::vec3(0, 0, 1));
         auto proj = tsf::perspective(math::pi() / 4, (f32)wnd_desc.width / wnd_desc.height, 0.1, 10);
         transform_mat = tsf::act(model, view, proj);
 

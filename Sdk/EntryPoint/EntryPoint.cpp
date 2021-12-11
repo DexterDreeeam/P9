@@ -34,6 +34,8 @@ int main()
     //         print("%s\n", s.data());
     //     });
 
+    quartz::count_ms();
+
     while (!am_i_terminated())
     {
         tick::sleep(1000);

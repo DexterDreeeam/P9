@@ -66,3 +66,51 @@ u64 tick::count()
 {
     return (u64)::GetTickCount64();
 }
+
+f64 quartz::count_ms()
+{
+    LARGE_INTEGER ticks;
+    LARGE_INTEGER freq;
+    if (!QueryPerformanceCounter(&ticks))
+    {
+        return 0;
+    }
+    if (!QueryPerformanceFrequency(&freq))
+    {
+        return 0;
+    }
+    f64 rst = (f64)ticks.QuadPart / ((f64)freq.QuadPart / (f64)1000);
+    return rst;
+}
+
+f64 quartz::count_us()
+{
+    LARGE_INTEGER ticks;
+    LARGE_INTEGER freq;
+    if (!QueryPerformanceCounter(&ticks))
+    {
+        return 0;
+    }
+    if (!QueryPerformanceFrequency(&freq))
+    {
+        return 0;
+    }
+    f64 rst = (f64)ticks.QuadPart / ((f64)freq.QuadPart / (f64)1000 / (f64)1000);
+    return rst;
+}
+
+f64 quartz::count_n_us(u64 unit_us_count)
+{
+    LARGE_INTEGER ticks;
+    LARGE_INTEGER freq;
+    if (!QueryPerformanceCounter(&ticks))
+    {
+        return 0;
+    }
+    if (!QueryPerformanceFrequency(&freq))
+    {
+        return 0;
+    }
+    f64 rst = (f64)ticks.QuadPart / ((f64)freq.QuadPart * (f64)unit_us_count / (f64)1000 / (f64)1000);
+    return (u64)rst;
+}

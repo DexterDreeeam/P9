@@ -71,3 +71,20 @@ private:
         u64 _launch_tick;
     };
 };
+
+class quartz final
+{
+public:
+    quartz() = default;
+
+    quartz(const quartz&) = default;
+
+    ~quartz() = default;
+
+public:
+    static f64 count_ms();
+
+    static f64 count_us();
+
+    static f64 count_n_us(u64 unit_us_count);
+};

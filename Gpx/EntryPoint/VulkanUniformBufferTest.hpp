@@ -18,8 +18,8 @@ void vulkan_uniform_buffer_test()
     // create window
     gpx::window_desc wnd_desc;
     wnd_desc.name = "Hello Pavilion Nine";
-    wnd_desc.width = 240 * 4;
-    wnd_desc.height = 180 * 4;
+    wnd_desc.width = 240;
+    wnd_desc.height = 180;
     auto wnd = rt->build_window(wnd_desc);
     checker = wnd->start();
     assert(checker);
