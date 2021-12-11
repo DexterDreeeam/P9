@@ -70,6 +70,7 @@ void vulkan_pipeline_test()
     pipeline_desc._vertex_type = gpx::vertex_pos_color::type();
     pipeline_desc._shaders.push_back(vert_shader);
     pipeline_desc._shaders.push_back(frag_shader);
+    pipeline_desc._dynamic_memory_count = 0;
     pipeline_desc._texture_viewer_count = 0;
     checker = rt->register_pipeline(pipeline_desc);
     assert(checker);

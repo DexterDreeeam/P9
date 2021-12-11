@@ -18,8 +18,8 @@ void vulkan_uniform_buffer_test()
     // create window
     gpx::window_desc wnd_desc;
     wnd_desc.name = "Hello Pavilion Nine";
-    wnd_desc.width = 240;
-    wnd_desc.height = 180;
+    wnd_desc.width = 240 * 4;
+    wnd_desc.height = 180 * 4;
     auto wnd = rt->build_window(wnd_desc);
     checker = wnd->start();
     assert(checker);
@@ -88,8 +88,7 @@ void vulkan_uniform_buffer_test()
     pipeline_desc._vertex_type = gpx::vertex_pos_color::type();
     pipeline_desc._shaders.push_back(vert_shader);
     pipeline_desc._shaders.push_back(frag_shader);
-    pipeline_desc._dynamic_memories.push_back("Pavilion Nine Test Dynamic Memory 1");
-    pipeline_desc._dynamic_memories.push_back("Pavilion Nine Test Dynamic Memory 2");
+    pipeline_desc._dynamic_memory_count = 2;
     pipeline_desc._texture_viewer_count = 0;
 
     checker = rt->register_pipeline(pipeline_desc);
@@ -97,6 +96,10 @@ void vulkan_uniform_buffer_test()
 
     vert_shader->unload();
     frag_shader->unload();
+
+    vector<string> dm_vec = { "Pavilion Nine Test Dynamic Memory 1", "Pavilion Nine Test Dynamic Memory 2" };
+    checker = rt->setup_pipeline_dynamic_memory("Pavilion Nine Test Pipeline", dm_vec);
+    assert(checker);
 
     // vertices buffer
     string vertices_file_name_3 = "test3-1.p9vb";
@@ -133,7 +136,7 @@ void vulkan_uniform_buffer_test()
     u64 start_tick = tick::elapse();
     while (1)
     {
-        if (tick::elapse() - start_tick >= 1000)
+        if (tick::elapse() - start_tick >= 2000)
         {
             break;
         }
@@ -141,13 +144,14 @@ void vulkan_uniform_buffer_test()
         assert(checker);
 
         s64 diff = tick::elapse() - start_tick;
+
         color_v3.x() = (diff / (f32)1000);
         color_v3.y() = (((diff + 333) % 1000) / (f32)1000);
         color_v3.z() = (((diff + 666) % 1000) / (f32)1000);
         checker = rt->update_dynamic_memory("Pavilion Nine Test Dynamic Memory 1", &color_v3);
         assert(checker);
 
-        auto model = tsf::rotate_z((f32)diff / 1000 * math::pi());
+        auto model = tsf::rotate_z((f32)diff / 2000 * math::pi());
         auto view = tsf::view(gpx::vec3(3, 0, 1), gpx::vec3(0, 0, 0), gpx::vec3(0, 0, 1));
         auto proj = tsf::perspective(math::pi() / 3, (f32)wnd_desc.width / wnd_desc.height, 0.1, 10);
         transform_mat = tsf::act(model, view, proj);

@@ -501,9 +501,21 @@ public:
         return *this;
     }
 
+    Ty& at(s64 pos) noexcept
+    {
+        assert(sz > 0 && pos >= 0 && pos < sz && sz <= cap);
+        return elem[pos];
+    }
+
+    const Ty& at(s64 pos) const noexcept
+    {
+        assert(sz > 0 && pos >= 0 && pos < sz && sz <= cap);
+        return elem[pos];
+    }
+
     constexpr Ty& operator [](s64 pos) noexcept
     {
-        assert(sz > 0 && pos >= 0 && pos < sz&& sz <= cap);
+        assert(sz > 0 && pos >= 0 && pos < sz && sz <= cap);
         return elem[pos];
     }
 

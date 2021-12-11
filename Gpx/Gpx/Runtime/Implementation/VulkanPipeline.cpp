@@ -27,6 +27,9 @@ vulkan_pipeline::vulkan_pipeline(obs<vulkan_runtime> rt, obs<vulkan_window_conte
     _vk_indices_buffers(),
     _vertices_buffer_headers(),
     _frame_package_vec(),
+    _buffer_info_vec(),
+    _image_info_vec(),
+    _write_ds_vec(),
     _dynamic_memory_updating_queue(),
     _texture_viewer_updating_queue()
 {
@@ -222,6 +225,8 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
     */
 
     // descriptor
+    _frame_package_vec.resize(image_count);
+
     s64 dynamic_memory_cnt = desc._dynamic_memory_count;
     s64 texture_viewer_cnt = desc._texture_viewer_count;
     if (dynamic_memory_cnt + texture_viewer_cnt > 0)
@@ -283,12 +288,11 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
 
         for (s64 i = 0; i < image_count; ++i)
         {
-            pipeline_frame_package pkg;
-            if (vkCreateDescriptorPool(logical_device, &descriptor_pool_info, nullptr, &pkg._descriptor_pool) != VK_SUCCESS)
+            if (vkCreateDescriptorPool(
+                    logical_device, &descriptor_pool_info, nullptr, &_frame_package_vec[i]._descriptor_pool) != VK_SUCCESS)
             {
                 return boole::False;
             }
-            _frame_package_vec.push_back(pkg);
 
             mutex m_dm;
             m_dm.init();
@@ -296,7 +300,7 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
 
             mutex m_tv;
             m_tv.init();
-            _texture_viewer_updating_queue.push_back(make_pair(m_tv, map<s64, ref<vulkan_texture_viewer>>()));
+            _texture_viewer_updating_queue.push_back(make_pair(m_tv, vector<ref<vulkan_texture_viewer>>()));
         }
     }
 
@@ -618,7 +622,7 @@ boole vulkan_pipeline::update_texture_viewer(const vector<string>& tv_vec)
                 ++img;
             }
             _texture_viewer_updating_queue[img].first.wait_acquire();
-            update_texture_viewer_internal(img, tv_vec);
+            bind_texture_viewer(img, tv_vec);
             _texture_viewer_updating_queue[img].first.release();
             update_indices[img] = 1;
             ++updated_count;
@@ -630,7 +634,7 @@ boole vulkan_pipeline::update_texture_viewer(const vector<string>& tv_vec)
             {
                 if (_texture_viewer_updating_queue[img].first.try_acquire())
                 {
-                    update_texture_viewer_internal(img, tv_vec);
+                    bind_texture_viewer(img, tv_vec);
                     _texture_viewer_updating_queue[img].first.release();
                     update_indices[img] = 1;
                     ++updated_count;
@@ -722,141 +726,76 @@ boole vulkan_pipeline::load_resource()
             }
         };
 
-    vector<VkDescriptorBufferInfo> buffer_info_vec;
-    vector<VkDescriptorImageInfo> image_info_vec;
-    vector<VkWriteDescriptorSet> write_ds_vec;
-    for (s64 img = 0; img < image_count; ++img)
+    s64 dm_count = _desc._dynamic_memory_count;
+    s64 tv_count = _desc._texture_viewer_count;
+    _buffer_info_vec.resize(image_count * dm_count);
+    _image_info_vec.resize(image_count * tv_count);
+
+    if (dm_count + tv_count > 0)
     {
-        VkDescriptorSetAllocateInfo descriptor_set_alloc_info = {};
-        descriptor_set_alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-        descriptor_set_alloc_info.descriptorPool = _frame_package_vec[img]._descriptor_pool;
-        descriptor_set_alloc_info.descriptorSetCount = 1;
-        descriptor_set_alloc_info.pSetLayouts = &_descriptor_set_layout;
-
-        if (vkAllocateDescriptorSets(
-            logical_device, &descriptor_set_alloc_info, &_frame_package_vec[img]._descriptor_set) != VK_SUCCESS)
+        for (s64 img = 0; img < image_count; ++img)
         {
-            return boole::False;
-        }
+            VkDescriptorSetAllocateInfo descriptor_set_alloc_info = {};
+            descriptor_set_alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+            descriptor_set_alloc_info.descriptorPool = _frame_package_vec[img]._descriptor_pool;
+            descriptor_set_alloc_info.descriptorSetCount = 1;
+            descriptor_set_alloc_info.pSetLayouts = &_descriptor_set_layout;
 
-        s64 binding = 0;
-        for (s64 i = 0; i < _desc._dynamic_memory_count; ++i)
-        {
-            VkDescriptorBufferInfo bufferInfo = {};
-            bufferInfo.buffer = _dynamic_memory_buffer_vec[img * _desc._dynamic_memory_count + i];
-            bufferInfo.offset = 0;
-            bufferInfo.range = _dynamic_memory_vec[i]->memory_size();
-            buffer_info_vec.push_back(bufferInfo);
+            if (vkAllocateDescriptorSets(
+                logical_device, &descriptor_set_alloc_info, &_frame_package_vec[img]._descriptor_set) != VK_SUCCESS)
+            {
+                return boole::False;
+            }
 
-            VkWriteDescriptorSet write_ds = {};
-            write_ds.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            write_ds.dstSet = _frame_package_vec[img]._descriptor_set;
-            write_ds.dstBinding = binding++;
-            write_ds.dstArrayElement = 0;
-            write_ds.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            write_ds.descriptorCount = 1;
-            write_ds.pBufferInfo = &buffer_info_vec.back();
-            write_ds_vec.push_back(write_ds);
-        }
+            _write_ds_vec.push_back(vector<VkWriteDescriptorSet>());
+            s64 binding = 0;
+            for (s64 i = 0; i < _desc._dynamic_memory_count; ++i)
+            {
+                auto& bufferInfo = _buffer_info_vec[img * _desc._dynamic_memory_count + i];
+                bufferInfo.buffer = _dynamic_memory_buffer_vec[img * _desc._dynamic_memory_count + i];
+                bufferInfo.offset = 0;
+                bufferInfo.range = _dynamic_memory_vec[i]->memory_size();
 
-        auto& tv_map = _texture_viewer_updating_queue[img].second;
-        for (auto p : tv_map)
-        {
-            VkDescriptorImageInfo imageInfo = {};
-            imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            imageInfo.imageView = p.second->_vk_image_view;
-            imageInfo.sampler = p.second->_vk_sampler;
-            image_info_vec.push_back(imageInfo);
+                VkWriteDescriptorSet write_ds = {};
+                write_ds.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                write_ds.dstSet = _frame_package_vec[img]._descriptor_set;
+                write_ds.dstBinding = binding++;
+                write_ds.dstArrayElement = 0;
+                write_ds.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                write_ds.descriptorCount = 1;
+                write_ds.pBufferInfo = &bufferInfo;
+                _write_ds_vec.back().push_back(write_ds);
+            }
 
-            VkWriteDescriptorSet write_ds = {};
-            write_ds.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            write_ds.dstSet = _frame_package_vec[img]._descriptor_set;
-            write_ds.dstBinding = p.first;
-            write_ds.dstArrayElement = 0;
-            write_ds.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            write_ds.descriptorCount = 1;
-            write_ds.pImageInfo = &image_info_vec.back();
-            write_ds_vec.push_back(write_ds);
+            auto& tv_vec = _texture_viewer_updating_queue[img].second;
+            if (tv_vec.size() != _desc._texture_viewer_count)
+            {
+                return boole::False;
+            }
+            for (s64 i = 0; i < _desc._texture_viewer_count; ++i)
+            {
+                auto tv = tv_vec[i];
+                auto& imageInfo = _image_info_vec[img * _desc._texture_viewer_count + i];
+                imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                imageInfo.imageView = tv->_vk_image_view;
+                imageInfo.sampler = tv->_vk_sampler;
+
+                VkWriteDescriptorSet write_ds = {};
+                write_ds.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                write_ds.dstSet = _frame_package_vec[img]._descriptor_set;
+                write_ds.dstBinding = binding++;
+                write_ds.dstArrayElement = 0;
+                write_ds.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                write_ds.descriptorCount = 1;
+                write_ds.pImageInfo = &imageInfo;
+                _write_ds_vec.back().push_back(write_ds);
+            }
         }
     }
 
-    vkUpdateDescriptorSets(logical_device, write_ds_vec.size(), write_ds_vec.data(), 0, nullptr);
-
     for (s64 img = 0; img < image_count; ++img)
     {
-        VkCommandBufferAllocateInfo allocInfo = {};
-        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.commandPool = rt->_render_command_pool;
-        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandBufferCount = 1;
-
-        if (vkAllocateCommandBuffers(
-            logical_device, &allocInfo, &_frame_package_vec[img]._command_buffer) != VK_SUCCESS)
-        {
-            return boole::False;
-        }
-
-        auto cmd = _frame_package_vec[img]._command_buffer;
-
-        VkCommandBufferBeginInfo beginInfo = {};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = 0;
-        beginInfo.pInheritanceInfo = nullptr;
-        if (vkBeginCommandBuffer(cmd, &beginInfo) != VK_SUCCESS)
-        {
-            return boole::False;
-        }
-
-        // output, depth, msaa
-        VkClearValue clearValues[3];
-        clearValues[0].color = { 0.008f, 0.008f, 0.012f, 1.0f };
-        clearValues[1].depthStencil = { 1.0f, 0 };
-        clearValues[2].color = { 0.008f, 0.008f, 0.012f, 1.0f };
-
-        VkRenderPassBeginInfo renderPassInfo = {};
-        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.renderPass = _render_pass;
-        renderPassInfo.framebuffer = _frame_buffer_vec[img];
-        renderPassInfo.renderArea.offset = { 0, 0 };
-        renderPassInfo.renderArea.extent = w_ctx->_swap_chain_extent;
-        renderPassInfo.clearValueCount = 3; //rt->_msaa == VK_SAMPLE_COUNT_1_BIT ? 2 : 3;
-        renderPassInfo.pClearValues = clearValues;
-
-        vector<VkDeviceSize> offsets;
-        vkCmdBeginRenderPass(cmd, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-        vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline);
-
-        if (_frame_package_vec[img]._descriptor_set)
-        {
-            vkCmdBindDescriptorSets(
-                cmd,
-                VK_PIPELINE_BIND_POINT_GRAPHICS,
-                _layout,
-                0,
-                1,
-                &_frame_package_vec[img]._descriptor_set,
-                0,
-                nullptr);
-        }
-
-        for (s64 j = 0; j < _vertices_buffer_headers.size(); ++j)
-        {
-            s64 offset_idx = offsets.size();
-            offsets.push_back(0);
-            vkCmdBindVertexBuffers(cmd, 0, 1, &_vk_vertices_buffers[j], &offsets[offset_idx]);
-
-            if (_vertices_buffer_headers[j].indices_count > 0)
-            {
-                vkCmdBindIndexBuffer(cmd, _vk_indices_buffers[j], 0, VK_INDEX_TYPE_UINT32);
-                vkCmdDrawIndexed(cmd, _vertices_buffer_headers[j].indices_count, 1, 0, 0, 0);
-            }
-            else
-            {
-                vkCmdDraw(cmd, _vertices_buffer_headers[j].vertices_count, 1, 0, 0);
-            }
-        }
-        vkCmdEndRenderPass(cmd);
-        if (vkEndCommandBuffer(cmd) != VK_SUCCESS)
+        if (!update_command_buffer(img))
         {
             return boole::False;
         }
@@ -934,6 +873,9 @@ boole vulkan_pipeline::unload_resource()
     {
         q.second.clear();
     }
+    _buffer_info_vec.clear();
+    _image_info_vec.clear();
+    _write_ds_vec.clear();
 
     return boole::True;
 }
@@ -958,8 +900,11 @@ boole vulkan_pipeline::render()
     s64 counter = w_ctx->_fence_counter;
     u64 image_index = 0;
 
+    log("%s Wait In-Flight Fence [%ull] start", __FUNCTION__, counter);
     vkWaitForFences(logical_device, 1, &w_ctx->_inflight_fence_vec[counter], VK_TRUE, u64_max);
+    log("%s Wait In-Flight Fence [%ull] end", __FUNCTION__, counter);
 
+    log("%s Wait Acuire Next Image start", __FUNCTION__);
     if (vkAcquireNextImageKHR(
             logical_device,
             w_ctx->_swap_chain,
@@ -970,10 +915,13 @@ boole vulkan_pipeline::render()
     {
         return boole::False;
     }
+    log("%s Wait Acuire Next Image [%ull] end", __FUNCTION__, image_index);
 
-    if (w_ctx->_reordered_fence_vec[image_index])
+    if (w_ctx->_reordered_fence_vec[image_index] && w_ctx->_reordered_fence_vec[image_index] != w_ctx->_inflight_fence_vec[counter])
     {
+        log("%s Wait Re-Order Fence [%ull] start", __FUNCTION__, image_index);
         vkWaitForFences(logical_device, 1, &w_ctx->_reordered_fence_vec[image_index], VK_TRUE, u64_max);
+        log("%s Wait Re-Order Fence [%ull] end", __FUNCTION__, image_index);
     }
     w_ctx->_reordered_fence_vec[image_index] = w_ctx->_inflight_fence_vec[counter];
     vkResetFences(logical_device, 1, &w_ctx->_inflight_fence_vec[counter]);
@@ -1018,6 +966,8 @@ boole vulkan_pipeline::render()
 
 void vulkan_pipeline::alert_dynamic_memory_change(obs<vulkan_dynamic_memory> ob_dm)
 {
+    AUTO_TRACE;
+
     for (auto& p : _dynamic_memory_updating_queue)
     {
         auto r_dm = ob_dm.try_ref();
@@ -1032,11 +982,14 @@ void vulkan_pipeline::alert_dynamic_memory_change(obs<vulkan_dynamic_memory> ob_
 
 void vulkan_pipeline::update_dynamic_memory(s64 image_idx)
 {
+    AUTO_TRACE;
+
     if (image_idx >= _dynamic_memory_updating_queue.size())
     {
         return;
     }
 
+    log("%s update dynamic memory for frame [%ull]", __FUNCTION__, image_idx);
     auto& p = _dynamic_memory_updating_queue[image_idx];
     p.first.wait_acquire();
     escape_function ef_lock_release =
@@ -1056,7 +1009,7 @@ void vulkan_pipeline::update_dynamic_memory(s64 image_idx)
     p.second.clear();
 }
 
-void vulkan_pipeline::update_texture_viewer_internal(s64 image_idx, const vector<string>& tv_vec)
+void vulkan_pipeline::bind_texture_viewer(s64 image_idx, const vector<string>& tv_vec)
 {
     AUTO_TRACE;
 
@@ -1068,6 +1021,8 @@ void vulkan_pipeline::update_texture_viewer_internal(s64 image_idx, const vector
     }
 
     s64 dm_count = _desc._dynamic_memory_count;
+    auto& update_queue = _texture_viewer_updating_queue[image_idx].second;
+    update_queue.clear();
 
     for (s64 i = 0; i < tv_vec.size(); ++i)
     {
@@ -1077,7 +1032,7 @@ void vulkan_pipeline::update_texture_viewer_internal(s64 image_idx, const vector
             assert(0);
             return;
         }
-        _texture_viewer_updating_queue[image_idx].second[dm_count + i] = tv.ref_of<vulkan_texture_viewer>();
+        update_queue.push_back(tv.ref_of<vulkan_texture_viewer>());
     }
 }
 
@@ -1096,81 +1051,151 @@ void vulkan_pipeline::update_texture_viewer(s64 image_idx)
         return;
     }
 
-    auto logical_device = rt->get_vk_logical_device();
-
-    VkCommandBufferAllocateInfo allocInfo = {};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandPool = rt->_transfer_command_pool;
-    allocInfo.commandBufferCount = 1;
-
-    VkCommandBuffer commandBuffer;
-    if (vkAllocateCommandBuffers(logical_device, &allocInfo, &commandBuffer) != VK_SUCCESS)
+    auto& update_queue = _texture_viewer_updating_queue[image_idx].second;
+    if (update_queue.size() == 0)
     {
-        assert(0);
         return;
     }
-    escape_function ef_release_command_buffer =
-        [=]() mutable
-    {
-        vkFreeCommandBuffers(logical_device, rt->_transfer_command_pool, 1, &commandBuffer);
-    };
 
+    auto logical_device = rt->get_vk_logical_device();
     auto lk = _texture_viewer_updating_queue[image_idx].first;
     lk.wait_acquire();
-
     escape_function ef_release_lock =
         [=]() mutable
+        {
+            lk.release();
+        };
+
+    s64 tv_count = _desc._texture_viewer_count;
+    for (s64 i = 0; i < update_queue.size(); ++i)
     {
-        lk.release();
-    };
+        auto tv = update_queue[i];
+        _image_info_vec[image_idx * tv_count + i].imageView = tv->_vk_image_view;
+        _image_info_vec[image_idx * tv_count + i].sampler = tv->_vk_sampler;
+    }
 
-    auto& tv_map = _texture_viewer_updating_queue[image_idx].second;
-
-    vector<VkDescriptorImageInfo> descriptor_info_vec;
-    vector<VkWriteDescriptorSet> write_ds_vec;
-
-    for (auto& p : tv_map)
+    if (!update_command_buffer(image_idx))
     {
-        VkDescriptorImageInfo imageInfo = {};
-        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        imageInfo.imageView = p.second->_vk_image_view;
-        imageInfo.sampler = p.second->_vk_sampler;
+        assert(0);
+    }
+}
 
-        descriptor_info_vec.push_back(imageInfo);
+boole vulkan_pipeline::update_command_buffer(s64 image_idx)
+{
+    AUTO_TRACE;
 
-        VkWriteDescriptorSet write_ds = {};
-        write_ds.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        write_ds.dstSet = _descriptor_set_vec[image_idx];
-        write_ds.dstBinding = p.first;
-        write_ds.dstArrayElement = 0;
-        write_ds.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        write_ds.descriptorCount = 1;
-        write_ds.pImageInfo = &descriptor_info_vec.back();
+    auto rt = _rt.try_ref();
+    if (rt.empty())
+    {
+        return boole::False;
+    }
+    if (image_idx >= _frame_package_vec.size())
+    {
+        return boole::False;
+    }
+    auto w_ctx = _window_ctx.try_ref();
+    if (w_ctx.empty())
+    {
+        return boole::False;
+    }
 
-        write_ds_vec.push_back(write_ds);
+    auto logical_device = rt->get_vk_logical_device();
+    auto& pkg = _frame_package_vec[image_idx];
+
+    if (pkg._command_buffer == nullptr)
+    {
+        VkCommandBufferAllocateInfo allocInfo = {};
+        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        allocInfo.commandPool = rt->_render_command_pool;
+        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        allocInfo.commandBufferCount = 1;
+
+        if (vkAllocateCommandBuffers(
+                logical_device, &allocInfo, &pkg._command_buffer) != VK_SUCCESS)
+        {
+            return boole::False;
+        }
+    }
+    else
+    {
+        if (vkResetCommandBuffer(pkg._command_buffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT) != VK_SUCCESS)
+        {
+            return boole::False;
+        }
+    }
+
+    s64 dm_count = _desc._dynamic_memory_count;
+    s64 tv_count = _desc._texture_viewer_count;
+    if (dm_count + tv_count > 0)
+    {
+        vkUpdateDescriptorSets(
+            logical_device, _write_ds_vec[image_idx].size(), _write_ds_vec[image_idx].data(), 0, nullptr);
     }
 
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    beginInfo.flags = 0;
+    beginInfo.pInheritanceInfo = nullptr;
+    if (vkBeginCommandBuffer(pkg._command_buffer, &beginInfo) != VK_SUCCESS)
+    {
+        return boole::False;
+    }
 
-    VkSubmitInfo submitInfo = {};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &commandBuffer;
+    // output, depth, msaa
+    VkClearValue clearValues[3];
+    clearValues[0].color = { 0.008f, 0.008f, 0.012f, 1.0f };
+    clearValues[1].depthStencil = { 1.0f, 0 };
+    clearValues[2].color = { 0.008f, 0.008f, 0.012f, 1.0f };
 
-    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+    VkRenderPassBeginInfo renderPassInfo = {};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassInfo.renderPass = _render_pass;
+    renderPassInfo.framebuffer = _frame_buffer_vec[image_idx];
+    renderPassInfo.renderArea.offset = { 0, 0 };
+    renderPassInfo.renderArea.extent = w_ctx->_swap_chain_extent;
+    renderPassInfo.clearValueCount = 3; //rt->_msaa == VK_SAMPLE_COUNT_1_BIT ? 2 : 3;
+    renderPassInfo.pClearValues = clearValues;
 
-    auto vkCmdPushDescriptorSetKHR = (PFN_vkCmdPushDescriptorSetKHR)vkGetDeviceProcAddr(logical_device, "vkCmdPushDescriptorSetKHR");
-    vkCmdPushDescriptorSetKHR(
-        _command_buffer_vec[image_idx], VK_PIPELINE_BIND_POINT_GRAPHICS, _layout, 0, write_ds_vec.size(), write_ds_vec.data());
+    vector<VkDeviceSize> offsets;
+    vkCmdBeginRenderPass(pkg._command_buffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+    vkCmdBindPipeline(pkg._command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline);
 
-    vkEndCommandBuffer(commandBuffer);
-    vkQueueSubmit(rt->_render_queue, 1, &submitInfo, VK_NULL_HANDLE);
-    vkQueueWaitIdle(rt->_render_queue);
+    if (dm_count + tv_count > 0)
+    {
+        vkCmdBindDescriptorSets(
+            pkg._command_buffer,
+            VK_PIPELINE_BIND_POINT_GRAPHICS,
+            _layout,
+            0,
+            1,
+            &pkg._descriptor_set,
+            0,
+            nullptr);
+    }
 
-    tv_map.clear();
+    for (s64 j = 0; j < _vertices_buffer_headers.size(); ++j)
+    {
+        s64 offset_idx = offsets.size();
+        offsets.push_back(0);
+        vkCmdBindVertexBuffers(pkg._command_buffer, 0, 1, &_vk_vertices_buffers[j], &offsets[offset_idx]);
+
+        if (_vertices_buffer_headers[j].indices_count > 0)
+        {
+            vkCmdBindIndexBuffer(pkg._command_buffer, _vk_indices_buffers[j], 0, VK_INDEX_TYPE_UINT32);
+            vkCmdDrawIndexed(pkg._command_buffer, _vertices_buffer_headers[j].indices_count, 1, 0, 0, 0);
+        }
+        else
+        {
+            vkCmdDraw(pkg._command_buffer, _vertices_buffer_headers[j].vertices_count, 1, 0, 0);
+        }
+    }
+    vkCmdEndRenderPass(pkg._command_buffer);
+    if (vkEndCommandBuffer(pkg._command_buffer) != VK_SUCCESS)
+    {
+        return boole::False;
+    }
+
+    return boole::True;
 }
 
 void setup_vertex_input_desc(

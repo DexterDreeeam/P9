@@ -55,9 +55,11 @@ public:
 private:
     void update_dynamic_memory(s64 image_idx);
 
-    void update_texture_viewer_internal(s64 image_idx, const vector<string>& tv_vec);
+    void bind_texture_viewer(s64 image_idx, const vector<string>& tv_vec);
 
     void update_texture_viewer(s64 image_idx);
+
+    boole update_command_buffer(s64 image_idx);
 
 private:
     pipeline_desc                   _desc;
@@ -87,13 +89,18 @@ private:
     vector<
         pipeline_frame_package
     >                               _frame_package_vec;               // init, load, update
+    vector<VkDescriptorBufferInfo>  _buffer_info_vec;                 // init, load
+    vector<VkDescriptorImageInfo>   _image_info_vec;                  // init, load, update
+    vector<
+        vector<VkWriteDescriptorSet>
+    >                               _write_ds_vec;                    // init, load, update
 
     vector<
         pair<mutex, set<ref<vulkan_dynamic_memory>>>
     >                               _dynamic_memory_updating_queue;   // update
 
     vector<
-        pair<mutex, map<s64, ref<vulkan_texture_viewer>>>
+        pair<mutex, vector<ref<vulkan_texture_viewer>>>
     >                               _texture_viewer_updating_queue;   // setup, update
 };
 

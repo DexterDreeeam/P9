@@ -552,7 +552,7 @@ boole vulkan_runtime::build_device_hardware_resource(VkPhysicalDevice physical_d
     VkCommandPool transfer_cp;
     VkCommandPoolCreateInfo poolInfo = {};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    poolInfo.flags = 0;
+    poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
     poolInfo.queueFamilyIndex = render_queue_family_idx;
     if (vkCreateCommandPool(logical_device, &poolInfo, nullptr, &render_cp) != VK_SUCCESS)
@@ -646,6 +646,7 @@ boole vulkan_runtime::build_device_image_resource(ref<vulkan_window_context> w_c
             is_present_mode_chosen = boole::True;
         }
     }
+
     if (!is_present_mode_chosen)
     {
         w_ctx->_present_mode = VK_PRESENT_MODE_FIFO_KHR;

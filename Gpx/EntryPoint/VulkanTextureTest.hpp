@@ -8,7 +8,7 @@ void vulkan_texture_test()
     // create runtime
     gpx::runtime_desc rt_desc;
     rt_desc.type = gpx::Vulkan;
-    rt_desc.frame_count = 5;
+    rt_desc.frame_count = 3;
     rt_desc.msaa_level = 4;
     rt_desc.debug_mode = boole::True;
     auto rt = gpx::runtime::build(rt_desc);
@@ -18,8 +18,8 @@ void vulkan_texture_test()
     // create window
     gpx::window_desc wnd_desc;
     wnd_desc.name = "Hello Pavilion Nine";
-    wnd_desc.width = 480;
-    wnd_desc.height = 360;
+    wnd_desc.width = 480 * 2;
+    wnd_desc.height = 360 * 2;
     auto wnd = rt->build_window(wnd_desc);
     checker = wnd->start();
     assert(checker);
@@ -95,6 +95,27 @@ void vulkan_texture_test()
     checker = rt->load_texture_viewer("test 3 texture");
     assert(checker);
 
+    string texture_file_sign = "Feng_Ling_Yu_Xiu_Sign.p9tt";
+    auto texture_files_sign = search_files(
+        "../",
+        [&](const string& path)
+        {
+            return
+                path.size() >= texture_file_sign.size() &&
+                path.substr(path.size() - texture_file_sign.size()) == texture_file_sign;
+        });
+    assert(texture_files_sign.size());
+
+    gpx::texture_viewer_desc tv_desc_sign;
+    tv_desc_sign._name = "test 3 texture sign";
+    tv_desc_sign._file_path = texture_files_sign[0];
+    tv_desc_sign._mipmap_enable = boole::True;
+    checker = rt->register_texture_viewer(tv_desc_sign);
+    assert(checker);
+
+    checker = rt->load_texture_viewer("test 3 texture sign");
+    assert(checker);
+
     // register pipeline
     gpx::pipeline_desc pipeline_desc;
     pipeline_desc._window_name = "Hello Pavilion Nine";
@@ -102,8 +123,8 @@ void vulkan_texture_test()
     pipeline_desc._vertex_type = gpx::vertex_pos_texture::type();
     pipeline_desc._shaders.push_back(vert_shader);
     pipeline_desc._shaders.push_back(frag_shader);
-    pipeline_desc._dynamic_memories.push_back("Pavilion Nine Test Dynamic Memory");
-    pipeline_desc._texture_viewer_count = 1;// _texture_viewers.push_back("test 3 texture");
+    pipeline_desc._dynamic_memory_count = 1;
+    pipeline_desc._texture_viewer_count = 1;
 
     checker = rt->register_pipeline(pipeline_desc);
     assert(checker);
@@ -132,14 +153,17 @@ void vulkan_texture_test()
     checker = rt->load_vertices_viewer("test 3 vertices");
     assert(checker);
 
-    vector<string> vv_names;
-    vv_names.push_back("test 3 vertices");
-
     // load pipeline resource
-    checker = rt->setup_pipeline_vertices_viewer("Pavilion Nine Test Pipeline", vv_names);
+    vector<string> dm_vec = { "Pavilion Nine Test Dynamic Memory" };
+    checker = rt->setup_pipeline_dynamic_memory("Pavilion Nine Test Pipeline", dm_vec);
     assert(checker);
 
-    checker = rt->update_pipeline_texture_viewer("Pavilion Nine Test Pipeline", 1, "test 3 texture");
+    vector<string> tv_vec = { "test 3 texture" };
+    checker = rt->update_pipeline_texture_viewer("Pavilion Nine Test Pipeline", tv_vec);
+    assert(checker);
+
+    vector<string> vv_vec = { "test 3 vertices" };
+    checker = rt->setup_pipeline_vertices_viewer("Pavilion Nine Test Pipeline", vv_vec);
     assert(checker);
 
     checker = rt->load_pipeline_resource("Pavilion Nine Test Pipeline");
@@ -147,25 +171,31 @@ void vulkan_texture_test()
 
     // main loop
     u64 start_tick = tick::elapse();
+    boole texture_placed = boole::False;
     while (1)
     {
-        if (tick::elapse() - start_tick >= 1000)
+        if (tick::elapse() - start_tick >= 4000)
         {
-            //break;
+            break;
         }
+        else if (tick::elapse() - start_tick >= 2000 && !texture_placed)
+        {
+            vector<string> tv_vec_sign = { "test 3 texture sign" };
+            checker = rt->update_pipeline_texture_viewer("Pavilion Nine Test Pipeline", tv_vec_sign);
+            assert(checker);
+            texture_placed = boole::True;
+        }
+
         checker = wnd->poll_event();
         assert(checker);
 
         s64 diff = tick::elapse() - start_tick;
-        auto model = tsf::rotate_z((f32)diff / 500 * math::pi());
+        auto model = tsf::rotate_z((f32)diff / 2000 * math::pi());
         auto view = tsf::view(gpx::vec3(2, 0, 2), gpx::vec3(0, 0, 0), gpx::vec3(0, 0, 1));
         auto proj = tsf::perspective(math::pi() / 4, (f32)wnd_desc.width / wnd_desc.height, 0.1, 10);
         transform_mat = tsf::act(model, view, proj);
 
         checker = rt->update_dynamic_memory("Pavilion Nine Test Dynamic Memory", &transform_mat);
-        assert(checker);
-
-        checker = rt->update_pipeline_texture_viewer("Pavilion Nine Test Pipeline", 1, "test 3 texture");
         assert(checker);
 
         checker = rt->render("Pavilion Nine Test Pipeline");
@@ -182,6 +212,8 @@ void vulkan_texture_test()
     checker = rt->unregister_pipeline("Pavilion Nine Test Pipeline");
     assert(checker);
     checker = rt->unload_texture_viewer("test 3 texture");
+    assert(checker);
+    checker = rt->unload_texture_viewer("test 3 texture sign");
     assert(checker);
     checker = rt->unload_vertices_viewer("test 3 vertices");
     assert(checker);
