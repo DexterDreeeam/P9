@@ -11,24 +11,24 @@ static void setup_vertex_input_desc(
     vector<VkVertexInputAttributeDescription>& attribute_vec);
 
 vulkan_pipeline::vulkan_pipeline(obs<vulkan_runtime> rt, obs<vulkan_window_context> w_ctx) :
-    _name(),
+    _desc(),
     _self(),
     _rt(rt),
     _window_ctx(w_ctx),
-    _descriptor_pool(nullptr),
-    _descriptor_set_vec(),
-    _dynamic_memory_vec(),
-    _dynamic_memory_buffer_vec(),
-    _dynamic_memory_memory_vec(),
-    _dynamic_memory_updating_queue(),
+    _descriptor_set_layout(nullptr),
     _layout(nullptr),
     _render_pass(nullptr),
     _pipeline(nullptr),
     _frame_buffer_vec(),
-    _command_buffer_vec(),
+    _dynamic_memory_vec(),
+    _dynamic_memory_buffer_vec(),
+    _dynamic_memory_memory_vec(),
     _vk_vertices_buffers(),
     _vk_indices_buffers(),
-    _vertices_buffer_headers()
+    _vertices_buffer_headers(),
+    _frame_package_vec(),
+    _dynamic_memory_updating_queue(),
+    _texture_viewer_updating_queue()
 {
 }
 
@@ -222,50 +222,38 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
     */
 
     // descriptor
-
-    VkDescriptorSetLayout ds_layout = nullptr;
-    escape_function ef =
-        [&]() mutable
-        {
-            if (ds_layout)
-            {
-                vkDestroyDescriptorSetLayout(logical_device, ds_layout, nullptr);
-            }
-        };
-
-    s64 dynamic_memory_cnt = desc._dynamic_memories.size();
-    s64 texture_view_cnt = desc._texture_viewers.size();
-    if (dynamic_memory_cnt + texture_view_cnt > 0)
+    s64 dynamic_memory_cnt = desc._dynamic_memory_count;
+    s64 texture_viewer_cnt = desc._texture_viewer_count;
+    if (dynamic_memory_cnt + texture_viewer_cnt > 0)
     {
-        vector<VkDescriptorSetLayoutBinding> binding_vec;
         s64 binding = 0;
+
+        vector<VkDescriptorSetLayoutBinding> layout_binding_vec;
+        VkDescriptorSetLayoutBinding layout_binding = {};
+        layout_binding.descriptorCount = 1;
+        layout_binding.stageFlags = VK_SHADER_STAGE_ALL_GRAPHICS;
+        layout_binding.pImmutableSamplers = nullptr;
+
         for (s64 i = 0; i < dynamic_memory_cnt; ++i)
         {
-            VkDescriptorSetLayoutBinding layout_binding = {};
             layout_binding.binding = binding++;
             layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            layout_binding.descriptorCount = 1;
-            layout_binding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-            layout_binding.pImmutableSamplers = nullptr;
-            binding_vec.push_back(layout_binding);
+            layout_binding_vec.push_back(layout_binding);
         }
-        for (s64 i = 0; i < texture_view_cnt; ++i)
+        for (s64 i = 0; i < texture_viewer_cnt; ++i)
         {
-            VkDescriptorSetLayoutBinding layout_binding = {};
             layout_binding.binding = binding++;
             layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            layout_binding.descriptorCount = 1;
-            layout_binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-            layout_binding.pImmutableSamplers = nullptr;
-            binding_vec.push_back(layout_binding);
+            layout_binding_vec.push_back(layout_binding);
         }
+
         VkDescriptorSetLayoutCreateInfo ds_layout_info = {};
         ds_layout_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-        ds_layout_info.bindingCount = binding_vec.size();
-        ds_layout_info.pBindings = binding_vec.data();
+        ds_layout_info.bindingCount = layout_binding_vec.size();
+        ds_layout_info.pBindings = layout_binding_vec.data();
 
         if (vkCreateDescriptorSetLayout(
-                logical_device, &ds_layout_info, nullptr, &ds_layout) != VK_SUCCESS)
+                logical_device, &ds_layout_info, nullptr, &_descriptor_set_layout) != VK_SUCCESS)
         {
             return boole::False;
         }
@@ -278,11 +266,11 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
             pool_size.descriptorCount = dynamic_memory_cnt;
             pool_size_vec.push_back(pool_size);
         }
-        if (texture_view_cnt > 0)
+        if (texture_viewer_cnt > 0)
         {
             VkDescriptorPoolSize pool_size = {};
             pool_size.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            pool_size.descriptorCount = texture_view_cnt;
+            pool_size.descriptorCount = texture_viewer_cnt;
             pool_size_vec.push_back(pool_size);
         }
 
@@ -291,125 +279,32 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
         descriptor_pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
         descriptor_pool_info.poolSizeCount = pool_size_vec.size();
         descriptor_pool_info.pPoolSizes = pool_size_vec.data();
-        descriptor_pool_info.maxSets = image_count;
-
-        if (vkCreateDescriptorPool(logical_device, &descriptor_pool_info, nullptr, &_descriptor_pool) != VK_SUCCESS)
-        {
-            return boole::False;
-        }
-
-        _descriptor_set_vec.resize(image_count, nullptr);
-        vector<VkDescriptorSetLayout> ds_layout_vec((sz_t)image_count, ds_layout);
-
-        VkDescriptorSetAllocateInfo descriptor_set_alloc_info = {};
-        descriptor_set_alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-        descriptor_set_alloc_info.descriptorPool = _descriptor_pool;
-        descriptor_set_alloc_info.descriptorSetCount = image_count;
-        descriptor_set_alloc_info.pSetLayouts = ds_layout_vec.data();
-
-        if (vkAllocateDescriptorSets(
-            logical_device, &descriptor_set_alloc_info, _descriptor_set_vec.data()) != VK_SUCCESS)
-        {
-            return boole::False;
-        }
+        descriptor_pool_info.maxSets = 2; // allow every frame generate another ds set for bufferring
 
         for (s64 i = 0; i < image_count; ++i)
         {
-            mutex m;
-            m.init();
-            _dynamic_memory_updating_queue.push_back(make_pair(m, set<ref<vulkan_dynamic_memory>>()));
-
-            binding = 0;
-            vector<VkDescriptorBufferInfo> buffer_info_vec;
-            vector<VkDescriptorImageInfo> image_info_vec;
-            vector<VkWriteDescriptorSet> write_ds_vec;
-            for (auto& dm : desc._dynamic_memories)
+            pipeline_frame_package pkg;
+            if (vkCreateDescriptorPool(logical_device, &descriptor_pool_info, nullptr, &pkg._descriptor_pool) != VK_SUCCESS)
             {
-                auto r_dm = rt->get_dynamic_memory(dm);
-                if (r_dm.empty())
-                {
-                    return boole::False;
-                }
-                VkBuffer buffer;
-                VkDeviceMemory memory;
-                if (!vulkan_runtime::setup_vk_buffer(
-                        logical_device,
-                        rt->get_vk_physical_device(),
-                        r_dm->memory_size(),
-                        rt->_render_queue_family_idx == rt->_transfer_queue_family_idx,
-                        VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                        buffer,
-                        memory))
-                {
-                    return boole::False;
-                }
-                _dynamic_memory_buffer_vec.push_back(buffer);
-                _dynamic_memory_memory_vec.push_back(memory);
-                if (i == 0)
-                {
-                    // add dynamic memory once
-                    _dynamic_memory_vec.push_back(r_dm);
-                }
-                if (!r_dm->add_pipeline_memory(_self, memory))
-                {
-                    return boole::False;
-                }
-
-                VkDescriptorBufferInfo bufferInfo = {};
-                bufferInfo.buffer = buffer;
-                bufferInfo.offset = 0;
-                bufferInfo.range = r_dm->memory_size();
-
-                buffer_info_vec.push_back(bufferInfo);
-
-                VkWriteDescriptorSet write_ds = {};
-                write_ds.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-                write_ds.dstSet = _descriptor_set_vec[i];
-                write_ds.dstBinding = binding++;
-                write_ds.dstArrayElement = 0;
-                write_ds.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                write_ds.descriptorCount = 1;
-                write_ds.pBufferInfo = &buffer_info_vec.back();
-
-                write_ds_vec.push_back(write_ds);
+                return boole::False;
             }
+            _frame_package_vec.push_back(pkg);
 
-            for (auto& tv : desc._texture_viewers)
-            {
-                auto r_tv = rt->get_texture_viewer(tv);
-                if (r_tv.empty() || r_tv->state() != texture_viewer_state::Online)
-                {
-                    return boole::False;
-                }
+            mutex m_dm;
+            m_dm.init();
+            _dynamic_memory_updating_queue.push_back(make_pair(m_dm, set<ref<vulkan_dynamic_memory>>()));
 
-                VkDescriptorImageInfo imageInfo = {};
-                imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-                imageInfo.imageView = r_tv->_vk_image_view;
-                imageInfo.sampler = r_tv->_vk_sampler;
-
-                image_info_vec.push_back(imageInfo);
-
-                VkWriteDescriptorSet write_ds = {};
-                write_ds.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-                write_ds.dstSet = _descriptor_set_vec[i];
-                write_ds.dstBinding = binding++;
-                write_ds.dstArrayElement = 0;
-                write_ds.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                write_ds.descriptorCount = 1;
-                write_ds.pImageInfo = &image_info_vec.back();
-
-                write_ds_vec.push_back(write_ds);
-            }
-            vkUpdateDescriptorSets(logical_device, write_ds_vec.size(), write_ds_vec.data(), 0, nullptr);
+            mutex m_tv;
+            m_tv.init();
+            _texture_viewer_updating_queue.push_back(make_pair(m_tv, map<s64, ref<vulkan_texture_viewer>>()));
         }
     }
 
     // pipeline layout
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = ds_layout != nullptr ? 1 : 0;
-    pipelineLayoutInfo.pSetLayouts = &ds_layout;
+    pipelineLayoutInfo.setLayoutCount = _descriptor_set_layout != nullptr ? 1 : 0;
+    pipelineLayoutInfo.pSetLayouts = &_descriptor_set_layout;
     pipelineLayoutInfo.pushConstantRangeCount = 0;
     pipelineLayoutInfo.pPushConstantRanges = nullptr;
     if (vkCreatePipelineLayout(logical_device, &pipelineLayoutInfo, nullptr, &_layout) != VK_SUCCESS)
@@ -523,8 +418,6 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
         return boole::False;
     }
 
-    VkCommandBufferAllocateInfo allocInfo = {};
-
     // frame buffer
     for (s64 i = 0; i < image_count; ++i)
     {
@@ -557,20 +450,7 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
         _frame_buffer_vec.push_back(fb);
     }
 
-    // allocate command buffer
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = rt->_render_command_pool;
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = (uint32_t)image_count;
-    _command_buffer_vec.resize(image_count, nullptr);
-    if (vkAllocateCommandBuffers(
-            logical_device, &allocInfo, _command_buffer_vec.data()) != VK_SUCCESS)
-    {
-        _command_buffer_vec.clear();
-        return boole::False;
-    }
-
-    _name = desc._pipeline_name;
+    _desc = desc;
     ef_uninit.disable();
     transfer_state(pipeline_state::InitingOrUniniting, pipeline_state::Inited);
     return boole::True;
@@ -593,15 +473,6 @@ boole vulkan_pipeline::uninit()
     _vk_indices_buffers.clear();
     _vertices_buffer_headers.clear();
 
-    if (_command_buffer_vec.size())
-    {
-        vkFreeCommandBuffers(
-            logical_device,
-            rt->_render_command_pool,
-            _command_buffer_vec.size(),
-            _command_buffer_vec.data());
-        _command_buffer_vec.clear();
-    }
     while (_frame_buffer_vec.size())
     {
         vkDestroyFramebuffer(logical_device, _frame_buffer_vec.back(), nullptr);
@@ -622,44 +493,152 @@ boole vulkan_pipeline::uninit()
         vkDestroyPipelineLayout(logical_device, _layout, nullptr);
         _layout = nullptr;
     }
+    while (_texture_viewer_updating_queue.size())
+    {
+        _texture_viewer_updating_queue.back().first.uninit();
+        _texture_viewer_updating_queue.pop_back();
+    }
     while (_dynamic_memory_updating_queue.size())
     {
         _dynamic_memory_updating_queue.back().first.uninit();
         _dynamic_memory_updating_queue.pop_back();
     }
-    while (_dynamic_memory_vec.size())
-    {
-        if (!_dynamic_memory_vec.back()->remove_pipeline_memory(_self))
-        {
-            return boole::False;
-        }
-        _dynamic_memory_vec.pop_back();
-    }
-    while (_dynamic_memory_buffer_vec.size())
-    {
-        assert(_dynamic_memory_memory_vec.size());
-        vulkan_runtime::clear_vk_buffer(logical_device, _dynamic_memory_buffer_vec.back(), _dynamic_memory_memory_vec.back());
-        _dynamic_memory_buffer_vec.pop_back();
-        _dynamic_memory_memory_vec.pop_back();
-    }
 
-    while (_descriptor_set_vec.size() && _descriptor_set_vec.back() == nullptr)
+    for (auto& pkg : _frame_package_vec)
     {
-        _descriptor_set_vec.pop_back();
+        vkDestroyDescriptorPool(logical_device, pkg._descriptor_pool, nullptr);
+        pkg._descriptor_pool = nullptr;
     }
-    if (_descriptor_set_vec.size() && _descriptor_pool)
+    if (_descriptor_set_layout)
     {
-        vkFreeDescriptorSets(logical_device, _descriptor_pool, _descriptor_set_vec.size(), _descriptor_set_vec.data());
-        _descriptor_set_vec.clear();
-    }
-    if (_descriptor_pool)
-    {
-        vkDestroyDescriptorPool(logical_device, _descriptor_pool, nullptr);
-        _descriptor_pool = nullptr;
+        vkDestroyDescriptorSetLayout(logical_device, _descriptor_set_layout, nullptr);
+        _descriptor_set_layout = nullptr;
     }
 
     boole checker = transfer_state(pipeline_state::InitingOrUniniting, pipeline_state::Uninit);
     assert(checker);
+    return boole::True;
+}
+
+boole vulkan_pipeline::setup_dynamic_memory(const vector<string>& dm_vec)
+{
+    AUTO_TRACE;
+
+    auto rt = _rt.try_ref();
+    if (rt.empty())
+    {
+        return boole::False;
+    }
+
+    auto logical_device = rt->get_vk_logical_device();
+
+    escape_function ef_error =
+        [&]() mutable
+        {
+            for (auto r_dm : _dynamic_memory_vec)
+            {
+                r_dm->remove_pipeline_memory(_self);
+            }
+            while (_dynamic_memory_buffer_vec.size())
+            {
+                vulkan_runtime::clear_vk_buffer(
+                    logical_device, _dynamic_memory_buffer_vec.back(), _dynamic_memory_memory_vec.back());
+
+                _dynamic_memory_buffer_vec.pop_back();
+                _dynamic_memory_memory_vec.pop_back();
+            }
+            _dynamic_memory_vec.clear();
+        };
+
+    for (auto& dm : dm_vec)
+    {
+        auto r_dm = rt->get_dynamic_memory(dm);
+        if (r_dm.empty())
+        {
+            _dynamic_memory_vec.clear();
+            return boole::False;
+        }
+        _dynamic_memory_vec.push_back(r_dm);
+    }
+
+    s64 image_count = rt->_desc.frame_count;
+    for (s64 i = 0; i < image_count; ++i)
+    {
+        for (auto r_dm : _dynamic_memory_vec)
+        {
+            VkBuffer buffer;
+            VkDeviceMemory memory;
+            if (!vulkan_runtime::setup_vk_buffer(
+                rt->get_vk_logical_device(),
+                rt->get_vk_physical_device(),
+                r_dm->memory_size(),
+                rt->_render_queue_family_idx == rt->_transfer_queue_family_idx,
+                VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                buffer,
+                memory))
+            {
+                return boole::False;
+            }
+            _dynamic_memory_buffer_vec.push_back(buffer);
+            _dynamic_memory_memory_vec.push_back(memory);
+
+            if (!r_dm->add_pipeline_memory(_self, memory))
+            {
+                return boole::False;
+            }
+        }
+    }
+
+    ef_error.disable();
+    return boole::True;
+}
+
+boole vulkan_pipeline::update_texture_viewer(const vector<string>& tv_vec)
+{
+    AUTO_TRACE;
+
+    auto rt = _rt.try_ref();
+    if (rt.empty())
+    {
+        return boole::False;
+    }
+
+    sz_t image_count = rt->_desc.frame_count;
+    s64 updated_count = 0;
+    vector<s64> update_indices(image_count, 0);
+
+    while (updated_count != image_count)
+    {
+        if (updated_count == image_count - 1)
+        {
+            s64 img = 0;
+            while (update_indices[img] == 1)
+            {
+                ++img;
+            }
+            _texture_viewer_updating_queue[img].first.wait_acquire();
+            update_texture_viewer_internal(img, tv_vec);
+            _texture_viewer_updating_queue[img].first.release();
+            update_indices[img] = 1;
+            ++updated_count;
+        }
+        else
+        {
+            s64 img = 0;
+            while (img < image_count && update_indices[img] == 0)
+            {
+                if (_texture_viewer_updating_queue[img].first.try_acquire())
+                {
+                    update_texture_viewer_internal(img, tv_vec);
+                    _texture_viewer_updating_queue[img].first.release();
+                    update_indices[img] = 1;
+                    ++updated_count;
+                }
+                ++img;
+            }
+        }
+    }
     return boole::True;
 }
 
@@ -707,10 +686,189 @@ boole vulkan_pipeline::load_resource()
 {
     AUTO_TRACE;
 
-    if (!_pipeline || !_render_pass || !_layout || _frame_buffer_vec.size() == 0 || _command_buffer_vec.size() == 0)
+    auto rt = _rt.try_ref();
+    if (rt.empty())
     {
         return boole::False;
     }
+
+    auto w_ctx = _window_ctx.try_ref();
+    if (w_ctx.empty())
+    {
+        return boole::False;
+    }
+
+    s64 image_count = rt->_desc.frame_count;
+    auto logical_device = rt->get_vk_logical_device();
+
+    escape_function ef_error_handle =
+        [&]() mutable
+        {
+            for (s64 img = 0; img < image_count; ++img)
+            {
+                if (_frame_package_vec[img]._descriptor_set)
+                {
+                    vkFreeDescriptorSets(
+                        logical_device, _frame_package_vec[img]._descriptor_pool, 1, &_frame_package_vec[img]._descriptor_set);
+
+                    _frame_package_vec[img]._descriptor_set = nullptr;
+                }
+
+                if (_frame_package_vec[img]._command_buffer)
+                {
+                    vkFreeCommandBuffers(logical_device, rt->_render_command_pool, 1, &_frame_package_vec[img]._command_buffer);
+                    _frame_package_vec[img]._command_buffer = nullptr;
+                }
+            }
+        };
+
+    vector<VkDescriptorBufferInfo> buffer_info_vec;
+    vector<VkDescriptorImageInfo> image_info_vec;
+    vector<VkWriteDescriptorSet> write_ds_vec;
+    for (s64 img = 0; img < image_count; ++img)
+    {
+        VkDescriptorSetAllocateInfo descriptor_set_alloc_info = {};
+        descriptor_set_alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+        descriptor_set_alloc_info.descriptorPool = _frame_package_vec[img]._descriptor_pool;
+        descriptor_set_alloc_info.descriptorSetCount = 1;
+        descriptor_set_alloc_info.pSetLayouts = &_descriptor_set_layout;
+
+        if (vkAllocateDescriptorSets(
+            logical_device, &descriptor_set_alloc_info, &_frame_package_vec[img]._descriptor_set) != VK_SUCCESS)
+        {
+            return boole::False;
+        }
+
+        s64 binding = 0;
+        for (s64 i = 0; i < _desc._dynamic_memory_count; ++i)
+        {
+            VkDescriptorBufferInfo bufferInfo = {};
+            bufferInfo.buffer = _dynamic_memory_buffer_vec[img * _desc._dynamic_memory_count + i];
+            bufferInfo.offset = 0;
+            bufferInfo.range = _dynamic_memory_vec[i]->memory_size();
+            buffer_info_vec.push_back(bufferInfo);
+
+            VkWriteDescriptorSet write_ds = {};
+            write_ds.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            write_ds.dstSet = _frame_package_vec[img]._descriptor_set;
+            write_ds.dstBinding = binding++;
+            write_ds.dstArrayElement = 0;
+            write_ds.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            write_ds.descriptorCount = 1;
+            write_ds.pBufferInfo = &buffer_info_vec.back();
+            write_ds_vec.push_back(write_ds);
+        }
+
+        auto& tv_map = _texture_viewer_updating_queue[img].second;
+        for (auto p : tv_map)
+        {
+            VkDescriptorImageInfo imageInfo = {};
+            imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            imageInfo.imageView = p.second->_vk_image_view;
+            imageInfo.sampler = p.second->_vk_sampler;
+            image_info_vec.push_back(imageInfo);
+
+            VkWriteDescriptorSet write_ds = {};
+            write_ds.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            write_ds.dstSet = _frame_package_vec[img]._descriptor_set;
+            write_ds.dstBinding = p.first;
+            write_ds.dstArrayElement = 0;
+            write_ds.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            write_ds.descriptorCount = 1;
+            write_ds.pImageInfo = &image_info_vec.back();
+            write_ds_vec.push_back(write_ds);
+        }
+    }
+
+    vkUpdateDescriptorSets(logical_device, write_ds_vec.size(), write_ds_vec.data(), 0, nullptr);
+
+    for (s64 img = 0; img < image_count; ++img)
+    {
+        VkCommandBufferAllocateInfo allocInfo = {};
+        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        allocInfo.commandPool = rt->_render_command_pool;
+        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        allocInfo.commandBufferCount = 1;
+
+        if (vkAllocateCommandBuffers(
+            logical_device, &allocInfo, &_frame_package_vec[img]._command_buffer) != VK_SUCCESS)
+        {
+            return boole::False;
+        }
+
+        auto cmd = _frame_package_vec[img]._command_buffer;
+
+        VkCommandBufferBeginInfo beginInfo = {};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags = 0;
+        beginInfo.pInheritanceInfo = nullptr;
+        if (vkBeginCommandBuffer(cmd, &beginInfo) != VK_SUCCESS)
+        {
+            return boole::False;
+        }
+
+        // output, depth, msaa
+        VkClearValue clearValues[3];
+        clearValues[0].color = { 0.008f, 0.008f, 0.012f, 1.0f };
+        clearValues[1].depthStencil = { 1.0f, 0 };
+        clearValues[2].color = { 0.008f, 0.008f, 0.012f, 1.0f };
+
+        VkRenderPassBeginInfo renderPassInfo = {};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassInfo.renderPass = _render_pass;
+        renderPassInfo.framebuffer = _frame_buffer_vec[img];
+        renderPassInfo.renderArea.offset = { 0, 0 };
+        renderPassInfo.renderArea.extent = w_ctx->_swap_chain_extent;
+        renderPassInfo.clearValueCount = 3; //rt->_msaa == VK_SAMPLE_COUNT_1_BIT ? 2 : 3;
+        renderPassInfo.pClearValues = clearValues;
+
+        vector<VkDeviceSize> offsets;
+        vkCmdBeginRenderPass(cmd, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline);
+
+        if (_frame_package_vec[img]._descriptor_set)
+        {
+            vkCmdBindDescriptorSets(
+                cmd,
+                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                _layout,
+                0,
+                1,
+                &_frame_package_vec[img]._descriptor_set,
+                0,
+                nullptr);
+        }
+
+        for (s64 j = 0; j < _vertices_buffer_headers.size(); ++j)
+        {
+            s64 offset_idx = offsets.size();
+            offsets.push_back(0);
+            vkCmdBindVertexBuffers(cmd, 0, 1, &_vk_vertices_buffers[j], &offsets[offset_idx]);
+
+            if (_vertices_buffer_headers[j].indices_count > 0)
+            {
+                vkCmdBindIndexBuffer(cmd, _vk_indices_buffers[j], 0, VK_INDEX_TYPE_UINT32);
+                vkCmdDrawIndexed(cmd, _vertices_buffer_headers[j].indices_count, 1, 0, 0, 0);
+            }
+            else
+            {
+                vkCmdDraw(cmd, _vertices_buffer_headers[j].vertices_count, 1, 0, 0);
+            }
+        }
+        vkCmdEndRenderPass(cmd);
+        if (vkEndCommandBuffer(cmd) != VK_SUCCESS)
+        {
+            return boole::False;
+        }
+    }
+
+    ef_error_handle.disable();
+    return boole::True;
+}
+
+boole vulkan_pipeline::unload_resource()
+{
+    AUTO_TRACE;
 
     auto rt = _rt.try_ref();
     if (rt.empty())
@@ -724,87 +882,59 @@ boole vulkan_pipeline::load_resource()
         return boole::False;
     }
 
+    s64 image_count = rt->_desc.frame_count;
     auto logical_device = rt->get_vk_logical_device();
 
-    // record command buffer
-    s64 image_count = rt->_desc.frame_count;
-    for (s64 i = 0; i < image_count; ++i)
+    for (s64 img = 0; img < image_count; ++img)
     {
-        VkCommandBufferBeginInfo beginInfo = {};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = 0;
-        beginInfo.pInheritanceInfo = nullptr;
-
-        if (vkBeginCommandBuffer(_command_buffer_vec[i], &beginInfo) != VK_SUCCESS)
+        if (_frame_package_vec[img]._descriptor_set)
         {
-            goto L_error;
-        }
-
-        // output, depth, msaa
-        VkClearValue clearValues[3];
-        clearValues[0].color = { 0.008f, 0.008f, 0.012f, 1.0f };
-        clearValues[1].depthStencil = { 1.0f, 0 };
-        clearValues[2].color = { 0.008f, 0.008f, 0.012f, 1.0f };
-
-        VkRenderPassBeginInfo renderPassInfo = {};
-        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.renderPass = _render_pass;
-        renderPassInfo.framebuffer = _frame_buffer_vec[i];
-        renderPassInfo.renderArea.offset = { 0, 0 };
-        renderPassInfo.renderArea.extent = w_ctx->_swap_chain_extent;
-        renderPassInfo.clearValueCount = 3; //rt->_msaa == VK_SAMPLE_COUNT_1_BIT ? 2 : 3;
-        renderPassInfo.pClearValues = clearValues;
-
-        vector<VkDeviceSize> offsets;
-        vkCmdBeginRenderPass(_command_buffer_vec[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-        vkCmdBindPipeline(_command_buffer_vec[i], VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline);
-
-        if (_descriptor_set_vec.size())
-        {
-            vkCmdBindDescriptorSets(
-                _command_buffer_vec[i],
-                VK_PIPELINE_BIND_POINT_GRAPHICS,
-                _layout,
-                0,
-                1,
-                &_descriptor_set_vec[i],
-                0,
-                nullptr);
-        }
-
-        for (s64 j = 0; j < _vertices_buffer_headers.size(); ++j)
-        {
-            s64 offset_idx = offsets.size();
-            offsets.push_back(0);
-            vkCmdBindVertexBuffers(_command_buffer_vec[i], 0, 1, &_vk_vertices_buffers[j], &offsets[offset_idx]);
-
-            if (_vertices_buffer_headers[j].indices_count > 0)
+            if (vkFreeDescriptorSets(
+                    logical_device, _frame_package_vec[img]._descriptor_pool, 1, &_frame_package_vec[img]._descriptor_set) != VK_SUCCESS)
             {
-                vkCmdBindIndexBuffer(_command_buffer_vec[i], _vk_indices_buffers[j], 0, VK_INDEX_TYPE_UINT32);
-                vkCmdDrawIndexed(_command_buffer_vec[i], _vertices_buffer_headers[j].indices_count, 1, 0, 0, 0);
+                return boole::False;
             }
-            else
-            {
-                vkCmdDraw(_command_buffer_vec[i], _vertices_buffer_headers[j].vertices_count, 1, 0, 0);
-            }
+
+            _frame_package_vec[img]._descriptor_set = nullptr;
         }
-        vkCmdEndRenderPass(_command_buffer_vec[i]);
-        if (vkEndCommandBuffer(_command_buffer_vec[i]) != VK_SUCCESS)
+
+        if (_frame_package_vec[img]._command_buffer)
         {
-            goto L_error;
+            vkFreeCommandBuffers(logical_device, rt->_render_command_pool, 1, &_frame_package_vec[img]._command_buffer);
+            _frame_package_vec[img]._command_buffer = nullptr;
         }
     }
 
-    return boole::True;
+    while (_dynamic_memory_vec.size())
+    {
+        if (!_dynamic_memory_vec.back()->remove_pipeline_memory(_self))
+        {
+            return boole::False;
+        }
+        _dynamic_memory_vec.pop_back();
+    }
 
-L_error:
-    unload_resource();
-    return boole::False;
-}
+    while (_dynamic_memory_buffer_vec.size())
+    {
+        assert(_dynamic_memory_memory_vec.size());
+        vulkan_runtime::clear_vk_buffer(logical_device, _dynamic_memory_buffer_vec.back(), _dynamic_memory_memory_vec.back());
+        _dynamic_memory_buffer_vec.pop_back();
+        _dynamic_memory_memory_vec.pop_back();
+    }
 
-boole vulkan_pipeline::unload_resource()
-{
-    AUTO_TRACE;
+    _vk_vertices_buffers.clear();
+    _vk_indices_buffers.clear();
+    _vertices_buffer_headers.clear();
+
+    for (auto& q : _dynamic_memory_updating_queue)
+    {
+        q.second.clear();
+    }
+    for (auto& q : _texture_viewer_updating_queue)
+    {
+        q.second.clear();
+    }
+
     return boole::True;
 }
 
@@ -849,6 +979,7 @@ boole vulkan_pipeline::render()
     vkResetFences(logical_device, 1, &w_ctx->_inflight_fence_vec[counter]);
 
     update_dynamic_memory(image_index);
+    update_texture_viewer(image_index);
 
     VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
     VkSubmitInfo submitInfo = {};
@@ -857,7 +988,7 @@ boole vulkan_pipeline::render()
     submitInfo.pWaitSemaphores = &w_ctx->_image_available_sema_vec[counter];
     submitInfo.pWaitDstStageMask = waitStages;
     submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &_command_buffer_vec[image_index];
+    submitInfo.pCommandBuffers = &_frame_package_vec[image_index]._command_buffer;
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = &w_ctx->_render_complete_sema_vec[counter];
 
@@ -923,6 +1054,123 @@ void vulkan_pipeline::update_dynamic_memory(s64 image_idx)
     }
 
     p.second.clear();
+}
+
+void vulkan_pipeline::update_texture_viewer_internal(s64 image_idx, const vector<string>& tv_vec)
+{
+    AUTO_TRACE;
+
+    auto rt = _rt.try_ref();
+    if (rt.empty())
+    {
+        assert(0);
+        return;
+    }
+
+    s64 dm_count = _desc._dynamic_memory_count;
+
+    for (s64 i = 0; i < tv_vec.size(); ++i)
+    {
+        auto tv = rt->get_texture_viewer(tv_vec[i]);
+        if (tv.empty())
+        {
+            assert(0);
+            return;
+        }
+        _texture_viewer_updating_queue[image_idx].second[dm_count + i] = tv.ref_of<vulkan_texture_viewer>();
+    }
+}
+
+void vulkan_pipeline::update_texture_viewer(s64 image_idx)
+{
+    AUTO_TRACE;
+
+    if (image_idx >= _texture_viewer_updating_queue.size())
+    {
+        return;
+    }
+
+    auto rt = _rt.try_ref();
+    if (rt.empty())
+    {
+        return;
+    }
+
+    auto logical_device = rt->get_vk_logical_device();
+
+    VkCommandBufferAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandPool = rt->_transfer_command_pool;
+    allocInfo.commandBufferCount = 1;
+
+    VkCommandBuffer commandBuffer;
+    if (vkAllocateCommandBuffers(logical_device, &allocInfo, &commandBuffer) != VK_SUCCESS)
+    {
+        assert(0);
+        return;
+    }
+    escape_function ef_release_command_buffer =
+        [=]() mutable
+    {
+        vkFreeCommandBuffers(logical_device, rt->_transfer_command_pool, 1, &commandBuffer);
+    };
+
+    auto lk = _texture_viewer_updating_queue[image_idx].first;
+    lk.wait_acquire();
+
+    escape_function ef_release_lock =
+        [=]() mutable
+    {
+        lk.release();
+    };
+
+    auto& tv_map = _texture_viewer_updating_queue[image_idx].second;
+
+    vector<VkDescriptorImageInfo> descriptor_info_vec;
+    vector<VkWriteDescriptorSet> write_ds_vec;
+
+    for (auto& p : tv_map)
+    {
+        VkDescriptorImageInfo imageInfo = {};
+        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        imageInfo.imageView = p.second->_vk_image_view;
+        imageInfo.sampler = p.second->_vk_sampler;
+
+        descriptor_info_vec.push_back(imageInfo);
+
+        VkWriteDescriptorSet write_ds = {};
+        write_ds.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        write_ds.dstSet = _descriptor_set_vec[image_idx];
+        write_ds.dstBinding = p.first;
+        write_ds.dstArrayElement = 0;
+        write_ds.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        write_ds.descriptorCount = 1;
+        write_ds.pImageInfo = &descriptor_info_vec.back();
+
+        write_ds_vec.push_back(write_ds);
+    }
+
+    VkCommandBufferBeginInfo beginInfo = {};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+
+    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+    auto vkCmdPushDescriptorSetKHR = (PFN_vkCmdPushDescriptorSetKHR)vkGetDeviceProcAddr(logical_device, "vkCmdPushDescriptorSetKHR");
+    vkCmdPushDescriptorSetKHR(
+        _command_buffer_vec[image_idx], VK_PIPELINE_BIND_POINT_GRAPHICS, _layout, 0, write_ds_vec.size(), write_ds_vec.data());
+
+    vkEndCommandBuffer(commandBuffer);
+    vkQueueSubmit(rt->_render_queue, 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(rt->_render_queue);
+
+    tv_map.clear();
 }
 
 void setup_vertex_input_desc(

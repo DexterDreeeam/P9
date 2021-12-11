@@ -103,7 +103,7 @@ void vulkan_texture_test()
     pipeline_desc._shaders.push_back(vert_shader);
     pipeline_desc._shaders.push_back(frag_shader);
     pipeline_desc._dynamic_memories.push_back("Pavilion Nine Test Dynamic Memory");
-    pipeline_desc._texture_viewers.push_back("test 3 texture");
+    pipeline_desc._texture_viewer_count = 1;// _texture_viewers.push_back("test 3 texture");
 
     checker = rt->register_pipeline(pipeline_desc);
     assert(checker);
@@ -139,6 +139,9 @@ void vulkan_texture_test()
     checker = rt->setup_pipeline_vertices_viewer("Pavilion Nine Test Pipeline", vv_names);
     assert(checker);
 
+    checker = rt->update_pipeline_texture_viewer("Pavilion Nine Test Pipeline", 1, "test 3 texture");
+    assert(checker);
+
     checker = rt->load_pipeline_resource("Pavilion Nine Test Pipeline");
     assert(checker);
 
@@ -148,7 +151,7 @@ void vulkan_texture_test()
     {
         if (tick::elapse() - start_tick >= 1000)
         {
-            break;
+            //break;
         }
         checker = wnd->poll_event();
         assert(checker);
@@ -160,6 +163,9 @@ void vulkan_texture_test()
         transform_mat = tsf::act(model, view, proj);
 
         checker = rt->update_dynamic_memory("Pavilion Nine Test Dynamic Memory", &transform_mat);
+        assert(checker);
+
+        checker = rt->update_pipeline_texture_viewer("Pavilion Nine Test Pipeline", 1, "test 3 texture");
         assert(checker);
 
         checker = rt->render("Pavilion Nine Test Pipeline");

@@ -1186,67 +1186,15 @@ boole vulkan_runtime::update_dynamic_memory(const string& dynamic_memory, void* 
     return r_dm->update(src);
 }
 
-boole vulkan_runtime::register_vertices_viewer(const vertices_viewer_desc& desc)
+boole vulkan_runtime::setup_pipeline_dynamic_memory(const string& pipeline, const vector<string>& dm_vec)
 {
-    AUTO_TRACE;
-
-    auto r_vv = ref<vulkan_vertices_viewer>::new_instance(desc, _self);
-
-    if (!_vertices_viewer_map_lock.wait_write())
+    auto p = get_pipeline(pipeline);
+    if (p.empty())
     {
         return boole::False;
     }
-    escape_function ef =
-        [=]() mutable
-    {
-        _vertices_viewer_map_lock.write_release();
-    };
 
-    if (_vertices_viewer_map.find(desc._name) != _vertices_viewer_map.end())
-    {
-        // already has a same name pipeline
-        return boole::False;
-    }
-
-    _vertices_viewer_map[desc._name] = r_vv;
-    return boole::True;
-}
-
-boole vulkan_runtime::unregister_vertices_viewer(const string& vertices_viewer)
-{
-    AUTO_TRACE;
-
-    if (!_vertices_viewer_map_lock.wait_write())
-    {
-        return boole::False;
-    }
-    escape_function ef =
-        [=]() mutable
-    {
-        _vertices_viewer_map_lock.write_release();
-    };
-
-    return _vertices_viewer_map.erase(vertices_viewer);
-}
-
-boole vulkan_runtime::load_vertices_viewer(const string& vertices_viewer)
-{
-    auto r_vv = get_vertices_viewer(vertices_viewer);
-    if (r_vv.empty())
-    {
-        return boole::False;
-    }
-    return r_vv->load();
-}
-
-boole vulkan_runtime::unload_vertices_viewer(const string& vertices_viewer)
-{
-    auto r_vv = get_vertices_viewer(vertices_viewer);
-    if (r_vv.empty())
-    {
-        return boole::False;
-    }
-    return r_vv->unload();
+    return p->setup_dynamic_memory(dm_vec);
 }
 
 boole vulkan_runtime::register_texture_viewer(const texture_viewer_desc& desc)
@@ -1294,6 +1242,8 @@ boole vulkan_runtime::unregister_texture_viewer(const string& texture_viewer)
 
 boole vulkan_runtime::load_texture_viewer(const string& texture_viewer)
 {
+    AUTO_TRACE;
+
     auto r_vv = get_texture_viewer(texture_viewer);
     if (r_vv.empty())
     {
@@ -1304,12 +1254,103 @@ boole vulkan_runtime::load_texture_viewer(const string& texture_viewer)
 
 boole vulkan_runtime::unload_texture_viewer(const string& texture_viewer)
 {
+    AUTO_TRACE;
+
     auto r_vv = get_texture_viewer(texture_viewer);
     if (r_vv.empty())
     {
         return boole::False;
     }
     return r_vv->unload();
+}
+
+boole vulkan_runtime::update_pipeline_texture_viewer(const string& pipeline_name, const vector<string>& viewers)
+{
+    auto p = get_pipeline(pipeline_name);
+    if (p.empty())
+    {
+        return boole::False;
+    }
+
+    return p->update_texture_viewer(viewers);
+}
+
+boole vulkan_runtime::register_vertices_viewer(const vertices_viewer_desc& desc)
+{
+    AUTO_TRACE;
+
+    auto r_vv = ref<vulkan_vertices_viewer>::new_instance(desc, _self);
+
+    if (!_vertices_viewer_map_lock.wait_write())
+    {
+        return boole::False;
+    }
+    escape_function ef =
+        [=]() mutable
+    {
+        _vertices_viewer_map_lock.write_release();
+    };
+
+    if (_vertices_viewer_map.find(desc._name) != _vertices_viewer_map.end())
+    {
+        // already has a same name pipeline
+        return boole::False;
+    }
+
+    _vertices_viewer_map[desc._name] = r_vv;
+    return boole::True;
+}
+
+boole vulkan_runtime::unregister_vertices_viewer(const string& vertices_viewer)
+{
+    AUTO_TRACE;
+
+    if (!_vertices_viewer_map_lock.wait_write())
+    {
+        return boole::False;
+    }
+    escape_function ef =
+        [=]() mutable
+    {
+        _vertices_viewer_map_lock.write_release();
+    };
+
+    return _vertices_viewer_map.erase(vertices_viewer);
+}
+
+boole vulkan_runtime::load_vertices_viewer(const string& vertices_viewer)
+{
+    AUTO_TRACE;
+
+    auto r_vv = get_vertices_viewer(vertices_viewer);
+    if (r_vv.empty())
+    {
+        return boole::False;
+    }
+    return r_vv->load();
+}
+
+boole vulkan_runtime::unload_vertices_viewer(const string& vertices_viewer)
+{
+    AUTO_TRACE;
+
+    auto r_vv = get_vertices_viewer(vertices_viewer);
+    if (r_vv.empty())
+    {
+        return boole::False;
+    }
+    return r_vv->unload();
+}
+
+boole vulkan_runtime::setup_pipeline_vertices_viewer(const string& pipeline_name, const vector<string>& viewers)
+{
+    auto p = get_pipeline(pipeline_name);
+    if (p.empty())
+    {
+        return boole::False;
+    }
+
+    return p->setup_vertices(viewers);
 }
 
 boole vulkan_runtime::register_pipeline(const pipeline_desc& desc)
@@ -1363,17 +1404,6 @@ boole vulkan_runtime::unregister_pipeline(const string& pipeline_name)
     };
 
     return _pipeline_map.erase(pipeline_name);
-}
-
-boole vulkan_runtime::setup_pipeline_vertices_viewer(const string& pipeline_name, const vector<string>& viewers)
-{
-    auto p = get_pipeline(pipeline_name);
-    if (p.empty())
-    {
-        return boole::False;
-    }
-
-    return p->setup_vertices(viewers);
 }
 
 boole vulkan_runtime::load_pipeline_resource(const string& pipeline_name)

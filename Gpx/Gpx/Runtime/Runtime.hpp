@@ -61,15 +61,7 @@ public:
 
     virtual boole update_dynamic_memory(const string& dynamic_memory, void* src) = 0;
 
-    // vertices
-
-    virtual boole register_vertices_viewer(const vertices_viewer_desc& desc) = 0;
-
-    virtual boole unregister_vertices_viewer(const string& vertices_viewer) = 0;
-
-    virtual boole load_vertices_viewer(const string& vertices_viewer) = 0;
-
-    virtual boole unload_vertices_viewer(const string& vertices_viewer) = 0;
+    virtual boole setup_pipeline_dynamic_memory(const string& pipeline, const vector<string>& dm_vec) = 0;
 
     // texture
 
@@ -81,13 +73,25 @@ public:
 
     virtual boole unload_texture_viewer(const string& texture_viewer) = 0;
 
+    virtual boole update_pipeline_texture_viewer(const string& pipeline_name, const vector<string>& viewers) = 0;
+
+    // vertices
+
+    virtual boole register_vertices_viewer(const vertices_viewer_desc& desc) = 0;
+
+    virtual boole unregister_vertices_viewer(const string& vertices_viewer) = 0;
+
+    virtual boole load_vertices_viewer(const string& vertices_viewer) = 0;
+
+    virtual boole unload_vertices_viewer(const string& vertices_viewer) = 0;
+
+    virtual boole setup_pipeline_vertices_viewer(const string& pipeline_name, const vector<string>& viewers) = 0;
+
     // pipeline
 
     virtual boole register_pipeline(const pipeline_desc& desc) = 0;
 
     virtual boole unregister_pipeline(const string& pipeline_name) = 0;
-
-    virtual boole setup_pipeline_vertices_viewer(const string& pipeline_name, const vector<string>& viewers) = 0;
 
     virtual boole load_pipeline_resource(const string& pipeline_name) = 0;
 

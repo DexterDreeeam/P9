@@ -90,6 +90,7 @@ void vulkan_uniform_buffer_test()
     pipeline_desc._shaders.push_back(frag_shader);
     pipeline_desc._dynamic_memories.push_back("Pavilion Nine Test Dynamic Memory 1");
     pipeline_desc._dynamic_memories.push_back("Pavilion Nine Test Dynamic Memory 2");
+    pipeline_desc._texture_viewer_count = 0;
 
     checker = rt->register_pipeline(pipeline_desc);
     assert(checker);

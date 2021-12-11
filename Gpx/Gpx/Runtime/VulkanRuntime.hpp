@@ -79,6 +79,8 @@ public:
 
     virtual boole update_dynamic_memory(const string& dynamic_memory, void* src) override;
 
+    virtual boole setup_pipeline_dynamic_memory(const string& pipeline, const vector<string>& dm_vec) override;
+
     // vertices viewer
 
     virtual boole register_vertices_viewer(const vertices_viewer_desc& desc) override;
@@ -88,6 +90,8 @@ public:
     virtual boole load_vertices_viewer(const string& vertices_viewer) override;
 
     virtual boole unload_vertices_viewer(const string& vertices_viewer) override;
+
+    virtual boole setup_pipeline_vertices_viewer(const string& pipeline_name, const vector<string>& viewers) override;
 
     // texture
 
@@ -99,13 +103,13 @@ public:
 
     virtual boole unload_texture_viewer(const string& texture_viewer) override;
 
+    virtual boole update_pipeline_texture_viewer(const string& pipeline_name, const vector<string>& viewers) override;
+
     // pipeline
 
     virtual boole register_pipeline(const pipeline_desc& desc) override;
 
     virtual boole unregister_pipeline(const string& pipeline_name) override;
-
-    virtual boole setup_pipeline_vertices_viewer(const string& pipeline_name, const vector<string>& viewers) override;
 
     virtual boole load_pipeline_resource(const string& pipeline_name) override;
 

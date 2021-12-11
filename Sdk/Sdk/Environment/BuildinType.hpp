@@ -10,10 +10,24 @@ typedef    unsigned  long long     int  u64;
 typedef      signed  long long     int  s64;
 typedef                          float  f32;
 typedef                         double  f64;
-typedef    unsigned  long long     int  sz_t;
-// typedef                            u64  uint;
-// typedef                            s64  sint;
-// typedef                            u64  hndl;
+// typedef    unsigned  long long     int  sz_t;
+
+class sz_t
+{
+public:
+    sz_t(u64 sz) :
+        _sz(sz)
+    {
+    }
+
+    operator u64()
+    {
+        return _sz;
+    }
+
+public:
+    u64 _sz;
+};
 
 const u8  u8_max = (u8)0 - 1;
 const u8  u8_min = (u8)0;

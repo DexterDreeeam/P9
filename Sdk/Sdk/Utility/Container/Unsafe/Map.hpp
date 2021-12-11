@@ -114,6 +114,15 @@ public:
         Base_Ty()
     {}
 
+    map(const Self_Ty& rhs) :
+        Base_Ty()
+    {
+        for (const auto& k : rhs)
+        {
+            this->insert(k);
+        }
+    }
+
     ~map() noexcept
     {}
 

@@ -12,8 +12,8 @@ struct pipeline_desc
     string                  _pipeline_name;
     vertex_type             _vertex_type;
     vector<ref<shader>>     _shaders;
-    vector<string>          _dynamic_memories;
-    vector<string>          _texture_viewers;
+    s64                     _dynamic_memory_count;
+    s64                     _texture_viewer_count;
 };
 
 /*
@@ -48,6 +48,10 @@ public:
     virtual boole init(const pipeline_desc& desc, obs<pipeline> self) = 0;
 
     virtual boole uninit() = 0;
+
+    virtual boole setup_dynamic_memory(const vector<string>& dm_vec) = 0;
+
+    virtual boole update_texture_viewer(const vector<string>& tv_vec) = 0;
 
     virtual boole setup_vertices(const vector<string>& vertices_viewer_vec) = 0;
 

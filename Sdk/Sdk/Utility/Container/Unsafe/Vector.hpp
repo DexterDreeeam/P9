@@ -393,7 +393,8 @@ public:
         }
     }
 
-    vector(sz_t init_sz, const Ty& e) :
+    template<typename OtherTy>
+    vector(sz_t init_sz, const OtherTy& e) :
         elem(memory::alloc<Ty>(sizeof(Ty)* _ceil_align(init_sz))),
         cap(_ceil_align(init_sz)),
         sz(init_sz)
