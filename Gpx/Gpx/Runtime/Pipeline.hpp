@@ -6,10 +6,16 @@
 namespace gpx
 {
 
+enum class pipeline_render_type : s64
+{
+    basic,
+};
+
 struct pipeline_desc
 {
     string                  _window_name;
     string                  _pipeline_name;
+    pipeline_render_type    _render_type;
     vertex_type             _vertex_type;
     vector<ref<shader>>     _shaders;
     s64                     _dynamic_memory_count;

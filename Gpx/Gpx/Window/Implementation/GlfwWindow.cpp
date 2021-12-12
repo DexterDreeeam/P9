@@ -1,7 +1,5 @@
 
-#include "../../Runtime/Interface.hpp"
-#include "../../Runtime/VulkanInterface.hpp"
-#include "../Interface.hpp"
+#include "../../Runtime/Vulkan/VulkanInterface.hpp"
 #include "../GlfwWindow.hpp"
 
 namespace gpx

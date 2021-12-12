@@ -1,6 +1,6 @@
 
 #include "../Interface.hpp"
-#include "../VulkanInterface.hpp"
+#include "../Vulkan/VulkanInterface.hpp"
 
 namespace gpx
 {

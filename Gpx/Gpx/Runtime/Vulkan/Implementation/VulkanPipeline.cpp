@@ -1,14 +1,8 @@
 
-#include "../Interface.hpp"
 #include "../VulkanInterface.hpp"
 
 namespace gpx
 {
-
-static void setup_vertex_input_desc(
-    vertex_type vertexType,
-    vector<VkVertexInputBindingDescription>& binding_vec,
-    vector<VkVertexInputAttributeDescription>& attribute_vec);
 
 vulkan_pipeline::vulkan_pipeline(obs<vulkan_runtime> rt, obs<vulkan_window_context> w_ctx) :
     _desc(),
@@ -17,9 +11,8 @@ vulkan_pipeline::vulkan_pipeline(obs<vulkan_runtime> rt, obs<vulkan_window_conte
     _window_ctx(w_ctx),
     _descriptor_set_layout(nullptr),
     _layout(nullptr),
-    _render_pass(nullptr),
+    _r_render_flow(),
     _pipeline(nullptr),
-    _frame_buffer_vec(),
     _dynamic_memory_vec(),
     _dynamic_memory_buffer_vec(),
     _dynamic_memory_memory_vec(),
@@ -121,15 +114,7 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
     }
 
     // pipeline vertex input
-    VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
-    vector<VkVertexInputBindingDescription> binding_vec;
-    vector<VkVertexInputAttributeDescription> attribute_vec;
-    setup_vertex_input_desc(desc._vertex_type, binding_vec, attribute_vec);
-    vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputInfo.vertexBindingDescriptionCount = binding_vec.size();
-    vertexInputInfo.pVertexBindingDescriptions = binding_vec.data();
-    vertexInputInfo.vertexAttributeDescriptionCount = attribute_vec.size();
-    vertexInputInfo.pVertexAttributeDescriptions = attribute_vec.data();
+    VkPipelineVertexInputStateCreateInfo vertexInputInfo = vulkan_vertex_supporter::get_vk_info(desc._vertex_type);
 
     VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
     inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -316,89 +301,27 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
         return boole::False;
     }
 
-    // pipeline frame buffer setting
-    vector<VkAttachmentDescription> attachment_vec;
+    // render_flow [render pass + frame buffer]
+    vulkan_render_flow_desc rf_desc;
+    rf_desc.type = desc._render_type;
+    rf_desc.logical_device = logical_device;
+    rf_desc.render_area = w_ctx->_swap_chain_extent;
+    rf_desc.surface_format = w_ctx->_surface_format.format;
+    rf_desc.depth_format = w_ctx->_depth_format;
+    rf_desc.msaa_count = rt->_msaa;
+    rf_desc.images_desc.frame_count = image_count;
+    rf_desc.images_desc.output_images = w_ctx->_image_view_vec;
+    rf_desc.images_desc.depth_stencil_images = w_ctx->_depth_image_view_vec;
+    rf_desc.images_desc.msaa_images = w_ctx->_msaa_image_view_vec;
 
-    VkAttachmentDescription outputAttachment = {};
-    outputAttachment.format = w_ctx->_surface_format.format;
-    outputAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-    outputAttachment.loadOp = msaa_enable ? VK_ATTACHMENT_LOAD_OP_DONT_CARE : VK_ATTACHMENT_LOAD_OP_CLEAR;
-    outputAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    outputAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    outputAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    outputAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    outputAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-    attachment_vec.push_back(outputAttachment);
-
-    VkAttachmentDescription depthAttachment = {};
-    depthAttachment.format = w_ctx->_depth_format;
-    depthAttachment.samples = rt->_msaa;
-    depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-    attachment_vec.push_back(depthAttachment);
-
-    VkAttachmentDescription msaaAttachment = {};
-    msaaAttachment.format = w_ctx->_surface_format.format;
-    msaaAttachment.samples = rt->_msaa;;
-    msaaAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    msaaAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    msaaAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    msaaAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    msaaAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    msaaAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-    if (msaa_enable)
-    {
-        attachment_vec.push_back(msaaAttachment);
-    }
-
-    VkAttachmentReference outputAttachmentRef = {};
-    outputAttachmentRef.attachment = 0;
-    outputAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-    VkAttachmentReference depthAttachmentRef = {};
-    depthAttachmentRef.attachment = 1;
-    depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-    VkAttachmentReference msaaAttachmentRef = {};
-    msaaAttachmentRef.attachment = 2;
-    msaaAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-    // pipeline render pass setting
-    VkSubpassDescription subpass = {};
-    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-    subpass.colorAttachmentCount = 1;
-    subpass.pColorAttachments = msaa_enable ? &msaaAttachmentRef : &outputAttachmentRef;
-    subpass.pDepthStencilAttachment = &depthAttachmentRef;
-    subpass.pResolveAttachments = msaa_enable ? &outputAttachmentRef : nullptr;
-
-    VkSubpassDependency dependency = {};
-    dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-    dependency.dstSubpass = 0;
-    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-    dependency.srcAccessMask = 0;
-    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-
-    VkRenderPassCreateInfo renderPassInfo = {};
-    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    renderPassInfo.attachmentCount = attachment_vec.size();
-    renderPassInfo.pAttachments = attachment_vec.data();
-    renderPassInfo.subpassCount = 1;
-    renderPassInfo.pSubpasses = &subpass;
-    renderPassInfo.dependencyCount = 1;
-    renderPassInfo.pDependencies = &dependency;
-
-    if (vkCreateRenderPass(logical_device, &renderPassInfo, nullptr, &_render_pass) != VK_SUCCESS)
+    _r_render_flow = vulkan_render_flow::build(rf_desc);
+    if (_r_render_flow.empty())
     {
         return boole::False;
     }
 
     // pipeline
-    VkGraphicsPipelineCreateInfo pipelineInfo{};
+    VkGraphicsPipelineCreateInfo pipelineInfo = {};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     pipelineInfo.stageCount = stage_create_info_vec.size();
     pipelineInfo.pStages = stage_create_info_vec.data();
@@ -411,7 +334,7 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
     pipelineInfo.pColorBlendState = &colorBlending;
     pipelineInfo.pDynamicState = nullptr;
     pipelineInfo.layout = _layout;
-    pipelineInfo.renderPass = _render_pass;
+    pipelineInfo.renderPass = _r_render_flow->get_vk_render_pass();
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.basePipelineIndex = -1;
@@ -420,38 +343,6 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
             logical_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_pipeline) != VK_SUCCESS)
     {
         return boole::False;
-    }
-
-    // frame buffer
-    for (s64 i = 0; i < image_count; ++i)
-    {
-        // 0 -> swapchain image
-        // 1 -> depth_stencil image
-        // 2 -> msaa image [optional]
-        vector<VkImageView> attach_vec;
-        attach_vec.push_back(w_ctx->_image_view_vec[i]);
-        attach_vec.push_back(w_ctx->_depth_image_view_vec[i]);
-        if (msaa_enable)
-        {
-            attach_vec.push_back(w_ctx->_msaa_image_view_vec[i]);
-        }
-
-        VkFramebufferCreateInfo framebufferInfo = {};
-        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebufferInfo.renderPass = _render_pass;
-        framebufferInfo.attachmentCount = attach_vec.size();
-        framebufferInfo.pAttachments = attach_vec.data();
-        framebufferInfo.width = w_ctx->_swap_chain_extent.width;
-        framebufferInfo.height = w_ctx->_swap_chain_extent.height;
-        framebufferInfo.layers = 1;
-
-        VkFramebuffer fb;
-        if (vkCreateFramebuffer(
-                logical_device, &framebufferInfo, nullptr, &fb) != VK_SUCCESS)
-        {
-            return boole::False;
-        }
-        _frame_buffer_vec.push_back(fb);
     }
 
     _desc = desc;
@@ -477,20 +368,14 @@ boole vulkan_pipeline::uninit()
     _vk_indices_buffers.clear();
     _vertices_buffer_headers.clear();
 
-    while (_frame_buffer_vec.size())
-    {
-        vkDestroyFramebuffer(logical_device, _frame_buffer_vec.back(), nullptr);
-        _frame_buffer_vec.pop_back();
-    }
     if (_pipeline)
     {
         vkDestroyPipeline(logical_device, _pipeline, nullptr);
         _pipeline = nullptr;
     }
-    if (_render_pass)
+    if (_r_render_flow.has_value())
     {
-        vkDestroyRenderPass(logical_device, _render_pass, nullptr);
-        _render_pass = nullptr;
+        _r_render_flow.clear();
     }
     if (_layout)
     {
@@ -1142,22 +1027,9 @@ boole vulkan_pipeline::update_command_buffer(s64 image_idx)
     }
 
     // output, depth, msaa
-    VkClearValue clearValues[3];
-    clearValues[0].color = { 0.008f, 0.008f, 0.012f, 1.0f };
-    clearValues[1].depthStencil = { 1.0f, 0 };
-    clearValues[2].color = { 0.008f, 0.008f, 0.012f, 1.0f };
+    auto rp_begin_info = _r_render_flow->get_vk_begin_info(image_idx);
 
-    VkRenderPassBeginInfo renderPassInfo = {};
-    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass = _render_pass;
-    renderPassInfo.framebuffer = _frame_buffer_vec[image_idx];
-    renderPassInfo.renderArea.offset = { 0, 0 };
-    renderPassInfo.renderArea.extent = w_ctx->_swap_chain_extent;
-    renderPassInfo.clearValueCount = 3; //rt->_msaa == VK_SAMPLE_COUNT_1_BIT ? 2 : 3;
-    renderPassInfo.pClearValues = clearValues;
-
-    vector<VkDeviceSize> offsets;
-    vkCmdBeginRenderPass(pkg._command_buffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+    vkCmdBeginRenderPass(pkg._command_buffer, &rp_begin_info, VK_SUBPASS_CONTENTS_INLINE);
     vkCmdBindPipeline(pkg._command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline);
 
     if (dm_count + tv_count > 0)
@@ -1173,6 +1045,7 @@ boole vulkan_pipeline::update_command_buffer(s64 image_idx)
             nullptr);
     }
 
+    vector<VkDeviceSize> offsets;
     for (s64 j = 0; j < _vertices_buffer_headers.size(); ++j)
     {
         s64 offset_idx = offsets.size();
@@ -1196,64 +1069,6 @@ boole vulkan_pipeline::update_command_buffer(s64 image_idx)
     }
 
     return boole::True;
-}
-
-void setup_vertex_input_desc(
-    vertex_type vertexType,
-    vector<VkVertexInputBindingDescription>& binding_vec,
-    vector<VkVertexInputAttributeDescription>& attribute_vec)
-{
-    VkVertexInputBindingDescription binding_desc = {};
-    VkVertexInputAttributeDescription attribute_desc = {};
-    binding_vec.clear();
-    attribute_vec.clear();
-    switch (vertexType)
-    {
-    case vertex_pos_color::type():
-
-        binding_desc.binding = 0;
-        binding_desc.stride = sizeof(vertex_pos_color);
-        binding_desc.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-        binding_vec.push_back(binding_desc);
-
-        attribute_desc.binding = 0;
-        attribute_desc.location = 0;
-        attribute_desc.format = VK_FORMAT_R32G32B32_SFLOAT;
-        attribute_desc.offset = class_offset(vertex_pos_color, _pos);
-        attribute_vec.push_back(attribute_desc);
-
-        attribute_desc.binding = 0;
-        attribute_desc.location = 1;
-        attribute_desc.format = VK_FORMAT_R32G32B32_SFLOAT;
-        attribute_desc.offset = class_offset(vertex_pos_color, _color);
-        attribute_vec.push_back(attribute_desc);
-
-        break;
-
-    case vertex_pos_texture::type():
-        binding_desc.binding = 0;
-        binding_desc.stride = sizeof(vertex_pos_texture);
-        binding_desc.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-        binding_vec.push_back(binding_desc);
-
-        attribute_desc.binding = 0;
-        attribute_desc.location = 0;
-        attribute_desc.format = VK_FORMAT_R32G32B32_SFLOAT;
-        attribute_desc.offset = class_offset(vertex_pos_texture, _pos);
-        attribute_vec.push_back(attribute_desc);
-
-        attribute_desc.binding = 0;
-        attribute_desc.location = 1;
-        attribute_desc.format = VK_FORMAT_R32G32_SFLOAT;
-        attribute_desc.offset = class_offset(vertex_pos_texture, _texture);
-        attribute_vec.push_back(attribute_desc);
-
-        break;
-
-    default:
-        assert(0);
-        break;
-    }
 }
 
 }

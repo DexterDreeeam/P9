@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Interface.hpp"
-
 namespace gpx
 {
 
@@ -21,9 +19,7 @@ struct pipeline_frame_package
 };
 
 class vulkan_runtime;
-
 class vulkan_dynamic_memory;
-
 struct vulkan_window_context;
 
 class vulkan_pipeline : public pipeline
@@ -72,9 +68,8 @@ private:
 
     VkDescriptorSetLayout           _descriptor_set_layout;           // init
     VkPipelineLayout                _layout;                          // init
-    VkRenderPass                    _render_pass;                     // init
+    ref<vulkan_render_flow>         _r_render_flow;                   // init
     VkPipeline                      _pipeline;                        // init
-    vector<VkFramebuffer>           _frame_buffer_vec;                // init
 
     vector<
         ref<vulkan_dynamic_memory>

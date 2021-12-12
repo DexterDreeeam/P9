@@ -120,6 +120,7 @@ void vulkan_texture_test()
     gpx::pipeline_desc pipeline_desc;
     pipeline_desc._window_name = "Hello Pavilion Nine";
     pipeline_desc._pipeline_name = "Pavilion Nine Test Pipeline";
+    pipeline_desc._render_type = gpx::pipeline_render_type::basic;
     pipeline_desc._vertex_type = gpx::vertex_pos_texture::type();
     pipeline_desc._shaders.push_back(vert_shader);
     pipeline_desc._shaders.push_back(frag_shader);

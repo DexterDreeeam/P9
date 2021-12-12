@@ -1,5 +1,4 @@
 
-#include "../Interface.hpp"
 #include "../VulkanInterface.hpp"
 
 namespace gpx
