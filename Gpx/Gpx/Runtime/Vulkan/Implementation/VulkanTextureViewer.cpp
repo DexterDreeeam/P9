@@ -55,14 +55,14 @@ boole vulkan_texture_viewer::load()
         [&](sz_t sz) mutable -> void*
         {
             if (!vulkan_runtime::setup_vk_buffer(
-                logical_device,
-                rt->get_vk_physical_device(),
-                sz,
-                rt->_render_queue_family_idx == rt->_transfer_queue_family_idx,
-                VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                host_buffer,
-                host_memory))
+                    logical_device,
+                    rt->get_vk_physical_device(),
+                    sz,
+                    rt->_render_queue_family_idx == rt->_transfer_queue_family_idx,
+                    VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                    host_buffer,
+                    host_memory))
             {
                 return nullptr;
             }
@@ -122,10 +122,10 @@ boole vulkan_texture_viewer::load()
         };
 
     if (!vulkan_runtime::setup_vk_texture_image(
-        logical_device,
-        rt->get_vk_physical_device(),
-        tt.width, tt.height, mipmap_level,
-        device_image, device_image_memory))
+            logical_device,
+            rt->get_vk_physical_device(),
+            tt.width, tt.height, mipmap_level,
+            device_image, device_image_memory))
     {
         return boole::False;
     }
