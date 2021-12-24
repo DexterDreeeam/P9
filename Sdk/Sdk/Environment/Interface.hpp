@@ -31,6 +31,10 @@
 #include "Operation/Thread.hpp"
 #include "Operation/Timer.hpp"
 
+#include "Functional/Functional.hpp"
+
+#include "Async/Task.hpp"
+
 #include "Reference/Context.hpp"
 #include "Reference/Ref.hpp"
 #include "Reference/Obs.hpp"

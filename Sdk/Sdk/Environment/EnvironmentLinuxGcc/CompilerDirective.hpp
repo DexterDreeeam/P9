@@ -20,6 +20,9 @@
 #define _NOVTABLE_      // __declspec(novtable)     //# for class that no virtual function table, only used in non-virtual class or pure-virtual class
 #define _SELECTANY_     __attribute__((weak))  //# for variable definition in header file without causing redefine error
 
+#define _Await_         co_await
+#define _Retrun_        co_return
+
 #define POINTER_BYTES (8)
 #define POINTER_BITS  (64)
 

@@ -17,6 +17,11 @@ public:
     s64 i;
 };
 
+void functional_1(u64 p1, u32 p2)
+{
+    print("p1: %llu, p2: %lu\n", p1, p2);
+}
+
 int main()
 {
     log("ok");
@@ -35,6 +40,15 @@ int main()
     //     });
 
     quartz::count_ms();
+
+    functional<u64, u32> fo = functional_1;
+    fo(30, 20);
+    fo(50, 40);
+    fo = [](u64 p1, u32 p2)
+    {
+        print("p2: %lu, p1: %llu\n", p2, p1);
+    };
+    fo(50, 40);
 
     while (!am_i_terminated())
     {
