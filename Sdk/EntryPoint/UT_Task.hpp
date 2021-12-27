@@ -1,16 +1,18 @@
 #pragma once
 
-action<s64> UT_Task_action_1(s64 x)
+action<> UT_Task_action_1(s64 x, s64& output)
 {
     print("Action 1 run in thread: %llu\n", current_thread_id());
-    _Return_ x * x;
+    output = x * x;
+    _Return_;
 }
 
 task<s64> UT_Task_func_task_1(s64 x)
 {
     print("Task 1 run in thread: %llu\n", current_thread_id());
     tick::sleep(20);
-    auto x2 = _Await_ UT_Task_action_1(x);
+    s64 x2;
+    _Await_ UT_Task_action_1(x, x2);
     _Return_ x * x2;
 }
 
