@@ -92,7 +92,6 @@
     <ClInclude Include="Environment\TypeDeduction.hpp" />
     <ClInclude Include="System\AutoMemory\AutoMemory.hpp" />
     <ClInclude Include="Environment\Functional\Functional.hpp" />
-    <ClInclude Include="Environment\Functional\Task.hpp" />
     <ClInclude Include="Task\TaskSet.hpp" />
     <ClInclude Include="Task\Task.hpp" />
     <ClInclude Include="Task\Action.hpp" />

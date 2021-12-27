@@ -1,14 +1,23 @@
 #pragma once
 
+action<s64> UT_Task_action_1(s64 x)
+{
+    print("Action 1 run in thread: %llu\n", current_thread_id());
+    _Return_ x * x;
+}
+
 task<s64> UT_Task_func_task_1(s64 x)
 {
-    tick::sleep(50);
-    _Return_ x * x * x;
+    print("Task 1 run in thread: %llu\n", current_thread_id());
+    tick::sleep(20);
+    auto x2 = _Await_ UT_Task_action_1(x);
+    _Return_ x * x2;
 }
 
 task<> UT_Task_func_task_2(s64 input, s64& output)
 {
-    tick::sleep(50);
+    print("Task 2 run in thread: %llu\n", current_thread_id());
+    tick::sleep(40);
     output = input * input;
     _Return_;
 }
@@ -16,10 +25,8 @@ task<> UT_Task_func_task_2(s64 input, s64& output)
 task_set<> UT_TaskSet_1()
 {
     s64 rst_2;
-
     auto task_1 = UT_Task_func_task_1(2).execute_async();
     auto task_2 = UT_Task_func_task_2(3, rst_2).execute_async();
-
     tick::sleep(30);
 
     auto rst_1 = _Await_ task_1;
@@ -32,20 +39,31 @@ task_set<> UT_TaskSet_1()
 task_set<s64> UT_TaskSet_2()
 {
     s64 rst_2;
-
+    print("Task Set 2 P1 run in thread: %llu\n", current_thread_id());
     auto task_1 = UT_Task_func_task_1(2).execute_async();
     auto task_2 = UT_Task_func_task_2(3, rst_2).execute_async();
-
     tick::sleep(30);
 
     auto rst_1 = _Await_ task_1;
+    print("Task Set 2 P2 run in thread: %llu\n", current_thread_id());
+
     _Await_ task_2;
+    print("Task Set 2 P3 run in thread: %llu\n", current_thread_id());
 
     _Return_ rst_1 + rst_2;
 }
 
 void UT_Task()
 {
+    const char* func_name = __FUNCTION__;
+    print("\n>>>>>>>>> [%s] Start >>>>>>>>>\n\n", func_name);
+    escape_function ef = [=]()
+    {
+        print("\n<<<<<<<<< [%s] End <<<<<<<<<\n\n", func_name);
+    };
+
+    print("UT_Task run in thread: %llu\n", current_thread_id());
+
     auto task_set_1 = UT_TaskSet_1();
     task_set_1.await_complete();
 

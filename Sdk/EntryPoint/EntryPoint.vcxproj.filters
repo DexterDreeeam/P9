@@ -5,5 +5,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="UT_Task.hpp" />
+    <ClInclude Include="UT_Functional.hpp" />
+    <ClInclude Include="UT_Log_Print.hpp" />
+    <ClInclude Include="UT_Traverse_Directory.hpp" />
   </ItemGroup>
 </Project>

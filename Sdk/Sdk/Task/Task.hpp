@@ -86,7 +86,7 @@ public:
     }
 
 public:
-    bool await_ready() // 4
+    bool await_ready()
     {
         auto& l_sync_point = *_sync_point.raw_ptr();
         s64 my_order = ++l_sync_point;
@@ -192,14 +192,14 @@ public:
 public:
     struct PromiseTy
     {
-        TaskTy get_return_object() // 1
+        TaskTy get_return_object()
         {
             auto coro = CoroTy<PromiseTy>::from_promise(*this);
             _r_rst = ref<RetTy>::new_instance();
             return TaskTy(coro, _r_rst);
         }
 
-        auto initial_suspend() // 2
+        auto initial_suspend()
         {
             return std::suspend_always();
         }
@@ -281,7 +281,7 @@ public:
     }
 
 public:
-    bool await_ready() // 4
+    bool await_ready()
     {
         auto& l_sync_point = *_sync_point.raw_ptr();
         s64 my_order = ++l_sync_point;
@@ -298,7 +298,7 @@ public:
         }
     }
 
-    bool await_suspend(CoroCtxTy coro) // 5
+    bool await_suspend(CoroCtxTy coro)
     {
         *_parent_coro_addr.raw_ptr() = coro.address();
 
@@ -308,13 +308,13 @@ public:
         return true;
     }
 
-    auto await_resume() // 6
+    auto await_resume()
     {
         return RetTy(*_r_rst.raw_ptr());
     }
 
 public:
-    TaskTy& execute_async() // 3
+    TaskTy& execute_async()
     {
         thread t;
         t.init(execute_entrypoint);

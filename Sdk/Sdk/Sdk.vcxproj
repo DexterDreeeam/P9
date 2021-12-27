@@ -37,7 +37,6 @@
     <ClInclude Include="Environment\EnvironmentWindowsMsvc\CompilerDirective.hpp" />
     <ClInclude Include="Environment\EnvironmentWindowsMsvc\Definition.hpp" />
     <ClInclude Include="Environment\EnvironmentWindowsMsvc\EnvironmentHeader.hpp" />
-    <ClInclude Include="Environment\Functional\Task.hpp" />
     <ClInclude Include="Environment\Interface.hpp" />
     <ClInclude Include="Interface_Task.hpp" />
     <ClInclude Include="Environment\Operation\Assert.hpp" />
