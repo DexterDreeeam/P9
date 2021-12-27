@@ -28,7 +28,6 @@
     <ClInclude Include="Environment\Functional\Functional.hpp" />
     <ClInclude Include="Environment\BuildinType.hpp" />
     <ClInclude Include="Environment\CompilerDirective.hpp" />
-    <ClInclude Include="Environment\Async\Task.hpp" />
     <ClInclude Include="Environment\DebugCalibration.hpp" />
     <ClInclude Include="Environment\DebugLevel.hpp" />
     <ClInclude Include="Environment\EnvironmentDefinition.hpp" />
@@ -38,7 +37,9 @@
     <ClInclude Include="Environment\EnvironmentWindowsMsvc\CompilerDirective.hpp" />
     <ClInclude Include="Environment\EnvironmentWindowsMsvc\Definition.hpp" />
     <ClInclude Include="Environment\EnvironmentWindowsMsvc\EnvironmentHeader.hpp" />
+    <ClInclude Include="Environment\Functional\Task.hpp" />
     <ClInclude Include="Environment\Interface.hpp" />
+    <ClInclude Include="Interface_Task.hpp" />
     <ClInclude Include="Environment\Operation\Assert.hpp" />
     <ClInclude Include="Environment\Operation\Atom.hpp" />
     <ClInclude Include="Environment\Operation\Basic.hpp" />
@@ -60,6 +61,10 @@
     <ClInclude Include="Environment\Reference\Context.hpp" />
     <ClInclude Include="Environment\Reference\Obs.hpp" />
     <ClInclude Include="Environment\Reference\Ref.hpp" />
+    <ClInclude Include="Task\Action.hpp" />
+    <ClInclude Include="Task\Interface.hpp" />
+    <ClInclude Include="Task\Task.hpp" />
+    <ClInclude Include="Task\TaskSet.hpp" />
     <ClInclude Include="Interface.hpp" />
     <ClInclude Include="System\AutoMemory\AutoMemory.hpp" />
     <ClInclude Include="System\Interface.hpp" />

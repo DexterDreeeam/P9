@@ -1,5 +1,8 @@
 
-#include "../Sdk/Interface.hpp"
+#include "../Interface.hpp"
+#include "../Interface_Task.hpp"
+
+#include "UT_Task.hpp"
 
 class test_class_A
 {
@@ -49,6 +52,8 @@ int main()
         print("p2: %lu, p1: %llu\n", p2, p1);
     };
     fo(50, 40);
+
+    UT_Task();
 
     while (!am_i_terminated())
     {

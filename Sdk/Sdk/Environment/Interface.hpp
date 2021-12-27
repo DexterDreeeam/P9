@@ -31,13 +31,11 @@
 #include "Operation/Thread.hpp"
 #include "Operation/Timer.hpp"
 
-#include "Functional/Functional.hpp"
-
-#include "Async/Task.hpp"
-
 #include "Reference/Context.hpp"
 #include "Reference/Ref.hpp"
 #include "Reference/Obs.hpp"
+
+#include "Functional/Functional.hpp"
 
 // inline implementation
 #include "Operation/Assert_Implementation.inl"

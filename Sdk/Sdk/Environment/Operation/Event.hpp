@@ -11,9 +11,22 @@ public:
         _ctx(rhs._ctx)
     {}
 
+    event(event&& rhs) :
+        _ctx(rhs._ctx)
+    {
+        rhs._ctx = nullptr;
+    }
+
     event& operator =(const event& rhs)
     {
         _ctx = rhs._ctx;
+        return *this;
+    }
+
+    event& operator =(event&& rhs)
+    {
+        _ctx = rhs._ctx;
+        rhs._ctx = nullptr;
         return *this;
     }
 

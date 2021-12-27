@@ -91,8 +91,13 @@
     <ClInclude Include="Interface.hpp" />
     <ClInclude Include="Environment\TypeDeduction.hpp" />
     <ClInclude Include="System\AutoMemory\AutoMemory.hpp" />
-    <ClInclude Include="Environment\Async\Task.hpp" />
     <ClInclude Include="Environment\Functional\Functional.hpp" />
+    <ClInclude Include="Environment\Functional\Task.hpp" />
+    <ClInclude Include="Task\TaskSet.hpp" />
+    <ClInclude Include="Task\Task.hpp" />
+    <ClInclude Include="Task\Action.hpp" />
+    <ClInclude Include="Interface_Task.hpp" />
+    <ClInclude Include="Task\Interface.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Environment\Operation\Assert_Implementation.inl" />

@@ -10,7 +10,11 @@ public:
 
     thread(const thread& rhs);
 
+    thread(thread&& rhs);
+
     thread& operator =(const thread& rhs);
+
+    thread& operator =(thread&& rhs);
 
     ~thread() = default;
 
