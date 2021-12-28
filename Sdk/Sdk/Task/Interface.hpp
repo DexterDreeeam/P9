@@ -57,9 +57,23 @@
  *
  */
 
-#define __PLACEMENT_NEW_INLINE
-#define __PLACEMENT_VEC_NEW_INLINE
-#include <coroutine>
+#if defined(I_AM_LINUX_GCC)
+
+    #include <coroutine>
+
+#elif defined(I_AM_WINDOWS_MSVC)
+
+    #define __PLACEMENT_NEW_INLINE
+    #define __PLACEMENT_VEC_NEW_INLINE
+    #include <coroutine>
+
+#else
+
+    #error "Not supported environment"
+
+#endif
+
+
 
 template<typename PromiseTy>
 using CoroTy = std::coroutine_handle<PromiseTy>;

@@ -35,6 +35,16 @@ public:
         void unhandled_exception() noexcept
         {
         }
+
+        void* operator new(size_t sz)
+        {
+            return memory::alloc(sz);
+        }
+
+        void operator delete(void* p)
+        {
+            return memory::free(p);
+        }
     };
 
 public:
@@ -127,6 +137,16 @@ public:
 
         void unhandled_exception() noexcept
         {
+        }
+
+        void* operator new(size_t sz)
+        {
+            return memory::alloc(sz);
+        }
+
+        void operator delete(void* p)
+        {
+            return memory::free(p);
         }
 
         ref<RetTy> _r_rst;
