@@ -30,6 +30,42 @@ public:
 
         void return_void()
         {
+            int test = 0;
+        }
+
+        _TaskNs::is_suspend<void> await_transform(task<void>& awaiter)
+        {
+            if (!awaiter.await_ready())
+            {
+                auto coro = CoroTy<PromiseTy>::from_promise(*this);
+                awaiter.await_suspend(coro);
+                return _TaskNs::is_suspend<void>(true);
+            }
+            else
+            {
+                return _TaskNs::is_suspend<void>(false);
+            }
+        }
+
+        template<typename SubTaskRetTy>
+        _TaskNs::is_suspend<SubTaskRetTy> await_transform(task<SubTaskRetTy>& awaiter)
+        {
+            if (!awaiter.await_ready())
+            {
+                auto coro = CoroTy<PromiseTy>::from_promise(*this);
+                awaiter.await_suspend(coro);
+                return _TaskNs::is_suspend<SubTaskRetTy>(true, awaiter.result_ref());
+            }
+            else
+            {
+                return _TaskNs::is_suspend<SubTaskRetTy>(false, awaiter.result_ref());
+            }
+        }
+
+        template<typename SubActionRetTy>
+        auto await_transform(const action<SubActionRetTy>& awaiter)
+        {
+            return std::suspend_never();
         }
 
         void unhandled_exception() noexcept
@@ -83,16 +119,17 @@ public:
 public:
     bool await_ready()
     {
-        return false;
+        return true;
     }
 
     bool await_suspend(CoroCtxTy coro)
     {
-        return false;
+        return true;
     }
 
     void await_resume()
     {
+        int test = 0;
     }
 
 private:
@@ -133,6 +170,41 @@ public:
         void return_value(RetTy&& rst)
         {
             *_r_rst.raw_ptr() = (RetTy&&)rst;
+        }
+
+        _TaskNs::is_suspend<void> await_transform(task<void>& awaiter)
+        {
+            if (!awaiter.await_ready())
+            {
+                auto coro = CoroTy<PromiseTy>::from_promise(*this);
+                awaiter.await_suspend(coro);
+                return _TaskNs::is_suspend<void>(true);
+            }
+            else
+            {
+                return _TaskNs::is_suspend<void>(false);
+            }
+        }
+
+        template<typename SubTaskRetTy>
+        _TaskNs::is_suspend<SubTaskRetTy> await_transform(task<SubTaskRetTy>& awaiter)
+        {
+            if (!awaiter.await_ready())
+            {
+                auto coro = CoroTy<PromiseTy>::from_promise(*this);
+                awaiter.await_suspend(coro);
+                return _TaskNs::is_suspend<SubTaskRetTy>(true, awaiter.result_ref());
+            }
+            else
+            {
+                return _TaskNs::is_suspend<SubTaskRetTy>(false, awaiter.result_ref());
+            }
+        }
+
+        template<typename SubActionRetTy>
+        auto await_transform(const action<SubActionRetTy>& awaiter)
+        {
+            return std::suspend_never();
         }
 
         void unhandled_exception() noexcept
@@ -192,12 +264,12 @@ public:
 public:
     bool await_ready()
     {
-        return false;
+        return true;
     }
 
     bool await_suspend(CoroCtxTy coro)
     {
-        return false;
+        return true;
     }
 
     RetTy await_resume()

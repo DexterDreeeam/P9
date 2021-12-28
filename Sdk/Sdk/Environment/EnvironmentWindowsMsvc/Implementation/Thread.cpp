@@ -14,9 +14,12 @@ struct thread_call_back_context
 static unsigned long __stdcall thread_windows_call_back_fn(void* p)
 {
     auto* cb_ctx = pointer_convert(p, 0, thread_call_back_context*);
+    auto* p_fn = cb_ctx->_fn;
+    auto* p_par = cb_ctx->_par;
 
-    cb_ctx->_fn(cb_ctx->_par);
     delete cb_ctx;
+    p_fn(p_par);
+
     return 0;
 }
 

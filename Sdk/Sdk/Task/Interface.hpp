@@ -73,16 +73,6 @@
 
 #endif
 
-
-
-template<typename PromiseTy>
-using CoroTy = std::coroutine_handle<PromiseTy>;
-
-using CoroCtxTy = std::coroutine_handle<>;
-
-#define _Await_   co_await
-#define _Return_  co_return
-
 //
 // TaskSet function contains several Task function and Action function, TaskSet function is entry point for all Task-like function
 //    _Await_  Task               will raise a new thread
@@ -100,6 +90,8 @@ using CoroCtxTy = std::coroutine_handle<>;
 //    _Return_ Action<RetTy>
 //
 
-#include "Action.hpp"
+#include "Definition.hpp"
+
 #include "Task.hpp"
+#include "Action.hpp"
 #include "TaskSet.hpp"

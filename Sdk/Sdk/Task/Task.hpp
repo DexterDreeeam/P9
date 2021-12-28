@@ -32,6 +32,12 @@ public:
         {
         }
 
+        //template<typename AwaiterTy>
+        //AwaiterTy await_transform(const AwaiterTy& awaiter)
+        //{
+        //    return awaiter;
+        //}
+
         void unhandled_exception() noexcept
         {
         }
@@ -231,6 +237,12 @@ public:
             *_r_rst.raw_ptr() = (RetTy&&)rst;
         }
 
+        //template<typename AwaiterTy>
+        //AwaiterTy await_transform(const AwaiterTy& awaiter)
+        //{
+        //    return awaiter;
+        //}
+
         void unhandled_exception() noexcept
         {
         }
@@ -348,6 +360,11 @@ public:
         t.uninit();
 
         return *this;
+    }
+
+    ref<RetTy> result_ref()
+    {
+        return _r_rst;
     }
 
 private:

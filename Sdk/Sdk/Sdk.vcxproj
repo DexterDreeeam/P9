@@ -61,6 +61,7 @@
     <ClInclude Include="Environment\Reference\Obs.hpp" />
     <ClInclude Include="Environment\Reference\Ref.hpp" />
     <ClInclude Include="Task\Action.hpp" />
+    <ClInclude Include="Task\Definition.hpp" />
     <ClInclude Include="Task\Interface.hpp" />
     <ClInclude Include="Task\Task.hpp" />
     <ClInclude Include="Task\TaskSet.hpp" />

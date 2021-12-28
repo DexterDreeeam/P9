@@ -97,6 +97,7 @@
     <ClInclude Include="Task\Action.hpp" />
     <ClInclude Include="Interface_Task.hpp" />
     <ClInclude Include="Task\Interface.hpp" />
+    <ClInclude Include="Task\Definition.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Environment\Operation\Assert_Implementation.inl" />

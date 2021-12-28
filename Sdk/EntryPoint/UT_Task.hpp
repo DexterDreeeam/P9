@@ -1,9 +1,15 @@
 #pragma once
 
+task<s64> UT_Task_sub_task(s64 x)
+{
+    print("action_task run in thread: %llu\n", current_thread_id());
+    _Return_ x * x;
+}
+
 action<> UT_Task_action_1(s64 x, s64& output)
 {
     print("Action 1 run in thread: %llu\n", current_thread_id());
-    output = x * x;
+    output = _Await_ UT_Task_sub_task(x).execute_async();
     _Return_;
 }
 
