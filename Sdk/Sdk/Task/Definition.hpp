@@ -1,5 +1,11 @@
 #pragma once
 
+template<typename RetTy = void>
+class action;
+
+template<typename RetTy = void>
+class task;
+
 template<typename PromiseTy>
 using CoroTy = std::coroutine_handle<PromiseTy>;
 
@@ -10,6 +16,33 @@ using CoroCtxTy = std::coroutine_handle<>;
 
 namespace _TaskNs
 {
+
+class action_sync_event_wrapper
+{
+public:
+    action_sync_event_wrapper()
+    {
+        e.init();
+    }
+
+    ~action_sync_event_wrapper()
+    {
+        e.uninit();
+    }
+
+    void set()
+    {
+        e.set();
+    }
+
+    void wait()
+    {
+        e.wait();
+    }
+
+public:
+    event e;
+};
 
 template<typename RetTy = void>
 class is_suspend;

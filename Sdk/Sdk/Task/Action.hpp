@@ -1,8 +1,5 @@
 #pragma once
 
-template<typename RetTy = void>
-class action;
-
 template<>
 class action<void>
 {
@@ -30,36 +27,35 @@ public:
 
         void return_void()
         {
-            int test = 0;
         }
 
         _TaskNs::is_suspend<void> await_transform(task<void>& awaiter)
         {
-            if (!awaiter.await_ready())
+            _TaskNs::action_sync_event_wrapper action_sync_event;
+            awaiter.set_action_sync_event(&action_sync_event);
+            auto &sync_point = *awaiter._sync_point.raw_ptr();
+            s64 my_order = ++sync_point;
+            if (my_order == 1)
             {
-                auto coro = CoroTy<PromiseTy>::from_promise(*this);
-                awaiter.await_suspend(coro);
-                return _TaskNs::is_suspend<void>(true);
+                // block, wait task complete
+                action_sync_event.wait();
             }
-            else
-            {
-                return _TaskNs::is_suspend<void>(false);
-            }
+            return _TaskNs::is_suspend<void>(false);
         }
 
         template<typename SubTaskRetTy>
         _TaskNs::is_suspend<SubTaskRetTy> await_transform(task<SubTaskRetTy>& awaiter)
         {
-            if (!awaiter.await_ready())
+            _TaskNs::action_sync_event_wrapper action_sync_event;
+            awaiter.set_action_sync_event(&action_sync_event);
+            auto &sync_point = *awaiter._sync_point.raw_ptr();
+            s64 my_order = ++sync_point;
+            if (my_order == 1)
             {
-                auto coro = CoroTy<PromiseTy>::from_promise(*this);
-                awaiter.await_suspend(coro);
-                return _TaskNs::is_suspend<SubTaskRetTy>(true, awaiter.result_ref());
+                // block, wait task complete
+                action_sync_event.wait();
             }
-            else
-            {
-                return _TaskNs::is_suspend<SubTaskRetTy>(false, awaiter.result_ref());
-            }
+            return _TaskNs::is_suspend<SubTaskRetTy>(false, awaiter.result_ref());
         }
 
         template<typename SubActionRetTy>
@@ -84,9 +80,10 @@ public:
     };
 
 public:
-    struct PromiseTy;
-    friend struct PromiseTy;
     using promise_type = PromiseTy;
+    friend struct PromiseTy;
+    template<typename AllTy> friend class task;
+    template<typename AllTy> friend class action;
 
 public:
     action(CoroTy<PromiseTy> coro) :
@@ -129,7 +126,6 @@ public:
 
     void await_resume()
     {
-        int test = 0;
     }
 
 private:
@@ -174,31 +170,31 @@ public:
 
         _TaskNs::is_suspend<void> await_transform(task<void>& awaiter)
         {
-            if (!awaiter.await_ready())
+            _TaskNs::action_sync_event_wrapper action_sync_event;
+            awaiter.set_action_sync_event(&action_sync_event);
+            auto &sync_point = *awaiter._sync_point.raw_ptr();
+            s64 my_order = ++sync_point;
+            if (my_order == 1)
             {
-                auto coro = CoroTy<PromiseTy>::from_promise(*this);
-                awaiter.await_suspend(coro);
-                return _TaskNs::is_suspend<void>(true);
+                // block, wait task complete
+                action_sync_event.wait();
             }
-            else
-            {
-                return _TaskNs::is_suspend<void>(false);
-            }
+            return _TaskNs::is_suspend<void>(false);
         }
 
         template<typename SubTaskRetTy>
         _TaskNs::is_suspend<SubTaskRetTy> await_transform(task<SubTaskRetTy>& awaiter)
         {
-            if (!awaiter.await_ready())
+            _TaskNs::action_sync_event_wrapper action_sync_event;
+            awaiter.set_action_sync_event(&action_sync_event);
+            auto &sync_point = *awaiter._sync_point.raw_ptr();
+            s64 my_order = ++sync_point;
+            if (my_order == 1)
             {
-                auto coro = CoroTy<PromiseTy>::from_promise(*this);
-                awaiter.await_suspend(coro);
-                return _TaskNs::is_suspend<SubTaskRetTy>(true, awaiter.result_ref());
+                // block, wait task complete
+                action_sync_event.wait();
             }
-            else
-            {
-                return _TaskNs::is_suspend<SubTaskRetTy>(false, awaiter.result_ref());
-            }
+            return _TaskNs::is_suspend<SubTaskRetTy>(false, awaiter.result_ref());
         }
 
         template<typename SubActionRetTy>
@@ -225,9 +221,10 @@ public:
     };
 
 public:
-    struct PromiseTy;
-    friend struct PromiseTy;
     using promise_type = PromiseTy;
+    friend struct PromiseTy;
+    template<typename AllTy> friend class task;
+    template<typename AllTy> friend class action;
 
 public:
     action(CoroTy<PromiseTy> coro, ref<RetTy> r_rst) :

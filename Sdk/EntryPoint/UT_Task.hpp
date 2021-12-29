@@ -13,13 +13,24 @@ action<> UT_Task_action_1(s64 x, s64& output)
     _Return_;
 }
 
+action<s64> UT_Task_action_2(s64 x)
+{
+    print("Action 2 run in thread: %llu\n", current_thread_id());
+    _Return_ _Await_ UT_Task_sub_task(x).execute_async();
+}
+
 task<s64> UT_Task_func_task_1(s64 x)
 {
     print("Task 1 run in thread: %llu\n", current_thread_id());
     tick::sleep(20);
-    s64 x2;
-    _Await_ UT_Task_action_1(x, x2);
-    _Return_ x * x2;
+    s64 x2_1;
+    s64 x2_2;
+    auto act_1 = UT_Task_action_1(x, x2_1);
+    x2_2 = _Await_ UT_Task_action_2(x);
+    _Await_ act_1;
+
+    assert(x2_1 == x2_2);
+    _Return_ x * x2_1;
 }
 
 task<> UT_Task_func_task_2(s64 input, s64& output)

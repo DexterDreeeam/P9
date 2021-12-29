@@ -1,8 +1,5 @@
 #pragma once
 
-template<typename RetTy = void>
-class task;
-
 template<>
 class task<void>
 {
@@ -53,37 +50,34 @@ public:
         }
     };
 
-    struct callback_desc
-    {
-        CoroTy<PromiseTy>    coro;
-        ref<void*>           parent_coro_addr;
-        ref<atom<s64>>       sync_point;
-    };
-
 public:
-    struct PromiseTy;
-    friend struct PromiseTy;
     using promise_type = PromiseTy;
+    friend struct PromiseTy;
+    template<typename AllTy> friend class task;
+    template<typename AllTy> friend class action;
 
 public:
     task(CoroTy<PromiseTy> coro) :
         _coro(coro),
         _parent_coro_addr(ref<void*>::new_instance(nullptr)),
-        _sync_point(ref<atom<s64>>::new_instance(0))
+        _sync_point(ref<atom<s64>>::new_instance(0)),
+        _p_action_sync_event(nullptr)
     {
     }
 
     task(const task& rhs) :
         _coro(rhs._coro),
         _parent_coro_addr(rhs._parent_coro_addr),
-        _sync_point(rhs._sync_point)
+        _sync_point(rhs._sync_point),
+        _p_action_sync_event(rhs._p_action_sync_event)
     {
     }
 
     task(task&& rhs) :
         _coro(rhs._coro),
         _parent_coro_addr(rhs._parent_coro_addr),
-        _sync_point(rhs._sync_point)
+        _sync_point(rhs._sync_point),
+        _p_action_sync_event(rhs._p_action_sync_event)
     {
     }
 
@@ -94,6 +88,7 @@ public:
         _coro = rhs._coro;
         _parent_coro_addr = rhs._parent_coro_addr;
         _sync_point = rhs._sync_point;
+        _p_action_sync_event = rhs._p_action_sync_event;
         return *this;
     }
 
@@ -134,6 +129,15 @@ public:
     }
 
 public:
+    struct callback_desc
+    {
+        CoroTy<PromiseTy>    coro;
+        ref<void*>           parent_coro_addr;
+        ref<atom<s64>>       sync_point;
+        _TaskNs::action_sync_event_wrapper**
+                             pp_action_sync_event;
+    };
+
     TaskTy& execute_async()
     {
         thread t;
@@ -143,6 +147,7 @@ public:
         p->coro = _coro;
         p->parent_coro_addr = _parent_coro_addr;
         p->sync_point = _sync_point;
+        p->pp_action_sync_event = &_p_action_sync_event;
 
         t.start(p);
         t.uninit();
@@ -151,6 +156,11 @@ public:
     }
 
 private:
+    void set_action_sync_event(_TaskNs::action_sync_event_wrapper* action_sync_event)
+    {
+        _p_action_sync_event = action_sync_event;
+    }
+
     static void execute_entrypoint(void* p)
     {
         callback_desc* p_desc = pointer_convert(p, 0, callback_desc*);
@@ -159,6 +169,7 @@ private:
         auto task_coro = p_desc->coro;
         auto parent_coro_addr = p_desc->parent_coro_addr;
         auto sync_point = p_desc->sync_point;
+        auto pp_action_sync_event = p_desc->pp_action_sync_event;
 
         delete p_desc;
 
@@ -174,18 +185,25 @@ private:
             // no _Await_ operator waiting this Task now
             return;
         }
-        else if (my_order == 3)
+
+        if (*pp_action_sync_event)
         {
-            // resume Caller's execute body
-            auto parent_coro = CoroCtxTy::from_address(*parent_coro_addr.raw_ptr());
-            parent_coro.resume();
-            return;
+            // action call task
+            // action _Await_ done
+            // notify action thread
+            (*pp_action_sync_event)->set();
         }
 
-        while (l_sync_point.get() == 2)
+        while (my_order == 2)
         {
             yield();
+            my_order = l_sync_point.get();
         }
+
+        assert(my_order == 3);
+        // resume Caller's execute body
+        auto parent_coro = CoroCtxTy::from_address(*parent_coro_addr.raw_ptr());
+        parent_coro.resume();
     }
 
 private:
@@ -197,6 +215,8 @@ private:
     // 2. await suspend complete
     // 2. Task body complete
     ref<atom<s64>>     _sync_point;
+    _TaskNs::action_sync_event_wrapper*
+                       _p_action_sync_event;
 };
 
 template<typename RetTy>
@@ -260,24 +280,19 @@ public:
         ref<RetTy> _r_rst;
     };
 
-    struct callback_desc
-    {
-        CoroTy<PromiseTy>    coro;
-        ref<void*>           parent_coro_addr;
-        ref<atom<s64>>       sync_point;
-    };
-
 public:
-    struct PromiseTy;
-    friend struct PromiseTy;
     using promise_type = PromiseTy;
+    friend struct PromiseTy;
+    template<typename AllTy> friend class task;
+    template<typename AllTy> friend class action;
 
 public:
     task(CoroTy<PromiseTy> coro, ref<RetTy> r_rst) :
         _coro(coro),
         _parent_coro_addr(ref<void*>::new_instance(nullptr)),
         _r_rst(r_rst),
-        _sync_point(ref<atom<s64>>::new_instance(0))
+        _sync_point(ref<atom<s64>>::new_instance(0)),
+        _p_action_sync_event(nullptr)
     {
     }
 
@@ -285,7 +300,8 @@ public:
         _coro(rhs._coro),
         _parent_coro_addr(rhs._parent_coro_addr),
         _r_rst(rhs._r_rst),
-        _sync_point(rhs._sync_point)
+        _sync_point(rhs._sync_point),
+        _p_action_sync_event(rhs._p_action_sync_event)
     {
     }
 
@@ -293,7 +309,8 @@ public:
         _coro(rhs._coro),
         _parent_coro_addr(rhs._parent_coro_addr),
         _r_rst(rhs._r_rst),
-        _sync_point(rhs._sync_point)
+        _sync_point(rhs._sync_point),
+        _p_action_sync_event(rhs._p_action_sync_event)
     {
     }
 
@@ -305,6 +322,7 @@ public:
         _parent_coro_addr = rhs._parent_coro_addr;
         _r_rst = rhs._r_rst;
         _sync_point = rhs._sync_point;
+        _p_action_sync_event = rhs._p_action_sync_event;
         return *this;
     }
 
@@ -346,6 +364,15 @@ public:
     }
 
 public:
+    struct callback_desc
+    {
+        CoroTy<PromiseTy>    coro;
+        ref<void*>           parent_coro_addr;
+        ref<atom<s64>>       sync_point;
+        _TaskNs::action_sync_event_wrapper**
+                             pp_action_sync_event;
+    };
+
     TaskTy& execute_async()
     {
         thread t;
@@ -355,6 +382,7 @@ public:
         p->coro = _coro;
         p->parent_coro_addr = _parent_coro_addr;
         p->sync_point = _sync_point;
+        p->pp_action_sync_event = &_p_action_sync_event;
 
         t.start(p);
         t.uninit();
@@ -368,6 +396,11 @@ public:
     }
 
 private:
+    void set_action_sync_event(_TaskNs::action_sync_event_wrapper* action_sync_event)
+    {
+        _p_action_sync_event = action_sync_event;
+    }
+
     static void execute_entrypoint(void* p)
     {
         callback_desc* p_desc = pointer_convert(p, 0, callback_desc*);
@@ -376,6 +409,7 @@ private:
         auto task_coro = p_desc->coro;
         auto parent_coro_addr = p_desc->parent_coro_addr;
         auto sync_point = p_desc->sync_point;
+        auto pp_action_sync_event = p_desc->pp_action_sync_event;
 
         delete p_desc;
 
@@ -391,18 +425,25 @@ private:
             // no _Await_ operator waiting this Task now
             return;
         }
-        else if (my_order == 3)
+
+        if (*pp_action_sync_event)
         {
-            // resume Caller's execute body
-            auto parent_coro = CoroCtxTy::from_address(*parent_coro_addr.raw_ptr());
-            parent_coro.resume();
-            return;
+            // action call task
+            // action _Await_ done
+            // notify action thread
+            (*pp_action_sync_event)->set();
         }
 
-        while (l_sync_point.get() == 2)
+        while (my_order == 2)
         {
             yield();
+            my_order = l_sync_point.get();
         }
+
+        assert(my_order == 3);
+        // resume Caller's execute body
+        auto parent_coro = CoroCtxTy::from_address(*parent_coro_addr.raw_ptr());
+        parent_coro.resume();
     }
 
 private:
@@ -415,4 +456,6 @@ private:
     // 2. await suspend complete
     // 2. Task body complete
     ref<atom<s64>>     _sync_point;
+    _TaskNs::action_sync_event_wrapper*
+                       _p_action_sync_event;
 };
