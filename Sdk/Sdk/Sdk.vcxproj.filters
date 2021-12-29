@@ -118,5 +118,7 @@
     <None Include="Environment\Reference\Context_Implementation.inl" />
     <None Include="Environment\Reference\Obs_Implementation.inl" />
     <None Include="Environment\Reference\Ref_Implementation.inl" />
+    <None Include="Task\Action_Implementation.inl" />
+    <None Include="Task\Task_Implementation.inl" />
   </ItemGroup>
 </Project>

@@ -6,7 +6,7 @@ task<s64> UT_Task_sub_task(s64 x)
     _Return_ x * x;
 }
 
-action<> UT_Task_action_1(s64 x, s64& output)
+_NODISCARD_ action<> UT_Task_action_1(s64 x, s64& output)
 {
     print("Action 1 run in thread: %llu\n", current_thread_id());
     output = _Await_ UT_Task_sub_task(x).execute_async();

@@ -92,6 +92,9 @@
 
 #include "Definition.hpp"
 
-#include "Task.hpp"
 #include "Action.hpp"
+#include "Task.hpp"
 #include "TaskSet.hpp"
+
+#include "Action_Implementation.inl"
+#include "Task_Implementation.inl"

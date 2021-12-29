@@ -1,7 +1,11 @@
 #pragma once
 
+class action_base;
+
 template<typename RetTy = void>
 class action;
+
+class task_base;
 
 template<typename RetTy = void>
 class task;
@@ -17,15 +21,15 @@ using CoroCtxTy = std::coroutine_handle<>;
 namespace _TaskNs
 {
 
-class action_sync_event_wrapper
+class sync_event_wrapper
 {
 public:
-    action_sync_event_wrapper()
+    sync_event_wrapper()
     {
         e.init();
     }
 
-    ~action_sync_event_wrapper()
+    ~sync_event_wrapper()
     {
         e.uninit();
     }
@@ -45,58 +49,58 @@ public:
 };
 
 template<typename RetTy = void>
-class is_suspend;
+class suspend_never;
 
 template<>
-class is_suspend<void>
+class suspend_never<void>
 {
 public:
-    is_suspend(bool suspend) :
-        _suspend(suspend)
+    suspend_never()
     {
     }
 
-    bool await_ready() const noexcept
+    bool await_ready()
     {
-        return !_suspend;
+        return true;
     }
 
-    void await_suspend(CoroCtxTy)
-    {
-    }
-
-    void await_resume() const
+    void await_suspend(CoroCtxTy coro)
     {
     }
 
-    bool        _suspend;
+    void await_resume()
+    {
+    }
 };
 
 template<typename RetTy>
-class is_suspend
+class suspend_never
 {
 public:
-    is_suspend(bool suspend, ref<RetTy> r_rst) :
-        _suspend(suspend),
+    suspend_never(ref<RetTy> r_rst) :
         _r_rst(r_rst)
     {
     }
 
-    bool await_ready() const noexcept
-    {
-        return !_suspend;
-    }
-
-    void await_suspend(CoroCtxTy)
+    suspend_never(const suspend_never& rhs) :
+        _r_rst(rhs._r_rst)
     {
     }
 
-    RetTy await_resume() const
+    bool await_ready()
     {
-        return *_r_rst.raw_ptr();
+        return true;
     }
 
-    bool        _suspend;
+    void await_suspend(CoroCtxTy coro)
+    {
+    }
+
+    RetTy await_resume()
+    {
+        return RetTy(*_r_rst.raw_ptr());
+    }
+
     ref<RetTy>  _r_rst;
 };
 
