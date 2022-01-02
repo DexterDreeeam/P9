@@ -3,7 +3,7 @@
     [
         {
             "type": "shell",
-            "label": "linux_build_setting",
+            "label": "linux_pre_compile",
             "command": "cp",
             "args": [
                 "-rf",
@@ -17,11 +17,12 @@
         },
         {
             "type": "shell",
-            "label": "linux_compile",
-            "command": "g++",
+            "label": "linux_compile_sdk",
+            "command": "g++-10",
             "args": [
                 "-std=c++2a",
                 "-pthread",
+                "-fcoroutines",
                 "-c",
                 "./Sdk/Environment/EnvironmentLinuxGcc/Implementation/*",
             ],
@@ -33,7 +34,41 @@
                 "isDefault": true
             },
             "dependsOn": [
-                "linux_build_setting"
+                "linux_pre_compile"
+            ]
+        },
+        {
+            "type": "shell",
+            "label": "linux_compile_ut",
+            "command": "g++-10",
+            "args": [
+                "-std=c++2a",
+                "-pthread",
+                "-fcoroutines",
+                "-c",
+                "./EntryPoint/EntryPoint.cpp",
+            ],
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": [
+                "linux_compile_sdk"
+            ]
+        },
+        {
+            "type": "shell",
+            "label": "linux_compile_complete_echo",
+            "command": "echo success",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": [
+                "linux_compile_ut"
             ]
         },
         {
@@ -48,7 +83,7 @@
                 "isDefault": true
             },
             "dependsOn": [
-                "linux_compile"
+                "linux_compile_complete_echo"
             ]
         }
     ],

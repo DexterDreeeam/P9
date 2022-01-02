@@ -1,5 +1,7 @@
 #pragma once
 
+#define _NEW
+
 #include <arpa/inet.h>
 #include <atomic>
 #include <cstddef>

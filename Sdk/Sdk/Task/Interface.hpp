@@ -59,6 +59,8 @@
 
 #if defined(I_AM_LINUX_GCC)
 
+    // >= g++-10
+    // -fcoroutines
     #include <coroutine>
 
 #elif defined(I_AM_WINDOWS_MSVC)
