@@ -9,7 +9,7 @@ void vulkan_pipeline_test()
     rt_desc.type = gpx::Vulkan;
     rt_desc.frame_count = 3;
     rt_desc.msaa_level = 0;
-    rt_desc.debug_mode = boole::True;
+    rt_desc.debug_mode = boole::False;
     auto rt = gpx::runtime::build(rt_desc);
     checker = rt->init();
     assert(checker);
