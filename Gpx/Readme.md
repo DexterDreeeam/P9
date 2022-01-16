@@ -147,7 +147,7 @@ Runtime is core of Gpx, execute main logic flow for Graphics processing.<br>
 > boole gpx::runtime::load_pipeline_resource(const string& pipeline_name)
 > ```
 > <small>*load all pipeline resources,
-> `setup_pipeline_dynamic_memory`, `setup_pipeline_texture_viewer`, `setup_pipeline_vertices_viewer`,
+> `setup_pipeline_dynamic_memory`, `setup_pipeline_texture_viewer`, `setup_pipeline_vertices_viewer`
 > are supposed to setup this pipeline before this function is called.*</small>
 
 > ```cpp
