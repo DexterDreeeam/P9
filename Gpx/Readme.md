@@ -7,12 +7,12 @@ it likes UBO(uniform buffer object) in OpenGL,
 this object memory content could dynamically mutate during pipeline execution flow safely.<br>
 `gpx::runtime::register_dynamic_memory` could create one Dynamic Memory object.
 
-## *Vertices Viewer*
+## **Vertices Viewer**
 Vertices Viewer(VV) is a vertices object in p9 gpx,
 it present a group of vertices of multi vertex types.<br>
 `gpx::runtime::register_vertices_viewer` could create one Vertices Viewer object.
 
-## *Texture Viewer*
+## **Texture Viewer**
 Texture Viewer(TV) is a texture object in p9 gpx,
 it present a texture picture in memory.<br>
 `gpx::runtime::register_texture_viewer` could create one Texture Viewer object.
