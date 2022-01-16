@@ -147,7 +147,9 @@ Runtime is core of Gpx, execute main logic flow for Graphics processing.<br>
 > boole gpx::runtime::load_pipeline_resource(const string& pipeline_name)
 > ```
 > <small>*load all pipeline resources,
-> `setup_pipeline_dynamic_memory`, `setup_pipeline_texture_viewer`, `setup_pipeline_vertices_viewer`
+> `gpx::runtime::setup_pipeline_dynamic_memory`,
+> `gpx::runtime::setup_pipeline_texture_viewer`,
+> `gpx::runtime::setup_pipeline_vertices_viewer`
 > are supposed to setup this pipeline before this function is called.*</small>
 
 > ```cpp
@@ -164,3 +166,29 @@ Runtime is core of Gpx, execute main logic flow for Graphics processing.<br>
 > boole gpx::runtime::wait_render_complete()
 > ```
 > <small>*wait all pipelines complete renderring.*</small>
+
+## **Shader**
+Shader is render shader file handler, call 'gpx::runtime::build_shader' to get reference to a Shader.<br>
+`gpx::shader` is base type of multi-implementation class.
+
+---------
+
+> ```cpp
+> boole gpx::shader::load(const string& shader_path)
+> ```
+> <small>*load a shader to memory,<br>
+if shader created by `Vulkan` runtime, it must be a `.spv` format file.*</small>
+
+> ```cpp
+> boole gpx::shader::unload()
+> ```
+> <small>*unload a shader from memory.*</small>
+
+> ```cpp
+> gpx::shader_type gpx::shader::type()
+> ```
+> <small>*get a type of shader, including
+ `gpx::shader_type::VERTEX`,
+ `gpx::shader_type::TESSELLATION`,
+ `gpx::shader_type::GEOMETRY`,
+ `gpx::shader_type::FRAGMENT`.*</small>
