@@ -1263,7 +1263,7 @@ boole vulkan_runtime::unload_texture_viewer(const string& texture_viewer)
     return r_vv->unload();
 }
 
-boole vulkan_runtime::setup_pipeline_texture_viewer(const string& pipeline_name, const vector<string>& viewers)
+boole vulkan_runtime::update_pipeline_texture_viewer(const string& pipeline_name, const vector<string>& viewers)
 {
     auto p = get_pipeline(pipeline_name);
     if (p.empty())

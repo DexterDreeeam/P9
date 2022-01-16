@@ -1,6 +1,22 @@
 **Pavailion 9 Gpx Interface**
 =========
 
+## **Dynamic Memory**
+Dynamic Memory(DM) is a global memory used in pipeline shader processing,
+it likes UBO(uniform buffer object) in OpenGL,
+this object memory content could dynamically mutate during pipeline execution flow safely.<br>
+`gpx::runtime::register_dynamic_memory` could create one Dynamic Memory object.
+
+## *Vertices Viewer*
+Vertices Viewer(VV) is a vertices object in p9 gpx,
+it present a group of vertices of multi vertex types.<br>
+`gpx::runtime::register_vertices_viewer` could create one Vertices Viewer object.
+
+## *Texture Viewer*
+Texture Viewer(TV) is a texture object in p9 gpx,
+it present a texture picture in memory.<br>
+`gpx::runtime::register_texture_viewer` could create one Texture Viewer object.
+
 ## **Runtime**
 Runtime is core of Gpx, execute main logic flow for Graphics processing.<br>
 `gpx::runtime` is base type of multi-implementation class.
@@ -100,9 +116,11 @@ Runtime is core of Gpx, execute main logic flow for Graphics processing.<br>
 > <small>*unload texture resource from Gpu memory.*</small>
 
 > ```cpp
-> boole gpx::runtime::setup_pipeline_texture_viewer(const string& pipeline_name, const vector<string>& viewers)
+> boole gpx::runtime::update_pipeline_texture_viewer(const string& pipeline_name, const vector<string>& viewers)
 > ```
-> <small>*setup texture viewer list for specific pipeline, these texture viewer are loaded already*</small>
+> <small>*setup or update texture viewer list for specific pipeline,
+> this function can be could when pipeline running,
+> input texture viewer must be loaded already*</small>
 
 * ### Runtime Vertices Viewer Interface
 
@@ -148,7 +166,7 @@ Runtime is core of Gpx, execute main logic flow for Graphics processing.<br>
 > ```
 > <small>*load all pipeline resources,
 > `gpx::runtime::setup_pipeline_dynamic_memory`,
-> `gpx::runtime::setup_pipeline_texture_viewer`,
+> `gpx::runtime::update_pipeline_texture_viewer`,
 > `gpx::runtime::setup_pipeline_vertices_viewer`
 > are supposed to setup this pipeline before this function is called.*</small>
 
@@ -168,8 +186,9 @@ Runtime is core of Gpx, execute main logic flow for Graphics processing.<br>
 > <small>*wait all pipelines complete renderring.*</small>
 
 ## **Shader**
-Shader is render shader file handler, call 'gpx::runtime::build_shader' to get reference to a Shader.<br>
+Shader is render shader handler, call 'gpx::runtime::build_shader' to get reference to a Shader.<br>
 `gpx::shader` is base type of multi-implementation class.
+`gpx::runtime::build_shader` could create one Shader object.
 
 ---------
 

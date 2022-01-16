@@ -160,7 +160,7 @@ void vulkan_texture_test()
     assert(checker);
 
     vector<string> tv_vec = { "test 3 texture" };
-    checker = rt->setup_pipeline_texture_viewer("Pavilion Nine Test Pipeline", tv_vec);
+    checker = rt->update_pipeline_texture_viewer("Pavilion Nine Test Pipeline", tv_vec);
     assert(checker);
 
     vector<string> vv_vec = { "test 3 vertices" };
@@ -185,7 +185,7 @@ void vulkan_texture_test()
         else if (diff >= 2000 && !texture_placed)
         {
             vector<string> tv_vec_sign = { "test 3 texture sign" };
-            checker = rt->setup_pipeline_texture_viewer("Pavilion Nine Test Pipeline", tv_vec_sign);
+            checker = rt->update_pipeline_texture_viewer("Pavilion Nine Test Pipeline", tv_vec_sign);
             assert(checker);
             texture_placed = boole::True;
         }

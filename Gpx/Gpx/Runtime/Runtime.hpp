@@ -73,7 +73,7 @@ public:
 
     virtual boole unload_texture_viewer(const string& texture_viewer) = 0;
 
-    virtual boole setup_pipeline_texture_viewer(const string& pipeline_name, const vector<string>& viewers) = 0;
+    virtual boole update_pipeline_texture_viewer(const string& pipeline_name, const vector<string>& viewers) = 0;
 
     // vertices
 
