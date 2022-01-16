@@ -29,52 +29,57 @@ Runtime is core of Gpx, execute main logic flow for Graphics processing.<br>
 > ```cpp
 > boole gpx::runtime::uninit()
 > ```
-> <small>uninit a runtime which is already inited.</small>
+> <small>*uninit a runtime which is already inited.*</small>
 
 * ### Runtime Window Interface
 
 > ```cpp
 > ref<gpx::window> gpx::runtime::build_window(const gpx::window_desc& desc)
 > ```
-> <small>build a window and get reference to it.</small>
+> <small>*build a window and get reference to it.*</small>
 
 > ```cpp
 > boole gpx::runtime::remove_window(const string& window_name)
 > ```
-> <small>remove a window by window name.</small>
+> <small>*remove a window by window name.*</small>
 
 > ```cpp
 > ref<gpx::window> gpx::runtime::get_window(const string& window_name)
 > ```
-> <small>get a window reference by window name.</small>
+> <small>*get a window reference by window name.*</small>
 
 * ### Runtime Shader Interface
 
 > ```cpp
 > ref<gpx::shader> gpx::runtime::build_shader(const gpx::shader_desc& desc)
 > ```
-> <small>build a shader and get reference to it.</small>
+> <small>*build a shader and get reference to it.*</small>
 
 * ### Runtime Dynamic Memory Interface
 
 > ```cpp
 > boole register_dynamic_memory(const gpx::dynamic_memory_desc& desc)
 > ```
-> <small>build a dynamic memory and get reference to it.</small>
+> <small>*build a dynamic memory and get reference to it.*</small>
 
 > ```cpp
 > boole unregister_dynamic_memory(const string& dynamic_memory)
 > ```
-> <small>destroy a registered dynamic memory which is not used anymore.</small>
+> <small>*destroy a registered dynamic memory which is not used anymore.*</small>
 
 > ```cpp
 > boole update_dynamic_memory(const string& dynamic_memory, void* src)
 > ```
-> <small>update a dynamic memory content, input a pointer of source buffer.</small>
+> <small>*update a dynamic memory content, input a pointer of source buffer.*</small>
 
 > ```cpp
 > boole setup_pipeline_dynamic_memory(const string& pipeline, const vector<string>& dm_vec)
 > ```
-> <small>setup dynamic memory list for specific pipeline.</small>
+> <small>*setup dynamic memory list for specific pipeline.*</small>
 
+* ### Runtime Texture Viewer Interface
 
+> ```cpp
+> boole register_texture_viewer(const texture_viewer_desc& texture_viewer)
+> ```
+> <small>*build a texture viewer and get reference to it.*</small>
