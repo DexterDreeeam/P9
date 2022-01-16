@@ -12,19 +12,19 @@ Runtime is core of Gpx, execute main logic flow for Graphics processing.<br>
 ```cpp
 static ref<gpx::runtime::runtime> gpx::runtime::build(const gpx::runtime_desc& desc)
 ```
-<small>build a core runtime and get reference to it.</small>
+<small>*build a core runtime and get reference to it.*</small>
 
 ```cpp
 vector<string> gpx::runtime::list_device()
 ```
-<small>get a list of usable physical device name.</small>
+<small>*get a list of usable physical device name.*</small>
 
 ```cpp
 boole gpx::runtime::init(const string& preferred_device_name = "")
 ```
-<small>init a runtime core which is built already,
+<small>*init a runtime core which is built already,
 input preferred_device_name running renderring job,
-or let runtime auto select highest-performance device.</small>
+or let runtime auto select highest-performance device.*</small>
 
 ```cpp
 boole gpx::runtime::uninit()
