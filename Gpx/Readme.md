@@ -1,4 +1,4 @@
-# Pavailion 9 Gpx Interface
+Pavailion 9 Gpx Interface
 
 =========
 
