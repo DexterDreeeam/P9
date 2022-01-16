@@ -65,7 +65,7 @@ public:
 
     // texture
 
-    virtual boole register_texture_viewer(const texture_viewer_desc& texture_viewer) = 0;
+    virtual boole register_texture_viewer(const texture_viewer_desc& desc) = 0;
 
     virtual boole unregister_texture_viewer(const string& texture_viewer) = 0;
 
