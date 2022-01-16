@@ -31,7 +31,7 @@ boole gpx::runtime::uninit()
 ```
 uninit a runtime which is already inited.
 
-### Runtime Window Interface
+* ### Runtime Window Interface
 
 ```cpp
 ref<gpx::window> gpx::runtime::build_window(const gpx::window_desc& desc)
@@ -48,14 +48,14 @@ ref<gpx::window> gpx::runtime::get_window(const string& window_name)
 ```
 get a window reference by window name.
 
-### Runtime Shader Interface
+* ### Runtime Shader Interface
 
 ```cpp
 ref<gpx::shader> gpx::runtime::build_shader(const gpx::shader_desc& desc)
 ```
 build a shader and get reference to it.
 
-### Runtime Dynamic Memory Interface
+* ### Runtime Dynamic Memory Interface
 
 ```cpp
 boole register_dynamic_memory(const gpx::dynamic_memory_desc& desc)
