@@ -11,7 +11,7 @@ public:
         _ctx(rhs._ctx)
     {}
 
-    event(event&& rhs) :
+    event(event&& rhs) noexcept :
         _ctx(rhs._ctx)
     {
         rhs._ctx = nullptr;
@@ -23,7 +23,7 @@ public:
         return *this;
     }
 
-    event& operator =(event&& rhs)
+    event& operator =(event&& rhs) noexcept
     {
         _ctx = rhs._ctx;
         rhs._ctx = nullptr;

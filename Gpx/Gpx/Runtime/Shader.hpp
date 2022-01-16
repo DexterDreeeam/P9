@@ -15,9 +15,9 @@ enum class shader_type : s64
 
 struct shader_desc
 {
-    shader_type  _type;
-    string       _shader_name;
-    string       _shader_path;
+    shader_type  type;
+    string       shader_name;
+    string       shader_path;
 };
 
 class shader

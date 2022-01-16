@@ -10,11 +10,11 @@ public:
 
     thread(const thread& rhs);
 
-    thread(thread&& rhs);
+    thread(thread&& rhs) noexcept;
 
     thread& operator =(const thread& rhs);
 
-    thread& operator =(thread&& rhs);
+    thread& operator =(thread&& rhs) noexcept;
 
     ~thread() = default;
 

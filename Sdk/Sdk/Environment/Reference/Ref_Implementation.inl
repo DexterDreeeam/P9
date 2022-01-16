@@ -18,7 +18,7 @@ _INLINE_ ref<Ty>::ref(const ref<Ty>& rhs)
 }
 
 template<typename Ty>
-_INLINE_ ref<Ty>::ref(ref<Ty>&& rhs)
+_INLINE_ ref<Ty>::ref(ref<Ty>&& rhs) noexcept
 {
     auto* ctx = rhs._ctx.exchange(nullptr);
     _ctx.set(ctx);
@@ -40,7 +40,7 @@ _INLINE_ ref<Ty>::ref(const ref<Other_Ty>& rhs)
 
 template<typename Ty>
 template<typename Other_Ty>
-_INLINE_ ref<Ty>::ref(ref<Other_Ty>&& rhs)
+_INLINE_ ref<Ty>::ref(ref<Other_Ty>&& rhs) noexcept
 {
     Ty* pointer_checker = (Other_Ty*)nullptr;
 
@@ -77,7 +77,7 @@ _INLINE_ ref<Ty>& ref<Ty>::operator =(const ref<Ty>& rhs)
 }
 
 template<typename Ty>
-_INLINE_ ref<Ty>& ref<Ty>::operator =(ref<Ty>&& rhs)
+_INLINE_ ref<Ty>& ref<Ty>::operator =(ref<Ty>&& rhs) noexcept
 {
     auto* ctx = rhs._ctx.exchange(nullptr);
     auto* origin = _ctx.exchange(ctx);
@@ -112,7 +112,7 @@ _INLINE_ ref<Ty>& ref<Ty>::operator =(const ref<Other_Ty>& rhs)
 
 template<typename Ty>
 template<typename Other_Ty>
-_INLINE_ ref<Ty>& ref<Ty>::operator =(ref<Other_Ty>&& rhs)
+_INLINE_ ref<Ty>& ref<Ty>::operator =(ref<Other_Ty>&& rhs) noexcept
 {
     Ty* pointer_checker = (Other_Ty*)nullptr;
 

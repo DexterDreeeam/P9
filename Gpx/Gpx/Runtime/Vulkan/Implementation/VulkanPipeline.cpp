@@ -74,7 +74,7 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
 
     // pipeline shader stage
     vector<VkPipelineShaderStageCreateInfo> stage_create_info_vec;
-    vector<ref<shader>> shaders = desc._shaders;
+    vector<ref<shader>> shaders = desc.shaders;
     shaders.sort(
         [](ref<shader> s1, ref<shader> s2)
         {
@@ -85,7 +85,7 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
     {
         VkShaderStageFlagBits vk_stage;
         auto vk_shader = r_shader.ref_of<vulkan_shader>();
-        switch (vk_shader->_desc._type)
+        switch (vk_shader->_desc.type)
         {
         case shader_type::VERTEX:
         vk_stage = VK_SHADER_STAGE_VERTEX_BIT;
@@ -114,7 +114,7 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
     }
 
     // pipeline vertex input
-    VkPipelineVertexInputStateCreateInfo vertexInputInfo = vulkan_vertex_supporter::get_vk_info(desc._vertex_type);
+    VkPipelineVertexInputStateCreateInfo vertexInputInfo = vulkan_vertex_supporter::get_vk_info(desc.vertex_type);
 
     VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
     inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -212,8 +212,8 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
     // descriptor
     _frame_package_vec.resize(image_count);
 
-    s64 dynamic_memory_cnt = desc._dynamic_memory_count;
-    s64 texture_viewer_cnt = desc._texture_viewer_count;
+    s64 dynamic_memory_cnt = desc.dynamic_memory_count;
+    s64 texture_viewer_cnt = desc.texture_viewer_count;
     if (dynamic_memory_cnt + texture_viewer_cnt > 0)
     {
         s64 binding = 0;
@@ -303,7 +303,7 @@ boole vulkan_pipeline::init(const pipeline_desc& desc, obs<pipeline> self)
 
     // render_flow [render pass + frame buffer]
     vulkan_render_flow_desc rf_desc;
-    rf_desc.type = desc._render_type;
+    rf_desc.type = desc.render_type;
     rf_desc.logical_device = logical_device;
     rf_desc.render_area = w_ctx->_swap_chain_extent;
     rf_desc.surface_format = w_ctx->_surface_format.format;
@@ -611,8 +611,8 @@ boole vulkan_pipeline::load_resource()
             }
         };
 
-    s64 dm_count = _desc._dynamic_memory_count;
-    s64 tv_count = _desc._texture_viewer_count;
+    s64 dm_count = _desc.dynamic_memory_count;
+    s64 tv_count = _desc.texture_viewer_count;
     _buffer_info_vec.resize(image_count * dm_count);
     _image_info_vec.resize(image_count * tv_count);
 
@@ -634,10 +634,10 @@ boole vulkan_pipeline::load_resource()
 
             _write_ds_vec.push_back(vector<VkWriteDescriptorSet>());
             s64 binding = 0;
-            for (s64 i = 0; i < _desc._dynamic_memory_count; ++i)
+            for (s64 i = 0; i < _desc.dynamic_memory_count; ++i)
             {
-                auto& bufferInfo = _buffer_info_vec[img * _desc._dynamic_memory_count + i];
-                bufferInfo.buffer = _dynamic_memory_buffer_vec[img * _desc._dynamic_memory_count + i];
+                auto& bufferInfo = _buffer_info_vec[img * _desc.dynamic_memory_count + i];
+                bufferInfo.buffer = _dynamic_memory_buffer_vec[img * _desc.dynamic_memory_count + i];
                 bufferInfo.offset = 0;
                 bufferInfo.range = _dynamic_memory_vec[i]->memory_size();
 
@@ -653,14 +653,14 @@ boole vulkan_pipeline::load_resource()
             }
 
             auto& tv_vec = _texture_viewer_updating_queue[img].second;
-            if (tv_vec.size() != _desc._texture_viewer_count)
+            if (tv_vec.size() != _desc.texture_viewer_count)
             {
                 return boole::False;
             }
-            for (s64 i = 0; i < _desc._texture_viewer_count; ++i)
+            for (s64 i = 0; i < _desc.texture_viewer_count; ++i)
             {
                 auto tv = tv_vec[i];
-                auto& imageInfo = _image_info_vec[img * _desc._texture_viewer_count + i];
+                auto& imageInfo = _image_info_vec[img * _desc.texture_viewer_count + i];
                 imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
                 imageInfo.imageView = tv->_vk_image_view;
                 imageInfo.sampler = tv->_vk_sampler;
@@ -905,7 +905,7 @@ void vulkan_pipeline::bind_texture_viewer(s64 image_idx, const vector<string>& t
         return;
     }
 
-    s64 dm_count = _desc._dynamic_memory_count;
+    s64 dm_count = _desc.dynamic_memory_count;
     auto& update_queue = _texture_viewer_updating_queue[image_idx].second;
     update_queue.clear();
 
@@ -951,7 +951,7 @@ void vulkan_pipeline::update_texture_viewer(s64 image_idx)
             lk.release();
         };
 
-    s64 tv_count = _desc._texture_viewer_count;
+    s64 tv_count = _desc.texture_viewer_count;
     for (s64 i = 0; i < update_queue.size(); ++i)
     {
         auto tv = update_queue[i];
@@ -1009,8 +1009,8 @@ boole vulkan_pipeline::update_command_buffer(s64 image_idx)
         }
     }
 
-    s64 dm_count = _desc._dynamic_memory_count;
-    s64 tv_count = _desc._texture_viewer_count;
+    s64 dm_count = _desc.dynamic_memory_count;
+    s64 tv_count = _desc.texture_viewer_count;
     if (dm_count + tv_count > 0)
     {
         vkUpdateDescriptorSets(

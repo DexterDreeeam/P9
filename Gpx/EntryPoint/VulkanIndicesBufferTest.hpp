@@ -48,31 +48,31 @@ void vulkan_indices_buffer_test()
     assert(fragment_shader_files_found.size());
 
     gpx::shader_desc shader_desc_1;
-    shader_desc_1._type = gpx::shader_type::VERTEX;
-    shader_desc_1._shader_name = "test vertex shader 1";
-    shader_desc_1._shader_path = vertex_shader_files_found[0];
+    shader_desc_1.type = gpx::shader_type::VERTEX;
+    shader_desc_1.shader_name = "test vertex shader 1";
+    shader_desc_1.shader_path = vertex_shader_files_found[0];
     auto vert_shader = rt->build_shader(shader_desc_1);
     checker = vert_shader.has_value();
     assert(checker);
 
     gpx::shader_desc shader_desc_2;
-    shader_desc_2._type = gpx::shader_type::FRAGMENT;
-    shader_desc_2._shader_name = "test fragment shader 1";
-    shader_desc_2._shader_path = fragment_shader_files_found[0];
+    shader_desc_2.type = gpx::shader_type::FRAGMENT;
+    shader_desc_2.shader_name = "test fragment shader 1";
+    shader_desc_2.shader_path = fragment_shader_files_found[0];
     auto frag_shader = rt->build_shader(shader_desc_2);
     checker = frag_shader.has_value();
     assert(checker);
 
     // register pipeline
     gpx::pipeline_desc pipeline_desc;
-    pipeline_desc._window_name = "Hello Pavilion Nine";
-    pipeline_desc._pipeline_name = "Pavilion Nine Test Pipeline";
-    pipeline_desc._render_type = gpx::pipeline_render_type::basic;
-    pipeline_desc._vertex_type = gpx::vertex_pos_color::type();
-    pipeline_desc._shaders.push_back(vert_shader);
-    pipeline_desc._shaders.push_back(frag_shader);
-    pipeline_desc._dynamic_memory_count = 0;
-    pipeline_desc._texture_viewer_count = 0;
+    pipeline_desc.window_name = "Hello Pavilion Nine";
+    pipeline_desc.pipeline_name = "Pavilion Nine Test Pipeline";
+    pipeline_desc.render_type = gpx::pipeline_render_type::basic;
+    pipeline_desc.vertex_type = gpx::vertex_pos_color::type();
+    pipeline_desc.shaders.push_back(vert_shader);
+    pipeline_desc.shaders.push_back(frag_shader);
+    pipeline_desc.dynamic_memory_count = 0;
+    pipeline_desc.texture_viewer_count = 0;
     checker = rt->register_pipeline(pipeline_desc);
     assert(checker);
 

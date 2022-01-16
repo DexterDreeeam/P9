@@ -9,27 +9,29 @@ namespace gpx
 enum class pipeline_render_type : s64
 {
     basic,
+    // polygon
+    // frame
 };
 
 struct pipeline_desc
 {
-    string                  _window_name;
-    string                  _pipeline_name;
-    pipeline_render_type    _render_type;
-    vertex_type             _vertex_type;
-    vector<ref<shader>>     _shaders;
-    s64                     _dynamic_memory_count;
-    s64                     _texture_viewer_count;
+    string                  window_name;
+    string                  pipeline_name;
+    pipeline_render_type    render_type;
+    vertex_type             vertex_type;
+    vector<ref<shader>>     shaders;
+    s64                     dynamic_memory_count;
+    s64                     texture_viewer_count;
 };
 
 /*
  * Uninit -> InitingOrUniniting -> Inited
  *                                 Inited -> SetupInProgress
  *                                 Inited <- SetupInProgress
- *                                 Inited ---------------------> ResourceLoadingOrUnloading -> ResourceLoaded
- *                                                                                             ResourceLoaded -> CommandSubmitting
+ *                                 Inited ---------------------> ResourceLoadingOrUnloading -> ResourceLoaded -> CommandSubmitting
  *                                                                                             ResourceLoaded <- CommandSubmitting
- *                                 Inited <--------------------- ResourceLoadingOrUnloading <- ResourceLoaded
+ *                                                                                             ResourceLoaded -> CommandSubmitting
+ *                                 Inited <--------------------- ResourceLoadingOrUnloading <- ResourceLoaded <- CommandSubmitting
  * Uninit <- InitingOrUniniting <- Inited
  */
 

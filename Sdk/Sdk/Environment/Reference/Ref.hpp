@@ -17,25 +17,25 @@ public:
 
     ref(const ref<Ty>& rhs);
 
-    ref(ref<Ty>&& rhs);
+    ref(ref<Ty>&& rhs) noexcept;
 
     template<typename Other_Ty>
     ref(const ref<Other_Ty>& rhs);
 
     template<typename Other_Ty>
-    ref(ref<Other_Ty>&& rhs);
+    ref(ref<Other_Ty>&& rhs) noexcept;
 
     ~ref();
 
     ref<Ty>& operator =(const ref<Ty>& rhs);
 
-    ref<Ty>& operator =(ref<Ty>&& rhs);
+    ref<Ty>& operator =(ref<Ty>&& rhs) noexcept;
 
     template<typename Other_Ty>
     ref<Ty>& operator =(const ref<Other_Ty>& rhs);
 
     template<typename Other_Ty>
-    ref<Ty>& operator =(ref<Other_Ty>&& rhs);
+    ref<Ty>& operator =(ref<Other_Ty>&& rhs) noexcept;
 
     bool operator ==(const ref<Ty>& rhs) const;
 

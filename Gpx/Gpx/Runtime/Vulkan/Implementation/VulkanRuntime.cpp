@@ -1101,7 +1101,7 @@ ref<shader> vulkan_runtime::build_shader(const shader_desc& desc)
     AUTO_TRACE;
 
     auto r_shader = ref<vulkan_shader>::new_instance(desc, _self);
-    if (!r_shader->load(desc._shader_path))
+    if (!r_shader->load(desc.shader_path))
     {
         return ref<shader>();
     }
@@ -1135,14 +1135,14 @@ boole vulkan_runtime::register_dynamic_memory(const dynamic_memory_desc& desc)
             _dynamic_memory_map_lock.write_release();
         };
 
-    if (_dynamic_memory_map.find(desc._name) != _dynamic_memory_map.end())
+    if (_dynamic_memory_map.find(desc.name) != _dynamic_memory_map.end())
     {
         // already has a same name dm
         return boole::False;
     }
 
     ef_uninit.disable();
-    _dynamic_memory_map[desc._name] = r_dm;
+    _dynamic_memory_map[desc.name] = r_dm;
     return boole::True;
 }
 
@@ -1212,13 +1212,13 @@ boole vulkan_runtime::register_texture_viewer(const texture_viewer_desc& desc)
         _texture_viewer_map_lock.write_release();
     };
 
-    if (_texture_viewer_map.find(desc._name) != _texture_viewer_map.end())
+    if (_texture_viewer_map.find(desc.name) != _texture_viewer_map.end())
     {
         // already has a same name pipeline
         return boole::False;
     }
 
-    _texture_viewer_map[desc._name] = r_vv;
+    _texture_viewer_map[desc.name] = r_vv;
     return boole::True;
 }
 
@@ -1263,7 +1263,7 @@ boole vulkan_runtime::unload_texture_viewer(const string& texture_viewer)
     return r_vv->unload();
 }
 
-boole vulkan_runtime::update_pipeline_texture_viewer(const string& pipeline_name, const vector<string>& viewers)
+boole vulkan_runtime::setup_pipeline_texture_viewer(const string& pipeline_name, const vector<string>& viewers)
 {
     auto p = get_pipeline(pipeline_name);
     if (p.empty())
@@ -1356,7 +1356,7 @@ boole vulkan_runtime::register_pipeline(const pipeline_desc& desc)
 {
     AUTO_TRACE;
 
-    auto w_ctx = get_window_context(desc._window_name);
+    auto w_ctx = get_window_context(desc.window_name);
     if (w_ctx.empty())
     {
         return boole::False;
@@ -1378,13 +1378,13 @@ boole vulkan_runtime::register_pipeline(const pipeline_desc& desc)
             _pipeline_map_lock.write_release();
         };
 
-    if (_pipeline_map.find(desc._pipeline_name) != _pipeline_map.end())
+    if (_pipeline_map.find(desc.pipeline_name) != _pipeline_map.end())
     {
         // already has a same name pipeline
         return boole::False;
     }
 
-    _pipeline_map[desc._pipeline_name] = r_pipeline;
+    _pipeline_map[desc.pipeline_name] = r_pipeline;
     return boole::True;
 }
 
@@ -1462,15 +1462,29 @@ boole vulkan_runtime::setup_vk_buffer(
 {
     AUTO_TRACE;
 
-    VkBuffer vk_buffer;
-    VkDeviceMemory vk_memory;
+    VkBuffer vk_buffer = nullptr;
+    VkDeviceMemory vk_memory = nullptr;
+
+    escape_function ef_error_handler =
+        [&]()
+        {
+            if (vk_buffer)
+            {
+                vkDestroyBuffer(logical_device, vk_buffer, nullptr);
+                vk_buffer = nullptr;
+            }
+            if (vk_memory)
+            {
+                vkFreeMemory(logical_device, vk_memory, nullptr);
+                vk_memory = nullptr;
+            }
+        };
 
     VkBufferCreateInfo bufferInfo = {};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     bufferInfo.size = size;
     bufferInfo.usage = usage;
     bufferInfo.sharingMode =
-        //rt->_render_queue_family_idx == rt->_transfer_queue_family_idx ?
         single_queue_family ? VK_SHARING_MODE_EXCLUSIVE : VK_SHARING_MODE_CONCURRENT;
 
     if (vkCreateBuffer(logical_device, &bufferInfo, nullptr, &vk_buffer) != VK_SUCCESS)
@@ -1488,19 +1502,17 @@ boole vulkan_runtime::setup_vk_buffer(
 
     if (vkAllocateMemory(logical_device, &allocInfo, nullptr, &vk_memory) != VK_SUCCESS)
     {
-        vkDestroyBuffer(logical_device, vk_buffer, nullptr);
         return boole::False;
     }
 
     if (vkBindBufferMemory(logical_device, vk_buffer, vk_memory, 0) != VK_SUCCESS)
     {
-        vkDestroyBuffer(logical_device, vk_buffer, nullptr);
-        vkFreeMemory(logical_device, vk_memory, nullptr);
         return boole::False;
     }
 
     buffer = vk_buffer;
     bufferMemory = vk_memory;
+    ef_error_handler.disable();
     return boole::True;
 }
 

@@ -30,7 +30,7 @@ boole vulkan_dynamic_memory::init(const dynamic_memory_desc& desc, obs<vulkan_dy
     AUTO_TRACE;
 
     _self = ob_dm;
-    _mem = ref<__vulkan_dynamic_memory_mem>::new_instance(desc._size);
+    _mem = ref<__vulkan_dynamic_memory_mem>::new_instance(desc.size);
     _desc = desc;
     return boole::True;
 }
@@ -46,15 +46,15 @@ boole vulkan_dynamic_memory::uninit()
 
 s64 vulkan_dynamic_memory::memory_size()
 {
-    return _desc._size;
+    return _desc.size;
 }
 
 boole vulkan_dynamic_memory::update(void* src)
 {
     AUTO_TRACE;
 
-    auto new_mem = ref<__vulkan_dynamic_memory_mem>::new_instance(_desc._size);
-    memory::copy(src, new_mem->_mem, _desc._size);
+    auto new_mem = ref<__vulkan_dynamic_memory_mem>::new_instance(_desc.size);
+    memory::copy(src, new_mem->_mem, _desc.size);
     _mem = new_mem;
 
     if (!_pipeline_memory_map_lock.wait_read())
@@ -144,12 +144,12 @@ boole vulkan_dynamic_memory::update_pipeline_memory(obs<vulkan_pipeline> pipelin
     auto logical_device = rt->get_vk_logical_device();
 
     void* mmap;
-    if (vkMapMemory(logical_device, memory, 0, _desc._size, 0, &mmap) != VK_SUCCESS)
+    if (vkMapMemory(logical_device, memory, 0, _desc.size, 0, &mmap) != VK_SUCCESS)
     {
         return boole::False;
     }
     auto m = _mem;
-    memory::copy(m->_mem, mmap, _desc._size);
+    memory::copy(m->_mem, mmap, _desc.size);
     vkUnmapMemory(logical_device, memory);
     return boole::True;
 }

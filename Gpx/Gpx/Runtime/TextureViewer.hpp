@@ -7,9 +7,9 @@ namespace gpx
 
 struct texture_viewer_desc
 {
-    string  _name;
-    string  _file_path;
-    boole   _mipmap_enable;
+    string  name;
+    string  file_path;
+    boole   mipmap_enable;
 };
 
 enum class texture_viewer_state : s64

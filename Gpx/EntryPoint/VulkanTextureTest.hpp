@@ -49,17 +49,17 @@ void vulkan_texture_test()
     assert(fragment_shader_files_found.size());
 
     gpx::shader_desc shader_desc_1;
-    shader_desc_1._type = gpx::shader_type::VERTEX;
-    shader_desc_1._shader_name = "test vertex shader 1";
-    shader_desc_1._shader_path = vertex_shader_files_found[0];
+    shader_desc_1.type = gpx::shader_type::VERTEX;
+    shader_desc_1.shader_name = "test vertex shader 1";
+    shader_desc_1.shader_path = vertex_shader_files_found[0];
     auto vert_shader = rt->build_shader(shader_desc_1);
     checker = vert_shader.has_value();
     assert(checker);
 
     gpx::shader_desc shader_desc_2;
-    shader_desc_2._type = gpx::shader_type::FRAGMENT;
-    shader_desc_2._shader_name = "test fragment shader 1";
-    shader_desc_2._shader_path = fragment_shader_files_found[0];
+    shader_desc_2.type = gpx::shader_type::FRAGMENT;
+    shader_desc_2.shader_name = "test fragment shader 1";
+    shader_desc_2.shader_path = fragment_shader_files_found[0];
     auto frag_shader = rt->build_shader(shader_desc_2);
     checker = frag_shader.has_value();
     assert(checker);
@@ -67,8 +67,8 @@ void vulkan_texture_test()
     // register dynamic memory
     tsf::MatTy transform_mat = tsf::MatTy::identity();
     gpx::dynamic_memory_desc dynamic_memory_desc;
-    dynamic_memory_desc._name = "Pavilion Nine Test Dynamic Memory";
-    dynamic_memory_desc._size = sizeof(transform_mat);
+    dynamic_memory_desc.name = "Pavilion Nine Test Dynamic Memory";
+    dynamic_memory_desc.size = sizeof(transform_mat);
 
     checker = rt->register_dynamic_memory(dynamic_memory_desc);
     assert(checker);
@@ -86,9 +86,9 @@ void vulkan_texture_test()
     assert(texture_files.size());
 
     gpx::texture_viewer_desc tv_desc;
-    tv_desc._name = "test 3 texture";
-    tv_desc._file_path = texture_files[0];
-    tv_desc._mipmap_enable = boole::True;
+    tv_desc.name = "test 3 texture";
+    tv_desc.file_path = texture_files[0];
+    tv_desc.mipmap_enable = boole::True;
     checker = rt->register_texture_viewer(tv_desc);
     assert(checker);
 
@@ -107,9 +107,9 @@ void vulkan_texture_test()
     assert(texture_files_sign.size());
 
     gpx::texture_viewer_desc tv_desc_sign;
-    tv_desc_sign._name = "test 3 texture sign";
-    tv_desc_sign._file_path = texture_files_sign[0];
-    tv_desc_sign._mipmap_enable = boole::True;
+    tv_desc_sign.name = "test 3 texture sign";
+    tv_desc_sign.file_path = texture_files_sign[0];
+    tv_desc_sign.mipmap_enable = boole::True;
     checker = rt->register_texture_viewer(tv_desc_sign);
     assert(checker);
 
@@ -118,14 +118,14 @@ void vulkan_texture_test()
 
     // register pipeline
     gpx::pipeline_desc pipeline_desc;
-    pipeline_desc._window_name = "Hello Pavilion Nine";
-    pipeline_desc._pipeline_name = "Pavilion Nine Test Pipeline";
-    pipeline_desc._render_type = gpx::pipeline_render_type::basic;
-    pipeline_desc._vertex_type = gpx::vertex_pos_texture::type();
-    pipeline_desc._shaders.push_back(vert_shader);
-    pipeline_desc._shaders.push_back(frag_shader);
-    pipeline_desc._dynamic_memory_count = 1;
-    pipeline_desc._texture_viewer_count = 1;
+    pipeline_desc.window_name = "Hello Pavilion Nine";
+    pipeline_desc.pipeline_name = "Pavilion Nine Test Pipeline";
+    pipeline_desc.render_type = gpx::pipeline_render_type::basic;
+    pipeline_desc.vertex_type = gpx::vertex_pos_texture::type();
+    pipeline_desc.shaders.push_back(vert_shader);
+    pipeline_desc.shaders.push_back(frag_shader);
+    pipeline_desc.dynamic_memory_count = 1;
+    pipeline_desc.texture_viewer_count = 1;
 
     checker = rt->register_pipeline(pipeline_desc);
     assert(checker);
@@ -160,7 +160,7 @@ void vulkan_texture_test()
     assert(checker);
 
     vector<string> tv_vec = { "test 3 texture" };
-    checker = rt->update_pipeline_texture_viewer("Pavilion Nine Test Pipeline", tv_vec);
+    checker = rt->setup_pipeline_texture_viewer("Pavilion Nine Test Pipeline", tv_vec);
     assert(checker);
 
     vector<string> vv_vec = { "test 3 vertices" };
@@ -185,7 +185,7 @@ void vulkan_texture_test()
         else if (diff >= 2000 && !texture_placed)
         {
             vector<string> tv_vec_sign = { "test 3 texture sign" };
-            checker = rt->update_pipeline_texture_viewer("Pavilion Nine Test Pipeline", tv_vec_sign);
+            checker = rt->setup_pipeline_texture_viewer("Pavilion Nine Test Pipeline", tv_vec_sign);
             assert(checker);
             texture_placed = boole::True;
         }

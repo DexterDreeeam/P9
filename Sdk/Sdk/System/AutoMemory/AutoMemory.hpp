@@ -8,13 +8,13 @@ public:
     {
     }
 
-    auto_memory(auto_memory&& rhs) :
+    auto_memory(auto_memory&& rhs) noexcept :
         _mem(rhs._mem)
     {
         rhs._mem = nullptr;
     }
 
-    auto_memory& operator =(auto_memory&& rhs)
+    auto_memory& operator =(auto_memory&& rhs) noexcept
     {
         _mem = rhs._mem;
         rhs._mem = nullptr;

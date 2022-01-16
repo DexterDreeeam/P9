@@ -76,7 +76,7 @@ boole vulkan_shader::unload()
 
 shader_type vulkan_shader::type()
 {
-    return _desc._type;
+    return _desc.type;
 }
 
 }

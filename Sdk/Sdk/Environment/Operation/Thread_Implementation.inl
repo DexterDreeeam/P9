@@ -10,7 +10,7 @@ _INLINE_ thread::thread(const thread& rhs) :
 {
 }
 
-_INLINE_ thread::thread(thread&& rhs) :
+_INLINE_ thread::thread(thread&& rhs) noexcept :
     _ctx(rhs._ctx)
 {
     rhs._ctx = nullptr;
@@ -22,7 +22,7 @@ _INLINE_ thread& thread::operator =(const thread& rhs)
     return *this;
 }
 
-_INLINE_ thread& thread::operator =(thread&& rhs)
+_INLINE_ thread& thread::operator =(thread&& rhs) noexcept
 {
     _ctx = rhs._ctx;
     rhs._ctx = nullptr;

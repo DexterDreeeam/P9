@@ -8,8 +8,8 @@ namespace gpx
 
 struct dynamic_memory_desc
 {
-    string    _name;
-    s64       _size;
+    string    name;
+    s64       size;
 };
 
 class dynamic_memory

@@ -49,17 +49,17 @@ void vulkan_uniform_buffer_test()
     assert(fragment_shader_files_found.size());
 
     gpx::shader_desc shader_desc_1;
-    shader_desc_1._type = gpx::shader_type::VERTEX;
-    shader_desc_1._shader_name = "test vertex shader 1";
-    shader_desc_1._shader_path = vertex_shader_files_found[0];
+    shader_desc_1.type = gpx::shader_type::VERTEX;
+    shader_desc_1.shader_name = "test vertex shader 1";
+    shader_desc_1.shader_path = vertex_shader_files_found[0];
     auto vert_shader = rt->build_shader(shader_desc_1);
     checker = vert_shader.has_value();
     assert(checker);
 
     gpx::shader_desc shader_desc_2;
-    shader_desc_2._type = gpx::shader_type::FRAGMENT;
-    shader_desc_2._shader_name = "test fragment shader 1";
-    shader_desc_2._shader_path = fragment_shader_files_found[0];
+    shader_desc_2.type = gpx::shader_type::FRAGMENT;
+    shader_desc_2.shader_name = "test fragment shader 1";
+    shader_desc_2.shader_path = fragment_shader_files_found[0];
     auto frag_shader = rt->build_shader(shader_desc_2);
     checker = frag_shader.has_value();
     assert(checker);
@@ -67,30 +67,30 @@ void vulkan_uniform_buffer_test()
     // register dynamic memory
     gpx::vec3 color_v3 = { 1.0, 1.0, 1.0 };
     gpx::dynamic_memory_desc dynamic_memory_desc1;
-    dynamic_memory_desc1._name = "Pavilion Nine Test Dynamic Memory 1";
-    dynamic_memory_desc1._size = sizeof(color_v3);
+    dynamic_memory_desc1.name = "Pavilion Nine Test Dynamic Memory 1";
+    dynamic_memory_desc1.size = sizeof(color_v3);
 
     checker = rt->register_dynamic_memory(dynamic_memory_desc1);
     assert(checker);
 
     tsf::MatTy transform_mat = tsf::MatTy::identity();
     gpx::dynamic_memory_desc dynamic_memory_desc2;
-    dynamic_memory_desc2._name = "Pavilion Nine Test Dynamic Memory 2";
-    dynamic_memory_desc2._size = sizeof(transform_mat);
+    dynamic_memory_desc2.name = "Pavilion Nine Test Dynamic Memory 2";
+    dynamic_memory_desc2.size = sizeof(transform_mat);
 
     checker = rt->register_dynamic_memory(dynamic_memory_desc2);
     assert(checker);
 
     // register pipeline
     gpx::pipeline_desc pipeline_desc;
-    pipeline_desc._window_name = "Hello Pavilion Nine";
-    pipeline_desc._pipeline_name = "Pavilion Nine Test Pipeline";
-    pipeline_desc._render_type = gpx::pipeline_render_type::basic;
-    pipeline_desc._vertex_type = gpx::vertex_pos_color::type();
-    pipeline_desc._shaders.push_back(vert_shader);
-    pipeline_desc._shaders.push_back(frag_shader);
-    pipeline_desc._dynamic_memory_count = 2;
-    pipeline_desc._texture_viewer_count = 0;
+    pipeline_desc.window_name = "Hello Pavilion Nine";
+    pipeline_desc.pipeline_name = "Pavilion Nine Test Pipeline";
+    pipeline_desc.render_type = gpx::pipeline_render_type::basic;
+    pipeline_desc.vertex_type = gpx::vertex_pos_color::type();
+    pipeline_desc.shaders.push_back(vert_shader);
+    pipeline_desc.shaders.push_back(frag_shader);
+    pipeline_desc.dynamic_memory_count = 2;
+    pipeline_desc.texture_viewer_count = 0;
 
     checker = rt->register_pipeline(pipeline_desc);
     assert(checker);

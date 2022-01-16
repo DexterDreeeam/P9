@@ -17,45 +17,45 @@ public:
 
     obs(const obs<Ty>& rhs);
 
-    obs(obs<Ty>&& rhs);
+    obs(obs<Ty>&& rhs) noexcept;
 
     template<typename Other_Ty>
     obs(const obs<Other_Ty>& rhs);
 
     template<typename Other_Ty>
-    obs(obs<Other_Ty>&& rhs);
+    obs(obs<Other_Ty>&& rhs) noexcept;
 
     obs(const ref<Ty>& rhs);
 
-    obs(ref<Ty>&& rhs);
+    obs(ref<Ty>&& rhs) noexcept;
 
     template<typename Other_Ty>
     obs(const ref<Other_Ty>& rhs);
 
     template<typename Other_Ty>
-    obs(ref<Other_Ty>&& rhs);
+    obs(ref<Other_Ty>&& rhs) noexcept;
 
     ~obs();
 
     obs<Ty>& operator =(const obs<Ty>& rhs);
 
-    obs<Ty>& operator =(obs<Ty>&& rhs);
+    obs<Ty>& operator =(obs<Ty>&& rhs) noexcept;
 
     template<typename Other_Ty>
     obs<Ty>& operator =(const obs<Other_Ty>& rhs);
 
     template<typename Other_Ty>
-    obs<Ty>& operator =(obs<Other_Ty>&& rhs);
+    obs<Ty>& operator =(obs<Other_Ty>&& rhs) noexcept;
 
     obs<Ty>& operator =(const ref<Ty>& rhs);
 
-    obs<Ty>& operator =(ref<Ty>&& rhs);
+    obs<Ty>& operator =(ref<Ty>&& rhs) noexcept;
 
     template<typename Other_Ty>
     obs<Ty>& operator =(const ref<Other_Ty>& rhs);
 
     template<typename Other_Ty>
-    obs<Ty>& operator =(ref<Other_Ty>&& rhs);
+    obs<Ty>& operator =(ref<Other_Ty>&& rhs) noexcept;
 
     bool operator ==(const obs<Ty>& rhs) const;
 

@@ -18,7 +18,7 @@ _INLINE_ obs<Ty>::obs(const obs<Ty>& rhs)
 }
 
 template<typename Ty>
-_INLINE_ obs<Ty>::obs(obs<Ty>&& rhs)
+_INLINE_ obs<Ty>::obs(obs<Ty>&& rhs) noexcept
 {
     auto* ctx = rhs._ctx.exchange(nullptr);
     _ctx.set(ctx);
@@ -40,7 +40,7 @@ _INLINE_ obs<Ty>::obs(const obs<Other_Ty>& rhs)
 
 template<typename Ty>
 template<typename Other_Ty>
-_INLINE_ obs<Ty>::obs(obs<Other_Ty>&& rhs)
+_INLINE_ obs<Ty>::obs(obs<Other_Ty>&& rhs) noexcept
 {
     Ty* pointer_checker = (Other_Ty*)nullptr;
 
@@ -60,7 +60,7 @@ _INLINE_ obs<Ty>::obs(const ref<Ty>& rhs)
 }
 
 template<typename Ty>
-_INLINE_ obs<Ty>::obs(ref<Ty>&& rhs)
+_INLINE_ obs<Ty>::obs(ref<Ty>&& rhs) noexcept
 {
     auto* ctx = rhs._ctx.exchange(nullptr);
     if (ctx)
@@ -85,7 +85,7 @@ _INLINE_ obs<Ty>::obs(const ref<Other_Ty>& rhs)
 
 template<typename Ty>
 template<typename Other_Ty>
-_INLINE_ obs<Ty>::obs(ref<Other_Ty>&& rhs)
+_INLINE_ obs<Ty>::obs(ref<Other_Ty>&& rhs) noexcept
 {
     auto* ctx = rhs._ctx.exchange(nullptr);
     if (ctx)
@@ -125,7 +125,7 @@ _INLINE_ obs<Ty>& obs<Ty>::operator =(const obs<Ty>& rhs)
 }
 
 template<typename Ty>
-_INLINE_ obs<Ty>& obs<Ty>::operator =(obs<Ty>&& rhs)
+_INLINE_ obs<Ty>& obs<Ty>::operator =(obs<Ty>&& rhs) noexcept
 {
     auto* ctx = rhs._ctx.exchange(nullptr);
     auto* origin = _ctx.exchange(ctx);
@@ -160,7 +160,7 @@ _INLINE_ obs<Ty>& obs<Ty>::operator =(const obs<Other_Ty>& rhs)
 
 template<typename Ty>
 template<typename Other_Ty>
-_INLINE_ obs<Ty>& obs<Ty>::operator =(obs<Other_Ty>&& rhs)
+_INLINE_ obs<Ty>& obs<Ty>::operator =(obs<Other_Ty>&& rhs) noexcept
 {
     auto* ctx = rhs._ctx.exchange(nullptr);
     auto* origin = _ctx.exchange(pointer_convert(ctx, 0, _RefNs::context<Ty>*));
@@ -191,7 +191,7 @@ _INLINE_ obs<Ty>& obs<Ty>::operator =(const ref<Ty>& rhs)
 }
 
 template<typename Ty>
-_INLINE_ obs<Ty>& obs<Ty>::operator =(ref<Ty>&& rhs)
+_INLINE_ obs<Ty>& obs<Ty>::operator =(ref<Ty>&& rhs) noexcept
 {
     auto* ctx = rhs._ctx.exchange(nullptr);
     ctx->add_obs();
@@ -229,7 +229,7 @@ _INLINE_ obs<Ty>& obs<Ty>::operator =(const ref<Other_Ty>& rhs)
 
 template<typename Ty>
 template<typename Other_Ty>
-_INLINE_ obs<Ty>& obs<Ty>::operator =(ref<Other_Ty>&& rhs)
+_INLINE_ obs<Ty>& obs<Ty>::operator =(ref<Other_Ty>&& rhs) noexcept
 {
     auto* ctx = rhs._ctx.exchange(nullptr);
     ctx->add_obs();

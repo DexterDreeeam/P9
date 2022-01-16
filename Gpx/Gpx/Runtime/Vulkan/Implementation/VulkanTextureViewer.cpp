@@ -51,7 +51,7 @@ boole vulkan_texture_viewer::load()
 
     void* data;
     auto tt = texture::load_with_allocator(
-        _desc._file_path,
+        _desc.file_path,
         [&](sz_t sz) mutable -> void*
         {
             if (!vulkan_runtime::setup_vk_buffer(
@@ -81,7 +81,7 @@ boole vulkan_texture_viewer::load()
     vkUnmapMemory(logical_device, host_memory);
 
     s64 mipmap_level = 1;
-    if (_desc._mipmap_enable)
+    if (_desc.mipmap_enable)
     {
         VkFormatProperties formatProperties;
         vkGetPhysicalDeviceFormatProperties(rt->get_vk_physical_device(), VK_FORMAT_R8G8B8A8_SRGB, &formatProperties);
