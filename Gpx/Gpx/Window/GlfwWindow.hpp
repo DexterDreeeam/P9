@@ -25,7 +25,7 @@ public:
 
     virtual boole stop() override;
 
-    virtual boole present(s64 my_image) override;
+    // virtual boole present(s64 my_image) override;
 
     virtual boole poll_event() override;
 

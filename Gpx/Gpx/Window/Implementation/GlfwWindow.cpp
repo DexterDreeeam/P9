@@ -129,12 +129,12 @@ boole glfw_window::stop()
     return boole::True;
 }
 
-boole glfw_window::present(s64 my_image)
-{
-    AUTO_TRACE;
-
-    return boole::True;
-}
+// boole glfw_window::present(s64 my_image)
+// {
+//     AUTO_TRACE;
+// 
+//     return boole::True;
+// }
 
 boole glfw_window::poll_event()
 {

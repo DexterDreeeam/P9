@@ -185,10 +185,42 @@ Runtime is core of Gpx, execute main logic flow for Graphics processing.<br>
 > ```
 > <small>*wait all pipelines complete renderring.*</small>
 
+## **Window**
+Window is Os display port handler.<br>
+`gpx::window` is base type of multi-implementation class.
+`gpx::runtime::build_window` could create one Window object and get reference to it.
+
+---------
+
+> ```cpp
+> string gpx::window::name()
+> ```
+> <small>*get window name.*</small>
+
+> ```cpp
+> boole gpx::window::start()
+> ```
+> <small>*start displaying window.*</small>
+
+> ```cpp
+> boole gpx::window::stop()
+> ```
+> <small>*stop displaying window.*</small>
+
+> ```cpp
+> boole gpx::window::poll_event()
+> ```
+> <small>*process window input event.*</small>
+
+> ```cpp
+> boole gpx::window::is_running()
+> ```
+> <small>*tell if a window is running.*</small>
+
 ## **Shader**
-Shader is render shader handler, call 'gpx::runtime::build_shader' to get reference to a Shader.<br>
+Shader is render shader handler.<br>
 `gpx::shader` is base type of multi-implementation class.
-`gpx::runtime::build_shader` could create one Shader object.
+`gpx::runtime::build_shader` could create one Shader object and get reference to it.
 
 ---------
 

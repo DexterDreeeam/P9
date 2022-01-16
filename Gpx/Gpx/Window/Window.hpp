@@ -34,7 +34,7 @@ public:
 
     virtual boole stop() = 0;
 
-    virtual boole present(s64 my_image) = 0;
+    // virtual boole present(s64 my_image) = 0;
 
     virtual boole poll_event() = 0;
 
