@@ -7,15 +7,15 @@ Runtime is core of Gpx, execute main logic flow for Graphics processing.<br>
 
 ---------
 
-### Runtime Basic Interface
+* ### Runtime Basic Interface
 
 ```cpp
-    static ref<gpx::runtime::runtime> gpx::runtime::build(const gpx::runtime_desc& desc)
+static ref<gpx::runtime::runtime> gpx::runtime::build(const gpx::runtime_desc& desc)
 ```
-    build a core runtime and get reference to it.
+build a core runtime and get reference to it.
 
 ```cpp
-    vector<string> gpx::runtime::list_device()
+vector<string> gpx::runtime::list_device()
 ```
 get a list of usable physical device name.
 
