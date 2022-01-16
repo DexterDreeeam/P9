@@ -7,7 +7,7 @@ Runtime is core of Gpx, execute main logic flow for Graphics processing.<br>
 
 ---------
 
-### Runtime Basic Interface
+### * Runtime Basic Interface
 
 ```cpp
 static ref<gpx::runtime::runtime> gpx::runtime::build(const gpx::runtime_desc& desc)
