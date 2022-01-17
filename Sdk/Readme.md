@@ -34,4 +34,4 @@
 > #include "./InterfaceExt.hpp"
 > ```
 > <small>*extensive p9 sdk interface, support advanced features:<br>*</small>
-> <small>*`C++ Coroutine Task`, see [P9 Sdk Task](./Sdk/EntryPoint/UT_Task.hpp).*</small>
+> * <small>*`C++ Coroutine Task`, see [P9 Sdk Task](./Sdk/EntryPoint/UT_Task.hpp).*</small>
