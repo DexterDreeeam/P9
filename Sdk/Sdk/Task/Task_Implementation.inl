@@ -1,113 +1,213 @@
 #pragma once
 
-_INLINE_ bool task_base::await_ready()
+namespace _TaskNs
 {
-    auto& l_sync_point = *_sync_point.raw_ptr();
-    s64 my_order = ++l_sync_point;
-    assert(my_order == 1 || my_order == 2);
 
-    if (my_order == 1)
+_INLINE_ task_base::task_promise_base::task_promise_base() :
+    _ctx(ref<runtime_context>::new_instance())
+{
+}
+
+_INLINE_ is_suspend<false> task_base::task_promise_base::final_suspend() noexcept
+{
+    auto current_state = _ctx->_state.compare_exchange(0, 18);
+    if (current_state == 0)
     {
-        // _Await_ this Task, but it doesn't complete
-        return false;
+        // no waiting outsides, do nothing
+    }
+    else if (current_state >= 10 && current_state <= 12)
+    {
+        // co_await is awaiting this
+        while (_ctx->_state.get() != 12)
+        {
+            yield();
+        }
+        assert(_ctx->_parent_coro);
+        _ctx->_parent_coro.resume();
+    }
+    else if (current_state == 5 || current_state == 6)
+    {
+        // there is wait_complete() function waiting this
+        if (current_state == 5)
+        {
+            while (_ctx->_state.get() != 6)
+            {
+                yield();
+            }
+        }
+        _ctx->_event.set();
     }
     else
     {
+        // unexpected case
+        assert(0);
+    }
+    return is_suspend<false>();
+}
+
+_INLINE_ bool task_base::await_ready()
+{
+    auto current_state = _ctx->_state.compare_exchange(0, 10);
+    if (current_state == 0)
+    {
+        return false;
+    }
+    else if (current_state == 18)
+    {
+        return true;
+    }
+    else if (current_state == 6)
+    {
+        return true;
+    }
+    else
+    {
+        // unexpected
+        assert(0);
         return true;
     }
 }
 
-_INLINE_ bool task_base::await_suspend(CoroCtxTy coro)
+_INLINE_ void task_base::await_suspend(CoroTyBase parent_coro)
 {
-    *_parent_coro_addr.raw_ptr() = coro.address();
+    escape_function ef_exit =
+        [=]()
+        {
+            auto old_state = _ctx->_state.exchange(12);
+            assert(old_state == 11);
+        };
 
-    auto& l_sync_point = *_sync_point.raw_ptr();
-    ++l_sync_point;
-
-    return true;
+    _ctx->_parent_coro = parent_coro;
+    auto old_state = _ctx->_state.exchange(11);
+    assert(old_state == 10);
 }
 
-_INLINE_ task_base::task_base(CoroCtxTy coro) :
-    _sync_point(ref<atom<s64>>::new_instance(0)),
-    _coro(coro),
-    _parent_coro_addr(ref<void*>::new_instance(nullptr)),
-    _p_action_sync_event(nullptr)
+_INLINE_ task_base::task_base(ref<runtime_context> ctx) :
+    _ctx(ctx)
 {
 }
 
 _INLINE_ task_base::task_base(const task_base& rhs) :
-    _sync_point(rhs._sync_point),
-    _coro(rhs._coro),
-    _parent_coro_addr(rhs._parent_coro_addr),
-    _p_action_sync_event(rhs._p_action_sync_event)
+    _ctx(rhs._ctx)
 {
 }
 
 _INLINE_ task_base& task_base::operator =(const task_base& rhs)
 {
-    _sync_point = rhs._sync_point;
-    _coro = rhs._coro;
-    _parent_coro_addr = rhs._parent_coro_addr;
-    _p_action_sync_event = rhs._p_action_sync_event;
+    _ctx = rhs._ctx;
     return *this;
 }
 
-_INLINE_ void task_base::execute_async()
+_INLINE_ void task_base::wait_complete()
 {
-    thread t;
-    t.init(task_base::execute_entrypoint);
-
-    auto* p = new callback_context();
-    p->sync_point = _sync_point;
-    p->coro = _coro;
-    p->parent_coro_addr = _parent_coro_addr;
-    p->pp_action_sync_event = &_p_action_sync_event;
-
-    t.start(p);
-    t.uninit();
-}
-
-_INLINE_ void task_base::execute_entrypoint(void* p)
-{
-    callback_context* p_ctx = pointer_convert(p, 0, callback_context*);
-
-    // store context content
-    auto sync_point = p_ctx->sync_point;
-    auto task_coro = p_ctx->coro;
-    auto parent_coro_addr = p_ctx->parent_coro_addr;
-    auto pp_action_sync_event = p_ctx->pp_action_sync_event;
-
-    delete p_ctx;
-
-    // execute Task function body
-    task_coro.resume();
-
-    auto& l_sync_point = *sync_point.raw_ptr();
-    s64 my_order = ++l_sync_point;
-    assert(my_order == 1 || my_order == 2 || my_order == 3);
-
-    if (my_order == 1)
+    auto current_state = _ctx->_state.compare_exchange(0, 5);
+    if (current_state == 0)
     {
-        // no _Await_ operator waiting this Task now
+        // not complete, setup event to wait
+        _ctx->_event.init();
+        _ctx->_state.set(6);
+        _ctx->_event.wait();
+        _ctx->_event.uninit();
         return;
     }
-
-    if (*pp_action_sync_event)
+    else if (current_state == 18)
     {
-        // action call task
-        // action _Await_ done
-        // notify action thread
-        (*pp_action_sync_event)->set();
+        // complete already, just return
+        return;
     }
-
-    while (my_order == 2)
+    else if (current_state == 6)
     {
-        yield();
-        my_order = l_sync_point.get();
+        // there is already wait_complete() ahead this one
+        return;
     }
+    else
+    {
+        // unexpected operation, not support
+        assert(0);
+    }
+}
 
-    assert(my_order == 3);
-    // resume Caller's execute body
-    auto parent_coro = CoroCtxTy::from_address(*parent_coro_addr.raw_ptr());
-    parent_coro.resume();
+}
+
+template<typename RetTy>
+_INLINE_ task<RetTy>::task_promise::task_promise() :
+    _TaskNs::task_base::task_promise_base(),
+    _r_rst(ref<RetTy>::new_instance())
+{
+}
+
+template<typename RetTy>
+_INLINE_ task<RetTy>::SelfTy task<RetTy>::task_promise::get_return_object()
+{
+    auto coro = CoroTy<task_promise>::from_promise(*this);
+    _ctx->_coro = coro;
+    return SelfTy(_ctx, _r_rst);
+}
+
+template<typename RetTy>
+_INLINE_ void task<RetTy>::task_promise::return_value(const RetTy& rst)
+{
+    assert(_r_rst.has_value());
+    *_r_rst.raw_ptr() = rst;
+}
+
+template<typename RetTy>
+_INLINE_ void task<RetTy>::task_promise::return_value(RetTy&& rst)
+{
+    assert(_r_rst.has_value());
+    *_r_rst.raw_ptr() = (RetTy&&)rst;
+}
+
+template<typename RetTy>
+_INLINE_ task<RetTy>::task(ref<_TaskNs::runtime_context> ctx, ref<RetTy> r_rst) :
+    _TaskNs::task_base(ctx),
+    _r_rst(r_rst)
+{
+}
+
+template<typename RetTy>
+_INLINE_ task<RetTy>::task(const task<RetTy>& rhs) :
+    _TaskNs::task_base(rhs),
+    _r_rst(rhs._r_rst)
+{
+}
+
+template<typename RetTy>
+_INLINE_ task<RetTy>& task<RetTy>::operator =(const task<RetTy>& rhs)
+{
+    _TaskNs::task_base::operator =(rhs);
+    _r_rst = rhs._r_rst;
+    return *this;
+}
+
+_INLINE_ task<void>::task_promise::task_promise() :
+    _TaskNs::task_base::task_promise_base()
+{
+}
+
+_INLINE_ task<void>::SelfTy task<void>::task_promise::get_return_object()
+{
+    auto coro = CoroTy<task_promise>::from_promise(*this);
+    _ctx->_coro = coro;
+    return SelfTy(_ctx);
+}
+
+_INLINE_ void task<void>::task_promise::return_void()
+{
+}
+
+_INLINE_ task<void>::task(ref<_TaskNs::runtime_context> ctx) :
+    _TaskNs::task_base(ctx)
+{
+}
+
+_INLINE_ task<void>::task(const task<void>& rhs) :
+    _TaskNs::task_base(rhs)
+{
+}
+
+_INLINE_ task<void>& task<void>::operator =(const task<void>& rhs)
+{
+    _TaskNs::task_base::operator =(rhs);
+    return *this;
 }

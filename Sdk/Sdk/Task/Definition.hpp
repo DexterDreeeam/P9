@@ -1,11 +1,20 @@
 #pragma once
 
-class action_base;
+// #define Await   co_await
+// #define Return  co_return
 
-template<typename RetTy = void>
-class action;
+
+namespace _TaskNs
+{
+
+class task_async_base;
 
 class task_base;
+
+}
+
+template<typename RetTy = void>
+class task_async;
 
 template<typename RetTy = void>
 class task;
@@ -13,95 +22,135 @@ class task;
 template<typename PromiseTy>
 using CoroTy = std::coroutine_handle<PromiseTy>;
 
-using CoroCtxTy = std::coroutine_handle<>;
+using CoroTyBase = std::coroutine_handle<>;
 
-#define _Await_   co_await
-#define _Return_  co_return
 
 namespace _TaskNs
 {
 
-class sync_event_wrapper
+class auto_event
 {
 public:
-    sync_event_wrapper()
+    class auto_event_internal
     {
-        e.init();
+    public:
+        auto_event_internal()
+        {
+            e.init();
+        }
+
+        auto_event_internal(const auto_event_internal&) = delete;
+
+        auto_event_internal& operator =(const auto_event_internal&) = delete;
+
+        ~auto_event_internal()
+        {
+            e.uninit();
+        }
+
+        void set()
+        {
+            e.set();
+        }
+
+        void wait()
+        {
+            e.wait();
+        }
+
+        event e;
+    };
+
+public:
+    auto_event() :
+        re(ref<auto_event_internal>::new_instance())
+    {
     }
 
-    ~sync_event_wrapper()
+    ~auto_event()
     {
-        e.uninit();
+    }
+
+    auto_event(const auto_event& rhs) :
+        re(rhs.re)
+    {
+    }
+
+    auto_event& operator =(const auto_event& rhs)
+    {
+        re = rhs.re;
+        return *this;
     }
 
     void set()
     {
-        e.set();
+        re->set();
     }
 
     void wait()
     {
-        e.wait();
+        re->wait();
     }
 
-public:
-    event e;
+private:
+    ref<auto_event_internal> re;
 };
 
-template<typename RetTy = void>
-class suspend_never;
-
-template<>
-class suspend_never<void>
+struct runtime_context
 {
-public:
-    suspend_never()
+    runtime_context() :
+        _coro(nullptr),
+        _parent_coro(nullptr),
+        _event(),
+        _state(0)
     {
     }
 
-    bool await_ready()
-    {
-        return true;
-    }
+    ~runtime_context() = default;
 
-    void await_suspend(CoroCtxTy coro)
-    {
-    }
+    CoroTyBase   _coro;
+    CoroTyBase   _parent_coro;
+    event        _event;
 
-    void await_resume()
-    {
-    }
+    /* state definition
+           0 -> 16  [task_async][sub_thread]      complete by sub_thread
+
+           0 -> 1   [task_async][co_await]        await, but not complete
+           1 -> 2   [task_async][co_await]        parent_coro set done
+           2 -> 3   [task_async][co_await]        await process exit
+
+           0 -> 5            [*][wait_complete]   wait_complete() waiting outside
+           5 -> 6            [*][wait_complete]   wait_complete() setup event already
+
+           0 -> 18        [task][execute_thread]  complete by any thread
+
+           0 -> 10        [task][co_await]        await, but not complete (another thread is running)
+          10 -> 11        [task][co_await]        parent_coro set done
+          11 -> 12        [task][co_await]        await process exit
+     */
+    atom<s64>  _state;
 };
 
-template<typename RetTy>
-class suspend_never
+template<bool suspend>
+class is_suspend
 {
 public:
-    suspend_never(ref<RetTy> r_rst) :
-        _r_rst(r_rst)
+    is_suspend() noexcept
     {
     }
 
-    suspend_never(const suspend_never& rhs) :
-        _r_rst(rhs._r_rst)
+    bool await_ready() noexcept
+    {
+        return !suspend;
+    }
+
+    void await_suspend(CoroTyBase coro) noexcept
     {
     }
 
-    bool await_ready()
-    {
-        return true;
-    }
-
-    void await_suspend(CoroCtxTy coro)
+    void await_resume() noexcept
     {
     }
-
-    RetTy await_resume()
-    {
-        return RetTy(*_r_rst.raw_ptr());
-    }
-
-    ref<RetTy>  _r_rst;
 };
 
 }

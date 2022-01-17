@@ -60,11 +60,15 @@
     <ClInclude Include="Environment\Reference\Context.hpp" />
     <ClInclude Include="Environment\Reference\Obs.hpp" />
     <ClInclude Include="Environment\Reference\Ref.hpp" />
-    <ClInclude Include="Task\Action.hpp" />
     <ClInclude Include="Task\Definition.hpp" />
     <ClInclude Include="Task\Interface.hpp" />
     <ClInclude Include="Task\Task.hpp" />
-    <ClInclude Include="Task\TaskSet.hpp" />
+    <ClInclude Include="Task\TaskAsync.hpp" />
+    <ClInclude Include="Task_Deprecated\Action.hpp" />
+    <ClInclude Include="Task_Deprecated\Definition.hpp" />
+    <ClInclude Include="Task_Deprecated\Interface.hpp" />
+    <ClInclude Include="Task_Deprecated\Task.hpp" />
+    <ClInclude Include="Task_Deprecated\TaskSet.hpp" />
     <ClInclude Include="Interface.hpp" />
     <ClInclude Include="System\AutoMemory\AutoMemory.hpp" />
     <ClInclude Include="System\Interface.hpp" />
@@ -128,8 +132,10 @@
     <None Include="Environment\Reference\Context_Implementation.inl" />
     <None Include="Environment\Reference\Obs_Implementation.inl" />
     <None Include="Environment\Reference\Ref_Implementation.inl" />
-    <None Include="Task\Action_Implementation.inl" />
+    <None Include="Task\TaskAsync_Implementation.inl" />
     <None Include="Task\Task_Implementation.inl" />
+    <None Include="Task_Deprecated\Action_Implementation.inl" />
+    <None Include="Task_Deprecated\Task_Implementation.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

@@ -57,44 +57,44 @@
 
 #if defined(I_AM_LINUX_GCC)
 
- // >= g++-10
- // -fcoroutines
-#include <coroutine>
+    // >= g++-10
+    // -fcoroutines
+    #include <coroutine>
 
 #elif defined(I_AM_WINDOWS_MSVC)
 
-#define __PLACEMENT_NEW_INLINE
-#define __PLACEMENT_VEC_NEW_INLINE
-#include <coroutine>
+    #define __PLACEMENT_NEW_INLINE
+    #define __PLACEMENT_VEC_NEW_INLINE
+    #include <coroutine>
 
 #else
 
-#error "Not supported environment"
+    #error "Not supported environment"
 
 #endif
 
-/*
- *
- * call task_async function                - raise new thread (sub_thread) to run
- *
- * co_await [not complete] task_async      - current thread return, execute remaining with sub_thread (created by one task_async function call)
- *
- * co_await [completed] task_async         - go through with current thread
- *
- *
- * call task function                      - execute in current thread until co_await keyword in it
- *
- * co_await [not complete] task            - current thread return, execute remaining with sub_thread (created by one task_async function call)
- *
- * co_await [completed] task               - go through with current thread
- *
- */
-
+//
+// TaskSet function contains several Task function and Action function, TaskSet function is entry point for all Task-like function
+//    _Await_  Task               will raise a new thread
+//    _Await_  Action             will execute function in current thread
+//    _Return_ TaskSet<RetTy>
+//
+// Task function contains several Task function and Action function
+//    _Await_  Task               will raise a new thread
+//    _Await_  Action             will execute function in current thread
+//    _Return_ Task<RetTy>
+//
+// Action function contains several Task function and Action function
+//    _Await_  Task               will raise a new thread
+//    _Await_  Action             will execute function in current thread
+//    _Return_ Action<RetTy>
+//
 
 #include "Definition.hpp"
 
-#include "TaskAsync.hpp"
+#include "Action.hpp"
 #include "Task.hpp"
+#include "TaskSet.hpp"
 
-#include "TaskAsync_Implementation.inl"
+#include "Action_Implementation.inl"
 #include "Task_Implementation.inl"

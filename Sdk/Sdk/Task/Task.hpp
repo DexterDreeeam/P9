@@ -1,24 +1,27 @@
 #pragma once
 
+namespace _TaskNs
+{
+
 class task_base
 {
-    friend struct action_base::ActionPromiseBase;
-
 public:
-    struct TaskPromiseBase
+    struct task_promise_base
     {
-        constexpr std::suspend_always initial_suspend() noexcept
+        task_promise_base();
+
+        ~task_promise_base() = default;
+
+        auto initial_suspend() noexcept
         {
-            return std::suspend_always();
+            return is_suspend<false>();
         }
 
-        constexpr std::suspend_never final_suspend() noexcept
-        {
-            return std::suspend_never();
-        }
+        is_suspend<false> final_suspend() noexcept;
 
         void unhandled_exception() noexcept
         {
+            assert(0);
         }
 
         void* operator new(size_t sz)
@@ -26,19 +29,23 @@ public:
             return memory::alloc(sz);
         }
 
-        void operator delete(void* p)
+        void operator delete(void* p) noexcept
         {
-            return memory::free(p);
+            memory::free(p);
         }
+
+        ref<runtime_context> _ctx;
     };
 
 public:
     bool await_ready();
 
-    bool await_suspend(CoroCtxTy coro);
+    void await_suspend(CoroTyBase parent_coro);
 
 public:
-    task_base(CoroCtxTy coro);
+    task_base() = delete;
+
+    task_base(ref<runtime_context> ctx);
 
     task_base(const task_base& rhs);
 
@@ -47,167 +54,45 @@ public:
     ~task_base() = default;
 
 public:
-    struct callback_context
-    {
-        ref<atom<s64>>                 sync_point;
-        CoroCtxTy                      coro;
-        ref<void*>                     parent_coro_addr;
-        _TaskNs::sync_event_wrapper**  pp_action_sync_event;
-    };
+    void wait_complete();
 
 protected:
-    void execute_async();
-
-private:
-    void set_action_sync_event(_TaskNs::sync_event_wrapper* action_sync_event)
-    {
-        _p_action_sync_event = action_sync_event;
-    }
-
-    static void execute_entrypoint(void* p);
-
-protected:
-    // sync_point will add 1 when:
-    // 1. await ready be called
-    // 2. await suspend complete
-    // 2. Task body complete
-    ref<atom<s64>>                _sync_point;
-    CoroCtxTy                     _coro;
-    ref<void*>                    _parent_coro_addr;
-    _TaskNs::sync_event_wrapper*  _p_action_sync_event;
+    ref<runtime_context> _ctx;
 };
 
-template<>
-class task<void> : public task_base
-{
-public:
-    using TaskTy = task<void>;
-
-    friend class task_base;
-    template<typename AllTy> friend class task;
-
-    friend class action_base;
-    template<typename AllTy> friend class action;
-
-    struct TaskPromiseTy : public task_base::TaskPromiseBase
-    {
-        TaskTy get_return_object()
-        {
-            auto coro = CoroTy<TaskPromiseTy>::from_promise(*this);
-            return TaskTy(coro);
-        }
-
-        void return_void()
-        {
-        }
-    };
-
-    using promise_type = TaskPromiseTy;
-
-public:
-    task(CoroCtxTy coro) :
-        task_base(coro)
-    {
-    }
-
-    task(const task& rhs) :
-        task_base(rhs)
-    {
-    }
-
-    task(task&& rhs) :
-        task_base(rhs)
-    {
-    }
-
-    task& operator =(const task&) = delete;
-
-    task& operator =(task&& rhs)
-    {
-        task_base::operator =(rhs);
-        return *this;
-    }
-
-    ~task() = default;
-
-public:
-    void await_resume()
-    {
-    }
-
-public:
-    TaskTy& execute_async()
-    {
-        task_base::execute_async();
-        return *this;
-    }
-};
+}
 
 template<typename RetTy>
-class task : public task_base
+class task : public _TaskNs::task_base
 {
 public:
-    using TaskTy = task<RetTy>;
+    using SelfTy = task<RetTy>;
 
-    friend class task_base;
-    template<typename AllTy> friend class task;
-
-    friend class action_base;
-    template<typename AllTy> friend class action;
-
-    struct TaskPromiseTy : public task_base::TaskPromiseBase
+    struct task_promise : _TaskNs::task_base::task_promise_base
     {
-        TaskTy get_return_object()
-        {
-            auto coro = CoroTy<TaskPromiseTy>::from_promise(*this);
-            _r_rst = ref<RetTy>::new_instance();
-            return TaskTy(coro, _r_rst);
-        }
+        task_promise();
 
-        void return_value(const RetTy& rst)
-        {
-            assert(_r_rst.has_value());
-            *_r_rst.raw_ptr() = rst;
-        }
+        ~task_promise() = default;
 
-        void return_value(RetTy&& rst)
-        {
-            assert(_r_rst.has_value());
-            *_r_rst.raw_ptr() = (RetTy&&)rst;
-        }
+        SelfTy get_return_object();
+
+        void return_value(const RetTy& rst);
+
+        void return_value(RetTy&& rst);
 
         ref<RetTy> _r_rst;
     };
 
-    using promise_type = TaskPromiseTy;
+    using promise_type = task_promise;
 
 public:
-    task(CoroTy<TaskPromiseTy> coro, ref<RetTy> r_rst) :
-        task_base(coro),
-        _r_rst(r_rst)
-    {
-    }
+    task() = delete;
 
-    task(const task& rhs) :
-        task_base(rhs),
-        _r_rst(rhs._r_rst)
-    {
-    }
+    task(ref<_TaskNs::runtime_context> ctx, ref<RetTy> r_rst);
 
-    task(task&& rhs) :
-        task_base(rhs),
-        _r_rst(rhs._r_rst)
-    {
-    }
+    task(const task& rhs);
 
-    task& operator =(const task&) = delete;
-
-    task& operator =(task&& rhs)
-    {
-        task_base::operator =(rhs);
-        _r_rst = rhs._r_rst;
-        return *this;
-    }
+    task& operator =(const task& rhs);
 
     ~task() = default;
 
@@ -218,17 +103,53 @@ public:
     }
 
 public:
-    TaskTy& execute_async()
-    {
-        task_base::execute_async();
-        return *this;
-    }
-
     ref<RetTy> result_ref()
     {
         return _r_rst;
     }
 
+    RetTy wait_result()
+    {
+        wait_complete();
+        return await_resume();
+    }
+
 private:
-    ref<RetTy>  _r_rst;
+    ref<RetTy> _r_rst;
+};
+
+template<>
+class task<void> : public _TaskNs::task_base
+{
+public:
+    using SelfTy = task<void>;
+
+    struct task_promise : _TaskNs::task_base::task_promise_base
+    {
+        task_promise();
+
+        ~task_promise() = default;
+
+        SelfTy get_return_object();
+
+        void return_void();
+    };
+
+    using promise_type = task_promise;
+
+public:
+    task() = delete;
+
+    task(ref<_TaskNs::runtime_context> ctx);
+
+    task(const task& rhs);
+
+    task& operator =(const task& rhs);
+
+    ~task() = default;
+
+public:
+    void await_resume()
+    {
+    }
 };
