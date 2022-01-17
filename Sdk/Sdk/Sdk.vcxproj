@@ -38,7 +38,7 @@
     <ClInclude Include="Environment\EnvironmentWindowsMsvc\Definition.hpp" />
     <ClInclude Include="Environment\EnvironmentWindowsMsvc\EnvironmentHeader.hpp" />
     <ClInclude Include="Environment\Interface.hpp" />
-    <ClInclude Include="Interface_Task.hpp" />
+    <ClInclude Include="InterfaceExt.hpp" />
     <ClInclude Include="Environment\Operation\Assert.hpp" />
     <ClInclude Include="Environment\Operation\Atom.hpp" />
     <ClInclude Include="Environment\Operation\Basic.hpp" />

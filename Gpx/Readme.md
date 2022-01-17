@@ -1,4 +1,4 @@
-**Pavailion 9 Gpx Interface**
+**Pavailion Nine Gpx Interface**
 =========
 
 ## **Dynamic Memory**

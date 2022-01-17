@@ -2,6 +2,6 @@ Pavilion Nine Project.
 =========
 > Cross OS Software Set.
 
-* Sdk: [Pavilion 9 Sdk](Sdk/Readme.md)
+* Sdk: [P9 Sdk](Sdk/Readme.md)
 
-* Gpx: [Pavilion 9 Gpx](Gpx/Readme.md)
+* Gpx: [P9 Gpx](Gpx/Readme.md)

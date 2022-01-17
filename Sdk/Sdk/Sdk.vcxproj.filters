@@ -95,7 +95,7 @@
     <ClInclude Include="Task_Deprecated\TaskSet.hpp" />
     <ClInclude Include="Task_Deprecated\Task.hpp" />
     <ClInclude Include="Task_Deprecated\Action.hpp" />
-    <ClInclude Include="Interface_Task.hpp" />
+    <ClInclude Include="InterfaceExt.hpp" />
     <ClInclude Include="Task_Deprecated\Interface.hpp" />
     <ClInclude Include="Task_Deprecated\Definition.hpp" />
     <ClInclude Include="Task\Interface.hpp" />
