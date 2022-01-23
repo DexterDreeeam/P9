@@ -98,38 +98,71 @@ private:
 
 struct runtime_context
 {
-    runtime_context() :
-        _coro(nullptr),
-        _parent_coro(nullptr),
-        _event(),
-        _state(0)
-    {
-    }
-
-    ~runtime_context() = default;
-
     CoroTyBase   _coro;
     CoroTyBase   _parent_coro;
     event        _event;
 
+    enum class task_state : s64
+    {
+        Init = 0x10,
+
+        TaskAsync_Complete,
+        TaskAsync_AwaitEnter,
+        TaskAsync_AwaitCoroSet,
+        TaskAsync_AwaitExit,
+
+        Task_Complete,
+        Task_AwaitEnter,
+        Task_AwaitCoroSet,
+        Task_AwaitExit,
+
+        WaitEnter,
+        WaitEventSet,
+        WaitExit = WaitEventSet,
+    };
+
     /* state definition
-           0 -> 16  [task_async][sub_thread]      complete by sub_thread
 
-           0 -> 1   [task_async][co_await]        await, but not complete
-           1 -> 2   [task_async][co_await]        parent_coro set done
-           2 -> 3   [task_async][co_await]        await process exit
+           TaskAsync_Complete       [task_async][sub_thread]      complete by sub_thread
 
-           0 -> 5            [*][wait_complete]   wait_complete() waiting outside
-           5 -> 6            [*][wait_complete]   wait_complete() setup event already
+           TaskAsync_AwaitEnter     [task_async][co_await]        await, but not complete
+           TaskAsync_AwaitCoroSet   [task_async][co_await]        parent_coro set done
+           TaskAsync_AwaitExit      [task_async][co_await]        await process exit
 
-           0 -> 18        [task][execute_thread]  complete by any thread
+           Task_Complete                  [task][execute_thread]  complete by any thread
 
-           0 -> 10        [task][co_await]        await, but not complete (another thread is running)
-          10 -> 11        [task][co_await]        parent_coro set done
-          11 -> 12        [task][co_await]        await process exit
+           Task_AwaitEnter                [task][co_await]        await, but not complete (another thread is running)
+           Task_AwaitCoroSet              [task][co_await]        parent_coro set done
+           Task_AwaitExit                 [task][co_await]        await process exit
+
+           WaitEnter                         [*][wait_complete]   wait_complete() waiting outside
+           WaitEventSet/WaitExit             [*][wait_complete]   wait_complete() setup event already
+
      */
     atom<s64>  _state;
+
+    runtime_context() :
+        _coro(nullptr),
+        _parent_coro(nullptr),
+        _event(),
+        _state(task_state::Init)
+    {
+    }
+
+    ~runtime_context() = default;
 };
+
+using task_state = runtime_context::task_state;
+
+bool operator ==(const task_state& s, s64 cmp)
+{
+    return (s64)s == cmp;
+}
+
+bool operator ==(s64 cmp, const task_state& s)
+{
+    return (s64)s == cmp;
+}
 
 template<bool suspend>
 class is_suspend

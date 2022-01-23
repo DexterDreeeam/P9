@@ -19,16 +19,18 @@ _INLINE_ is_suspend<true> task_async_base::task_async_promise_base::initial_susp
 
 _INLINE_ bool task_async_base::await_ready()
 {
-    auto current_state = _ctx->_state.compare_exchange(0, 1);
-    if (current_state == 0)
+    auto current_state = _ctx->_state.compare_exchange(
+        task_state::Init, task_state::TaskAsync_AwaitEnter);
+
+    if (current_state == task_state::Init)
     {
         return false;
     }
-    else if (current_state == 16)
+    else if (current_state == task_state::TaskAsync_Complete)
     {
         return true;
     }
-    else if (current_state == 6)
+    else if (current_state == task_state::WaitExit)
     {
         return true;
     }
@@ -45,13 +47,13 @@ _INLINE_ void task_async_base::await_suspend(CoroTyBase parent_coro)
     escape_function ef_exit =
         [=]()
         {
-            auto old_state = _ctx->_state.exchange(3);
-            assert(old_state == 2);
+            auto old_state = _ctx->_state.exchange(task_state::TaskAsync_AwaitExit);
+            assert(old_state == task_state::TaskAsync_AwaitCoroSet);
         };
 
     _ctx->_parent_coro = parent_coro;
-    auto old_state = _ctx->_state.exchange(2);
-    assert(old_state == 1);
+    auto old_state = _ctx->_state.exchange(task_state::TaskAsync_AwaitCoroSet);
+    assert(old_state == task_state::TaskAsync_AwaitEnter);
 }
 
 _INLINE_ task_async_base::task_async_base(ref<runtime_context> ctx) :
@@ -77,16 +79,21 @@ _INLINE_ void task_async_base::sub_thread_entrypoint(void* p)
 
     ctx->_coro.resume();
 
-    auto current_state = ctx->_state.compare_exchange(0, 16);
-    if (current_state == 0)
+    auto current_state = ctx->_state.compare_exchange(
+        task_state::Init, task_state::TaskAsync_Complete);
+
+    if (current_state == task_state::Init)
     {
         // there is no one waiting this yet
         return;
     }
-    else if (current_state >= 1 && current_state <= 3)
+    else if (
+        current_state == task_state::TaskAsync_AwaitEnter &&
+        current_state == task_state::TaskAsync_AwaitCoroSet &&
+        current_state == task_state::TaskAsync_AwaitExit)
     {
         // co_await is awaiting this
-        while (ctx->_state.get() != 3)
+        while (ctx->_state.get() != task_state::TaskAsync_AwaitExit)
         {
             yield();
         }
@@ -94,15 +101,12 @@ _INLINE_ void task_async_base::sub_thread_entrypoint(void* p)
         ctx->_parent_coro.resume();
         return;
     }
-    else if (current_state == 5 || current_state == 6)
+    else if (current_state == task_state::WaitEnter || current_state == task_state::WaitExit)
     {
         // there is wait_complete() function waiting this
-        if (current_state == 5)
+        while (ctx->_state.get() != task_state::WaitExit)
         {
-            while (ctx->_state.get() != 6)
-            {
-                yield();
-            }
+            yield();
         }
         ctx->_event.set();
         return;
@@ -116,22 +120,24 @@ _INLINE_ void task_async_base::sub_thread_entrypoint(void* p)
 
 _INLINE_ void task_async_base::wait_complete()
 {
-    auto current_state = _ctx->_state.compare_exchange(0, 5);
-    if (current_state == 0)
+    auto current_state = _ctx->_state.compare_exchange(
+        task_state::Init, task_state::WaitEnter);
+
+    if (current_state == task_state::Init)
     {
         // not complete, setup event to wait
         _ctx->_event.init();
-        _ctx->_state.set(6);
+        _ctx->_state.set(task_state::WaitExit);
         _ctx->_event.wait();
         _ctx->_event.uninit();
         return;
     }
-    else if (current_state == 16)
+    else if (current_state == task_state::TaskAsync_Complete)
     {
         // sub_thread complete already, just return
         return;
     }
-    else if (current_state == 6)
+    else if (current_state == task_state::WaitExit)
     {
         // there is already wait_complete() ahead this one
         return;

@@ -1,5 +1,65 @@
 #pragma once
 
+template<typename ValTy>
+_INLINE_ atom<s64>::atom(const ValTy& v) :
+    atom((s64)v)
+{
+}
+
+template<typename ValTy>
+_INLINE_ void atom<s64>::set(const ValTy& v)
+{
+    this->set((s64)v);
+}
+
+template<typename ValTy>
+_INLINE_ atom<s64>& atom<s64>::operator =(const ValTy& v)
+{
+    return this->operator =((s64)v);
+}
+
+template<typename ValTy>
+_INLINE_ s64 atom<s64>::exchange(const ValTy& replace)
+{
+    return this->exchange((s64)replace);
+}
+
+template<typename ValTy1, typename ValTy2>
+_INLINE_ s64 atom<s64>::compare_exchange(const ValTy1& expected, const ValTy2& replace)
+{
+    return this->compare_exchange((s64)expected, (s64)replace);
+}
+
+template<typename ValTy>
+_INLINE_ atom<u64>::atom(const ValTy& v) :
+    atom((u64)v)
+{
+}
+
+template<typename ValTy>
+_INLINE_ void atom<u64>::set(const ValTy& v)
+{
+    set((u64)v);
+}
+
+template<typename ValTy>
+_INLINE_ atom<u64>& atom<u64>::operator =(const ValTy& v)
+{
+    return this->operator =((u64)v);
+}
+
+template<typename ValTy>
+_INLINE_ u64 atom<u64>::exchange(const ValTy& replace)
+{
+    return this->exchange((u64)replace);
+}
+
+template<typename ValTy1, typename ValTy2>
+_INLINE_ u64 atom<u64>::compare_exchange(const ValTy1& expected, const ValTy2& replace)
+{
+    return this->compare_exchange((u64)expected, (u64)replace);
+}
+
 template<typename Ty>
 _INLINE_ atom<Ty*>::atom() :
     _shadow()

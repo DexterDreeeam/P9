@@ -15,6 +15,9 @@ public:
 
     atom(s64 v);
 
+    template<typename ValTy>
+    atom(const ValTy& v);
+
     ~atom();
 
 public:
@@ -22,9 +25,15 @@ public:
 
     void set(s64 v);
 
+    template<typename ValTy>
+    void set(const ValTy& v);
+
     atom<s64>& operator =(const atom<s64>& rhs);
 
     atom<s64>& operator =(s64 v);
+
+    template<typename ValTy>
+    atom<s64>& operator =(const ValTy& v);
 
     template<typename Convert_Ty>
     operator Convert_Ty() const = delete;
@@ -41,7 +50,13 @@ public:
 
     s64 exchange(s64 replace);
 
+    template<typename ValTy>
+    s64 exchange(const ValTy& replace);
+
     s64 compare_exchange(s64 expected, s64 replace);
+
+    template<typename ValTy1, typename ValTy2>
+    s64 compare_exchange(const ValTy1& expected, const ValTy2& replace);
 
 private:
     char _mem[_mem_sz];
@@ -59,6 +74,9 @@ public:
 
     atom(u64 v);
 
+    template<typename ValTy>
+    atom(const ValTy& v);
+
     ~atom();
 
 public:
@@ -66,9 +84,15 @@ public:
 
     void set(u64 v);
 
+    template<typename ValTy>
+    void set(const ValTy& v);
+
     atom<u64>& operator =(const atom<u64>& rhs);
 
     atom<u64>& operator =(u64 v);
+
+    template<typename ValTy>
+    atom<u64>& operator =(const ValTy& v);
 
     template<typename Convert_Ty>
     operator Convert_Ty() const = delete;
@@ -85,7 +109,13 @@ public:
 
     u64 exchange(u64 replace);
 
+    template<typename ValTy>
+    u64 exchange(const ValTy& replace);
+
     u64 compare_exchange(u64 expected, u64 replace);
+
+    template<typename ValTy1, typename ValTy2>
+    u64 compare_exchange(const ValTy1& expected, const ValTy2& replace);
 
 private:
     char _mem[_mem_sz];
