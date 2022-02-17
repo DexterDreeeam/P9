@@ -10,30 +10,34 @@ _INLINE_ task_base::task_promise_base::task_promise_base() :
 
 _INLINE_ is_suspend<false> task_base::task_promise_base::final_suspend() noexcept
 {
-    auto current_state = _ctx->_state.compare_exchange(0, 18);
-    if (current_state == 0)
+    auto current_state = _ctx->_state.compare_exchange(
+        task_state::Init, task_state::Task_Complete);
+
+    if (current_state == task_state::Init)
     {
         // no waiting outsides, do nothing
     }
-    else if (current_state >= 10 && current_state <= 12)
+    else if (
+        current_state == task_state::Task_AwaitEnter ||
+        current_state == task_state::Task_AwaitCoroSet ||
+        current_state == task_state::Task_AwaitExit)
     {
         // co_await is awaiting this
-        while (_ctx->_state.get() != 12)
+        while (_ctx->_state.get() != task_state::Task_AwaitExit)
         {
             yield();
         }
         assert(_ctx->_parent_coro);
         _ctx->_parent_coro.resume();
     }
-    else if (current_state == 5 || current_state == 6)
+    else if (
+        current_state == task_state::WaitEnter ||
+        current_state == task_state::WaitExit)
     {
         // there is wait_complete() function waiting this
-        if (current_state == 5)
+        while (_ctx->_state.get() != task_state::WaitExit)
         {
-            while (_ctx->_state.get() != 6)
-            {
-                yield();
-            }
+            yield();
         }
         _ctx->_event.set();
     }
@@ -47,16 +51,18 @@ _INLINE_ is_suspend<false> task_base::task_promise_base::final_suspend() noexcep
 
 _INLINE_ bool task_base::await_ready()
 {
-    auto current_state = _ctx->_state.compare_exchange(0, 10);
-    if (current_state == 0)
+    auto current_state = _ctx->_state.compare_exchange(
+        task_state::Init, task_state::Task_AwaitEnter);
+
+    if (current_state == task_state::Init)
     {
         return false;
     }
-    else if (current_state == 18)
+    else if (current_state == task_state::Task_Complete)
     {
         return true;
     }
-    else if (current_state == 6)
+    else if (current_state == task_state::WaitExit)
     {
         return true;
     }
@@ -73,13 +79,13 @@ _INLINE_ void task_base::await_suspend(CoroTyBase parent_coro)
     escape_function ef_exit =
         [=]()
         {
-            auto old_state = _ctx->_state.exchange(12);
-            assert(old_state == 11);
+            auto old_state = _ctx->_state.exchange(task_state::Task_AwaitExit);
+            assert(old_state == task_state::Task_AwaitCoroSet);
         };
 
     _ctx->_parent_coro = parent_coro;
-    auto old_state = _ctx->_state.exchange(11);
-    assert(old_state == 10);
+    auto old_state = _ctx->_state.exchange(task_state::Task_AwaitCoroSet);
+    assert(old_state == task_state::Task_AwaitEnter);
 }
 
 _INLINE_ task_base::task_base(ref<runtime_context> ctx) :
@@ -100,22 +106,24 @@ _INLINE_ task_base& task_base::operator =(const task_base& rhs)
 
 _INLINE_ void task_base::wait_complete()
 {
-    auto current_state = _ctx->_state.compare_exchange(0, 5);
-    if (current_state == 0)
+    auto current_state = _ctx->_state.compare_exchange(
+        task_state::Init, task_state::WaitEnter);
+
+    if (current_state == task_state::Init)
     {
         // not complete, setup event to wait
         _ctx->_event.init();
-        _ctx->_state.set(6);
+        _ctx->_state.set(task_state::WaitExit);
         _ctx->_event.wait();
         _ctx->_event.uninit();
         return;
     }
-    else if (current_state == 18)
+    else if (current_state == task_state::Task_Complete)
     {
         // complete already, just return
         return;
     }
-    else if (current_state == 6)
+    else if (current_state == task_state::WaitExit)
     {
         // there is already wait_complete() ahead this one
         return;

@@ -88,8 +88,8 @@ _INLINE_ void task_async_base::sub_thread_entrypoint(void* p)
         return;
     }
     else if (
-        current_state == task_state::TaskAsync_AwaitEnter &&
-        current_state == task_state::TaskAsync_AwaitCoroSet &&
+        current_state == task_state::TaskAsync_AwaitEnter ||
+        current_state == task_state::TaskAsync_AwaitCoroSet ||
         current_state == task_state::TaskAsync_AwaitExit)
     {
         // co_await is awaiting this
