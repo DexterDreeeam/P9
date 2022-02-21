@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Sdk/Sdk/Interface.hpp"
+#include "../../Sdk/Interface.hpp"
 
 #include "../Definition.hpp"
 
@@ -14,4 +14,4 @@
 #include "Mat/Transform.hpp"
 
 // implementation
-#include "Mat/Transform_Implementation.inl"
+#include "Mat/Transform.inl"

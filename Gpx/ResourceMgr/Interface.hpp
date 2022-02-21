@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Sdk/Sdk/Interface.hpp"
+#include "../../Sdk/Interface.hpp"
 #include "../Algebra/Interface.hpp"
 
 #include "Vertex/Vertex.hpp"
@@ -11,4 +11,4 @@
 #include "Texture/Texture.hpp"
 
 // implementation
-#include "Vertex/VerticesBuffer_Implementation.inl"
+#include "Vertex/VerticesBuffer.inl"

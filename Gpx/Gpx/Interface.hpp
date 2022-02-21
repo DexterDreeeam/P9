@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Sdk/Sdk/Interface.hpp"
+#include "../../Sdk/Interface.hpp"
 #include "../Definition.hpp"
 #include "../Algebra/Interface.hpp"
 #include "../ResourceMgr/Interface.hpp"

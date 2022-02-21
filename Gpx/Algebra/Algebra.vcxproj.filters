@@ -12,6 +12,6 @@
     <ClInclude Include="Vec\Vec1.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Mat\Transform_Implementation.inl" />
+    <None Include="Mat\Transform.inl" />
   </ItemGroup>
 </Project>

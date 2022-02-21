@@ -22,7 +22,7 @@
     <ClInclude Include="Vec\Vec.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Mat\Transform_Implementation.inl" />
+    <None Include="Mat\Transform.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
