@@ -96,5 +96,5 @@
 #include "TaskAsync.hpp"
 #include "Task.hpp"
 
-#include "TaskAsync_Implementation.inl"
-#include "Task_Implementation.inl"
+#include "TaskAsync.inl"
+#include "Task.inl"
