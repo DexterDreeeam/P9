@@ -1,20 +1,9 @@
 #pragma once
 
-#if DEBUG_LEVEL <= DEBUG_LEVEL_CALIBRATION_RUNTIME
-
-class object
-{
-public:
-    object() = default;
-
-    ~object() = default;
-}
-
-};
-
-#else
-
+#include "../../Environment/Interface.hpp"
 #include "U128Counter.hpp"
+
+#if DEBUG_LEVEL > DEBUG_LEVEL_CALIBRATION_RUNTIME
 
 namespace ObjectNs
 {
@@ -62,18 +51,67 @@ _SELECTANY_ _object_manager __global_object_manager;
 
 }
 
+#endif
+
 class object
 {
-public:
-    object() :
-        _counter(ObjectNs::__global_object_manager.distribute())
+private:
+    object(const object&) = delete;
+
+    object& operator =(const object&) = delete;
+
+    void setup_obs(obs<void> self)
     {
+        _self_obs = self;
     }
 
-    ~object()
+    void setup_object_id(u128 object_id)
     {
-        ObjectNs::__global_object_manager.recycle(_counter);
+        _object_id = object_id;
     }
+
+protected:
+    object() :
+        _object_id()
+    {
+    #if DEBUG_LEVEL > DEBUG_LEVEL_CALIBRATION_RUNTIME
+        _counter = ObjectNs::__global_object_manager.distribute();
+    #endif
+    }
+
+public:
+    virtual ~object()
+    {
+    #if DEBUG_LEVEL > DEBUG_LEVEL_CALIBRATION_RUNTIME
+        ObjectNs::__global_object_manager.recycle(_counter);
+    #endif
+    }
+
+    virtual const char* object_type() = 0;
+
+    virtual u128 object_type_id() = 0;
+
+    u128 object_id() const
+    {
+        return _object_id;
+    }
+
+private:
+    u128       _object_id;
+    obs<void>  _self_obs;
+
+public:
+    template<typename Ty, typename ...Args>
+        requires is_convertible<Ty, object>
+    static ref<Ty> build(Args... args)
+    {
+        auto r = ref<Ty>::new_instance(args...);
+        r->setup_object_id(u128(random::new_u64(), random::new_u64()));
+        r->setup_obs(obs<Ty>(r).obs_of<void>);
+        return r;
+    }
+
+#if DEBUG_LEVEL > DEBUG_LEVEL_CALIBRATION_RUNTIME
 
 public:
     static void report()
@@ -83,6 +121,6 @@ public:
 
 private:
     u128_counter _counter;
-};
 
 #endif
+};

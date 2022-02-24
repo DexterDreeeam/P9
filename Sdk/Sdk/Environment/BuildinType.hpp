@@ -12,6 +12,73 @@ typedef                          float  f32;
 typedef                         double  f64;
 // typedef    unsigned  long long     int  sz_t;
 
+class u128
+{
+public:
+    u128() = default;
+
+    ~u128() = default;
+
+    u128(u64 u64_0, u64 u64_1) :
+        _u64_0(u64_0),
+        _u64_1(u64_1)
+    {
+    }
+
+    u128(const u128& rhs) noexcept :
+        _u64_0(rhs._u64_0),
+        _u64_1(rhs._u64_1)
+    {
+    }
+
+    u128& operator =(const u128& rhs) noexcept
+    {
+        _u64_0 = rhs._u64_0;
+        _u64_1 = rhs._u64_1;
+        return *this;
+    }
+
+    bool operator ==(const u128& rhs) const noexcept
+    {
+        return _u64_0 == rhs._u64_0 && _u64_1 == rhs._u64_1;
+    }
+
+    bool operator !=(const u128& rhs) const noexcept
+    {
+        return _u64_0 != rhs._u64_0 || _u64_1 != rhs._u64_1;
+    }
+
+    union
+    {
+        u64 _u64s[2];
+        u32 _u32s[4];
+        u16 _u16s[8];
+        struct
+        {
+            u64 _u64_0;
+            u64 _u64_1;
+        };
+        struct
+        {
+            u32 _u32_0;
+            u32 _u32_1;
+            u32 _u32_2;
+            u32 _u32_3;
+        };
+        struct
+        {
+            u16 _u16_0;
+            u16 _u16_1;
+            u16 _u16_2;
+            u16 _u16_3;
+            u16 _u16_4;
+            u16 _u16_5;
+            u16 _u16_6;
+            u16 _u16_7;
+        };
+    };
+};
+
 class sz_t
 {
 public:

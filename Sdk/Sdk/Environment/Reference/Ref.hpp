@@ -84,3 +84,68 @@ public:
 private:
     atom<_RefNs::context<Ty>*> _ctx;
 };
+
+template<>
+class ref<void>
+{
+    template<typename All_Ty>
+    friend class ref;
+
+    template<typename All_Ty>
+    friend class obs;
+
+public:
+    ref();
+
+    ref(const ref<void>& rhs);
+
+    ref(ref<void>&& rhs) noexcept;
+
+    template<typename Other_Ty>
+    ref(const ref<Other_Ty>& rhs);
+
+    template<typename Other_Ty>
+    ref(ref<Other_Ty>&& rhs) noexcept;
+
+    ~ref();
+
+    ref<void>& operator =(const ref<void>& rhs);
+
+    ref<void>& operator =(ref<void>&& rhs) noexcept;
+
+    template<typename Other_Ty>
+    ref<void>& operator =(const ref<Other_Ty>& rhs);
+
+    template<typename Other_Ty>
+    ref<void>& operator =(ref<Other_Ty>&& rhs) noexcept;
+
+    bool operator ==(const ref<void>& rhs) const;
+
+    bool operator !=(const ref<void>& rhs) const;
+
+    template<typename Other_Ty>
+    bool operator ==(const ref<Other_Ty>& rhs) const;
+
+    template<typename Other_Ty>
+    bool operator !=(const ref<Other_Ty>& rhs) const;
+
+private:
+    explicit ref(_RefNs::context<void>* ctx);
+
+public:
+    template<typename Other_Ty>
+    ref<Other_Ty> ref_of();
+
+    boole has_value() const;
+
+    boole empty() const { return !has_value(); }
+
+    void* raw_ptr() { return _ctx.get() ? _ctx.get()->_ptr : nullptr; }
+
+    const void* raw_ptr() const { return _ctx.get() ? _ctx.get()->_ptr : nullptr; }
+
+    void clear();
+
+private:
+    atom<_RefNs::context<void>*> _ctx;
+};

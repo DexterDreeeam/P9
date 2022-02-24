@@ -89,3 +89,87 @@ public:
 private:
     atom<_RefNs::context<Ty>*> _ctx;
 };
+
+template<>
+class obs<void>
+{
+    template<typename All_Ty>
+    friend class ref;
+
+    template<typename All_Ty>
+    friend class obs;
+
+public:
+    obs();
+
+    obs(const obs<void>& rhs);
+
+    obs(obs<void>&& rhs) noexcept;
+
+    template<typename Other_Ty>
+    obs(const obs<Other_Ty>& rhs);
+
+    template<typename Other_Ty>
+    obs(obs<Other_Ty>&& rhs) noexcept;
+
+    obs(const ref<void>& rhs);
+
+    obs(ref<void>&& rhs) noexcept;
+
+    template<typename Other_Ty>
+    obs(const ref<Other_Ty>& rhs);
+
+    template<typename Other_Ty>
+    obs(ref<Other_Ty>&& rhs) noexcept;
+
+    ~obs();
+
+    obs<void>& operator =(const obs<void>& rhs);
+
+    obs<void>& operator =(obs<void>&& rhs) noexcept;
+
+    template<typename Other_Ty>
+    obs<void>& operator =(const obs<Other_Ty>& rhs);
+
+    template<typename Other_Ty>
+    obs<void>& operator =(obs<Other_Ty>&& rhs) noexcept;
+
+    obs<void>& operator =(const ref<void>& rhs);
+
+    obs<void>& operator =(ref<void>&& rhs) noexcept;
+
+    template<typename Other_Ty>
+    obs<void>& operator =(const ref<Other_Ty>& rhs);
+
+    template<typename Other_Ty>
+    obs<void>& operator =(ref<Other_Ty>&& rhs) noexcept;
+
+    bool operator ==(const obs<void>& rhs) const;
+
+    bool operator !=(const obs<void>& rhs) const;
+
+    template<typename Other_Ty>
+    bool operator ==(const obs<Other_Ty>& rhs) const;
+
+    template<typename Other_Ty>
+    bool operator !=(const obs<Other_Ty>& rhs) const;
+
+public:
+    template<typename Other_Ty>
+    obs<Other_Ty> obs_of();
+
+    ref<void> try_ref();
+
+    boole has_value() const;
+
+    boole empty() const { return !has_value(); }
+
+    void* raw_ptr() { return _ctx.get() ? _ctx.get()->_ptr : nullptr; }
+
+    const void* raw_ptr() const { return _ctx.get() ? _ctx.get()->_ptr : nullptr; }
+
+    void clear();
+
+private:
+    atom<_RefNs::context<void>*> _ctx;
+};

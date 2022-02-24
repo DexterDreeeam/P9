@@ -1,5 +1,11 @@
 #pragma once
 
+template<typename Ty = void>
+class ref;
+
+template<typename Ty = void>
+class obs;
+
 namespace _RefNs
 {
 

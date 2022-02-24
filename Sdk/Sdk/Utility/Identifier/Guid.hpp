@@ -1,5 +1,9 @@
 #pragma once
 
+#include "../../Environment/Interface.hpp"
+#include "../Container/Unsafe/String.hpp"
+#include "../Container/Unsafe/Pair.hpp"
+
 class guid
 {
 private:
