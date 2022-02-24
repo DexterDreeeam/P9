@@ -9,4 +9,10 @@ enum environment_type
     DirectX,
 };
 
+enum graphics_api_type
+{
+    Vulkan,
+    DirectX,
+};
+
 }

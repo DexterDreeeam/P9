@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Interface.hpp" />
+    <ClInclude Include="Runtime.hpp" />
     <ClInclude Include="Runtime\DynamicMemory.hpp" />
     <ClInclude Include="Runtime\Interface.hpp" />
     <ClInclude Include="Runtime\Pipeline.hpp" />

@@ -21,6 +21,7 @@
     <ClInclude Include="Runtime\Vulkan\VulkanInterface.hpp" />
     <ClInclude Include="Runtime\Vulkan\VulkanRenderFlow.hpp" />
     <ClInclude Include="Runtime\Vulkan\VulkanVertexSupporter.hpp" />
+    <ClInclude Include="Runtime.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Window\Implementation\GlfwWindow.cpp" />
