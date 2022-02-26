@@ -565,6 +565,11 @@ _INLINE_ bool obs<void>::operator !=(const obs<Other_Ty>& rhs) const
     return _ctx.get() != pointer_convert(rhs._ctx.get(), 0, _RefNs::context<void>*);
 }
 
+_INLINE_ obs<void>::obs(_RefNs::context<void>* ctx) :
+    _ctx(ctx)
+{
+}
+
 template<typename Other_Ty>
 obs<Other_Ty> obs<void>::obs_of()
 {

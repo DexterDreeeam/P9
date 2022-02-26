@@ -36,5 +36,6 @@
     <ClCompile Include="Runtime\Implementation\TextureViewer.cpp" />
     <ClCompile Include="Runtime\Vulkan\Implementation\VulkanTextureViewer.cpp" />
     <ClCompile Include="Runtime\Vulkan\Implementation\VulkanRenderFlow.cpp" />
+    <ClCompile Include="Implementation\Runtime.cpp" />
   </ItemGroup>
 </Project>

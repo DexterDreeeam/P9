@@ -3,10 +3,10 @@
 #include "../../Environment/Interface.hpp"
 #include "U128Counter.hpp"
 
-#if DEBUG_LEVEL > DEBUG_LEVEL_CALIBRATION_RUNTIME
-
 namespace ObjectNs
 {
+
+#if DEBUG_LEVEL > DEBUG_LEVEL_CALIBRATION_RUNTIME
 
 class _object_manager
 {
@@ -49,30 +49,37 @@ private:
 
 _SELECTANY_ _object_manager __global_object_manager;
 
-}
-
 #endif
 
-class object
+template<typename CheckTy, typename = void>
+class has_build_function;
+
+}
+
+template<typename Ty = void>
+class obj;
+
+template<>
+class obj<void>
 {
-private:
-    object(const object&) = delete;
+public:
+    template<typename Ty, typename> class ObjectNs::has_build_function;
 
-    object& operator =(const object&) = delete;
+    // every object class should implement 'obj_type' and 'obj_type_id' virtual function
+public:
+    virtual const char* obj_type() const = 0;
 
-    void setup_obs(obs<void> self)
-    {
-        _self_obs = self;
-    }
-
-    void setup_object_id(u128 object_id)
-    {
-        _object_id = object_id;
-    }
+    virtual u128 obj_type_id() const = 0;
 
 protected:
-    object() :
-        _object_id()
+    obj(const obj&) = delete;
+
+    obj& operator =(const obj&) = delete;
+
+protected:
+    obj() :
+        _obj_id(random::new_u64(), random::new_u64()),
+        _self_obs()
     {
     #if DEBUG_LEVEL > DEBUG_LEVEL_CALIBRATION_RUNTIME
         _counter = ObjectNs::__global_object_manager.distribute();
@@ -80,36 +87,28 @@ protected:
     }
 
 public:
-    virtual ~object()
+    virtual ~obj()
     {
     #if DEBUG_LEVEL > DEBUG_LEVEL_CALIBRATION_RUNTIME
         ObjectNs::__global_object_manager.recycle(_counter);
     #endif
     }
 
-    virtual const char* object_type() = 0;
-
-    virtual u128 object_type_id() = 0;
-
-    u128 object_id() const
+    u128 obj_id() const
     {
-        return _object_id;
+        return _obj_id;
     }
 
-private:
-    u128       _object_id;
-    obs<void>  _self_obs;
+protected:
+    template<typename Ty>
+    obs<Ty> obs_of()
+    {
+        return _self_obs.obs_of<Ty>();
+    }
 
 public:
-    template<typename Ty, typename ...Args>
-        requires is_convertible<Ty, object>
-    static ref<Ty> build(Args... args)
-    {
-        auto r = ref<Ty>::new_instance(args...);
-        r->setup_object_id(u128(random::new_u64(), random::new_u64()));
-        r->setup_obs(obs<Ty>(r).obs_of<void>);
-        return r;
-    }
+    u128       _obj_id;
+    obs<void>  _self_obs;
 
 #if DEBUG_LEVEL > DEBUG_LEVEL_CALIBRATION_RUNTIME
 
@@ -119,8 +118,51 @@ public:
         ObjectNs::__global_object_manager.report();
     }
 
-private:
+protected:
     u128_counter _counter;
 
 #endif
+};
+
+namespace ObjectNs
+{
+
+template<typename CheckTy, typename>
+class has_build_function
+{
+public:
+    template<typename ...Args>
+    ref<CheckTy> build(Args... args)
+    {
+        auto r = ref<CheckTy>::new_instance(args...);
+        r->_self_obs = obs<CheckTy>(r).obs_of<void>();
+        return r;
+    }
+};
+
+template<typename CheckTy>
+class has_build_function<CheckTy, void_t<typename decltype(&CheckTy::build)>>
+{
+public:
+    template<typename ...Args>
+    ref<CheckTy> build(Args... args)
+    {
+        auto r = CheckTy::build(args...).ref_of<CheckTy>();
+        r->_self_obs = obs<CheckTy>(r).obs_of<void>();
+        return r;
+    }
+};
+
+}
+
+template<typename Ty>
+class obj : public obj<void>
+{
+public:
+    template<typename ...Args>
+        //requires is_convertible<Ty, obj<Ty>>
+    static ref<Ty> build(Args... args)
+    {
+        return ObjectNs::has_build_function<Ty>().build(args...);
+    }
 };

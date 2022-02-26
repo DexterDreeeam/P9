@@ -2,6 +2,8 @@
 
 #include "../../Sdk/Interface.hpp"
 #include "../Definition.hpp"
+#include "Window/Interface.hpp"
+#include "Runtime/Interface.hpp"
 
 namespace gpx
 {
@@ -9,34 +11,29 @@ namespace gpx
     struct runtime_desc
     {
         graphics_api_type   type;
+        string              preferred_device_name;
         s64                 frame_count;
         s64                 msaa_level; // 0 ~ 6, sample count 2^0 ~ 2^6
         boole               debug_mode;
     };
 
-    class runtime
+    class runtime : public object
     {
     public:
-        runtime() = default;
+        runtime(const runtime_desc& desc);
 
         runtime(const runtime&) = delete;
 
         runtime& operator =(const runtime&) = delete;
 
-        virtual ~runtime() = default;
+        virtual ~runtime();
+
+        virtual const char* object_type() override { return "gpx::runtime"; }
+
+        virtual u128 object_type_id() override { return u128(0xae258bd036ad0358, 0xf36adf2479c0358b); }
 
     public:
-        virtual void setup_self(obs<runtime> obs_rt) = 0;
-
-    public:
-        static ref<runtime> build(const runtime_desc& desc);
-
-    public:
-        // runtime
-
-        virtual boole init(const string& preferred_device_name = "") = 0;
-
-        virtual boole uninit() = 0;
+        // device
 
         virtual vector<string> list_device() = 0;
 
@@ -44,7 +41,7 @@ namespace gpx
 
         virtual ref<window> build_window(const window_desc& desc) = 0;
 
-        virtual boole remove_window(const string& window_name) = 0;
+        virtual boole destroy_window(const string& window_name) = 0;
 
         virtual ref<window> get_window(const string& window_name) = 0;
 

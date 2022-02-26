@@ -8,5 +8,6 @@
     <ClInclude Include="UT_Functional.hpp" />
     <ClInclude Include="UT_Log_Print.hpp" />
     <ClInclude Include="UT_Traverse_Directory.hpp" />
+    <ClInclude Include="UT_Object.hpp" />
   </ItemGroup>
 </Project>

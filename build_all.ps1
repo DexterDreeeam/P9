@@ -1,5 +1,6 @@
 
 ./build_sdk.ps1
+./build_tool_software.ps1
 ./build_db_2021.ps1
 ./build_gpx.ps1
 ./build_ge.ps1

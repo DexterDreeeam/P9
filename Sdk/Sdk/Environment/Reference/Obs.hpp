@@ -154,6 +154,9 @@ public:
     template<typename Other_Ty>
     bool operator !=(const obs<Other_Ty>& rhs) const;
 
+private:
+    explicit obs(_RefNs::context<void>* ctx);
+
 public:
     template<typename Other_Ty>
     obs<Other_Ty> obs_of();

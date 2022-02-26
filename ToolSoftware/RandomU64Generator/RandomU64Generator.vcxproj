@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="debug|x64">
@@ -11,60 +11,25 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Interface.hpp" />
-    <ClInclude Include="Runtime.hpp" />
-    <ClInclude Include="Runtime\DynamicMemory.hpp" />
-    <ClInclude Include="Runtime\Interface.hpp" />
-    <ClInclude Include="Runtime\Pipeline.hpp" />
-    <ClInclude Include="Runtime\Runtime.hpp" />
-    <ClInclude Include="Runtime\Shader.hpp" />
-    <ClInclude Include="Runtime\TextureViewer.hpp" />
-    <ClInclude Include="Runtime\VerticesViewer.hpp" />
-    <ClInclude Include="Runtime\Vulkan\VulkanDynamicMemory.hpp" />
-    <ClInclude Include="Runtime\Vulkan\VulkanInterface.hpp" />
-    <ClInclude Include="Runtime\Vulkan\VulkanPipeline.hpp" />
-    <ClInclude Include="Runtime\Vulkan\VulkanRenderFlow.hpp" />
-    <ClInclude Include="Runtime\Vulkan\VulkanRuntime.hpp" />
-    <ClInclude Include="Runtime\Vulkan\VulkanShader.hpp" />
-    <ClInclude Include="Runtime\Vulkan\VulkanTextureViewer.hpp" />
-    <ClInclude Include="Runtime\Vulkan\VulkanVertexSupporter.hpp" />
-    <ClInclude Include="Runtime\Vulkan\VulkanVerticesViewer.hpp" />
-    <ClInclude Include="Window\Interface.hpp" />
-    <ClInclude Include="Window\Window.hpp" />
-    <ClInclude Include="Window\GlfwWindow.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Implementation\Runtime.cpp" />
-    <ClCompile Include="Runtime\Implementation\Pipeline.cpp" />
-    <ClCompile Include="Runtime\Implementation\Runtime.cpp" />
-    <ClCompile Include="Runtime\Implementation\TextureViewer.cpp" />
-    <ClCompile Include="Runtime\Implementation\VerticesViewer.cpp" />
-    <ClCompile Include="Runtime\Vulkan\Implementation\VulkanDynamicMemory.cpp" />
-    <ClCompile Include="Runtime\Vulkan\Implementation\VulkanPipeline.cpp" />
-    <ClCompile Include="Runtime\Vulkan\Implementation\VulkanRenderFlow.cpp" />
-    <ClCompile Include="Runtime\Vulkan\Implementation\VulkanRuntime.cpp" />
-    <ClCompile Include="Runtime\Vulkan\Implementation\VulkanShader.cpp" />
-    <ClCompile Include="Runtime\Vulkan\Implementation\VulkanTextureViewer.cpp" />
-    <ClCompile Include="Runtime\Vulkan\Implementation\VulkanVerticesViewer.cpp" />
-    <ClCompile Include="Window\Implementation\GlfwWindow.cpp" />
+    <ClCompile Include="EntryPoint.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{e6f9e2a4-4a6f-4cfc-b625-effb7e757ecb}</ProjectGuid>
-    <RootNamespace>Gpx</RootNamespace>
+    <ProjectGuid>{015745bd-db0f-4f96-9b02-7cce52e6977a}</ProjectGuid>
+    <RootNamespace>RandomU64Generator</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ShowAllFiles>true</ShowAllFiles>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -84,13 +49,15 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IntDir>$(SolutionDir)..\.out\$(ProjectName)\$(Configuration)\</IntDir>
-    <OutDir>$(SolutionDir)..\.lib.$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)..\.out\$(SolutionName)_$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)..\.exe.$(Configuration)\</OutDir>
+    <TargetName>$(SolutionName)_$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IntDir>$(SolutionDir)..\.out\$(ProjectName)\$(Configuration)\</IntDir>
-    <OutDir>$(SolutionDir)..\.lib.$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)..\.out\$(SolutionName)_$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)..\.exe.$(Configuration)\</OutDir>
+    <TargetName>$(SolutionName)_$(ProjectName)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='debug|x64'">
     <ClCompile>
@@ -104,16 +71,9 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-    <Lib>
+      <AdditionalDependencies>Sdk.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)..\.lib.$(Configuration)\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>
-      </AdditionalDependencies>
-    </Lib>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='release|x64'">
     <ClCompile>
@@ -131,18 +91,9 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-    <Lib>
-      <AdditionalDependencies>
-      </AdditionalDependencies>
-    </Lib>
-    <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)..\.lib.$(Configuration)\</AdditionalLibraryDirectories>
-    </Lib>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
+      <AdditionalDependencies>Sdk.lib</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

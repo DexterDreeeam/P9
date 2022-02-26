@@ -1,5 +1,8 @@
 #pragma once
 
+template <typename ...Types>
+using void_t = void;
+
 template<typename Ty1, typename Ty2>
 constexpr bool is_same_type = false;
 
