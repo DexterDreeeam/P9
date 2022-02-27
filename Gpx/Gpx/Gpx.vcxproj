@@ -11,7 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DynamicMemory.hpp" />
     <ClInclude Include="Interface.hpp" />
+    <ClInclude Include="Pipeline.hpp" />
     <ClInclude Include="Runtime.hpp" />
     <ClInclude Include="Runtime\DynamicMemory.hpp" />
     <ClInclude Include="Runtime\Interface.hpp" />
@@ -29,12 +31,15 @@
     <ClInclude Include="Runtime\Vulkan\VulkanTextureViewer.hpp" />
     <ClInclude Include="Runtime\Vulkan\VulkanVertexSupporter.hpp" />
     <ClInclude Include="Runtime\Vulkan\VulkanVerticesViewer.hpp" />
+    <ClInclude Include="Shader.hpp" />
+    <ClInclude Include="TextureViewer.hpp" />
+    <ClInclude Include="VerticesViewer.hpp" />
+    <ClInclude Include="Window.hpp" />
     <ClInclude Include="Window\Interface.hpp" />
     <ClInclude Include="Window\Window.hpp" />
     <ClInclude Include="Window\GlfwWindow.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Implementation\Runtime.cpp" />
     <ClCompile Include="Runtime\Implementation\Pipeline.cpp" />
     <ClCompile Include="Runtime\Implementation\Runtime.cpp" />
     <ClCompile Include="Runtime\Implementation\TextureViewer.cpp" />
@@ -47,6 +52,9 @@
     <ClCompile Include="Runtime\Vulkan\Implementation\VulkanTextureViewer.cpp" />
     <ClCompile Include="Runtime\Vulkan\Implementation\VulkanVerticesViewer.cpp" />
     <ClCompile Include="Window\Implementation\GlfwWindow.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Runtime.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
