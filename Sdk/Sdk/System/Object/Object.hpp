@@ -59,13 +59,16 @@ class has_build_function;
 template<typename Ty = void>
 class obj;
 
+// implement:
+// virtual const char* obj_type() const override (required)
+// virtual u128 obj_type_id() const override (required)
+// static ref<Ty> build(...) (optional)
 template<>
 class obj<void>
 {
 public:
     template<typename Ty, typename> class ObjectNs::has_build_function;
 
-    // every object class should implement 'obj_type' and 'obj_type_id' virtual function
 public:
     virtual const char* obj_type() const = 0;
 
@@ -155,6 +158,10 @@ public:
 
 }
 
+// implement:
+// virtual const char* obj_type() const override
+// virtual u128 obj_type_id() const override
+// static ref<Ty> build(...) (optional)
 template<typename Ty>
 class obj : public obj<void>
 {

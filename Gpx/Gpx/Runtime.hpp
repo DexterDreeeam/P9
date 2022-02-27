@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../Sdk/Interface.hpp"
+#include "../../Sdk/Interface.hpp"
 #include "../Definition.hpp"
 #include "Window/Interface.hpp"
 #include "Runtime/Interface.hpp"
@@ -17,20 +18,22 @@ namespace gpx
         boole               debug_mode;
     };
 
-    class runtime : public object
+    class runtime : public obj<runtime>
     {
     public:
-        runtime(const runtime_desc& desc);
+        runtime() = default;
 
         runtime(const runtime&) = delete;
 
         runtime& operator =(const runtime&) = delete;
 
-        virtual ~runtime();
+        virtual ~runtime() = default;
 
-        virtual const char* object_type() override { return "gpx::runtime"; }
+        virtual const char* obj_type() const override { return "gpx::runtime"; }
 
-        virtual u128 object_type_id() override { return u128(0xae258bd036ad0358, 0xf36adf2479c0358b); }
+        virtual u128 obj_type_id() const override { return u128(0xae258bd036ad0358, 0xf36adf2479c0358b); }
+
+        static ref<runtime> build(const runtime_desc& desc);
 
     public:
         // device
@@ -39,7 +42,7 @@ namespace gpx
 
         // window
 
-        virtual ref<window> build_window(const window_desc& desc) = 0;
+        virtual boole build_window(const window_desc& desc) = 0;
 
         virtual boole destroy_window(const string& window_name) = 0;
 
@@ -47,47 +50,49 @@ namespace gpx
 
         // shader
 
-        virtual ref<shader> build_shader(const shader_desc& desc) = 0;
+        virtual boole build_shader(const shader_desc& desc) = 0;
+
+        virtual boole destroy_shader(const string& shader_name) = 0;
 
         // dynamic memory
 
-        virtual boole register_dynamic_memory(const dynamic_memory_desc& desc) = 0;
+        virtual boole build_dynamic_memory(const dynamic_memory_desc& desc) = 0;
 
-        virtual boole unregister_dynamic_memory(const string& dynamic_memory) = 0;
+        virtual boole destroy_dynamic_memory(const string& dm_name) = 0;
 
-        virtual boole update_dynamic_memory(const string& dynamic_memory, void* src) = 0;
+        virtual boole update_dynamic_memory(const string& dm_name, void* src) = 0;
 
-        virtual boole setup_pipeline_dynamic_memory(const string& pipeline, const vector<string>& dm_vec) = 0;
-
-        // texture
-
-        virtual boole register_texture_viewer(const texture_viewer_desc& desc) = 0;
-
-        virtual boole unregister_texture_viewer(const string& texture_viewer) = 0;
-
-        virtual boole load_texture_viewer(const string& texture_viewer) = 0;
-
-        virtual boole unload_texture_viewer(const string& texture_viewer) = 0;
-
-        virtual boole update_pipeline_texture_viewer(const string& pipeline_name, const vector<string>& viewers) = 0;
+        virtual boole setup_pipeline_dynamic_memory(const string& pipeline, const vector<string>& dm_name_vec) = 0;
 
         // vertices
 
-        virtual boole register_vertices_viewer(const vertices_viewer_desc& desc) = 0;
+        virtual boole build_vertices_viewer(const vertices_viewer_desc& desc) = 0;
 
-        virtual boole unregister_vertices_viewer(const string& vertices_viewer) = 0;
+        virtual boole destroy_vertices_viewer(const string& vv_name) = 0;
 
-        virtual boole load_vertices_viewer(const string& vertices_viewer) = 0;
+        virtual boole load_vertices_viewer(const string& vv_name) = 0;
 
-        virtual boole unload_vertices_viewer(const string& vertices_viewer) = 0;
+        virtual boole unload_vertices_viewer(const string& vv_name) = 0;
 
         virtual boole setup_pipeline_vertices_viewer(const string& pipeline_name, const vector<string>& viewers) = 0;
 
+        // texture
+
+        virtual boole build_texture_viewer(const texture_viewer_desc& desc) = 0;
+
+        virtual boole destroy_texture_viewer(const string& tv_name) = 0;
+
+        virtual boole load_texture_viewer(const string& tv_name) = 0;
+
+        virtual boole unload_texture_viewer(const string& tv_name) = 0;
+
+        virtual boole update_pipeline_texture_viewer(const string& pipeline_name, const vector<string>& viewers) = 0;
+
         // pipeline
 
-        virtual boole register_pipeline(const pipeline_desc& desc) = 0;
+        virtual boole build_pipeline(const pipeline_desc& desc) = 0;
 
-        virtual boole unregister_pipeline(const string& pipeline_name) = 0;
+        virtual boole destroy_pipeline(const string& pipeline_name) = 0;
 
         virtual boole load_pipeline_resource(const string& pipeline_name) = 0;
 

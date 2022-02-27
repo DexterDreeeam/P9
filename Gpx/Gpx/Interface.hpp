@@ -4,5 +4,8 @@
 #include "../Definition.hpp"
 #include "../Algebra/Interface.hpp"
 #include "../ResourceMgr/Interface.hpp"
-#include "Runtime/Interface.hpp"
-#include "Window/Interface.hpp"
+
+#include "Runtime.hpp"
+#include "Window.hpp"
+
+#include "Runtime.inl"
