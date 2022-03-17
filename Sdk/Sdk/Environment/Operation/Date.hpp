@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../BuildinType.hpp"
+
 class random final
 {
 public:
