@@ -24,6 +24,7 @@
 
 #include "Container/Safe/EscapeFunction.hpp"
 #include "Container/Safe/SafeQueue.hpp"
+#include "Container/Safe/SafeSlotter.hpp"
 #include "Container/Safe/Selectee.hpp"
 
 //====================================================

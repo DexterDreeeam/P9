@@ -85,6 +85,7 @@
     <ClInclude Include="Utility\Container\Internal\SlotAllocator.hpp" />
     <ClInclude Include="Utility\Container\Safe\EscapeFunction.hpp" />
     <ClInclude Include="Utility\Container\Safe\SafeQueue.hpp" />
+    <ClInclude Include="Utility\Container\Safe\SafeSlotter.hpp" />
     <ClInclude Include="Utility\Container\Safe\Selectee.hpp" />
     <ClInclude Include="Environment\TypeDeduction.hpp" />
     <ClInclude Include="Utility\Container\Unsafe\Array.hpp" />
