@@ -19,6 +19,9 @@ public:
     static Ty* alloc(u64 sz);
 
     template<typename Ty>
+    static void free(Ty* ptr);
+
+    template<typename Ty>
     static Ty* alloc_zero(u64 sz);
 
     template<typename Ty>

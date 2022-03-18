@@ -24,6 +24,13 @@ _INLINE_ Ty* memory::alloc(u64 sz)
 }
 
 template<typename Ty>
+_INLINE_ void memory::free(Ty* ptr)
+{
+    ptr->~Ty();
+    free(pointer_convert(ptr, 0, void*));
+}
+
+template<typename Ty>
 _INLINE_ Ty* memory::alloc_zero(u64 sz)
 {
     void* p = alloc_zero(sz);
