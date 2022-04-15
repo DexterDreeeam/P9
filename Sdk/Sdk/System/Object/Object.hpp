@@ -51,8 +51,8 @@ _SELECTANY_ _object_manager __global_object_manager;
 
 #endif
 
-template<typename CheckTy, typename = void>
-class has_build_function;
+//template<typename CheckTy, typename = void>
+//class has_build_function;
 
 }
 
@@ -66,9 +66,6 @@ class obj;
 template<>
 class obj<void>
 {
-public:
-    template<typename Ty, typename> class ObjectNs::has_build_function;
-
 public:
     virtual const char* obj_type() const = 0;
 
@@ -109,7 +106,7 @@ protected:
         return _self_obs.obs_of<Ty>();
     }
 
-public:
+protected:
     u128       _obj_id;
     obs<void>  _self_obs;
 
@@ -126,6 +123,48 @@ protected:
 
 #endif
 };
+
+// implement:
+// virtual const char* obj_type() const override (required)
+// virtual u128 obj_type_id() const override (required)
+// static ref<Ty> build(...) (optional)
+template<typename Ty>
+class obj : public obj<void>
+{
+protected:
+    obj(const obj&) = delete;
+
+    obj& operator =(const obj&) = delete;
+
+protected:
+    obj() :
+        obj<void>()
+    {
+    }
+
+public:
+    virtual ~obj() override = default;
+
+    template<typename ...Args>
+    static ref<Ty> build(Args ...args)
+    {
+        auto r = ref<Ty>::new_instance();
+        if (r.has_value() && r->init(args...))
+        {
+            r->_self_obs = r;
+            return r;
+        }
+        return ref<Ty>();
+    }
+
+public:
+    obs<Ty> obs()
+    {
+        return obj<void>::obs_of<Ty>();
+    }
+};
+
+/*
 
 namespace ObjectNs
 {
@@ -173,3 +212,5 @@ public:
         return ObjectNs::has_build_function<Ty>().build(args...);
     }
 };
+
+*/

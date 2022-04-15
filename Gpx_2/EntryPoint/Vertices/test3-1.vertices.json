@@ -1,0 +1,29 @@
+{
+    "vertex_type": "POS_COLOR",
+    "vertices": [
+        {
+            "position": [ -1, -1, 0 ],
+            "color": [ 0, 0, 0 ]
+        },
+        {
+            "position": [ 1, -1, 0 ],
+            "color": [ 0, 0, 0 ]
+        },
+        {
+            "position": [ -1, 1, 0 ],
+            "color": [ 0, 0, 0 ]
+        },
+        {
+            "position": [ 1, 1, 0 ],
+            "color": [ 0, 0, 0 ]
+        }
+    ],
+    "indices": [
+        0,
+        1,
+        2,
+        2,
+        1,
+        3
+    ]
+}

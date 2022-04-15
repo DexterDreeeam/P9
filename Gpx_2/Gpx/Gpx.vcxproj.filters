@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="Interface.hpp" />
+    <ClInclude Include="Window\Window.hpp" />
+    <ClInclude Include="Window\Interface.hpp" />
+    <ClInclude Include="Window\GlfwWindow.hpp" />
+    <ClInclude Include="Runtime\Interface.hpp" />
+    <ClInclude Include="Runtime\Runtime.hpp" />
+    <ClInclude Include="Runtime\Vulkan\VulkanRuntime.hpp" />
+    <ClInclude Include="Runtime\Vulkan\VulkanPipeline.hpp" />
+    <ClInclude Include="Runtime\Pipeline.hpp" />
+    <ClInclude Include="Runtime\Shader.hpp" />
+    <ClInclude Include="Runtime\Vulkan\VulkanShader.hpp" />
+    <ClInclude Include="Runtime\VerticesViewer.hpp" />
+    <ClInclude Include="Runtime\Vulkan\VulkanVerticesViewer.hpp" />
+    <ClInclude Include="Runtime\DynamicMemory.hpp" />
+    <ClInclude Include="Runtime\Vulkan\VulkanDynamicMemory.hpp" />
+    <ClInclude Include="Runtime\TextureViewer.hpp" />
+    <ClInclude Include="Runtime\Vulkan\VulkanTextureViewer.hpp" />
+    <ClInclude Include="Runtime\Vulkan\VulkanInterface.hpp" />
+    <ClInclude Include="Runtime\Vulkan\VulkanRenderFlow.hpp" />
+    <ClInclude Include="Runtime\Vulkan\VulkanVertexSupporter.hpp" />
+    <ClInclude Include="Runtime.hpp" />
+    <ClInclude Include="Window.hpp" />
+    <ClInclude Include="DynamicMemory.hpp" />
+    <ClInclude Include="Shader.hpp" />
+    <ClInclude Include="Pipeline.hpp" />
+    <ClInclude Include="TextureViewer.hpp" />
+    <ClInclude Include="VerticesViewer.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Window\Implementation\GlfwWindow.cpp" />
+    <ClCompile Include="Runtime\Implementation\Runtime.cpp" />
+    <ClCompile Include="Runtime\Vulkan\Implementation\VulkanRuntime.cpp" />
+    <ClCompile Include="Runtime\Vulkan\Implementation\VulkanPipeline.cpp" />
+    <ClCompile Include="Runtime\Vulkan\Implementation\VulkanShader.cpp" />
+    <ClCompile Include="Runtime\Vulkan\Implementation\VulkanVerticesViewer.cpp" />
+    <ClCompile Include="Runtime\Implementation\VerticesViewer.cpp" />
+    <ClCompile Include="Runtime\Implementation\Pipeline.cpp" />
+    <ClCompile Include="Runtime\Vulkan\Implementation\VulkanDynamicMemory.cpp" />
+    <ClCompile Include="Runtime\Implementation\TextureViewer.cpp" />
+    <ClCompile Include="Runtime\Vulkan\Implementation\VulkanTextureViewer.cpp" />
+    <ClCompile Include="Runtime\Vulkan\Implementation\VulkanRenderFlow.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Runtime.inl" />
+  </ItemGroup>
+</Project>

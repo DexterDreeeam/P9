@@ -1,0 +1,64 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Gpx", "Gpx\Gpx.vcxproj", "{E6F9E2A4-4A6F-4CFC-B625-EFFB7E757ECB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B6F9C264-FA6F-3CFC-B825-9FFB7E75AE1B} = {B6F9C264-FA6F-3CFC-B825-9FFB7E75AE1B}
+		{E6F9C2A4-4A6F-4CFC-B625-9FFB7E757E2B} = {E6F9C2A4-4A6F-4CFC-B625-9FFB7E757E2B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EntryPoint", "EntryPoint\EntryPoint.vcxproj", "{CBB15640-1AB5-414F-8EF9-2EF0B6E4E1FD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B6F9C264-FA6F-3CFC-B825-9FFB7E75AE1B} = {B6F9C264-FA6F-3CFC-B825-9FFB7E75AE1B}
+		{E6F9C2A4-4A6F-4CFC-B625-9FFB7E757E2B} = {E6F9C2A4-4A6F-4CFC-B625-9FFB7E757E2B}
+		{E6F9E2A4-4A6F-4CFC-B625-EFFB7E757ECB} = {E6F9E2A4-4A6F-4CFC-B625-EFFB7E757ECB}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Algebra", "Algebra\Algebra.vcxproj", "{E6F9C2A4-4A6F-4CFC-B625-9FFB7E757E2B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GpxTool", "GpxTool\GpxTool.vcxproj", "{C0B15640-1EBA-434F-8EF9-2E80B6E2E1FD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E6F9C2A4-4A6F-4CFC-B625-9FFB7E757E2B} = {E6F9C2A4-4A6F-4CFC-B625-9FFB7E757E2B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ResourceMgr", "ResourceMgr\ResourceMgr.vcxproj", "{B6F9C264-FA6F-3CFC-B825-9FFB7E75AE1B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E6F9C2A4-4A6F-4CFC-B625-9FFB7E757E2B} = {E6F9C2A4-4A6F-4CFC-B625-9FFB7E757E2B}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		debug|x64 = debug|x64
+		release|x64 = release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E6F9E2A4-4A6F-4CFC-B625-EFFB7E757ECB}.debug|x64.ActiveCfg = debug|x64
+		{E6F9E2A4-4A6F-4CFC-B625-EFFB7E757ECB}.debug|x64.Build.0 = debug|x64
+		{E6F9E2A4-4A6F-4CFC-B625-EFFB7E757ECB}.release|x64.ActiveCfg = release|x64
+		{E6F9E2A4-4A6F-4CFC-B625-EFFB7E757ECB}.release|x64.Build.0 = release|x64
+		{CBB15640-1AB5-414F-8EF9-2EF0B6E4E1FD}.debug|x64.ActiveCfg = debug|x64
+		{CBB15640-1AB5-414F-8EF9-2EF0B6E4E1FD}.debug|x64.Build.0 = debug|x64
+		{CBB15640-1AB5-414F-8EF9-2EF0B6E4E1FD}.release|x64.ActiveCfg = release|x64
+		{CBB15640-1AB5-414F-8EF9-2EF0B6E4E1FD}.release|x64.Build.0 = release|x64
+		{E6F9C2A4-4A6F-4CFC-B625-9FFB7E757E2B}.debug|x64.ActiveCfg = debug|x64
+		{E6F9C2A4-4A6F-4CFC-B625-9FFB7E757E2B}.debug|x64.Build.0 = debug|x64
+		{E6F9C2A4-4A6F-4CFC-B625-9FFB7E757E2B}.release|x64.ActiveCfg = release|x64
+		{E6F9C2A4-4A6F-4CFC-B625-9FFB7E757E2B}.release|x64.Build.0 = release|x64
+		{C0B15640-1EBA-434F-8EF9-2E80B6E2E1FD}.debug|x64.ActiveCfg = debug|x64
+		{C0B15640-1EBA-434F-8EF9-2E80B6E2E1FD}.debug|x64.Build.0 = debug|x64
+		{C0B15640-1EBA-434F-8EF9-2E80B6E2E1FD}.release|x64.ActiveCfg = release|x64
+		{C0B15640-1EBA-434F-8EF9-2E80B6E2E1FD}.release|x64.Build.0 = release|x64
+		{B6F9C264-FA6F-3CFC-B825-9FFB7E75AE1B}.debug|x64.ActiveCfg = debug|x64
+		{B6F9C264-FA6F-3CFC-B825-9FFB7E75AE1B}.debug|x64.Build.0 = debug|x64
+		{B6F9C264-FA6F-3CFC-B825-9FFB7E75AE1B}.release|x64.ActiveCfg = release|x64
+		{B6F9C264-FA6F-3CFC-B825-9FFB7E75AE1B}.release|x64.Build.0 = release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A3169B21-D0E9-4674-B637-27D2CBCE8307}
+	EndGlobalSection
+EndGlobal
