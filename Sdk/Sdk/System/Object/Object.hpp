@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../../Environment/Interface.hpp"
+#include "../../Environment/_Interface.hpp"
 #include "U128Counter.hpp"
 
-namespace ObjectNs
+namespace _ObjectNs
 {
 
 #if DEBUG_LEVEL > DEBUG_LEVEL_CALIBRATION_RUNTIME
@@ -51,71 +51,61 @@ _SELECTANY_ _object_manager __global_object_manager;
 
 #endif
 
-//template<typename CheckTy, typename = void>
-//class has_build_function;
+template<typename VoidTy, typename ...OtherTys>
+class _obj_derived;
 
-}
+template<typename Ty, typename ...DerivedTys>
+class _obj;
 
-template<typename Ty = void>
-class obj;
-
-// implement:
-// virtual const char* obj_type() const override (required)
-// virtual u128 obj_type_id() const override (required)
-// static ref<Ty> build(...) (optional)
 template<>
-class obj<void>
+class _obj_derived<void>
+{
+};
+
+template<typename Ty>
+class _obj_derived<void, Ty> : public Ty
+{
+};
+
+template<typename Ty, typename ...OthersTys>
+class _obj_derived<void, Ty, OthersTys...> : public Ty, public _obj_derived<void, OthersTys...>
+{
+};
+
+template<>
+class _obj<void>
 {
 public:
+    virtual ~_obj()
+    {
+#if DEBUG_LEVEL > DEBUG_LEVEL_CALIBRATION_RUNTIME
+        __global_object_manager.recycle(_counter);
+#endif
+    }
+
     virtual const char* obj_type() const = 0;
 
     virtual u128 obj_type_id() const = 0;
 
 protected:
-    obj(const obj&) = delete;
+    _obj(const _obj&) = delete;
 
-    obj& operator =(const obj&) = delete;
-
-protected:
-    obj() :
-        _obj_id(random::new_u64(), random::new_u64()),
-        _self_obs()
-    {
-    #if DEBUG_LEVEL > DEBUG_LEVEL_CALIBRATION_RUNTIME
-        _counter = ObjectNs::__global_object_manager.distribute();
-    #endif
-    }
-
-public:
-    virtual ~obj()
-    {
-    #if DEBUG_LEVEL > DEBUG_LEVEL_CALIBRATION_RUNTIME
-        ObjectNs::__global_object_manager.recycle(_counter);
-    #endif
-    }
-
-    u128 obj_id() const
-    {
-        return _obj_id;
-    }
+    _obj& operator =(const _obj&) = delete;
 
 protected:
-    template<typename Ty>
-    obs<Ty> obs_of()
+    _obj()
     {
-        return _self_obs.obs_of<Ty>();
+#if DEBUG_LEVEL > DEBUG_LEVEL_CALIBRATION_RUNTIME
+        _counter = __global_object_manager.distribute();
+#endif
     }
-
-protected:
-    u128       _obj_id;
-    obs<void>  _self_obs;
 
 #if DEBUG_LEVEL > DEBUG_LEVEL_CALIBRATION_RUNTIME
 
 public:
     static void report()
     {
-        ObjectNs::__global_object_manager.report();
+        __global_object_manager.report();
     }
 
 protected:
@@ -124,32 +114,35 @@ protected:
 #endif
 };
 
-// implement:
-// virtual const char* obj_type() const override (required)
-// virtual u128 obj_type_id() const override (required)
-// static ref<Ty> build(...) (optional)
+using _obj_base = _obj<void>;
+
 template<typename Ty>
-class obj : public obj<void>
+concept is_obj =
+    requires(Ty o)
+    {
+        static_cast<_obj_base*>(&o);
+    };
+
+template<typename Ty, typename ...DerivedTys>
+class _obj : public _obj_base, public _obj_derived<DerivedTys...>
 {
-protected:
-    obj(const obj&) = delete;
-
-    obj& operator =(const obj&) = delete;
-
-protected:
-    obj() :
-        obj<void>()
+public:
+    _obj() :
+        _obj_id(random::new_u64(), random::new_u64()),
+        _self_obs()
     {
     }
 
-public:
-    virtual ~obj() override = default;
+    u128 obj_id() const
+    {
+        return _obj_id;
+    }
 
     template<typename ...Args>
     static ref<Ty> build(Args ...args)
     {
         auto r = ref<Ty>::new_instance();
-        if (r.has_value() && r->init(args...))
+        if (r.has_value() && r->Ty::init(args...))
         {
             r->_self_obs = r;
             return r;
@@ -157,60 +150,41 @@ public:
         return ref<Ty>();
     }
 
-public:
-    obs<Ty> obs()
+    template<typename Ty>
+    obs<Ty> as_obs()
     {
-        return obj<void>::obs_of<Ty>();
+        return _self_obs.obs_of<Ty>();
     }
-};
 
-/*
-
-namespace ObjectNs
-{
-
-template<typename CheckTy, typename>
-class has_build_function
-{
-public:
-    template<typename ...Args>
-    ref<CheckTy> build(Args... args)
-    {
-        auto r = ref<CheckTy>::new_instance(args...);
-        r->_self_obs = obs<CheckTy>(r).obs_of<void>();
-        return r;
-    }
-};
-
-template<typename CheckTy>
-class has_build_function<CheckTy, void_t<typename decltype(&CheckTy::build)>>
-{
-public:
-    template<typename ...Args>
-    ref<CheckTy> build(Args... args)
-    {
-        auto r = CheckTy::build(args...).ref_of<CheckTy>();
-        r->_self_obs = obs<CheckTy>(r).obs_of<void>();
-        return r;
-    }
+protected:
+    u128       _obj_id;
+    obs<void>  _self_obs;
 };
 
 }
 
-// implement:
-// virtual const char* obj_type() const override
-// virtual u128 obj_type_id() const override
-// static ref<Ty> build(...) (optional)
-template<typename Ty>
-class obj : public obj<void>
+template<typename ...DerivedTys>
+class has;
+
+template<>
+class has<void>
 {
-public:
-    template<typename ...Args>
-        //requires is_convertible<Ty, obj<Ty>>
-    static ref<Ty> build(Args... args)
-    {
-        return ObjectNs::has_build_function<Ty>().build(args...);
-    }
 };
 
-*/
+template<typename ...DerivedTys>
+class has
+{
+};
+
+template<typename Ty, typename HasTy = has<void>>
+class obj;
+
+template<typename Ty>
+class obj<Ty, has<void>> : public _ObjectNs::_obj<Ty, void>
+{
+};
+
+template<typename Ty, typename ...DerivedTys>
+class obj<Ty, has<DerivedTys...>> : public _ObjectNs::_obj<Ty, void, DerivedTys...>
+{
+};

@@ -12,49 +12,40 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DynamicMemory.hpp" />
-    <ClInclude Include="Interface.hpp" />
+    <ClInclude Include="Vulkan\_Declaration.hpp" />
+    <ClInclude Include="Vulkan\_Vulkan.hpp" />
+    <ClInclude Include="_Interface.hpp" />
     <ClInclude Include="Pipeline.hpp" />
     <ClInclude Include="Runtime.hpp" />
-    <ClInclude Include="Runtime\DynamicMemory.hpp" />
-    <ClInclude Include="Runtime\Interface.hpp" />
-    <ClInclude Include="Runtime\Pipeline.hpp" />
-    <ClInclude Include="Runtime\Runtime.hpp" />
-    <ClInclude Include="Runtime\Shader.hpp" />
-    <ClInclude Include="Runtime\TextureViewer.hpp" />
-    <ClInclude Include="Runtime\VerticesViewer.hpp" />
-    <ClInclude Include="Runtime\Vulkan\VulkanDynamicMemory.hpp" />
-    <ClInclude Include="Runtime\Vulkan\VulkanInterface.hpp" />
-    <ClInclude Include="Runtime\Vulkan\VulkanPipeline.hpp" />
-    <ClInclude Include="Runtime\Vulkan\VulkanRenderFlow.hpp" />
-    <ClInclude Include="Runtime\Vulkan\VulkanRuntime.hpp" />
-    <ClInclude Include="Runtime\Vulkan\VulkanShader.hpp" />
-    <ClInclude Include="Runtime\Vulkan\VulkanTextureViewer.hpp" />
-    <ClInclude Include="Runtime\Vulkan\VulkanVertexSupporter.hpp" />
-    <ClInclude Include="Runtime\Vulkan\VulkanVerticesViewer.hpp" />
     <ClInclude Include="Shader.hpp" />
     <ClInclude Include="TextureViewer.hpp" />
     <ClInclude Include="VerticesViewer.hpp" />
+    <ClInclude Include="Vulkan\VulkanDynamicMemory.hpp" />
+    <ClInclude Include="Vulkan\_Interface.hpp" />
+    <ClInclude Include="Vulkan\VulkanPipeline.hpp" />
+    <ClInclude Include="Vulkan\VulkanRenderFlow.hpp" />
+    <ClInclude Include="Vulkan\VulkanRuntime.hpp" />
+    <ClInclude Include="Vulkan\VulkanShader.hpp" />
+    <ClInclude Include="Vulkan\VulkanTextureViewer.hpp" />
+    <ClInclude Include="Vulkan\VulkanVertexSupporter.hpp" />
+    <ClInclude Include="Vulkan\VulkanVerticesViewer.hpp" />
     <ClInclude Include="Window.hpp" />
-    <ClInclude Include="Window\Interface.hpp" />
-    <ClInclude Include="Window\Window.hpp" />
-    <ClInclude Include="Window\GlfwWindow.hpp" />
+    <ClInclude Include="Vulkan\VulkanWindow.hpp" />
+    <ClInclude Include="_Declaration.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Runtime\Implementation\Pipeline.cpp" />
-    <ClCompile Include="Runtime\Implementation\Runtime.cpp" />
-    <ClCompile Include="Runtime\Implementation\TextureViewer.cpp" />
-    <ClCompile Include="Runtime\Implementation\VerticesViewer.cpp" />
-    <ClCompile Include="Runtime\Vulkan\Implementation\VulkanDynamicMemory.cpp" />
-    <ClCompile Include="Runtime\Vulkan\Implementation\VulkanPipeline.cpp" />
-    <ClCompile Include="Runtime\Vulkan\Implementation\VulkanRenderFlow.cpp" />
-    <ClCompile Include="Runtime\Vulkan\Implementation\VulkanRuntime.cpp" />
-    <ClCompile Include="Runtime\Vulkan\Implementation\VulkanShader.cpp" />
-    <ClCompile Include="Runtime\Vulkan\Implementation\VulkanTextureViewer.cpp" />
-    <ClCompile Include="Runtime\Vulkan\Implementation\VulkanVerticesViewer.cpp" />
-    <ClCompile Include="Window\Implementation\GlfwWindow.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Runtime.inl" />
+    <ClCompile Include="Implementation\Pipeline.cpp" />
+    <ClCompile Include="Implementation\Runtime.cpp" />
+    <ClCompile Include="Implementation\TextureViewer.cpp" />
+    <ClCompile Include="Implementation\VerticesViewer.cpp" />
+    <ClCompile Include="Vulkan\Implementation\VulkanDynamicMemory.cpp" />
+    <ClCompile Include="Vulkan\Implementation\VulkanPipeline.cpp" />
+    <ClCompile Include="Vulkan\Implementation\VulkanRenderFlow.cpp" />
+    <ClCompile Include="Vulkan\Implementation\VulkanRuntime.cpp" />
+    <ClCompile Include="Vulkan\Implementation\VulkanShader.cpp" />
+    <ClCompile Include="Vulkan\Implementation\VulkanTextureViewer.cpp" />
+    <ClCompile Include="Vulkan\Implementation\VulkanVerticesViewer.cpp" />
+    <ClCompile Include="Vulkan\Implementation\VulkanWindow.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -108,6 +99,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -133,6 +125,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

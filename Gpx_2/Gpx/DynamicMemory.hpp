@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../../Sdk/Interface.hpp"
-#include "../../Algebra/Interface.hpp"
+#include "../../Sdk/_Interface.hpp"
+#include "../Algebra/_Interface.hpp"
 
 namespace gpx
 {

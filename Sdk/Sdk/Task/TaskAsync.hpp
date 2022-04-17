@@ -54,7 +54,7 @@ public:
     ~task_async_base() = default;
 
 public:
-    static void sub_thread_entrypoint(void* p);
+    static void sub_thread_UnitTest(void* p);
 
 public:
     void wait_complete();

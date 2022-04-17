@@ -25,20 +25,14 @@
     <ClCompile Include="Environment\EnvironmentWindowsMsvc\Implementation\Thread.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Environment\Functional\Functional.hpp" />
     <ClInclude Include="Environment\BuildinType.hpp" />
     <ClInclude Include="Environment\CompilerDirective.hpp" />
     <ClInclude Include="Environment\DebugCalibration.hpp" />
     <ClInclude Include="Environment\DebugLevel.hpp" />
-    <ClInclude Include="Environment\EnvironmentDefinition.hpp" />
-    <ClInclude Include="Environment\EnvironmentLinuxGcc\CompilerDirective.hpp" />
-    <ClInclude Include="Environment\EnvironmentLinuxGcc\Definition.hpp" />
-    <ClInclude Include="Environment\EnvironmentLinuxGcc\EnvironmentHeader.hpp" />
     <ClInclude Include="Environment\EnvironmentWindowsMsvc\CompilerDirective.hpp" />
-    <ClInclude Include="Environment\EnvironmentWindowsMsvc\Definition.hpp" />
     <ClInclude Include="Environment\EnvironmentWindowsMsvc\EnvironmentHeader.hpp" />
-    <ClInclude Include="Environment\Interface.hpp" />
-    <ClInclude Include="InterfaceExt.hpp" />
+    <ClInclude Include="Environment\EnvironmentWindowsMsvc\_Definition.hpp" />
+    <ClInclude Include="Environment\Functional\Functional.hpp" />
     <ClInclude Include="Environment\Operation\Assert.hpp" />
     <ClInclude Include="Environment\Operation\Atom.hpp" />
     <ClInclude Include="Environment\Operation\Basic.hpp" />
@@ -60,23 +54,25 @@
     <ClInclude Include="Environment\Reference\Context.hpp" />
     <ClInclude Include="Environment\Reference\Obs.hpp" />
     <ClInclude Include="Environment\Reference\Ref.hpp" />
-    <ClInclude Include="Task\Definition.hpp" />
-    <ClInclude Include="Task\Interface.hpp" />
-    <ClInclude Include="Task\Task.hpp" />
-    <ClInclude Include="Task\TaskAsync.hpp" />
-    <ClInclude Include="Task_Deprecated\Action.hpp" />
-    <ClInclude Include="Task_Deprecated\Definition.hpp" />
-    <ClInclude Include="Task_Deprecated\Interface.hpp" />
-    <ClInclude Include="Task_Deprecated\Task.hpp" />
-    <ClInclude Include="Task_Deprecated\TaskSet.hpp" />
-    <ClInclude Include="Interface.hpp" />
+    <ClInclude Include="Environment\TypeDeduction.hpp" />
+    <ClInclude Include="Environment\_Definition.hpp" />
+    <ClInclude Include="Environment\_Interface.hpp" />
     <ClInclude Include="System\AutoMemory\AutoMemory.hpp" />
-    <ClInclude Include="System\Interface.hpp" />
     <ClInclude Include="System\Logger\AutoTrace.hpp" />
     <ClInclude Include="System\Logger\Logger.hpp" />
     <ClInclude Include="System\Object\Object.hpp" />
     <ClInclude Include="System\Object\U128Counter.hpp" />
     <ClInclude Include="System\Terminator\Terminator.hpp" />
+    <ClInclude Include="System\_Interface.hpp" />
+    <ClInclude Include="Task\Task.hpp" />
+    <ClInclude Include="Task\TaskAsync.hpp" />
+    <ClInclude Include="Task\_Definition.hpp" />
+    <ClInclude Include="Task\_Interface.hpp" />
+    <ClInclude Include="Task_Deprecated\Action.hpp" />
+    <ClInclude Include="Task_Deprecated\Task.hpp" />
+    <ClInclude Include="Task_Deprecated\TaskSet.hpp" />
+    <ClInclude Include="Task_Deprecated\_Definition.hpp" />
+    <ClInclude Include="Task_Deprecated\_Interface.hpp" />
     <ClInclude Include="Utility\Container\Algo\FileExtension.hpp" />
     <ClInclude Include="Utility\Container\Algo\Hash.hpp" />
     <ClInclude Include="Utility\Container\Algo\StringExtension.hpp" />
@@ -87,7 +83,6 @@
     <ClInclude Include="Utility\Container\Safe\SafeQueue.hpp" />
     <ClInclude Include="Utility\Container\Safe\SafeSlotter.hpp" />
     <ClInclude Include="Utility\Container\Safe\Selectee.hpp" />
-    <ClInclude Include="Environment\TypeDeduction.hpp" />
     <ClInclude Include="Utility\Container\Unsafe\Array.hpp" />
     <ClInclude Include="Utility\Container\Unsafe\Deque.hpp" />
     <ClInclude Include="Utility\Container\Unsafe\List.hpp" />
@@ -102,7 +97,6 @@
     <ClInclude Include="Utility\Container\Unsafe\Unordered_Set.hpp" />
     <ClInclude Include="Utility\Container\Unsafe\Vector.hpp" />
     <ClInclude Include="Utility\Identifier\Guid.hpp" />
-    <ClInclude Include="Utility\Interface.hpp" />
     <ClInclude Include="Utility\Json\Deserializer.hpp" />
     <ClInclude Include="Utility\Json\JsonBase.hpp" />
     <ClInclude Include="Utility\Json\JsonIndex.hpp" />
@@ -113,12 +107,15 @@
     <ClInclude Include="Utility\Json\JsonType\JsonObject.hpp" />
     <ClInclude Include="Utility\Json\JsonType\JsonString.hpp" />
     <ClInclude Include="Utility\Json\Utility.hpp" />
+    <ClInclude Include="Utility\_Interface.hpp" />
+    <ClInclude Include="_Interface.hpp" />
+    <ClInclude Include="_InterfaceExt.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Environment\Operation\Assert.inl" />
     <None Include="Environment\Operation\Atom.inl" />
-    <None Include="Environment\Operation\CStringConversion.inl" />
     <None Include="Environment\Operation\CString.inl" />
+    <None Include="Environment\Operation\CStringConversion.inl" />
     <None Include="Environment\Operation\Date.inl" />
     <None Include="Environment\Operation\Directory.inl" />
     <None Include="Environment\Operation\File.inl" />
@@ -133,8 +130,9 @@
     <None Include="Environment\Reference\Context.inl" />
     <None Include="Environment\Reference\Obs.inl" />
     <None Include="Environment\Reference\Ref.inl" />
-    <None Include="Task\TaskAsync.inl" />
+    <None Include="Readme.md" />
     <None Include="Task\Task.inl" />
+    <None Include="Task\TaskAsync.inl" />
     <None Include="Task_Deprecated\Action_Implementation.inl" />
     <None Include="Task_Deprecated\Task_Implementation.inl" />
   </ItemGroup>
@@ -190,6 +188,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -206,6 +205,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

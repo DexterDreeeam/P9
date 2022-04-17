@@ -64,7 +64,7 @@ private:
         _p_action_sync_event = action_sync_event;
     }
 
-    static void execute_entrypoint(void* p);
+    static void execute_UnitTest(void* p);
 
 protected:
     // sync_point will add 1 when:

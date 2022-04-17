@@ -55,7 +55,7 @@ _INLINE_ task_base& task_base::operator =(const task_base& rhs)
 _INLINE_ void task_base::execute_async()
 {
     thread t;
-    t.init(task_base::execute_entrypoint);
+    t.init(task_base::execute_UnitTest);
 
     auto* p = new callback_context();
     p->sync_point = _sync_point;
@@ -67,7 +67,7 @@ _INLINE_ void task_base::execute_async()
     t.uninit();
 }
 
-_INLINE_ void task_base::execute_entrypoint(void* p)
+_INLINE_ void task_base::execute_UnitTest(void* p)
 {
     callback_context* p_ctx = pointer_convert(p, 0, callback_context*);
 

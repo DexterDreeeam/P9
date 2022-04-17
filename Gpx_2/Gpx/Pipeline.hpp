@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../ResourceMgr/Interface.hpp"
-#include "Interface.hpp"
+#include "../../ResourceMgr/_Interface.hpp"
+#include "_Interface.hpp"
 
 namespace gpx
 {

@@ -11,7 +11,7 @@ _INLINE_ task_async_base::task_async_promise_base::task_async_promise_base() :
 _INLINE_ is_suspend<true> task_async_base::task_async_promise_base::initial_suspend() noexcept
 {
     thread t;
-    t.init(task_async_base::sub_thread_entrypoint);
+    t.init(task_async_base::sub_thread_UnitTest);
     t.start(this);
     t.uninit();
     return is_suspend<true>();
@@ -72,7 +72,7 @@ _INLINE_ task_async_base& task_async_base::operator =(const task_async_base& rhs
     return *this;
 }
 
-_INLINE_ void task_async_base::sub_thread_entrypoint(void* p)
+_INLINE_ void task_async_base::sub_thread_UnitTest(void* p)
 {
     auto* promise = pointer_convert(p, 0, task_async_promise_base*);
     auto ctx = promise->_ctx;

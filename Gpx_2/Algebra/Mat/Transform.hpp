@@ -54,7 +54,7 @@ public:
 
 }
 
-template<environment_type AlgType>
+template<graphics_api_type AlgType>
 class transform;
 
 template<>

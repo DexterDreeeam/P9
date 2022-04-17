@@ -46,7 +46,7 @@
                 "-pthread",
                 "-fcoroutines",
                 "-c",
-                "./EntryPoint/EntryPoint.cpp",
+                "./UnitTest/UnitTest.cpp",
             ],
             "problemMatcher": [
                 "$gcc"

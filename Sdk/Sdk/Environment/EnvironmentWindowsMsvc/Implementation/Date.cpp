@@ -1,5 +1,5 @@
 
-#include "../../Interface.hpp"
+#include "../../_Interface.hpp"
 #include "../EnvironmentHeader.hpp"
 
 u64 random::new_u64() noexcept
