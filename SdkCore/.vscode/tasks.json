@@ -1,0 +1,91 @@
+{
+    "tasks":
+    [
+        {
+            "type": "shell",
+            "label": "linux_pre_compile",
+            "command": "cp",
+            "args": [
+                "-rf",
+                "../_BuildSettings_LinuxGcc/SdkCore.inl",
+                "../BuildSetting.inl"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "type": "shell",
+            "label": "linux_compile_sdk_core",
+            "command": "g++-10",
+            "args": [
+                "-std=c++2a",
+                "-pthread",
+                "-fcoroutines",
+                "-c",
+                "./SdkCore/Environment/EnvironmentLinuxGcc/Implementation/*",
+            ],
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": [
+                "linux_pre_compile"
+            ]
+        },
+        {
+            "type": "shell",
+            "label": "linux_compile_ut",
+            "command": "g++-10",
+            "args": [
+                "-std=c++2a",
+                "-pthread",
+                "-fcoroutines",
+                "-c",
+                "./UnitTest/UnitTest.cpp",
+            ],
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": [
+                "linux_compile_sdk_core"
+            ]
+        },
+        {
+            "type": "shell",
+            "label": "linux_compile_complete_echo",
+            "command": "echo success",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": [
+                "linux_compile_ut"
+            ]
+        },
+        {
+            "type": "shell",
+            "label": "linux_all_process",
+            "command": "rm",
+            "args": [
+                "./*.o",
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": [
+                "linux_compile_complete_echo"
+            ]
+        }
+    ],
+    "version": "2.0.0"
+}

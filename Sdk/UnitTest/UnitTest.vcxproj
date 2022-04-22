@@ -13,17 +13,10 @@
   <ItemGroup>
     <ClCompile Include="UnitTest.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="UT_Functional.hpp" />
-    <ClInclude Include="UT_Log_Print.hpp" />
-    <ClInclude Include="UT_Object.hpp" />
-    <ClInclude Include="UT_Task.hpp" />
-    <ClInclude Include="UT_Traverse_Directory.hpp" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{77a3e0d3-f08d-46e2-8959-887a616d9a9d}</ProjectGuid>
+    <ProjectGuid>{4ca6df99-22be-410a-bf39-e2c5a35b66bb}</ProjectGuid>
     <RootNamespace>UnitTest</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ShowAllFiles>true</ShowAllFiles>

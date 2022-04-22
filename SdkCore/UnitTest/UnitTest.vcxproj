@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="debug|x64">
@@ -11,31 +11,32 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="System\_Declaration.hpp" />
-    <ClInclude Include="System\_Interface.hpp" />
-    <ClInclude Include="_Declaration.hpp" />
-    <ClInclude Include="_Interface.hpp" />
+    <ClCompile Include="UnitTest.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Readme.md" />
+    <ClInclude Include="UT_Functional.hpp" />
+    <ClInclude Include="UT_Log_Print.hpp" />
+    <ClInclude Include="UT_Object.hpp" />
+    <ClInclude Include="UT_Task.hpp" />
+    <ClInclude Include="UT_Traverse_Directory.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{e1f384f3-e9ed-4bdd-b83c-ce4a72481a3d}</ProjectGuid>
-    <RootNamespace>Sdk</RootNamespace>
+    <ProjectGuid>{77a3e0d3-f08d-46e2-8959-887a616d9a9d}</ProjectGuid>
+    <RootNamespace>UnitTest</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ShowAllFiles>true</ShowAllFiles>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -55,13 +56,15 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IntDir>$(SolutionDir)..\.out\$(ProjectName)\$(Configuration)\</IntDir>
-    <OutDir>$(SolutionDir)..\.lib.$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)..\.out\$(SolutionName)_$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)..\.exe.$(Configuration)\</OutDir>
+    <TargetName>$(SolutionName)_$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IntDir>$(SolutionDir)..\.out\$(ProjectName)\$(Configuration)\</IntDir>
-    <OutDir>$(SolutionDir)..\.lib.$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)..\.out\$(SolutionName)_$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)..\.exe.$(Configuration)\</OutDir>
+    <TargetName>$(SolutionName)_$(ProjectName)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='debug|x64'">
     <ClCompile>
@@ -76,6 +79,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>SdkCore.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\.lib.$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='release|x64'">
@@ -95,6 +100,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\.lib.$(Configuration)\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SdkCore.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
