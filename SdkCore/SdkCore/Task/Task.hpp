@@ -1,7 +1,7 @@
 #pragma once
 
-namespace _TaskNs
-{
+namespace _Internal {
+namespace _Task {
 
 class task_base
 {
@@ -60,15 +60,15 @@ protected:
     ref<runtime_context> _ctx;
 };
 
-}
+}} // _Internal::_Task
 
 template<typename RetTy>
-class task : public _TaskNs::task_base
+class task : public _Internal::_Task::task_base
 {
 public:
     using SelfTy = task<RetTy>;
 
-    struct task_promise : _TaskNs::task_base::task_promise_base
+    struct task_promise : _Internal::_Task::task_base::task_promise_base
     {
         task_promise();
 
@@ -88,7 +88,7 @@ public:
 public:
     task() = delete;
 
-    task(ref<_TaskNs::runtime_context> ctx, ref<RetTy> r_rst);
+    task(ref<_Internal::_Task::runtime_context> ctx, ref<RetTy> r_rst);
 
     task(const task& rhs);
 
@@ -119,12 +119,12 @@ private:
 };
 
 template<>
-class task<void> : public _TaskNs::task_base
+class task<void> : public _Internal::_Task::task_base
 {
 public:
     using SelfTy = task<void>;
 
-    struct task_promise : _TaskNs::task_base::task_promise_base
+    struct task_promise : _Internal::_Task::task_base::task_promise_base
     {
         task_promise();
 
@@ -140,7 +140,7 @@ public:
 public:
     task() = delete;
 
-    task(ref<_TaskNs::runtime_context> ctx);
+    task(ref<_Internal::_Task::runtime_context> ctx);
 
     task(const task& rhs);
 

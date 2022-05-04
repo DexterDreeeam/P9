@@ -2,9 +2,8 @@
 #include "../../_Interface.hpp"
 #include "../EnvironmentHeader.hpp"
 
-class event_context
+struct event_context
 {
-public:
     HANDLE _event_handle;
 };
 

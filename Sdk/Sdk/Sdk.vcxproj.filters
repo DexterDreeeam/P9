@@ -5,8 +5,16 @@
     <ClInclude Include="_Declaration.hpp" />
     <ClInclude Include="System\_Declaration.hpp" />
     <ClInclude Include="System\_Interface.hpp" />
+    <ClInclude Include="Result.hpp" />
+    <ClInclude Include="_Common.hpp" />
+    <ClInclude Include="System\_Common.hpp" />
+    <ClInclude Include="System\Timer.hpp" />
+    <ClInclude Include="System\Functor.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Readme.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Implementation\Timer.cpp" />
   </ItemGroup>
 </Project>

@@ -6,23 +6,23 @@ class ref;
 template<typename Ty = void>
 class obs;
 
-namespace _RefNs
-{
+namespace _Internal {
+namespace _Ref {
 
 typedef void deconstructor_cb(void*);
 
-class context_base
+class ref_context_base
 {
 public:
-    context_base() = delete;
+    ref_context_base() = delete;
 
-    context_base(const context_base&) = delete;
+    ref_context_base(const ref_context_base&) = delete;
 
-    context_base(deconstructor_cb* dc);
+    ref_context_base(deconstructor_cb* dc);
 
-    ~context_base() = default;
+    ~ref_context_base() = default;
 
-    context_base& operator =(const context_base&) = delete;
+    ref_context_base& operator =(const ref_context_base&) = delete;
 
 public:
     deconstructor_cb*  _deconstructor;
@@ -32,22 +32,22 @@ public:
 };
 
 template<typename Ty>
-class context : context_base
+class ref_context : ref_context_base
 {
 private:
-    context() = delete;
+    ref_context() = delete;
 
-    context(const context&) = delete;
+    ref_context(const ref_context&) = delete;
 
-    context(Ty* ptr);
+    ref_context(Ty* ptr);
 
-    context& operator =(const context& rhs) = delete;
-
-public:
-    ~context();
+    ref_context& operator =(const ref_context& rhs) = delete;
 
 public:
-    static context<Ty>* new_instance_with_ptr(Ty* raw_ptr);
+    ~ref_context();
+
+public:
+    static ref_context<Ty>* new_instance_with_ptr(Ty* raw_ptr);
 
 public:
     // ref<Ty> call add_ref() to copy another ref<Ty>
@@ -75,4 +75,4 @@ public:
     Ty* _ptr;
 };
 
-}
+}} // _Internal::_Ref

@@ -1,10 +1,10 @@
 #pragma once
 
 template<typename Key_Ty>
-class unordered_set : protected HashmapNs::hashmap<Key_Ty>
+class unordered_set : protected _Internal::_HashMap::hashmap<Key_Ty>
 {
     using Self_Ty = unordered_set<Key_Ty>;
-    using Base_Ty = HashmapNs::hashmap<Key_Ty>;
+    using Base_Ty = _Internal::_HashMap::hashmap<Key_Ty>;
     using Node_Ty = typename Base_Ty::Node_Ty;
 
     using Iter_Ty = typename Base_Ty::Iter_Ty;

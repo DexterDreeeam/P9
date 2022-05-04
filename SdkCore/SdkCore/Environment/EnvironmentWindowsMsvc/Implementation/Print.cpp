@@ -2,8 +2,8 @@
 #include "../../_Interface.hpp"
 #include "../EnvironmentHeader.hpp"
 
-namespace _InternalNs
-{
+namespace _Internal {
+namespace _Print {
 
 void _C_CALL_ p9_print(const char* const format, ...)
 {
@@ -13,4 +13,4 @@ void _C_CALL_ p9_print(const char* const format, ...)
     va_end(va_l);
 }
 
-}
+}} // _Internal::_Print

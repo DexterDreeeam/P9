@@ -12,8 +12,8 @@
 
 #pragma once
 
-namespace _InternalNs
-{
+namespace _Internal {
+namespace _Terminator {
 
 #define SERVICE_TERMINATE_SYMBOL_FILE_EXTENSION  ".terminating"
 const char* const service_terminate_symbol_file = P9_FOLDER SERVICE_NAME SERVICE_TERMINATE_SYMBOL_FILE_EXTENSION;
@@ -82,7 +82,7 @@ _INLINE_ terminator& get_terminator()
     return t;
 }
 
-}
+}} // _Internal::_Terminator
 
 _INLINE_ void terminate(const char* service_name)
 {
@@ -106,5 +106,5 @@ _INLINE_ void terminate(const char* service_name)
 
 _INLINE_ boole am_i_terminated()
 {
-    return _InternalNs::get_terminator().check();
+    return _Internal::_Terminator::get_terminator().check();
 }

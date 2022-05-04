@@ -1,609 +1,610 @@
 #pragma once
 
-const s64 deque_block_min_size = 1LL << 4;
-const s64 deque_block_max_size = 1LL << 10;
-
 template<typename Ty>
 class deque;
 
-namespace DequeNs
+namespace _Internal {
+namespace _Deque {
+
+const s64 deque_block_min_size = 1LL << 4;
+const s64 deque_block_max_size = 1LL << 10;
+
+template<typename Ctnr_Ty>
+class deque_base_iter;
+
+template<typename Ctnr_Ty>
+class deque_iter;
+
+template<typename Ctnr_Ty>
+class deque_ritr;
+
+template<typename Ctnr_Ty>
+class deque_const_iter;
+
+template<typename Ctnr_Ty>
+class deque_const_ritr;
+
+template<typename Ty>
+class deque_block
 {
+    using Self_Ty = deque_block<Ty>;
 
-    template<typename Ctnr_Ty>
-    class deque_base_iter;
-
-    template<typename Ctnr_Ty>
-    class deque_iter;
-
-    template<typename Ctnr_Ty>
-    class deque_ritr;
-
-    template<typename Ctnr_Ty>
-    class deque_const_iter;
-
-    template<typename Ctnr_Ty>
-    class deque_const_ritr;
-
-    template<typename Ty>
-    class deque_block
+public:
+    deque_block(s64 block_cap, Self_Ty* p, Self_Ty* n, s64 h_cur, s64 t_cur) :
+        prev(p),
+        next(n),
+        cap(block_cap),
+        sz(0),
+        head_cursor(h_cur),
+        tail_cursor(t_cur),
+        elem((Ty*)memory::alloc<void>(sizeof(Ty)* cap))
     {
-        using Self_Ty = deque_block<Ty>;
+        assert(cap > 0);
+        assert(h_cur >= -1);
+        assert(t_cur <= cap);
+        assert(h_cur + 1 == t_cur);
+        assert(elem);
+    }
 
-    public:
-        deque_block(s64 block_cap, Self_Ty* p, Self_Ty* n, s64 h_cur, s64 t_cur) :
-            prev(p),
-            next(n),
-            cap(block_cap),
-            sz(0),
-            head_cursor(h_cur),
-            tail_cursor(t_cur),
-            elem((Ty*)memory::alloc<void>(sizeof(Ty)* cap))
-        {
-            assert(cap > 0);
-            assert(h_cur >= -1);
-            assert(t_cur <= cap);
-            assert(h_cur + 1 == t_cur);
-            assert(elem);
-        }
-
-        ~deque_block() noexcept
-        {
-            assert(elem);
-            memory::free(elem);
-        }
-
-        Self_Ty*& myprev() noexcept
-        {
-            return prev;
-        }
-
-        const Self_Ty*& myprev() const noexcept
-        {
-            return prev;
-        }
-
-        Self_Ty*& mynext() noexcept
-        {
-            return next;
-        }
-
-        const Self_Ty*& mynext() const noexcept
-        {
-            return next;
-        }
-
-        bool empty() const noexcept
-        {
-            return sz == 0;
-        }
-
-        bool full() const noexcept
-        {
-            return sz == cap;
-        }
-
-        s64 size() const noexcept
-        {
-            return sz;
-        }
-
-        Ty& back() noexcept
-        {
-            assert(sz > 0);
-            return elem[tail_cursor - 1];
-        }
-
-        const Ty& back() const noexcept
-        {
-            assert(sz > 0);
-            return elem[tail_cursor - 1];
-        }
-
-        Ty& front() noexcept
-        {
-            assert(sz > 0);
-            return elem[head_cursor + 1];
-        }
-
-        const Ty& front() const noexcept
-        {
-            assert(sz > 0);
-            return elem[head_cursor + 1];
-        }
-
-        void push_back(const Ty& e) noexcept
-        {
-            assert(tail_cursor < cap);
-            new (&elem[tail_cursor]) Ty(e);
-            ++tail_cursor;
-            ++sz;
-        }
-
-        void push_back(Ty&& e) noexcept
-        {
-            assert(tail_cursor < cap);
-            new (&elem[tail_cursor]) Ty(e);
-            ++tail_cursor;
-            ++sz;
-        }
-
-        void push_front(const Ty& e) noexcept
-        {
-            assert(head_cursor >= 0);
-            new (&elem[head_cursor]) Ty(e);
-            --head_cursor;
-            ++sz;
-        }
-
-        void push_front(Ty&& e) noexcept
-        {
-            assert(head_cursor >= 0);
-            new (&elem[head_cursor]) Ty(e);
-            --head_cursor;
-            ++sz;
-        }
-
-        void pop_back() noexcept
-        {
-            assert(sz > 0);
-            --sz;
-            --tail_cursor;
-            (&elem[tail_cursor])->~Ty();
-        }
-
-        void pop_front() noexcept
-        {
-            assert(sz > 0);
-            --sz;
-            ++head_cursor;
-            (&elem[head_cursor])->~Ty();
-        }
-
-        Ty& at(s64 pos) noexcept
-        {
-            assert(pos >= 0 && pos < sz);
-            return elem[head_cursor + pos + 1];
-        }
-
-        const Ty& at(s64 pos) const noexcept
-        {
-            assert(pos >= 0 && pos < sz);
-            return elem[head_cursor + pos + 1];
-        }
-
-    private:
-        Self_Ty* prev;
-        Self_Ty* next;
-        s64 cap;
-        s64 sz;
-        s64 head_cursor;
-        s64 tail_cursor;
-        Ty* elem;
-    };
-
-    template<typename Ty>
-    class deque_base_iter<deque<Ty>>
+    ~deque_block() noexcept
     {
-        using Container_Ty = deque<Ty>;
-        using Self_Ty = deque_iter<Container_Ty>;
-        using Blck_Ty = deque_block<Ty>;
+        assert(elem);
+        memory::free(elem);
+    }
 
-    protected:
-        deque_base_iter() :
-            deq_blk(nullptr),
-            block_idx(0)
-        {}
+    Self_Ty*& myprev() noexcept
+    {
+        return prev;
+    }
 
-        deque_base_iter(Blck_Ty* blk, s64 blk_idx) :
-            deq_blk(blk),
-            block_idx(blk_idx)
-        {}
+    const Self_Ty*& myprev() const noexcept
+    {
+        return prev;
+    }
 
-        deque_base_iter(const Self_Ty& rhs) :
-            deq_blk(rhs.deq_blk),
-            block_idx(rhs.block_idx)
-        {}
+    Self_Ty*& mynext() noexcept
+    {
+        return next;
+    }
 
-        ~deque_base_iter() noexcept = default;
+    const Self_Ty*& mynext() const noexcept
+    {
+        return next;
+    }
 
-        void _search_next() noexcept
+    bool empty() const noexcept
+    {
+        return sz == 0;
+    }
+
+    bool full() const noexcept
+    {
+        return sz == cap;
+    }
+
+    s64 size() const noexcept
+    {
+        return sz;
+    }
+
+    Ty& back() noexcept
+    {
+        assert(sz > 0);
+        return elem[tail_cursor - 1];
+    }
+
+    const Ty& back() const noexcept
+    {
+        assert(sz > 0);
+        return elem[tail_cursor - 1];
+    }
+
+    Ty& front() noexcept
+    {
+        assert(sz > 0);
+        return elem[head_cursor + 1];
+    }
+
+    const Ty& front() const noexcept
+    {
+        assert(sz > 0);
+        return elem[head_cursor + 1];
+    }
+
+    void push_back(const Ty& e) noexcept
+    {
+        assert(tail_cursor < cap);
+        new (&elem[tail_cursor]) Ty(e);
+        ++tail_cursor;
+        ++sz;
+    }
+
+    void push_back(Ty&& e) noexcept
+    {
+        assert(tail_cursor < cap);
+        new (&elem[tail_cursor]) Ty(e);
+        ++tail_cursor;
+        ++sz;
+    }
+
+    void push_front(const Ty& e) noexcept
+    {
+        assert(head_cursor >= 0);
+        new (&elem[head_cursor]) Ty(e);
+        --head_cursor;
+        ++sz;
+    }
+
+    void push_front(Ty&& e) noexcept
+    {
+        assert(head_cursor >= 0);
+        new (&elem[head_cursor]) Ty(e);
+        --head_cursor;
+        ++sz;
+    }
+
+    void pop_back() noexcept
+    {
+        assert(sz > 0);
+        --sz;
+        --tail_cursor;
+        (&elem[tail_cursor])->~Ty();
+    }
+
+    void pop_front() noexcept
+    {
+        assert(sz > 0);
+        --sz;
+        ++head_cursor;
+        (&elem[head_cursor])->~Ty();
+    }
+
+    Ty& at(s64 pos) noexcept
+    {
+        assert(pos >= 0 && pos < sz);
+        return elem[head_cursor + pos + 1];
+    }
+
+    const Ty& at(s64 pos) const noexcept
+    {
+        assert(pos >= 0 && pos < sz);
+        return elem[head_cursor + pos + 1];
+    }
+
+private:
+    Self_Ty* prev;
+    Self_Ty* next;
+    s64 cap;
+    s64 sz;
+    s64 head_cursor;
+    s64 tail_cursor;
+    Ty* elem;
+};
+
+template<typename Ty>
+class deque_base_iter<deque<Ty>>
+{
+    using Container_Ty = deque<Ty>;
+    using Self_Ty = deque_iter<Container_Ty>;
+    using Blck_Ty = deque_block<Ty>;
+
+protected:
+    deque_base_iter() :
+        deq_blk(nullptr),
+        block_idx(0)
+    {}
+
+    deque_base_iter(Blck_Ty* blk, s64 blk_idx) :
+        deq_blk(blk),
+        block_idx(blk_idx)
+    {}
+
+    deque_base_iter(const Self_Ty& rhs) :
+        deq_blk(rhs.deq_blk),
+        block_idx(rhs.block_idx)
+    {}
+
+    ~deque_base_iter() noexcept = default;
+
+    void _search_next() noexcept
+    {
+        assert(deq_blk);
+        if (++block_idx >= deq_blk->size())
         {
-            assert(deq_blk);
-            if (++block_idx >= deq_blk->size())
+            deq_blk = deq_blk->mynext();
+            block_idx = 0;
+            if (deq_blk && deq_blk->size() == 0)
             {
-                deq_blk = deq_blk->mynext();
+                assert(deq_blk->mynext() == nullptr);
+                deq_blk = nullptr;
+            }
+        }
+    }
+
+    void _search_prev() noexcept
+    {
+        assert(deq_blk);
+        if (--block_idx < 0)
+        {
+            deq_blk = deq_blk->myprev();
+            if (deq_blk && deq_blk->size() > 0)
+            {
+                block_idx = deq_blk->size() - 1;
+            }
+            else
+            {
+                deq_blk = nullptr;
                 block_idx = 0;
-                if (deq_blk && deq_blk->size() == 0)
-                {
-                    assert(deq_blk->mynext() == nullptr);
-                    deq_blk = nullptr;
-                }
             }
         }
+    }
 
-        void _search_prev() noexcept
-        {
-            assert(deq_blk);
-            if (--block_idx < 0)
-            {
-                deq_blk = deq_blk->myprev();
-                if (deq_blk && deq_blk->size() > 0)
-                {
-                    block_idx = deq_blk->size() - 1;
-                }
-                else
-                {
-                    deq_blk = nullptr;
-                    block_idx = 0;
-                }
-            }
-        }
+protected:
+    Blck_Ty* deq_blk;
+    s64 block_idx;
+};
 
-    protected:
-        Blck_Ty* deq_blk;
-        s64 block_idx;
-    };
+template<typename Ty>
+class deque_iter<deque<Ty>> : public deque_base_iter<deque<Ty>>
+{
+    using Container_Ty = deque<Ty>;
+    using Self_Ty = deque_iter<Container_Ty>;
+    using BaseIter_Ty = deque_base_iter<Container_Ty>;
+    using Blck_Ty = deque_block<Ty>;
 
-    template<typename Ty>
-    class deque_iter<deque<Ty>> : public deque_base_iter<deque<Ty>>
+public:
+    deque_iter() :
+        BaseIter_Ty()
+    {}
+
+    deque_iter(Blck_Ty* blk, s64 blk_idx) :
+        BaseIter_Ty(blk, blk_idx)
+    {}
+
+    deque_iter(const Self_Ty& rhs) :
+        BaseIter_Ty(rhs)
+    {}
+
+    ~deque_iter() noexcept = default;
+
+    Self_Ty& operator =(const Self_Ty& rhs) noexcept
     {
-        using Container_Ty = deque<Ty>;
-        using Self_Ty = deque_iter<Container_Ty>;
-        using BaseIter_Ty = deque_base_iter<Container_Ty>;
-        using Blck_Ty = deque_block<Ty>;
+        BaseIter_Ty::deq_blk = rhs.deq_blk;
+        BaseIter_Ty::block_idx = rhs.block_idx;
+        return *this;
+    }
 
-    public:
-        deque_iter() :
-            BaseIter_Ty()
-        {}
-
-        deque_iter(Blck_Ty* blk, s64 blk_idx) :
-            BaseIter_Ty(blk, blk_idx)
-        {}
-
-        deque_iter(const Self_Ty& rhs) :
-            BaseIter_Ty(rhs)
-        {}
-
-        ~deque_iter() noexcept = default;
-
-        Self_Ty& operator =(const Self_Ty& rhs) noexcept
-        {
-            BaseIter_Ty::deq_blk = rhs.deq_blk;
-            BaseIter_Ty::block_idx = rhs.block_idx;
-            return *this;
-        }
-
-        Self_Ty& operator ++() noexcept
-        {
-            assert(BaseIter_Ty::deq_blk);
-            BaseIter_Ty::_search_next();
-            return *this;
-        }
-
-        Self_Ty& operator --() noexcept
-        {
-            assert(BaseIter_Ty::deq_blk);
-            BaseIter_Ty::_search_prev();
-            return *this;
-        }
-
-        Self_Ty operator ++(int) noexcept
-        {
-            assert(BaseIter_Ty::deq_blk);
-            Self_Ty ret(BaseIter_Ty::deq_blk, BaseIter_Ty::block_idx);
-            BaseIter_Ty::_search_next();
-            return ret;
-        }
-
-        Self_Ty operator --(int) noexcept
-        {
-            assert(Blck_Ty::deq_blk);
-            Self_Ty ret(BaseIter_Ty::deq_blk, BaseIter_Ty::block_idx);
-            BaseIter_Ty::_search_prev();
-            return ret;
-        }
-
-        bool operator ==(const Self_Ty& rhs) const noexcept
-        {
-            return BaseIter_Ty::deq_blk == rhs.deq_blk && BaseIter_Ty::block_idx == rhs.block_idx;
-        }
-
-        bool operator !=(const Self_Ty& rhs) const noexcept
-        {
-            return BaseIter_Ty::deq_blk != rhs.deq_blk || BaseIter_Ty::block_idx != rhs.block_idx;
-        }
-
-        Ty& operator *() noexcept
-        {
-            assert_info(BaseIter_Ty::deq_blk, "Dereference a non-data iterator.");
-            assert(BaseIter_Ty::block_idx >= 0 && BaseIter_Ty::block_idx < BaseIter_Ty::deq_blk->size());
-            return BaseIter_Ty::deq_blk->at(BaseIter_Ty::block_idx);
-        }
-
-        Ty* operator ->() noexcept
-        {
-            assert_info(BaseIter_Ty::deq_blk, "Dereference a non-data iterator.");
-            assert(BaseIter_Ty::block_idx >= 0 && BaseIter_Ty::block_idx < BaseIter_Ty::deq_blk->size());
-            return &BaseIter_Ty::deq_blk->at(BaseIter_Ty::block_idx);
-        }
-    };
-
-    template<typename Ty>
-    class deque_ritr<deque<Ty>> : public deque_base_iter<deque<Ty>>
+    Self_Ty& operator ++() noexcept
     {
-        using Container_Ty = deque<Ty>;
-        using Self_Ty = deque_ritr<Container_Ty>;
-        using BaseIter_Ty = deque_base_iter<Container_Ty>;
-        using Blck_Ty = deque_block<Ty>;
+        assert(BaseIter_Ty::deq_blk);
+        BaseIter_Ty::_search_next();
+        return *this;
+    }
 
-    public:
-        deque_ritr() :
-            BaseIter_Ty()
-        {}
-
-        deque_ritr(Blck_Ty* blk, s64 blk_idx) :
-            BaseIter_Ty(blk, blk_idx)
-        {}
-
-        deque_ritr(const Self_Ty& rhs) :
-            BaseIter_Ty(rhs)
-        {}
-
-        ~deque_ritr() noexcept = default;
-
-        Self_Ty& operator =(const Self_Ty& rhs) noexcept
-        {
-            BaseIter_Ty::deq_blk = rhs.deq_blk;
-            BaseIter_Ty::block_idx = rhs.block_idx;
-            return *this;
-        }
-
-        Self_Ty& operator ++() noexcept
-        {
-            assert(BaseIter_Ty::deq_blk);
-            BaseIter_Ty::_search_prev();
-            return *this;
-        }
-
-        Self_Ty& operator --() noexcept
-        {
-            assert(BaseIter_Ty::deq_blk);
-            BaseIter_Ty::_search_next();
-            return *this;
-        }
-
-        Self_Ty operator ++(int) noexcept
-        {
-            assert(BaseIter_Ty::deq_blk);
-            Self_Ty ret(BaseIter_Ty::deq_blk, BaseIter_Ty::block_idx);
-            BaseIter_Ty::_search_prev();
-            return ret;
-        }
-
-        Self_Ty operator --(int) noexcept
-        {
-            assert(BaseIter_Ty::deq_blk);
-            Self_Ty ret(BaseIter_Ty::deq_blk, BaseIter_Ty::block_idx);
-            BaseIter_Ty::_search_next();
-            return ret;
-        }
-
-        bool operator ==(const Self_Ty& rhs) const noexcept
-        {
-            return BaseIter_Ty::deq_blk == rhs.deq_blk && BaseIter_Ty::block_idx == rhs.block_idx;
-        }
-
-        bool operator !=(const Self_Ty& rhs) const noexcept
-        {
-            return BaseIter_Ty::deq_blk != rhs.deq_blk || BaseIter_Ty::block_idx != rhs.block_idx;
-        }
-
-        Ty& operator *() noexcept
-        {
-            assert_info(BaseIter_Ty::deq_blk, "Dereference a non-data iterator.");
-            assert(BaseIter_Ty::block_idx >= 0 && BaseIter_Ty::block_idx < BaseIter_Ty::deq_blk->size());
-            return BaseIter_Ty::deq_blk->at(BaseIter_Ty::block_idx);
-        }
-
-        Ty* operator ->() noexcept
-        {
-            assert_info(BaseIter_Ty::deq_blk, "Dereference a non-data iterator.");
-            assert(BaseIter_Ty::block_idx >= 0 && BaseIter_Ty::block_idx < BaseIter_Ty::deq_blk->size());
-            return &BaseIter_Ty::deq_blk->at(BaseIter_Ty::block_idx);
-        }
-    };
-
-    template<typename Ty>
-    class deque_const_iter<deque<Ty>> : public deque_base_iter<deque<Ty>>
+    Self_Ty& operator --() noexcept
     {
-        using Container_Ty = deque<Ty>;
-        using Self_Ty = deque_const_iter<Container_Ty>;
-        using BaseIter_Ty = deque_base_iter<Container_Ty>;
-        using Blck_Ty = deque_block<Ty>;
+        assert(BaseIter_Ty::deq_blk);
+        BaseIter_Ty::_search_prev();
+        return *this;
+    }
 
-    public:
-        deque_const_iter() :
-            BaseIter_Ty()
-        {}
-
-        deque_const_iter(Blck_Ty* blk, s64 blk_idx) :
-            BaseIter_Ty(blk, blk_idx)
-        {}
-
-        deque_const_iter(const Self_Ty& rhs) :
-            BaseIter_Ty(rhs)
-        {}
-
-        ~deque_const_iter() noexcept = default;
-
-        Self_Ty& operator =(const Self_Ty& rhs) noexcept
-        {
-            BaseIter_Ty::deq_blk = rhs.deq_blk;
-            BaseIter_Ty::block_idx = rhs.block_idx;
-            return *this;
-        }
-
-        Self_Ty& operator ++() noexcept
-        {
-            assert(BaseIter_Ty::deq_blk);
-            BaseIter_Ty::_search_next();
-            return *this;
-        }
-
-        Self_Ty& operator --() noexcept
-        {
-            assert(BaseIter_Ty::deq_blk);
-            BaseIter_Ty::_search_prev();
-            return *this;
-        }
-
-        Self_Ty operator ++(int) noexcept
-        {
-            assert(BaseIter_Ty::deq_blk);
-            Self_Ty ret(BaseIter_Ty::deq_blk, BaseIter_Ty::block_idx);
-            BaseIter_Ty::_search_next();
-            return ret;
-        }
-
-        Self_Ty operator --(int) noexcept
-        {
-            assert(BaseIter_Ty::deq_blk);
-            Self_Ty ret(BaseIter_Ty::deq_blk, BaseIter_Ty::block_idx);
-            BaseIter_Ty::_search_prev();
-            return ret;
-        }
-
-        bool operator ==(const Self_Ty& rhs) const noexcept
-        {
-            return BaseIter_Ty::deq_blk == rhs.deq_blk && BaseIter_Ty::block_idx == rhs.block_idx;
-        }
-
-        bool operator !=(const Self_Ty& rhs) const noexcept
-        {
-            return BaseIter_Ty::deq_blk != rhs.deq_blk || BaseIter_Ty::block_idx != rhs.block_idx;
-        }
-
-        const Ty& operator *() const noexcept
-        {
-            assert_info(BaseIter_Ty::deq_blk, "Dereference a non-data iterator.");
-            assert(BaseIter_Ty::block_idx >= 0 && BaseIter_Ty::block_idx < BaseIter_Ty::deq_blk->size());
-            return BaseIter_Ty::deq_blk->at(BaseIter_Ty::block_idx);
-        }
-
-        const Ty* operator ->() const noexcept
-        {
-            assert_info(BaseIter_Ty::deq_blk, "Dereference a non-data iterator.");
-            assert(BaseIter_Ty::block_idx >= 0 && BaseIter_Ty::block_idx < BaseIter_Ty::deq_blk->size());
-            return &BaseIter_Ty::deq_blk->at(BaseIter_Ty::block_idx);
-        }
-    };
-
-    template<typename Ty>
-    class deque_const_ritr<deque<Ty>> : public deque_base_iter<deque<Ty>>
+    Self_Ty operator ++(int) noexcept
     {
-        using Container_Ty = deque<Ty>;
-        using Self_Ty = deque_const_ritr<Container_Ty>;
-        using BaseIter_Ty = deque_base_iter<Container_Ty>;
-        using Blck_Ty = deque_block<Ty>;
+        assert(BaseIter_Ty::deq_blk);
+        Self_Ty ret(BaseIter_Ty::deq_blk, BaseIter_Ty::block_idx);
+        BaseIter_Ty::_search_next();
+        return ret;
+    }
 
-    public:
-        deque_const_ritr() :
-            BaseIter_Ty()
-        {}
+    Self_Ty operator --(int) noexcept
+    {
+        assert(Blck_Ty::deq_blk);
+        Self_Ty ret(BaseIter_Ty::deq_blk, BaseIter_Ty::block_idx);
+        BaseIter_Ty::_search_prev();
+        return ret;
+    }
 
-        deque_const_ritr(Blck_Ty* blk, s64 blk_idx) :
-            BaseIter_Ty(blk, blk_idx)
-        {}
+    bool operator ==(const Self_Ty& rhs) const noexcept
+    {
+        return BaseIter_Ty::deq_blk == rhs.deq_blk && BaseIter_Ty::block_idx == rhs.block_idx;
+    }
 
-        deque_const_ritr(const Self_Ty& rhs) :
-            BaseIter_Ty(rhs)
-        {}
+    bool operator !=(const Self_Ty& rhs) const noexcept
+    {
+        return BaseIter_Ty::deq_blk != rhs.deq_blk || BaseIter_Ty::block_idx != rhs.block_idx;
+    }
 
-        ~deque_const_ritr() noexcept = default;
+    Ty& operator *() noexcept
+    {
+        assert_info(BaseIter_Ty::deq_blk, "Dereference a non-data iterator.");
+        assert(BaseIter_Ty::block_idx >= 0 && BaseIter_Ty::block_idx < BaseIter_Ty::deq_blk->size());
+        return BaseIter_Ty::deq_blk->at(BaseIter_Ty::block_idx);
+    }
 
-        Self_Ty& operator =(const Self_Ty& rhs) noexcept
-        {
-            BaseIter_Ty::deq_blk = rhs.deq_blk;
-            BaseIter_Ty::block_idx = rhs.block_idx;
-            return *this;
-        }
+    Ty* operator ->() noexcept
+    {
+        assert_info(BaseIter_Ty::deq_blk, "Dereference a non-data iterator.");
+        assert(BaseIter_Ty::block_idx >= 0 && BaseIter_Ty::block_idx < BaseIter_Ty::deq_blk->size());
+        return &BaseIter_Ty::deq_blk->at(BaseIter_Ty::block_idx);
+    }
+};
 
-        Self_Ty& operator ++() noexcept
-        {
-            assert(BaseIter_Ty::deq_blk);
-            BaseIter_Ty::_search_prev();
-            return *this;
-        }
+template<typename Ty>
+class deque_ritr<deque<Ty>> : public deque_base_iter<deque<Ty>>
+{
+    using Container_Ty = deque<Ty>;
+    using Self_Ty = deque_ritr<Container_Ty>;
+    using BaseIter_Ty = deque_base_iter<Container_Ty>;
+    using Blck_Ty = deque_block<Ty>;
 
-        Self_Ty& operator --() noexcept
-        {
-            assert(BaseIter_Ty::deq_blk);
-            BaseIter_Ty::_search_next();
-            return *this;
-        }
+public:
+    deque_ritr() :
+        BaseIter_Ty()
+    {}
 
-        Self_Ty operator ++(int) noexcept
-        {
-            assert(BaseIter_Ty::deq_blk);
-            Self_Ty ret(BaseIter_Ty::deq_blk, BaseIter_Ty::block_idx);
-            BaseIter_Ty::_search_prev();
-            return ret;
-        }
+    deque_ritr(Blck_Ty* blk, s64 blk_idx) :
+        BaseIter_Ty(blk, blk_idx)
+    {}
 
-        Self_Ty operator --(int) noexcept
-        {
-            assert(BaseIter_Ty::deq_blk);
-            Self_Ty ret(BaseIter_Ty::deq_blk, BaseIter_Ty::block_idx);
-            BaseIter_Ty::_search_next();
-            return ret;
-        }
+    deque_ritr(const Self_Ty& rhs) :
+        BaseIter_Ty(rhs)
+    {}
 
-        bool operator ==(const Self_Ty& rhs) const noexcept
-        {
-            return BaseIter_Ty::deq_blk == rhs.deq_blk && BaseIter_Ty::block_idx == rhs.block_idx;
-        }
+    ~deque_ritr() noexcept = default;
 
-        bool operator !=(const Self_Ty& rhs) const noexcept
-        {
-            return BaseIter_Ty::deq_blk != rhs.deq_blk || BaseIter_Ty::block_idx != rhs.block_idx;
-        }
+    Self_Ty& operator =(const Self_Ty& rhs) noexcept
+    {
+        BaseIter_Ty::deq_blk = rhs.deq_blk;
+        BaseIter_Ty::block_idx = rhs.block_idx;
+        return *this;
+    }
 
-        const Ty& operator *() const noexcept
-        {
-            assert_info(BaseIter_Ty::deq_blk, "Dereference a non-data iterator.");
-            assert(BaseIter_Ty::block_idx >= 0 && BaseIter_Ty::block_idx < BaseIter_Ty::deq_blk->size());
-            return BaseIter_Ty::deq_blk->at(BaseIter_Ty::block_idx);
-        }
+    Self_Ty& operator ++() noexcept
+    {
+        assert(BaseIter_Ty::deq_blk);
+        BaseIter_Ty::_search_prev();
+        return *this;
+    }
 
-        const Ty* operator ->() const noexcept
-        {
-            assert_info(BaseIter_Ty::deq_blk, "Dereference a non-data iterator.");
-            assert(BaseIter_Ty::block_idx >= 0 && BaseIter_Ty::block_idx < BaseIter_Ty::deq_blk->size());
-            return &BaseIter_Ty::deq_blk->at(BaseIter_Ty::block_idx);
-        }
-    };
+    Self_Ty& operator --() noexcept
+    {
+        assert(BaseIter_Ty::deq_blk);
+        BaseIter_Ty::_search_next();
+        return *this;
+    }
 
-}
+    Self_Ty operator ++(int) noexcept
+    {
+        assert(BaseIter_Ty::deq_blk);
+        Self_Ty ret(BaseIter_Ty::deq_blk, BaseIter_Ty::block_idx);
+        BaseIter_Ty::_search_prev();
+        return ret;
+    }
+
+    Self_Ty operator --(int) noexcept
+    {
+        assert(BaseIter_Ty::deq_blk);
+        Self_Ty ret(BaseIter_Ty::deq_blk, BaseIter_Ty::block_idx);
+        BaseIter_Ty::_search_next();
+        return ret;
+    }
+
+    bool operator ==(const Self_Ty& rhs) const noexcept
+    {
+        return BaseIter_Ty::deq_blk == rhs.deq_blk && BaseIter_Ty::block_idx == rhs.block_idx;
+    }
+
+    bool operator !=(const Self_Ty& rhs) const noexcept
+    {
+        return BaseIter_Ty::deq_blk != rhs.deq_blk || BaseIter_Ty::block_idx != rhs.block_idx;
+    }
+
+    Ty& operator *() noexcept
+    {
+        assert_info(BaseIter_Ty::deq_blk, "Dereference a non-data iterator.");
+        assert(BaseIter_Ty::block_idx >= 0 && BaseIter_Ty::block_idx < BaseIter_Ty::deq_blk->size());
+        return BaseIter_Ty::deq_blk->at(BaseIter_Ty::block_idx);
+    }
+
+    Ty* operator ->() noexcept
+    {
+        assert_info(BaseIter_Ty::deq_blk, "Dereference a non-data iterator.");
+        assert(BaseIter_Ty::block_idx >= 0 && BaseIter_Ty::block_idx < BaseIter_Ty::deq_blk->size());
+        return &BaseIter_Ty::deq_blk->at(BaseIter_Ty::block_idx);
+    }
+};
+
+template<typename Ty>
+class deque_const_iter<deque<Ty>> : public deque_base_iter<deque<Ty>>
+{
+    using Container_Ty = deque<Ty>;
+    using Self_Ty = deque_const_iter<Container_Ty>;
+    using BaseIter_Ty = deque_base_iter<Container_Ty>;
+    using Blck_Ty = deque_block<Ty>;
+
+public:
+    deque_const_iter() :
+        BaseIter_Ty()
+    {}
+
+    deque_const_iter(Blck_Ty* blk, s64 blk_idx) :
+        BaseIter_Ty(blk, blk_idx)
+    {}
+
+    deque_const_iter(const Self_Ty& rhs) :
+        BaseIter_Ty(rhs)
+    {}
+
+    ~deque_const_iter() noexcept = default;
+
+    Self_Ty& operator =(const Self_Ty& rhs) noexcept
+    {
+        BaseIter_Ty::deq_blk = rhs.deq_blk;
+        BaseIter_Ty::block_idx = rhs.block_idx;
+        return *this;
+    }
+
+    Self_Ty& operator ++() noexcept
+    {
+        assert(BaseIter_Ty::deq_blk);
+        BaseIter_Ty::_search_next();
+        return *this;
+    }
+
+    Self_Ty& operator --() noexcept
+    {
+        assert(BaseIter_Ty::deq_blk);
+        BaseIter_Ty::_search_prev();
+        return *this;
+    }
+
+    Self_Ty operator ++(int) noexcept
+    {
+        assert(BaseIter_Ty::deq_blk);
+        Self_Ty ret(BaseIter_Ty::deq_blk, BaseIter_Ty::block_idx);
+        BaseIter_Ty::_search_next();
+        return ret;
+    }
+
+    Self_Ty operator --(int) noexcept
+    {
+        assert(BaseIter_Ty::deq_blk);
+        Self_Ty ret(BaseIter_Ty::deq_blk, BaseIter_Ty::block_idx);
+        BaseIter_Ty::_search_prev();
+        return ret;
+    }
+
+    bool operator ==(const Self_Ty& rhs) const noexcept
+    {
+        return BaseIter_Ty::deq_blk == rhs.deq_blk && BaseIter_Ty::block_idx == rhs.block_idx;
+    }
+
+    bool operator !=(const Self_Ty& rhs) const noexcept
+    {
+        return BaseIter_Ty::deq_blk != rhs.deq_blk || BaseIter_Ty::block_idx != rhs.block_idx;
+    }
+
+    const Ty& operator *() const noexcept
+    {
+        assert_info(BaseIter_Ty::deq_blk, "Dereference a non-data iterator.");
+        assert(BaseIter_Ty::block_idx >= 0 && BaseIter_Ty::block_idx < BaseIter_Ty::deq_blk->size());
+        return BaseIter_Ty::deq_blk->at(BaseIter_Ty::block_idx);
+    }
+
+    const Ty* operator ->() const noexcept
+    {
+        assert_info(BaseIter_Ty::deq_blk, "Dereference a non-data iterator.");
+        assert(BaseIter_Ty::block_idx >= 0 && BaseIter_Ty::block_idx < BaseIter_Ty::deq_blk->size());
+        return &BaseIter_Ty::deq_blk->at(BaseIter_Ty::block_idx);
+    }
+};
+
+template<typename Ty>
+class deque_const_ritr<deque<Ty>> : public deque_base_iter<deque<Ty>>
+{
+    using Container_Ty = deque<Ty>;
+    using Self_Ty = deque_const_ritr<Container_Ty>;
+    using BaseIter_Ty = deque_base_iter<Container_Ty>;
+    using Blck_Ty = deque_block<Ty>;
+
+public:
+    deque_const_ritr() :
+        BaseIter_Ty()
+    {}
+
+    deque_const_ritr(Blck_Ty* blk, s64 blk_idx) :
+        BaseIter_Ty(blk, blk_idx)
+    {}
+
+    deque_const_ritr(const Self_Ty& rhs) :
+        BaseIter_Ty(rhs)
+    {}
+
+    ~deque_const_ritr() noexcept = default;
+
+    Self_Ty& operator =(const Self_Ty& rhs) noexcept
+    {
+        BaseIter_Ty::deq_blk = rhs.deq_blk;
+        BaseIter_Ty::block_idx = rhs.block_idx;
+        return *this;
+    }
+
+    Self_Ty& operator ++() noexcept
+    {
+        assert(BaseIter_Ty::deq_blk);
+        BaseIter_Ty::_search_prev();
+        return *this;
+    }
+
+    Self_Ty& operator --() noexcept
+    {
+        assert(BaseIter_Ty::deq_blk);
+        BaseIter_Ty::_search_next();
+        return *this;
+    }
+
+    Self_Ty operator ++(int) noexcept
+    {
+        assert(BaseIter_Ty::deq_blk);
+        Self_Ty ret(BaseIter_Ty::deq_blk, BaseIter_Ty::block_idx);
+        BaseIter_Ty::_search_prev();
+        return ret;
+    }
+
+    Self_Ty operator --(int) noexcept
+    {
+        assert(BaseIter_Ty::deq_blk);
+        Self_Ty ret(BaseIter_Ty::deq_blk, BaseIter_Ty::block_idx);
+        BaseIter_Ty::_search_next();
+        return ret;
+    }
+
+    bool operator ==(const Self_Ty& rhs) const noexcept
+    {
+        return BaseIter_Ty::deq_blk == rhs.deq_blk && BaseIter_Ty::block_idx == rhs.block_idx;
+    }
+
+    bool operator !=(const Self_Ty& rhs) const noexcept
+    {
+        return BaseIter_Ty::deq_blk != rhs.deq_blk || BaseIter_Ty::block_idx != rhs.block_idx;
+    }
+
+    const Ty& operator *() const noexcept
+    {
+        assert_info(BaseIter_Ty::deq_blk, "Dereference a non-data iterator.");
+        assert(BaseIter_Ty::block_idx >= 0 && BaseIter_Ty::block_idx < BaseIter_Ty::deq_blk->size());
+        return BaseIter_Ty::deq_blk->at(BaseIter_Ty::block_idx);
+    }
+
+    const Ty* operator ->() const noexcept
+    {
+        assert_info(BaseIter_Ty::deq_blk, "Dereference a non-data iterator.");
+        assert(BaseIter_Ty::block_idx >= 0 && BaseIter_Ty::block_idx < BaseIter_Ty::deq_blk->size());
+        return &BaseIter_Ty::deq_blk->at(BaseIter_Ty::block_idx);
+    }
+};
+
+}} // _Internal::_Deque
 
 template<typename Ty>
 class deque
 {
     using Self_Ty = deque<Ty>;
-    using Blck_Ty = DequeNs::deque_block<Ty>;
-    using Iter_Ty = DequeNs::deque_iter<Self_Ty>;
-    using Ritr_Ty = DequeNs::deque_ritr<Self_Ty>;
-    using cIter_Ty = DequeNs::deque_const_iter<Self_Ty>;
-    using cRitr_Ty = DequeNs::deque_const_ritr<Self_Ty>;
+    using Blck_Ty = _Internal::_Deque::deque_block<Ty>;
+    using Iter_Ty = _Internal::_Deque::deque_iter<Self_Ty>;
+    using Ritr_Ty = _Internal::_Deque::deque_ritr<Self_Ty>;
+    using cIter_Ty = _Internal::_Deque::deque_const_iter<Self_Ty>;
+    using cRitr_Ty = _Internal::_Deque::deque_const_ritr<Self_Ty>;
 
-    friend class DequeNs::deque_iter<Self_Ty>;
-    friend class DequeNs::deque_ritr<Self_Ty>;
-    friend class DequeNs::deque_const_iter<Self_Ty>;
-    friend class DequeNs::deque_const_ritr<Self_Ty>;
+    friend class _Internal::_Deque::deque_iter<Self_Ty>;
+    friend class _Internal::_Deque::deque_ritr<Self_Ty>;
+    friend class _Internal::_Deque::deque_const_iter<Self_Ty>;
+    friend class _Internal::_Deque::deque_const_ritr<Self_Ty>;
 
 public:
     deque() :
-        first(new (memory::alloc<void>(sizeof(Blck_Ty))) Blck_Ty(deque_block_min_size, nullptr, nullptr, deque_block_min_size / 2 - 1, deque_block_min_size / 2)),
+        first(new (memory::alloc<void>(sizeof(Blck_Ty))) Blck_Ty(
+            _Internal::_Deque::deque_block_min_size, nullptr, nullptr, _Internal::_Deque::deque_block_min_size / 2 - 1, _Internal::_Deque::deque_block_min_size / 2)),
         last(first),
         sz(0)
     {
@@ -684,7 +685,7 @@ public:
         if (last->full())
         {
             Blck_Ty* new_blk = (Blck_Ty*)memory::alloc<void>(sizeof(Blck_Ty));
-            new (new_blk) Blck_Ty(math::clamp(sz, deque_block_min_size, deque_block_max_size), last, nullptr, -1, 0);
+            new (new_blk) Blck_Ty(math::clamp(sz, _Internal::_Deque::deque_block_min_size, _Internal::_Deque::deque_block_max_size), last, nullptr, -1, 0);
             last->mynext() = new_blk;
             last = new_blk;
         }
@@ -697,7 +698,7 @@ public:
         if (last->full())
         {
             Blck_Ty* new_blk = (Blck_Ty*)memory::alloc<void>(sizeof(Blck_Ty));
-            new (new_blk) Blck_Ty(math::clamp(sz, deque_block_min_size, deque_block_max_size), last, nullptr, -1, 0);
+            new (new_blk) Blck_Ty(math::clamp(sz, _Internal::_Deque::deque_block_min_size, _Internal::_Deque::deque_block_max_size), last, nullptr, -1, 0);
             last->mynext() = new_blk;
             last = new_blk;
         }
@@ -710,7 +711,7 @@ public:
         if (first->full())
         {
             Blck_Ty* new_blk = (Blck_Ty*)memory::alloc<void>(sizeof(Blck_Ty));
-            s64 new_cap = math::clamp(sz, deque_block_min_size, deque_block_max_size);
+            s64 new_cap = math::clamp(sz, _Internal::_Deque::deque_block_min_size, _Internal::_Deque::deque_block_max_size);
             new (new_blk) Blck_Ty(new_cap, nullptr, first, new_cap - 1, new_cap);
             first->myprev() = new_blk;
             first = new_blk;
@@ -724,7 +725,7 @@ public:
         if (first->full())
         {
             Blck_Ty* new_blk = (Blck_Ty*)memory::alloc<void>(sizeof(Blck_Ty));
-            s64 new_cap = math::clamp(sz, deque_block_min_size, deque_block_max_size);
+            s64 new_cap = math::clamp(sz, _Internal::_Deque::deque_block_min_size, _Internal::_Deque::deque_block_max_size);
             new (new_blk) Blck_Ty(new_cap, nullptr, first, new_cap - 1, new_cap);
             first->myprev() = new_blk;
             first = new_blk;

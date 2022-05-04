@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../SdkCore/_InterfaceExt.hpp"
+#include "_Common.hpp"
 #include "_Declaration.hpp"
 
-
+#include "Result.hpp"

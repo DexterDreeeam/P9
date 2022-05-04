@@ -68,7 +68,7 @@ public:
     bool operator !=(const obs<Other_Ty>& rhs) const;
 
 private:
-    explicit obs(_RefNs::context<Ty>* ctx);
+    explicit obs(_Internal::_Ref::ref_context<Ty>* ctx);
 
 public:
     template<typename Other_Ty>
@@ -87,7 +87,7 @@ public:
     void clear();
 
 private:
-    atom<_RefNs::context<Ty>*> _ctx;
+    atom<_Internal::_Ref::ref_context<Ty>*> _ctx;
 };
 
 template<>
@@ -155,7 +155,7 @@ public:
     bool operator !=(const obs<Other_Ty>& rhs) const;
 
 private:
-    explicit obs(_RefNs::context<void>* ctx);
+    explicit obs(_Internal::_Ref::ref_context<void>* ctx);
 
 public:
     template<typename Other_Ty>
@@ -174,5 +174,5 @@ public:
     void clear();
 
 private:
-    atom<_RefNs::context<void>*> _ctx;
+    atom<_Internal::_Ref::ref_context<void>*> _ctx;
 };

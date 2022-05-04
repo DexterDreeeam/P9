@@ -11,13 +11,21 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Result.hpp" />
+    <ClInclude Include="System\Functor.hpp" />
+    <ClInclude Include="System\Timer.hpp" />
+    <ClInclude Include="System\_Common.hpp" />
     <ClInclude Include="System\_Declaration.hpp" />
     <ClInclude Include="System\_Interface.hpp" />
+    <ClInclude Include="_Common.hpp" />
     <ClInclude Include="_Declaration.hpp" />
     <ClInclude Include="_Interface.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Readme.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Implementation\Timer.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

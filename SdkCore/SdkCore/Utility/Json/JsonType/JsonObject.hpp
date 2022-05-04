@@ -71,9 +71,9 @@ public:
         }
     }
 
-    virtual JsonNs::json_parent_context get_parent_context(const string& key) override
+    virtual _Internal::_Json::json_parent_context get_parent_context(const string& key) override
     {
-        JsonNs::json_parent_context ctx;
+        _Internal::_Json::json_parent_context ctx;
         ctx.parent_type = type();
         ctx.parent_json = _self;
         ctx.parent_order = size();

@@ -1,7 +1,7 @@
 #pragma once
 
-namespace _TaskNs
-{
+namespace _Internal {
+namespace _Task {
 
 _INLINE_ task_async_base::task_async_promise_base::task_async_promise_base() :
     _ctx(ref<runtime_context>::new_instance())
@@ -149,11 +149,11 @@ _INLINE_ void task_async_base::wait_complete()
     }
 }
 
-}
+}} // _Internal::_Task
 
 template<typename RetTy>
 _INLINE_ task_async<RetTy>::task_async_promise::task_async_promise() :
-    _TaskNs::task_async_base::task_async_promise_base(),
+    _Internal::_Task::task_async_base::task_async_promise_base(),
     _r_rst(ref<RetTy>::new_instance())
 {
 }
@@ -181,15 +181,15 @@ _INLINE_ void task_async<RetTy>::task_async_promise::return_value(RetTy&& rst)
 }
 
 template<typename RetTy>
-_INLINE_ task_async<RetTy>::task_async(ref<_TaskNs::runtime_context> ctx, ref<RetTy> r_rst) :
-    _TaskNs::task_async_base(ctx),
+_INLINE_ task_async<RetTy>::task_async(ref<_Internal::_Task::runtime_context> ctx, ref<RetTy> r_rst) :
+    _Internal::_Task::task_async_base(ctx),
     _r_rst(r_rst)
 {
 }
 
 template<typename RetTy>
 _INLINE_ task_async<RetTy>::task_async(const task_async<RetTy>& rhs) :
-    _TaskNs::task_async_base(rhs),
+    _Internal::_Task::task_async_base(rhs),
     _r_rst(rhs._r_rst)
 {
 }
@@ -197,13 +197,13 @@ _INLINE_ task_async<RetTy>::task_async(const task_async<RetTy>& rhs) :
 template<typename RetTy>
 _INLINE_ task_async<RetTy>& task_async<RetTy>::operator =(const task_async<RetTy>& rhs)
 {
-    _TaskNs::task_async_base::operator =(rhs);
+    _Internal::_Task::task_async_base::operator =(rhs);
     _r_rst = rhs._r_rst;
     return *this;
 }
 
 _INLINE_ task_async<void>::task_async_promise::task_async_promise() :
-    _TaskNs::task_async_base::task_async_promise_base()
+    _Internal::_Task::task_async_base::task_async_promise_base()
 {
 }
 
@@ -218,18 +218,18 @@ _INLINE_ void task_async<void>::task_async_promise::return_void()
 {
 }
 
-_INLINE_ task_async<void>::task_async(ref<_TaskNs::runtime_context> ctx) :
-    _TaskNs::task_async_base(ctx)
+_INLINE_ task_async<void>::task_async(ref<_Internal::_Task::runtime_context> ctx) :
+    _Internal::_Task::task_async_base(ctx)
 {
 }
 
 _INLINE_ task_async<void>::task_async(const task_async<void>& rhs) :
-    _TaskNs::task_async_base(rhs)
+    _Internal::_Task::task_async_base(rhs)
 {
 }
 
 _INLINE_ task_async<void>& task_async<void>::operator =(const task_async<void>& rhs)
 {
-    _TaskNs::task_async_base::operator =(rhs);
+    _Internal::_Task::task_async_base::operator =(rhs);
     return *this;
 }

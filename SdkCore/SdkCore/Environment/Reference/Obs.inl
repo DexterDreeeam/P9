@@ -30,7 +30,7 @@ _INLINE_ obs<Ty>::obs(const obs<Other_Ty>& rhs)
 {
     Ty* pointer_checker = (Other_Ty*)nullptr;
 
-    auto* ctx = pointer_convert(rhs._ctx.get(), 0, _RefNs::context<Ty>*);
+    auto* ctx = pointer_convert(rhs._ctx.get(), 0, _Internal::_Ref::ref_context<Ty>*);
     if (ctx)
     {
         ctx->add_obs();
@@ -45,7 +45,7 @@ _INLINE_ obs<Ty>::obs(obs<Other_Ty>&& rhs) noexcept
     Ty* pointer_checker = (Other_Ty*)nullptr;
 
     auto* ctx = rhs._ctx.exchange(nullptr);
-    _ctx.set(pointer_convert(ctx, 0, _RefNs::context<Ty>*));
+    _ctx.set(pointer_convert(ctx, 0, _Internal::_Ref::ref_context<Ty>*));
 }
 
 template<typename Ty>
@@ -80,7 +80,7 @@ _INLINE_ obs<Ty>::obs(const ref<Other_Ty>& rhs)
     {
         ctx->add_obs();
     }
-    _ctx.set(pointer_convert(ctx, 0, _RefNs::context<Ty>*));
+    _ctx.set(pointer_convert(ctx, 0, _Internal::_Ref::ref_context<Ty>*));
 }
 
 template<typename Ty>
@@ -93,7 +93,7 @@ _INLINE_ obs<Ty>::obs(ref<Other_Ty>&& rhs) noexcept
         ctx->add_obs();
         ctx->remove_ref(); // need not check return value
     }
-    _ctx.set(pointer_convert(ctx, 0, _RefNs::context<Ty>*));
+    _ctx.set(pointer_convert(ctx, 0, _Internal::_Ref::ref_context<Ty>*));
 }
 
 template<typename Ty>
@@ -143,7 +143,7 @@ _INLINE_ obs<Ty>& obs<Ty>::operator =(const obs<Other_Ty>& rhs)
 {
     Ty* pointer_checker = (Other_Ty*)nullptr;
 
-    auto* ctx = pointer_convert(rhs._ctx.get(), 0, _RefNs::context<Ty>*);
+    auto* ctx = pointer_convert(rhs._ctx.get(), 0, _Internal::_Ref::ref_context<Ty>*);
     if (ctx)
     {
         ctx->add_obs();
@@ -163,7 +163,7 @@ template<typename Other_Ty>
 _INLINE_ obs<Ty>& obs<Ty>::operator =(obs<Other_Ty>&& rhs) noexcept
 {
     auto* ctx = rhs._ctx.exchange(nullptr);
-    auto* origin = _ctx.exchange(pointer_convert(ctx, 0, _RefNs::context<Ty>*));
+    auto* origin = _ctx.exchange(pointer_convert(ctx, 0, _Internal::_Ref::ref_context<Ty>*));
     if (origin && origin->remove_obs())
     {
         delete origin;
@@ -212,7 +212,7 @@ _INLINE_ obs<Ty>& obs<Ty>::operator =(const ref<Other_Ty>& rhs)
 {
     Ty* pointer_checker = (Other_Ty*)nullptr;
 
-    auto* ctx = pointer_convert(rhs._ctx.get(), 0, _RefNs::context<Ty>*);
+    auto* ctx = pointer_convert(rhs._ctx.get(), 0, _Internal::_Ref::ref_context<Ty>*);
     if (ctx)
     {
         ctx->add_obs();
@@ -235,7 +235,7 @@ _INLINE_ obs<Ty>& obs<Ty>::operator =(ref<Other_Ty>&& rhs) noexcept
     ctx->add_obs();
     ctx->remove_ref(); // no need to check
 
-    auto* origin = _ctx.exchange(pointer_convert(ctx, 0, _RefNs::context<Ty>*));
+    auto* origin = _ctx.exchange(pointer_convert(ctx, 0, _Internal::_Ref::ref_context<Ty>*));
     if (origin && origin->remove_obs())
     {
         delete origin;
@@ -260,18 +260,18 @@ template<typename Ty>
 template<typename Other_Ty>
 _INLINE_ bool obs<Ty>::operator ==(const obs<Other_Ty>& rhs) const
 {
-    return _ctx.get() == pointer_convert(rhs._ctx.get(), 0, _RefNs::context<Ty>*);
+    return _ctx.get() == pointer_convert(rhs._ctx.get(), 0, _Internal::_Ref::ref_context<Ty>*);
 }
 
 template<typename Ty>
 template<typename Other_Ty>
 _INLINE_ bool obs<Ty>::operator !=(const obs<Other_Ty>& rhs) const
 {
-    return _ctx.get() != pointer_convert(rhs._ctx.get(), 0, _RefNs::context<Ty>*);
+    return _ctx.get() != pointer_convert(rhs._ctx.get(), 0, _Internal::_Ref::ref_context<Ty>*);
 }
 
 template<typename Ty>
-_INLINE_ obs<Ty>::obs(_RefNs::context<Ty>* ctx) :
+_INLINE_ obs<Ty>::obs(_Internal::_Ref::ref_context<Ty>* ctx) :
     _ctx(ctx)
 {
 }
@@ -284,7 +284,7 @@ obs<Other_Ty> obs<Ty>::obs_of()
     if (ctx)
     {
         ctx->add_obs();
-        auto o = obs<Other_Ty>(pointer_convert(ctx, 0, _RefNs::context<Other_Ty>*));
+        auto o = obs<Other_Ty>(pointer_convert(ctx, 0, _Internal::_Ref::ref_context<Other_Ty>*));
         return o;
     }
     else
@@ -349,7 +349,7 @@ _INLINE_ obs<void>::obs(obs<void>&& rhs) noexcept
 template<typename Other_Ty>
 _INLINE_ obs<void>::obs(const obs<Other_Ty>& rhs)
 {
-    auto* ctx = pointer_convert(rhs._ctx.get(), 0, _RefNs::context<void>*);
+    auto* ctx = pointer_convert(rhs._ctx.get(), 0, _Internal::_Ref::ref_context<void>*);
     if (ctx)
     {
         ctx->add_obs();
@@ -361,7 +361,7 @@ template<typename Other_Ty>
 _INLINE_ obs<void>::obs(obs<Other_Ty>&& rhs) noexcept
 {
     auto* ctx = rhs._ctx.exchange(nullptr);
-    _ctx.set(pointer_convert(ctx, 0, _RefNs::context<void>*));
+    _ctx.set(pointer_convert(ctx, 0, _Internal::_Ref::ref_context<void>*));
 }
 
 _INLINE_ obs<void>::obs(const ref<void>& rhs)
@@ -393,7 +393,7 @@ _INLINE_ obs<void>::obs(const ref<Other_Ty>& rhs)
     {
         ctx->add_obs();
     }
-    _ctx.set(pointer_convert(ctx, 0, _RefNs::context<void>*));
+    _ctx.set(pointer_convert(ctx, 0, _Internal::_Ref::ref_context<void>*));
 }
 
 template<typename Other_Ty>
@@ -405,7 +405,7 @@ _INLINE_ obs<void>::obs(ref<Other_Ty>&& rhs) noexcept
         ctx->add_obs();
         ctx->remove_ref(); // need not check return value
     }
-    _ctx.set(pointer_convert(ctx, 0, _RefNs::context<void>*));
+    _ctx.set(pointer_convert(ctx, 0, _Internal::_Ref::ref_context<void>*));
 }
 
 _INLINE_ obs<void>::~obs()
@@ -449,7 +449,7 @@ _INLINE_ obs<void>& obs<void>::operator =(obs<void>&& rhs) noexcept
 template<typename Other_Ty>
 _INLINE_ obs<void>& obs<void>::operator =(const obs<Other_Ty>& rhs)
 {
-    auto* ctx = pointer_convert(rhs._ctx.get(), 0, _RefNs::context<void>*);
+    auto* ctx = pointer_convert(rhs._ctx.get(), 0, _Internal::_Ref::ref_context<void>*);
     if (ctx)
     {
         ctx->add_obs();
@@ -468,7 +468,7 @@ template<typename Other_Ty>
 _INLINE_ obs<void>& obs<void>::operator =(obs<Other_Ty>&& rhs) noexcept
 {
     auto* ctx = rhs._ctx.exchange(nullptr);
-    auto* origin = _ctx.exchange(pointer_convert(ctx, 0, _RefNs::context<void>*));
+    auto* origin = _ctx.exchange(pointer_convert(ctx, 0, _Internal::_Ref::ref_context<void>*));
     if (origin && origin->remove_obs())
     {
         delete origin;
@@ -512,7 +512,7 @@ _INLINE_ obs<void>& obs<void>::operator =(ref<void>&& rhs) noexcept
 template<typename Other_Ty>
 _INLINE_ obs<void>& obs<void>::operator =(const ref<Other_Ty>& rhs)
 {
-    auto* ctx = pointer_convert(rhs._ctx.get(), 0, _RefNs::context<void>*);
+    auto* ctx = pointer_convert(rhs._ctx.get(), 0, _Internal::_Ref::ref_context<void>*);
     if (ctx)
     {
         ctx->add_obs();
@@ -534,7 +534,7 @@ _INLINE_ obs<void>& obs<void>::operator =(ref<Other_Ty>&& rhs) noexcept
     ctx->add_obs();
     ctx->remove_ref(); // no need to check
 
-    auto* origin = _ctx.exchange(pointer_convert(ctx, 0, _RefNs::context<void>*));
+    auto* origin = _ctx.exchange(pointer_convert(ctx, 0, _Internal::_Ref::ref_context<void>*));
     if (origin && origin->remove_obs())
     {
         delete origin;
@@ -556,16 +556,16 @@ _INLINE_ bool obs<void>::operator !=(const obs<void>& rhs) const
 template<typename Other_Ty>
 _INLINE_ bool obs<void>::operator ==(const obs<Other_Ty>& rhs) const
 {
-    return _ctx.get() == pointer_convert(rhs._ctx.get(), 0, _RefNs::context<void>*);
+    return _ctx.get() == pointer_convert(rhs._ctx.get(), 0, _Internal::_Ref::ref_context<void>*);
 }
 
 template<typename Other_Ty>
 _INLINE_ bool obs<void>::operator !=(const obs<Other_Ty>& rhs) const
 {
-    return _ctx.get() != pointer_convert(rhs._ctx.get(), 0, _RefNs::context<void>*);
+    return _ctx.get() != pointer_convert(rhs._ctx.get(), 0, _Internal::_Ref::ref_context<void>*);
 }
 
-_INLINE_ obs<void>::obs(_RefNs::context<void>* ctx) :
+_INLINE_ obs<void>::obs(_Internal::_Ref::ref_context<void>* ctx) :
     _ctx(ctx)
 {
 }
@@ -577,7 +577,7 @@ obs<Other_Ty> obs<void>::obs_of()
     if (ctx)
     {
         ctx->add_obs();
-        auto o = obs<Other_Ty>(pointer_convert(ctx, 0, _RefNs::context<Other_Ty>*));
+        auto o = obs<Other_Ty>(pointer_convert(ctx, 0, _Internal::_Ref::ref_context<Other_Ty>*));
         return o;
     }
     else

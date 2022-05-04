@@ -60,8 +60,8 @@
     <ClInclude Include="System\AutoMemory\AutoMemory.hpp" />
     <ClInclude Include="System\Logger\AutoTrace.hpp" />
     <ClInclude Include="System\Logger\Logger.hpp" />
-    <ClInclude Include="System\Object\Object.hpp" />
     <ClInclude Include="System\Object\U128Counter.hpp" />
+    <ClInclude Include="System\Object\Object.hpp" />
     <ClInclude Include="System\Terminator\Terminator.hpp" />
     <ClInclude Include="System\_Interface.hpp" />
     <ClInclude Include="Task\Task.hpp" />

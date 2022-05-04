@@ -2,338 +2,338 @@
 
 class string;
 
-namespace StringNs
-{
-
-    class string_iter;
-    class string_ritr;
-    class string_const_iter;
-    class string_const_ritr;
-
-    class string_iter
-    {
-        friend class string;
-        using Self_Ty = string_iter;
-
-    public:
-        string_iter() :
-            ptr(nullptr)
-        {}
-
-        string_iter(const Self_Ty& rhs) :
-            ptr(rhs.ptr)
-        {}
-
-        string_iter(char* p) :
-            ptr(p)
-        {}
-
-        ~string_iter() noexcept = default;
-
-        Self_Ty& operator =(const Self_Ty& rhs) noexcept
-        {
-            ptr = rhs.ptr;
-            return *this;
-        }
-
-        Self_Ty& operator ++() noexcept
-        {
-            ptr = pointer_convert(ptr, 1, char*);
-            return *this;
-        }
-
-        Self_Ty& operator --() noexcept
-        {
-            ptr = pointer_convert(ptr, -1, char*);
-            return *this;
-        }
-
-        Self_Ty operator ++(int) noexcept
-        {
-            Self_Ty ret(ptr);
-            ptr = pointer_convert(ptr, 1, char*);
-            return ret;
-        }
-
-        Self_Ty operator --(int) noexcept
-        {
-            Self_Ty ret(ptr);
-            ptr = pointer_convert(ptr, -1, char*);
-            return ret;
-        }
-
-        bool operator ==(const Self_Ty& rhs) const noexcept
-        {
-            return ptr == rhs.ptr;
-        }
-
-        bool operator !=(const Self_Ty& rhs) const noexcept
-        {
-            return ptr != rhs.ptr;
-        }
-
-        char& operator *() noexcept
-        {
-            return *ptr;
-        }
-
-        s64 operator -(const Self_Ty& rhs) const noexcept
-        {
-            s64 diff = reinterpret_cast<s64>(ptr) - reinterpret_cast<s64>(rhs.ptr);
-            return diff;
-        }
-
-    private:
-        char* ptr;
-    };
-
-    class string_ritr
-    {
-        friend class string;
-        using Self_Ty = string_ritr;
-
-    public:
-        string_ritr() :
-            ptr(nullptr)
-        {}
-
-        string_ritr(const Self_Ty& rhs) :
-            ptr(rhs.ptr)
-        {}
-
-        string_ritr(char* p) :
-            ptr(p)
-        {}
-
-        ~string_ritr() noexcept = default;
-
-        Self_Ty& operator =(const Self_Ty& rhs) noexcept
-        {
-            ptr = rhs.ptr;
-            return *this;
-        }
-
-        Self_Ty& operator ++() noexcept
-        {
-            ptr = pointer_convert(ptr, -1, char*);
-            return *this;
-        }
-
-        Self_Ty& operator --() noexcept
-        {
-            ptr = pointer_convert(ptr, 1, char*);
-            return *this;
-        }
-
-        Self_Ty operator ++(int) noexcept
-        {
-            Self_Ty ret(ptr);
-            ptr = pointer_convert(ptr, -1, char*);
-            return ret;
-        }
-
-        Self_Ty operator --(int) noexcept
-        {
-            Self_Ty ret(ptr);
-            ptr = pointer_convert(ptr, 1, char*);
-            return ret;
-        }
-
-        bool operator ==(const Self_Ty& rhs) const noexcept
-        {
-            return ptr == rhs.ptr;
-        }
-
-        bool operator !=(const Self_Ty& rhs) const noexcept
-        {
-            return ptr != rhs.ptr;
-        }
-
-        char& operator *() noexcept
-        {
-            return *ptr;
-        }
-
-        s64 operator -(const Self_Ty& rhs) const noexcept
-        {
-            s64 diff = reinterpret_cast<s64>(ptr) - reinterpret_cast<s64>(rhs.ptr);
-            return diff;
-        }
-
-    private:
-        char* ptr;
-    };
-
-    class string_const_iter
-    {
-        friend class string;
-        using Self_Ty = string_const_iter;
-
-    public:
-        string_const_iter() :
-            ptr(nullptr)
-        {}
-
-        string_const_iter(const Self_Ty& rhs) :
-            ptr(rhs.ptr)
-        {}
-
-        string_const_iter(char* p) :
-            ptr(p)
-        {}
-
-        ~string_const_iter() noexcept = default;
-
-        Self_Ty& operator =(const Self_Ty& rhs) noexcept
-        {
-            ptr = rhs.ptr;
-            return *this;
-        }
-
-        Self_Ty& operator ++() noexcept
-        {
-            ptr = pointer_convert(ptr, 1, char*);
-            return *this;
-        }
-
-        Self_Ty& operator --() noexcept
-        {
-            ptr = pointer_convert(ptr, -1, char*);
-            return *this;
-        }
-
-        Self_Ty operator ++(int) noexcept
-        {
-            Self_Ty ret(ptr);
-            ptr = pointer_convert(ptr, 1, char*);
-            return ret;
-        }
-
-        Self_Ty operator --(int) noexcept
-        {
-            Self_Ty ret(ptr);
-            ptr = pointer_convert(ptr, -1, char*);
-            return ret;
-        }
-
-        bool operator ==(const Self_Ty& rhs) const noexcept
-        {
-            return ptr == rhs.ptr;
-        }
-
-        bool operator !=(const Self_Ty& rhs) const noexcept
-        {
-            return ptr != rhs.ptr;
-        }
-
-        const char& operator *() const noexcept
-        {
-            return *ptr;
-        }
-
-        s64 operator -(const Self_Ty& rhs) const noexcept
-        {
-            s64 diff = reinterpret_cast<s64>(ptr) - reinterpret_cast<s64>(rhs.ptr);
-            return diff;
-        }
-
-    private:
-        char* ptr;
-    };
-
-    class string_const_ritr
-    {
-        friend class string;
-        using Self_Ty = string_const_ritr;
-
-    public:
-        string_const_ritr() :
-            ptr(nullptr)
-        {}
-
-        string_const_ritr(const Self_Ty& rhs) :
-            ptr(rhs.ptr)
-        {}
-
-        string_const_ritr(char* p) :
-            ptr(p)
-        {}
-
-        ~string_const_ritr() noexcept = default;
-
-        Self_Ty& operator =(const Self_Ty& rhs) noexcept
-        {
-            ptr = rhs.ptr;
-            return *this;
-        }
-
-        Self_Ty& operator ++() noexcept
-        {
-            ptr = pointer_convert(ptr, -1, char*);
-            return *this;
-        }
-
-        Self_Ty& operator --() noexcept
-        {
-            ptr = pointer_convert(ptr, 1, char*);
-            return *this;
-        }
-
-        Self_Ty operator ++(int) noexcept
-        {
-            Self_Ty ret(ptr);
-            ptr = pointer_convert(ptr, -1, char*);
-            return ret;
-        }
-
-        Self_Ty operator --(int) noexcept
-        {
-            Self_Ty ret(ptr);
-            ptr = pointer_convert(ptr, 1, char*);
-            return ret;
-        }
-
-        bool operator ==(const Self_Ty& rhs) const noexcept
-        {
-            return ptr == rhs.ptr;
-        }
-
-        bool operator !=(const Self_Ty& rhs) const noexcept
-        {
-            return ptr != rhs.ptr;
-        }
-
-        const char& operator *() const noexcept
-        {
-            return *ptr;
-        }
-
-        s64 operator -(const Self_Ty& rhs) const noexcept
-        {
-            s64 diff = reinterpret_cast<s64>(ptr) - reinterpret_cast<s64>(rhs.ptr);
-            return diff;
-        }
-
-    private:
-        char* ptr;
-    };
-
-}
+namespace _Internal {
+namespace _String {
 
 const s64 string_unit_extent = 4LL;
 const s64 string_cap_max = 1LL << 30;
 
+class string_iter;
+class string_ritr;
+class string_const_iter;
+class string_const_ritr;
+
+class string_iter
+{
+    friend class string;
+    using Self_Ty = string_iter;
+
+public:
+    string_iter() :
+        ptr(nullptr)
+    {}
+
+    string_iter(const Self_Ty& rhs) :
+        ptr(rhs.ptr)
+    {}
+
+    string_iter(char* p) :
+        ptr(p)
+    {}
+
+    ~string_iter() noexcept = default;
+
+    Self_Ty& operator =(const Self_Ty& rhs) noexcept
+    {
+        ptr = rhs.ptr;
+        return *this;
+    }
+
+    Self_Ty& operator ++() noexcept
+    {
+        ptr = pointer_convert(ptr, 1, char*);
+        return *this;
+    }
+
+    Self_Ty& operator --() noexcept
+    {
+        ptr = pointer_convert(ptr, -1, char*);
+        return *this;
+    }
+
+    Self_Ty operator ++(int) noexcept
+    {
+        Self_Ty ret(ptr);
+        ptr = pointer_convert(ptr, 1, char*);
+        return ret;
+    }
+
+    Self_Ty operator --(int) noexcept
+    {
+        Self_Ty ret(ptr);
+        ptr = pointer_convert(ptr, -1, char*);
+        return ret;
+    }
+
+    bool operator ==(const Self_Ty& rhs) const noexcept
+    {
+        return ptr == rhs.ptr;
+    }
+
+    bool operator !=(const Self_Ty& rhs) const noexcept
+    {
+        return ptr != rhs.ptr;
+    }
+
+    char& operator *() noexcept
+    {
+        return *ptr;
+    }
+
+    s64 operator -(const Self_Ty& rhs) const noexcept
+    {
+        s64 diff = reinterpret_cast<s64>(ptr) - reinterpret_cast<s64>(rhs.ptr);
+        return diff;
+    }
+
+private:
+    char* ptr;
+};
+
+class string_ritr
+{
+    friend class string;
+    using Self_Ty = string_ritr;
+
+public:
+    string_ritr() :
+        ptr(nullptr)
+    {}
+
+    string_ritr(const Self_Ty& rhs) :
+        ptr(rhs.ptr)
+    {}
+
+    string_ritr(char* p) :
+        ptr(p)
+    {}
+
+    ~string_ritr() noexcept = default;
+
+    Self_Ty& operator =(const Self_Ty& rhs) noexcept
+    {
+        ptr = rhs.ptr;
+        return *this;
+    }
+
+    Self_Ty& operator ++() noexcept
+    {
+        ptr = pointer_convert(ptr, -1, char*);
+        return *this;
+    }
+
+    Self_Ty& operator --() noexcept
+    {
+        ptr = pointer_convert(ptr, 1, char*);
+        return *this;
+    }
+
+    Self_Ty operator ++(int) noexcept
+    {
+        Self_Ty ret(ptr);
+        ptr = pointer_convert(ptr, -1, char*);
+        return ret;
+    }
+
+    Self_Ty operator --(int) noexcept
+    {
+        Self_Ty ret(ptr);
+        ptr = pointer_convert(ptr, 1, char*);
+        return ret;
+    }
+
+    bool operator ==(const Self_Ty& rhs) const noexcept
+    {
+        return ptr == rhs.ptr;
+    }
+
+    bool operator !=(const Self_Ty& rhs) const noexcept
+    {
+        return ptr != rhs.ptr;
+    }
+
+    char& operator *() noexcept
+    {
+        return *ptr;
+    }
+
+    s64 operator -(const Self_Ty& rhs) const noexcept
+    {
+        s64 diff = reinterpret_cast<s64>(ptr) - reinterpret_cast<s64>(rhs.ptr);
+        return diff;
+    }
+
+private:
+    char* ptr;
+};
+
+class string_const_iter
+{
+    friend class string;
+    using Self_Ty = string_const_iter;
+
+public:
+    string_const_iter() :
+        ptr(nullptr)
+    {}
+
+    string_const_iter(const Self_Ty& rhs) :
+        ptr(rhs.ptr)
+    {}
+
+    string_const_iter(char* p) :
+        ptr(p)
+    {}
+
+    ~string_const_iter() noexcept = default;
+
+    Self_Ty& operator =(const Self_Ty& rhs) noexcept
+    {
+        ptr = rhs.ptr;
+        return *this;
+    }
+
+    Self_Ty& operator ++() noexcept
+    {
+        ptr = pointer_convert(ptr, 1, char*);
+        return *this;
+    }
+
+    Self_Ty& operator --() noexcept
+    {
+        ptr = pointer_convert(ptr, -1, char*);
+        return *this;
+    }
+
+    Self_Ty operator ++(int) noexcept
+    {
+        Self_Ty ret(ptr);
+        ptr = pointer_convert(ptr, 1, char*);
+        return ret;
+    }
+
+    Self_Ty operator --(int) noexcept
+    {
+        Self_Ty ret(ptr);
+        ptr = pointer_convert(ptr, -1, char*);
+        return ret;
+    }
+
+    bool operator ==(const Self_Ty& rhs) const noexcept
+    {
+        return ptr == rhs.ptr;
+    }
+
+    bool operator !=(const Self_Ty& rhs) const noexcept
+    {
+        return ptr != rhs.ptr;
+    }
+
+    const char& operator *() const noexcept
+    {
+        return *ptr;
+    }
+
+    s64 operator -(const Self_Ty& rhs) const noexcept
+    {
+        s64 diff = reinterpret_cast<s64>(ptr) - reinterpret_cast<s64>(rhs.ptr);
+        return diff;
+    }
+
+private:
+    char* ptr;
+};
+
+class string_const_ritr
+{
+    friend class string;
+    using Self_Ty = string_const_ritr;
+
+public:
+    string_const_ritr() :
+        ptr(nullptr)
+    {}
+
+    string_const_ritr(const Self_Ty& rhs) :
+        ptr(rhs.ptr)
+    {}
+
+    string_const_ritr(char* p) :
+        ptr(p)
+    {}
+
+    ~string_const_ritr() noexcept = default;
+
+    Self_Ty& operator =(const Self_Ty& rhs) noexcept
+    {
+        ptr = rhs.ptr;
+        return *this;
+    }
+
+    Self_Ty& operator ++() noexcept
+    {
+        ptr = pointer_convert(ptr, -1, char*);
+        return *this;
+    }
+
+    Self_Ty& operator --() noexcept
+    {
+        ptr = pointer_convert(ptr, 1, char*);
+        return *this;
+    }
+
+    Self_Ty operator ++(int) noexcept
+    {
+        Self_Ty ret(ptr);
+        ptr = pointer_convert(ptr, -1, char*);
+        return ret;
+    }
+
+    Self_Ty operator --(int) noexcept
+    {
+        Self_Ty ret(ptr);
+        ptr = pointer_convert(ptr, 1, char*);
+        return ret;
+    }
+
+    bool operator ==(const Self_Ty& rhs) const noexcept
+    {
+        return ptr == rhs.ptr;
+    }
+
+    bool operator !=(const Self_Ty& rhs) const noexcept
+    {
+        return ptr != rhs.ptr;
+    }
+
+    const char& operator *() const noexcept
+    {
+        return *ptr;
+    }
+
+    s64 operator -(const Self_Ty& rhs) const noexcept
+    {
+        s64 diff = reinterpret_cast<s64>(ptr) - reinterpret_cast<s64>(rhs.ptr);
+        return diff;
+    }
+
+private:
+    char* ptr;
+};
+
+}} // _Internal::_String
+
 class string
 {
-    using Iter_Ty  = StringNs::string_iter;
-    using Ritr_Ty  = StringNs::string_ritr;
-    using cIter_Ty = StringNs::string_const_iter;
-    using cRitr_Ty = StringNs::string_const_ritr;
+    using Iter_Ty  = _Internal::_String::string_iter;
+    using Ritr_Ty  = _Internal::_String::string_ritr;
+    using cIter_Ty = _Internal::_String::string_const_iter;
+    using cRitr_Ty = _Internal::_String::string_const_ritr;
 
-    friend class StringNs::string_iter;
-    friend class StringNs::string_ritr;
-    friend class StringNs::string_const_iter;
-    friend class StringNs::string_const_ritr;
+    friend class _Internal::_String::string_iter;
+    friend class _Internal::_String::string_ritr;
+    friend class _Internal::_String::string_const_iter;
+    friend class _Internal::_String::string_const_ritr;
 
     friend string operator +(char c, const string& s) noexcept;
     friend string operator +(const char* cstr, const string& s) noexcept;
@@ -790,7 +790,7 @@ private:
 
     static s64 _ceil_align(s64 len) noexcept
     {
-        return math::ceil(len, string_unit_extent);
+        return math::ceil(len, _Internal::_String::string_unit_extent);
     }
 
     bool _validation() const noexcept
@@ -863,8 +863,8 @@ private:
         }
         while (len + add >= cap)
         {
-            cap = cap == 0 ? string_unit_extent : (cap << 1);
-            assert(cap <= string_cap_max);
+            cap = cap == 0 ? _Internal::_String::string_unit_extent : (cap << 1);
+            assert(cap <= _Internal::_String::string_cap_max);
         }
         char* new_ch = memory::alloc_copy<char>(ch, cap, len);
         if (ch)

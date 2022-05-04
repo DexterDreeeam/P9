@@ -56,10 +56,10 @@ public:
     const Ty& operator *() const;
 
 private:
-    explicit ref(_RefNs::context<Ty>* ctx);
+    explicit ref(_Internal::_Ref::ref_context<Ty>* ctx);
 
 public:
-    template<typename Other_Ty>
+    template<typename Other_Ty = void>
     ref<Other_Ty> ref_of();
 
     boole has_value() const;
@@ -82,7 +82,7 @@ public:
     static ref<Ty> new_instance_with_ptr(Ty* raw_ptr);
 
 private:
-    atom<_RefNs::context<Ty>*> _ctx;
+    atom<_Internal::_Ref::ref_context<Ty>*> _ctx;
 };
 
 template<>
@@ -130,7 +130,7 @@ public:
     bool operator !=(const ref<Other_Ty>& rhs) const;
 
 private:
-    explicit ref(_RefNs::context<void>* ctx);
+    explicit ref(_Internal::_Ref::ref_context<void>* ctx);
 
 public:
     template<typename Other_Ty>
@@ -147,5 +147,5 @@ public:
     void clear();
 
 private:
-    atom<_RefNs::context<void>*> _ctx;
+    atom<_Internal::_Ref::ref_context<void>*> _ctx;
 };

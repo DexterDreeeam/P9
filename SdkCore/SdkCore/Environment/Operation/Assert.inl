@@ -1,7 +1,7 @@
 #pragma once
 
-namespace _InternalNs
-{
+namespace _Internal {
+namespace _Assert {
 
 template<typename JudgeTy>
 _INLINE_ void assert_func(const JudgeTy& exp, const char* s, const char* file, s64 line)
@@ -37,4 +37,4 @@ _INLINE_ void assert_func(const JudgeTy& exp, const char* s, const char* info, c
     }
 }
 
-}
+}} // _Internal::_Assert

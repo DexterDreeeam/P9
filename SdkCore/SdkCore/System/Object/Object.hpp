@@ -3,8 +3,8 @@
 #include "../../Environment/_Interface.hpp"
 #include "U128Counter.hpp"
 
-namespace _ObjectNs
-{
+namespace _Internal {
+namespace _Object {
 
 #if DEBUG_LEVEL > DEBUG_LEVEL_CALIBRATION_RUNTIME
 
@@ -62,13 +62,13 @@ class _obj_derived<void>
 {
 };
 
-template<typename Ty>
-class _obj_derived<void, Ty> : public Ty
+template<typename NextTy>
+class _obj_derived<void, NextTy> : public NextTy
 {
 };
 
-template<typename Ty, typename ...OthersTys>
-class _obj_derived<void, Ty, OthersTys...> : public Ty, public _obj_derived<void, OthersTys...>
+template<typename NextTy, typename ...OthersTys>
+class _obj_derived<void, NextTy, OthersTys...> : public NextTy, public _obj_derived<void, OthersTys...>
 {
 };
 
@@ -161,7 +161,7 @@ protected:
     obs<void>  _self_obs;
 };
 
-}
+}} // _Internal::_Object
 
 template<typename ...DerivedTys>
 class has;
@@ -180,11 +180,11 @@ template<typename Ty, typename HasTy = has<void>>
 class obj;
 
 template<typename Ty>
-class obj<Ty, has<void>> : public _ObjectNs::_obj<Ty, void>
+class obj<Ty, has<void>> : public _Internal::_Object::_obj<Ty, void>
 {
 };
 
 template<typename Ty, typename ...DerivedTys>
-class obj<Ty, has<DerivedTys...>> : public _ObjectNs::_obj<Ty, void, DerivedTys...>
+class obj<Ty, has<DerivedTys...>> : public _Internal::_Object::_obj<Ty, void, DerivedTys...>
 {
 };

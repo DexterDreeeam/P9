@@ -38,8 +38,8 @@ enum class json_type : u64
     JSON_NULL,
 };
 
-namespace JsonNs
-{
+namespace _Internal {
+namespace _Json {
 
 class json_parent_context
 {
@@ -81,7 +81,7 @@ public:
     string          parent_key;
 };
 
-}
+}} // _Internal::_Json
 
 class json_base
 {
@@ -104,7 +104,7 @@ private:
         _self = self;
     }
 
-    void setup_parent(const JsonNs::json_parent_context& prnt)
+    void setup_parent(const _Internal::_Json::json_parent_context& prnt)
     {
         _parent = prnt;
     }
@@ -122,7 +122,7 @@ public:
 
     virtual ref<json_base> index(s64 order) = 0;
 
-    virtual JsonNs::json_parent_context get_parent_context(const string& key = "") = 0;
+    virtual _Internal::_Json::json_parent_context get_parent_context(const string& key = "") = 0;
 
     virtual string value() const = 0;
 
@@ -139,7 +139,7 @@ public:
     }
 
 public:
-    JsonNs::json_parent_context& my_parent_context()
+    _Internal::_Json::json_parent_context& my_parent_context()
     {
         return _parent;
     }
@@ -182,6 +182,6 @@ public:
     }
 
 private:
-    JsonNs::json_parent_context _parent;
-    obs<json_base>              _self;
+    _Internal::_Json::json_parent_context _parent;
+    obs<json_base>                        _self;
 };

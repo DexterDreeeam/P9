@@ -4,15 +4,15 @@
 
 void yield()
 {
-	::SwitchToThread();
+    ::SwitchToThread();
 }
 
 void barrier()
 {
-	MemoryBarrier();
+    MemoryBarrier();
 }
 
 u64 current_thread_id()
 {
-	return (u64)::GetCurrentThreadId();
+    return (u64)::GetCurrentThreadId();
 }

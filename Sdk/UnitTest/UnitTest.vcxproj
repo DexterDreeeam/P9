@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="UnitTest.cpp" />
+    <ClCompile Include="UT_Result.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -72,7 +73,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Sdk.lib</AdditionalDependencies>
+      <AdditionalDependencies>SdkCore.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)..\.lib.$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -94,7 +95,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)..\.lib.$(Configuration)\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Sdk.lib</AdditionalDependencies>
+      <AdditionalDependencies>SdkCore.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

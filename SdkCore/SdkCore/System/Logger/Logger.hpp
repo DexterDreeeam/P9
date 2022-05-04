@@ -10,10 +10,10 @@ _INLINE_ void err(Args...args);
 
 #define LOG_FOLDER     P9_FOLDER "Log/"
 
-namespace LoggerNs
-{
+namespace _Internal {
+namespace _Log {
 
-const s64 worker_count = 16LL;
+const s64 log_worker_count = 16LL;
 const s64 log_args_max_count = 16LL;
 const s64 log_line_max_length = 1024LL;
 const s64 log_path_max_length = 512LL;
@@ -158,7 +158,7 @@ public:
         path_buf[path_buf_len++] = '/';
         path_buf[path_buf_len] = 0;
 
-        for (s64 i = 0; i < worker_count; ++i)
+        for (s64 i = 0; i < log_worker_count; ++i)
         {
             workers[i].init(path_buf, i);
         }
@@ -166,14 +166,14 @@ public:
 
     ~log_system()
     {
-        char log_file_paths[worker_count][log_path_max_length];
-        for (s64 i = 0; i < worker_count; ++i)
+        char log_file_paths[log_worker_count][log_path_max_length];
+        for (s64 i = 0; i < log_worker_count; ++i)
         {
             memory::copy(workers[i].mypath(), log_file_paths[i], log_path_max_length);
             workers[i].uninit();
         }
         merge_log(log_file_paths);
-        for (s64 i = 0; i < worker_count; ++i)
+        for (s64 i = 0; i < log_worker_count; ++i)
         {
             file::remove(log_file_paths[i]);
         }
@@ -183,10 +183,10 @@ private:
     void write_log(const char* text, s64 text_len)
     {
         u64 myorder = ++order_id;
-        s64 i = random::new_u64_with_mod(worker_count);
-        for (s64 n = 0; n < worker_count * 2; ++n)
+        s64 i = random::new_u64_with_mod(log_worker_count);
+        for (s64 n = 0; n < log_worker_count * 2; ++n)
         {
-            s64 select = (i + n) % worker_count;
+            s64 select = (i + n) % log_worker_count;
             if (workers[select].try_get_control())
             {
                 workers[select].write_log(text, text_len, myorder);
@@ -238,7 +238,7 @@ private:
         return desc;
     }
 
-    void merge_log(char paths[worker_count][log_path_max_length])
+    void merge_log(char paths[log_worker_count][log_path_max_length])
     {
         s64 path_buf_len = str_len(path_buf);
         s64 ori_len = path_buf_len;
@@ -256,12 +256,12 @@ private:
         path_buf_len = ori_len;
         path_buf[path_buf_len] = 0;
 
-        char texts[worker_count][log_line_max_length];
-        s64  text_lens[worker_count] = {};
-        u64  text_order_numbers[worker_count] = {};
-        file text_logs[worker_count];
+        char texts[log_worker_count][log_line_max_length];
+        s64  text_lens[log_worker_count] = {};
+        u64  text_order_numbers[log_worker_count] = {};
+        file text_logs[log_worker_count];
 
-        for (s64 i = 0; i < worker_count; ++i)
+        for (s64 i = 0; i < log_worker_count; ++i)
         {
             text_logs[i].init_input(paths[i]);
             text_logs[i].input(texts[i], log_line_max_length, text_lens[i]);
@@ -271,7 +271,7 @@ private:
         {
             u64 least_order = u64_max;
             s64 least_order_idx = -1;
-            for (s64 i = 0; i < worker_count; ++i)
+            for (s64 i = 0; i < log_worker_count; ++i)
             {
                 if (text_order_numbers[i] < least_order)
                 {
@@ -294,7 +294,7 @@ private:
             text_lens[least_order_idx] += actual_read;
             text_order_numbers[least_order_idx] = get_order_number(texts[least_order_idx], text_lens[least_order_idx]).order_number;
         }
-        for (s64 i = 0; i < worker_count; ++i)
+        for (s64 i = 0; i < log_worker_count; ++i)
         {
             text_logs[i].uninit();
         }
@@ -304,7 +304,7 @@ private:
 
 private:
     char path_buf[log_path_max_length];
-    log_system_worker workers[worker_count];
+    log_system_worker workers[log_worker_count];
     atom<s64> order_id;
 };
 
@@ -567,7 +567,7 @@ _INLINE_ void _err(const char* fmt)
     print("\n\033[0m");
 }
 
-}
+}} // _Internal::_Log
 
 #endif
 
@@ -585,7 +585,7 @@ _INLINE_ void log(Args...args)
 {
 #if DEBUG_LEVEL >= DEBUG_LEVEL_CALIBRATION_LOG_NORM
 
-    LoggerNs::_log(args...);
+    _Internal::_Log::_log(args...);
 
 #endif
 }
@@ -604,7 +604,7 @@ _INLINE_ void err(Args...args)
 {
 #if DEBUG_LEVEL >= DEBUG_LEVEL_CALIBRATION_LOG_ERROR
 
-    LoggerNs::_err(args...);
+    _Internal::_Log::_err(args...);
 
 #endif
 }

@@ -1,7 +1,7 @@
 #pragma once
 
-namespace _TaskNs
-{
+namespace _Internal {
+namespace _Task {
 
 class task_async_base
 {
@@ -63,15 +63,15 @@ protected:
     ref<runtime_context> _ctx;
 };
 
-}
+}} // _Internal::_Task
 
 template<typename RetTy>
-class task_async : public _TaskNs::task_async_base
+class task_async : public _Internal::_Task::task_async_base
 {
 public:
     using SelfTy = task_async<RetTy>;
 
-    struct task_async_promise : _TaskNs::task_async_base::task_async_promise_base
+    struct task_async_promise : _Internal::_Task::task_async_base::task_async_promise_base
     {
         task_async_promise();
 
@@ -91,7 +91,7 @@ public:
 public:
     task_async() = delete;
 
-    task_async(ref<_TaskNs::runtime_context> ctx, ref<RetTy> r_rst);
+    task_async(ref<_Internal::_Task::runtime_context> ctx, ref<RetTy> r_rst);
 
     task_async(const task_async& rhs);
 
@@ -122,12 +122,12 @@ private:
 };
 
 template<>
-class task_async<void> : public _TaskNs::task_async_base
+class task_async<void> : public _Internal::_Task::task_async_base
 {
 public:
     using SelfTy = task_async<void>;
 
-    struct task_async_promise : _TaskNs::task_async_base::task_async_promise_base
+    struct task_async_promise : _Internal::_Task::task_async_base::task_async_promise_base
     {
         task_async_promise();
 
@@ -143,7 +143,7 @@ public:
 public:
     task_async() = delete;
 
-    task_async(ref<_TaskNs::runtime_context> ctx);
+    task_async(ref<_Internal::_Task::runtime_context> ctx);
 
     task_async(const task_async& rhs);
 

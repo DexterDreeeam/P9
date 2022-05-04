@@ -1,7 +1,7 @@
 #pragma once
 
-namespace _SafeQueue
-{
+namespace _Internal {
+namespace _SafeQueue {
 
 constexpr u64 ceil_pow2(u64 num)
 {
@@ -17,7 +17,7 @@ constexpr u64 ceil_pow2(u64 num)
     return ret;
 }
 
-}
+}} // _Internal::_SafeQueue
 
 template<typename Ty, s64 Cap, s64 ExtremeThreadCnt = 8ULL>
 class safe_queue
@@ -98,7 +98,7 @@ private:
 
     s64 _size()
     {
-        return _SafeQueue::ceil_pow2(Cap);
+        return _Internal::_SafeQueue::ceil_pow2(Cap);
     }
 
     u64 _mask()
@@ -107,8 +107,8 @@ private:
     }
 
 private:
-    char      data[sizeof(Ty) * _SafeQueue::ceil_pow2(Cap)];
-    token     tks[_SafeQueue::ceil_pow2(Cap)];
+    char      data[sizeof(Ty) * _Internal::_SafeQueue::ceil_pow2(Cap)];
+    token     tks[_Internal::_SafeQueue::ceil_pow2(Cap)];
     atom<u64> head;
     atom<u64> tail;
 };

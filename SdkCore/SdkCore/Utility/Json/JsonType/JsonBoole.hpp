@@ -61,10 +61,10 @@ public:
         return ref<json_base>();
     }
 
-    virtual JsonNs::json_parent_context get_parent_context(const string&) override
+    virtual _Internal::_Json::json_parent_context get_parent_context(const string&) override
     {
         assert(0);
-        return JsonNs::json_parent_context();
+        return _Internal::_Json::json_parent_context();
     }
 
     virtual string value() const override

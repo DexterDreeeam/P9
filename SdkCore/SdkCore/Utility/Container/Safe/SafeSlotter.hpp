@@ -2,8 +2,8 @@
 
 #include "Selectee.hpp"
 
-namespace _SafeSlotter
-{
+namespace _Internal {
+namespace _SafeSlotter {
 
 template<u64 Size>
 struct SlotNode
@@ -12,12 +12,12 @@ struct SlotNode
     u8  mem[Size];
 };
 
-}
+}} // _Internal::_SafeSlotter
 
 template<u64 Cap, u64 SlotBytes>
 class safe_slotter
 {
-    using NodeTy = _SafeSlotter::SlotNode<SlotBytes>;
+    using NodeTy = _Internal::_SafeSlotter::SlotNode<SlotBytes>;
 
     const s64 mem_ofst = class_offset(NodeTy, mem);
 

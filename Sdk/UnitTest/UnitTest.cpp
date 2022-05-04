@@ -1,8 +1,12 @@
 
 #include "../_Interface.hpp"
 
+void UT_Result();
+
 int main()
 {
+    UT_Result();
+
     s64 count = 0;
     while (!am_i_terminated() && ++count < 10)
     {

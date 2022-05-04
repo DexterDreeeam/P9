@@ -3,483 +3,483 @@
 template<typename Ty>
 class list;
 
-namespace ListNs
+namespace _Internal {
+namespace _List {
+
+template<typename Ctnr_Ty>
+class list_iter;
+
+template<typename Ctnr_Ty>
+class list_ritr;
+
+template<typename Ctnr_Ty>
+class list_const_iter;
+
+template<typename Ctnr_Ty>
+class list_const_ritr;
+
+
+template<typename Ty>
+class list_node
 {
+    using Self_Ty = list_node<Ty>;
 
-    template<typename Ctnr_Ty>
-    class list_iter;
-
-    template<typename Ctnr_Ty>
-    class list_ritr;
-
-    template<typename Ctnr_Ty>
-    class list_const_iter;
-
-    template<typename Ctnr_Ty>
-    class list_const_ritr;
-
-
-    template<typename Ty>
-    class list_node
+public:
+    list_node(const Ty& e) :
+        prev(nullptr),
+        next(nullptr)
     {
-        using Self_Ty = list_node<Ty>;
+        new (&elem) Ty(e);
+    }
 
-    public:
-        list_node(const Ty& e) :
-            prev(nullptr),
-            next(nullptr)
-        {
-            new (&elem) Ty(e);
-        }
-
-        list_node(Ty&& e) :
-            prev(nullptr),
-            next(nullptr)
-        {
-            new (&elem) Ty(e);
-        }
-
-        list_node(Self_Ty* p, Self_Ty* n, const Ty& e) :
-            prev(p),
-            next(n)
-        {
-            new (&elem) Ty(e);
-        }
-
-        list_node(Self_Ty* p, Self_Ty* n, Ty&& e) :
-            prev(p),
-            next(n)
-        {
-            new (&elem) Ty(e);
-        }
-
-        list_node(const Self_Ty& rhs) :
-            prev(nullptr),
-            next(nullptr)
-        {
-            new (&elem) Ty(rhs.mydata());
-        }
-
-        ~list_node() noexcept
-        {
-            pointer_convert(&elem, 0, Ty*)->~Ty();
-        }
-
-        Ty& mydata() noexcept
-        {
-            return *pointer_convert(&elem, 0, Ty*);
-        }
-
-        const Ty& mydata() const noexcept
-        {
-            return *pointer_convert(&elem, 0, Ty*);
-        }
-
-        Self_Ty*& myprev() noexcept
-        {
-            return prev;
-        }
-
-        const Self_Ty* myprev() const noexcept
-        {
-            return prev;
-        }
-
-        Self_Ty*& mynext() noexcept
-        {
-            return next;
-        }
-
-        const Self_Ty* mynext() const noexcept
-        {
-            return next;
-        }
-
-    private:
-        Self_Ty* prev;
-        Self_Ty* next;
-        u8       elem[sizeof(Ty)];
-    };
-
-    struct list_dummy_node
+    list_node(Ty&& e) :
+        prev(nullptr),
+        next(nullptr)
     {
-        list_dummy_node() :
-            prev(this),
-            next(this)
-        {}
+        new (&elem) Ty(e);
+    }
 
-        list_dummy_node(const list_dummy_node& rhs) :
-            prev(rhs.prev),
-            next(rhs.next)
-        {}
-
-        ~list_dummy_node() = default;
-
-        void* prev;
-        void* next;
-    };
-
-    template<typename Ty>
-    class list_iter<list<Ty>>
+    list_node(Self_Ty* p, Self_Ty* n, const Ty& e) :
+        prev(p),
+        next(n)
     {
-        friend class list<Ty>;
+        new (&elem) Ty(e);
+    }
 
-        using Container_Ty = list<Ty>;
-        using Self_Ty = list_iter<Container_Ty>;
-        using Node_Ty = typename Container_Ty::Node_Ty;
-        using Data_Ty = Ty;
-
-    public:
-        list_iter() :
-            node(nullptr)
-        {}
-
-        list_iter(const Self_Ty& rhs) :
-            node(rhs.node)
-        {}
-
-        ~list_iter() noexcept = default;
-
-        Self_Ty& operator =(const Self_Ty& rhs) noexcept
-        {
-            node = rhs.node;
-            return *this;
-        }
-
-        Self_Ty& operator ++() noexcept
-        {
-            assert(node);
-            node = node->mynext();
-            return *this;
-        }
-
-        Self_Ty& operator --() noexcept
-        {
-            assert(node);
-            node = node->myprev();
-            return *this;
-        }
-
-        Self_Ty operator ++(int) noexcept
-        {
-            Self_Ty ret(node);
-            assert(node);
-            node = node->mynext();
-            return ret;
-        }
-
-        Self_Ty operator --(int) noexcept
-        {
-            Self_Ty ret(node);
-            assert(node);
-            node = node->myprev();
-            return ret;
-        }
-
-        bool operator ==(const Self_Ty& rhs) const noexcept
-        {
-            //assert(node);
-            return node == rhs.node;
-        }
-
-        bool operator !=(const Self_Ty& rhs) const noexcept
-        {
-            return node != rhs.node;
-        }
-
-        Data_Ty* operator ->() const noexcept
-        {
-            return &node->mydata();
-        }
-
-        Data_Ty& operator *() const noexcept
-        {
-            return node->mydata();
-        }
-
-    private:
-        list_iter(Node_Ty* p_nod) :
-            node(p_nod)
-        {}
-
-        Node_Ty* node;
-    };
-
-    template<typename Ty>
-    class list_ritr<list<Ty>>
+    list_node(Self_Ty* p, Self_Ty* n, Ty&& e) :
+        prev(p),
+        next(n)
     {
-        friend class list<Ty>;
+        new (&elem) Ty(e);
+    }
 
-        using Container_Ty = list<Ty>;
-        using Self_Ty = list_ritr<Container_Ty>;
-        using Node_Ty = typename Container_Ty::Node_Ty;
-        using Data_Ty = Ty;
-
-    public:
-        list_ritr() :
-            node(nullptr)
-        {}
-
-        list_ritr(const Self_Ty& rhs) :
-            node(rhs.node)
-        {}
-
-        ~list_ritr() noexcept = default;
-
-        Self_Ty& operator =(const Self_Ty& rhs) noexcept
-        {
-            node = rhs.node;
-            return *this;
-        }
-
-        Self_Ty& operator ++() noexcept
-        {
-            assert(node);
-            node = node->myprev();
-            return *this;
-        }
-
-        Self_Ty& operator --() noexcept
-        {
-            assert(node);
-            node = node->mynext();
-            return *this;
-        }
-
-        Self_Ty operator ++(int) noexcept
-        {
-            Self_Ty ret(node);
-            assert(node);
-            node = node->myprev();
-            return ret;
-        }
-
-        Self_Ty operator --(int) noexcept
-        {
-            Self_Ty ret(node);
-            assert(node);
-            node = node->mynext();
-            return ret;
-        }
-
-        bool operator ==(const Self_Ty& rhs) const noexcept
-        {
-            //assert(node);
-            return node == rhs.node;
-        }
-
-        bool operator !=(const Self_Ty& rhs) const noexcept
-        {
-            return node != rhs.node;
-        }
-
-        Data_Ty* operator ->() const noexcept
-        {
-            return &node->mydata();
-        }
-
-        Data_Ty& operator *() const noexcept
-        {
-            return node->mydata();
-        }
-
-    private:
-        list_ritr(Node_Ty* p_nod) :
-            node(p_nod)
-        {}
-
-        Node_Ty* node;
-    };
-
-    template<typename Ty>
-    class list_const_iter<list<Ty>>
+    list_node(const Self_Ty& rhs) :
+        prev(nullptr),
+        next(nullptr)
     {
-        friend class list<Ty>;
+        new (&elem) Ty(rhs.mydata());
+    }
 
-        using Container_Ty = list<Ty>;
-        using Self_Ty = list_const_iter<Container_Ty>;
-        using Node_Ty = typename Container_Ty::Node_Ty;
-        using Data_Ty = Ty;
-
-    public:
-        list_const_iter() :
-            node(nullptr)
-        {}
-
-        list_const_iter(const Self_Ty& rhs) :
-            node(rhs.node)
-        {}
-
-        ~list_const_iter() noexcept = default;
-
-        Self_Ty& operator =(const Self_Ty& rhs) noexcept
-        {
-            node = rhs.node;
-            return *this;
-        }
-
-        Self_Ty& operator ++() noexcept
-        {
-            assert(node);
-            node = node->mynext();
-            return *this;
-        }
-
-        Self_Ty& operator --() noexcept
-        {
-            assert(node);
-            node = node->myprev();
-            return *this;
-        }
-
-        Self_Ty operator ++(int) noexcept
-        {
-            Self_Ty ret(node);
-            assert(node);
-            node = node->mynext();
-            return ret;
-        }
-
-        Self_Ty operator --(int) noexcept
-        {
-            Self_Ty ret(node);
-            assert(node);
-            node = node->myprev();
-            return ret;
-        }
-
-        bool operator ==(const Self_Ty& rhs) const noexcept
-        {
-            //assert(node);
-            return node == rhs.node;
-        }
-
-        bool operator !=(const Self_Ty& rhs) const noexcept
-        {
-            return node != rhs.node;
-        }
-
-        const Data_Ty* operator ->() const noexcept
-        {
-            return &node->mydata();
-        }
-
-        const Data_Ty& operator *() const noexcept
-        {
-            return node->mydata();
-        }
-
-    private:
-        list_const_iter(const Node_Ty* p_nod) :
-            node(p_nod)
-        {}
-
-        const Node_Ty* node;
-    };
-
-    template<typename Ty>
-    class list_const_ritr<list<Ty>>
+    ~list_node() noexcept
     {
-        friend class list<Ty>;
+        pointer_convert(&elem, 0, Ty*)->~Ty();
+    }
 
-        using Container_Ty = list<Ty>;
-        using Self_Ty = list_const_ritr<Container_Ty>;
-        using Node_Ty = typename Container_Ty::Node_Ty;
-        using Data_Ty = Ty;
+    Ty& mydata() noexcept
+    {
+        return *pointer_convert(&elem, 0, Ty*);
+    }
 
-    public:
-        list_const_ritr() :
-            node(nullptr)
-        {}
+    const Ty& mydata() const noexcept
+    {
+        return *pointer_convert(&elem, 0, Ty*);
+    }
 
-        list_const_ritr(const Self_Ty& rhs) :
-            node(rhs.node)
-        {}
+    Self_Ty*& myprev() noexcept
+    {
+        return prev;
+    }
 
-        ~list_const_ritr() noexcept = default;
+    const Self_Ty* myprev() const noexcept
+    {
+        return prev;
+    }
 
-        Self_Ty& operator =(const Self_Ty& rhs) noexcept
-        {
-            node = rhs.node;
-            return *this;
-        }
+    Self_Ty*& mynext() noexcept
+    {
+        return next;
+    }
 
-        Self_Ty& operator ++() noexcept
-        {
-            assert(node);
-            node = node->myprev();
-            return *this;
-        }
+    const Self_Ty* mynext() const noexcept
+    {
+        return next;
+    }
 
-        Self_Ty& operator --() noexcept
-        {
-            assert(node);
-            node = node->mynext();
-            return *this;
-        }
+private:
+    Self_Ty* prev;
+    Self_Ty* next;
+    u8       elem[sizeof(Ty)];
+};
 
-        Self_Ty operator ++(int) noexcept
-        {
-            Self_Ty ret(node);
-            assert(node);
-            node = node->myprev();
-            return ret;
-        }
+struct list_dummy_node
+{
+    list_dummy_node() :
+        prev(this),
+        next(this)
+    {}
 
-        Self_Ty operator --(int) noexcept
-        {
-            Self_Ty ret(node);
-            assert(node);
-            node = node->mynext();
-            return ret;
-        }
+    list_dummy_node(const list_dummy_node& rhs) :
+        prev(rhs.prev),
+        next(rhs.next)
+    {}
 
-        bool operator ==(const Self_Ty& rhs) const noexcept
-        {
-            //assert(node);
-            return node == rhs.node;
-        }
+    ~list_dummy_node() = default;
 
-        bool operator !=(const Self_Ty& rhs) const noexcept
-        {
-            return node != rhs.node;
-        }
+    void* prev;
+    void* next;
+};
 
-        const Data_Ty* operator ->() const noexcept
-        {
-            return &node->mydata();
-        }
+template<typename Ty>
+class list_iter<list<Ty>>
+{
+    friend class list<Ty>;
 
-        const Data_Ty& operator *() const noexcept
-        {
-            return node->mydata();
-        }
+    using Container_Ty = list<Ty>;
+    using Self_Ty = list_iter<Container_Ty>;
+    using Node_Ty = typename Container_Ty::Node_Ty;
+    using Data_Ty = Ty;
 
-    private:
-        list_const_ritr(const Node_Ty* p_nod) :
-            node(p_nod)
-        {}
+public:
+    list_iter() :
+        node(nullptr)
+    {}
 
-        const Node_Ty* node;
-    };
+    list_iter(const Self_Ty& rhs) :
+        node(rhs.node)
+    {}
 
-}
+    ~list_iter() noexcept = default;
+
+    Self_Ty& operator =(const Self_Ty& rhs) noexcept
+    {
+        node = rhs.node;
+        return *this;
+    }
+
+    Self_Ty& operator ++() noexcept
+    {
+        assert(node);
+        node = node->mynext();
+        return *this;
+    }
+
+    Self_Ty& operator --() noexcept
+    {
+        assert(node);
+        node = node->myprev();
+        return *this;
+    }
+
+    Self_Ty operator ++(int) noexcept
+    {
+        Self_Ty ret(node);
+        assert(node);
+        node = node->mynext();
+        return ret;
+    }
+
+    Self_Ty operator --(int) noexcept
+    {
+        Self_Ty ret(node);
+        assert(node);
+        node = node->myprev();
+        return ret;
+    }
+
+    bool operator ==(const Self_Ty& rhs) const noexcept
+    {
+        //assert(node);
+        return node == rhs.node;
+    }
+
+    bool operator !=(const Self_Ty& rhs) const noexcept
+    {
+        return node != rhs.node;
+    }
+
+    Data_Ty* operator ->() const noexcept
+    {
+        return &node->mydata();
+    }
+
+    Data_Ty& operator *() const noexcept
+    {
+        return node->mydata();
+    }
+
+private:
+    list_iter(Node_Ty* p_nod) :
+        node(p_nod)
+    {}
+
+    Node_Ty* node;
+};
+
+template<typename Ty>
+class list_ritr<list<Ty>>
+{
+    friend class list<Ty>;
+
+    using Container_Ty = list<Ty>;
+    using Self_Ty = list_ritr<Container_Ty>;
+    using Node_Ty = typename Container_Ty::Node_Ty;
+    using Data_Ty = Ty;
+
+public:
+    list_ritr() :
+        node(nullptr)
+    {}
+
+    list_ritr(const Self_Ty& rhs) :
+        node(rhs.node)
+    {}
+
+    ~list_ritr() noexcept = default;
+
+    Self_Ty& operator =(const Self_Ty& rhs) noexcept
+    {
+        node = rhs.node;
+        return *this;
+    }
+
+    Self_Ty& operator ++() noexcept
+    {
+        assert(node);
+        node = node->myprev();
+        return *this;
+    }
+
+    Self_Ty& operator --() noexcept
+    {
+        assert(node);
+        node = node->mynext();
+        return *this;
+    }
+
+    Self_Ty operator ++(int) noexcept
+    {
+        Self_Ty ret(node);
+        assert(node);
+        node = node->myprev();
+        return ret;
+    }
+
+    Self_Ty operator --(int) noexcept
+    {
+        Self_Ty ret(node);
+        assert(node);
+        node = node->mynext();
+        return ret;
+    }
+
+    bool operator ==(const Self_Ty& rhs) const noexcept
+    {
+        //assert(node);
+        return node == rhs.node;
+    }
+
+    bool operator !=(const Self_Ty& rhs) const noexcept
+    {
+        return node != rhs.node;
+    }
+
+    Data_Ty* operator ->() const noexcept
+    {
+        return &node->mydata();
+    }
+
+    Data_Ty& operator *() const noexcept
+    {
+        return node->mydata();
+    }
+
+private:
+    list_ritr(Node_Ty* p_nod) :
+        node(p_nod)
+    {}
+
+    Node_Ty* node;
+};
+
+template<typename Ty>
+class list_const_iter<list<Ty>>
+{
+    friend class list<Ty>;
+
+    using Container_Ty = list<Ty>;
+    using Self_Ty = list_const_iter<Container_Ty>;
+    using Node_Ty = typename Container_Ty::Node_Ty;
+    using Data_Ty = Ty;
+
+public:
+    list_const_iter() :
+        node(nullptr)
+    {}
+
+    list_const_iter(const Self_Ty& rhs) :
+        node(rhs.node)
+    {}
+
+    ~list_const_iter() noexcept = default;
+
+    Self_Ty& operator =(const Self_Ty& rhs) noexcept
+    {
+        node = rhs.node;
+        return *this;
+    }
+
+    Self_Ty& operator ++() noexcept
+    {
+        assert(node);
+        node = node->mynext();
+        return *this;
+    }
+
+    Self_Ty& operator --() noexcept
+    {
+        assert(node);
+        node = node->myprev();
+        return *this;
+    }
+
+    Self_Ty operator ++(int) noexcept
+    {
+        Self_Ty ret(node);
+        assert(node);
+        node = node->mynext();
+        return ret;
+    }
+
+    Self_Ty operator --(int) noexcept
+    {
+        Self_Ty ret(node);
+        assert(node);
+        node = node->myprev();
+        return ret;
+    }
+
+    bool operator ==(const Self_Ty& rhs) const noexcept
+    {
+        //assert(node);
+        return node == rhs.node;
+    }
+
+    bool operator !=(const Self_Ty& rhs) const noexcept
+    {
+        return node != rhs.node;
+    }
+
+    const Data_Ty* operator ->() const noexcept
+    {
+        return &node->mydata();
+    }
+
+    const Data_Ty& operator *() const noexcept
+    {
+        return node->mydata();
+    }
+
+private:
+    list_const_iter(const Node_Ty* p_nod) :
+        node(p_nod)
+    {}
+
+    const Node_Ty* node;
+};
+
+template<typename Ty>
+class list_const_ritr<list<Ty>>
+{
+    friend class list<Ty>;
+
+    using Container_Ty = list<Ty>;
+    using Self_Ty = list_const_ritr<Container_Ty>;
+    using Node_Ty = typename Container_Ty::Node_Ty;
+    using Data_Ty = Ty;
+
+public:
+    list_const_ritr() :
+        node(nullptr)
+    {}
+
+    list_const_ritr(const Self_Ty& rhs) :
+        node(rhs.node)
+    {}
+
+    ~list_const_ritr() noexcept = default;
+
+    Self_Ty& operator =(const Self_Ty& rhs) noexcept
+    {
+        node = rhs.node;
+        return *this;
+    }
+
+    Self_Ty& operator ++() noexcept
+    {
+        assert(node);
+        node = node->myprev();
+        return *this;
+    }
+
+    Self_Ty& operator --() noexcept
+    {
+        assert(node);
+        node = node->mynext();
+        return *this;
+    }
+
+    Self_Ty operator ++(int) noexcept
+    {
+        Self_Ty ret(node);
+        assert(node);
+        node = node->myprev();
+        return ret;
+    }
+
+    Self_Ty operator --(int) noexcept
+    {
+        Self_Ty ret(node);
+        assert(node);
+        node = node->mynext();
+        return ret;
+    }
+
+    bool operator ==(const Self_Ty& rhs) const noexcept
+    {
+        //assert(node);
+        return node == rhs.node;
+    }
+
+    bool operator !=(const Self_Ty& rhs) const noexcept
+    {
+        return node != rhs.node;
+    }
+
+    const Data_Ty* operator ->() const noexcept
+    {
+        return &node->mydata();
+    }
+
+    const Data_Ty& operator *() const noexcept
+    {
+        return node->mydata();
+    }
+
+private:
+    list_const_ritr(const Node_Ty* p_nod) :
+        node(p_nod)
+    {}
+
+    const Node_Ty* node;
+};
+
+}} // _Internal::_List
 
 template<typename Ty>
 class list
 {
     using Data_Ty = Ty;
     using Self_Ty = list<Ty>;
-    using Node_Ty = ListNs::list_node<Ty>;
-    using Iter_Ty = ListNs::list_iter<Self_Ty>;
-    using Ritr_Ty = ListNs::list_ritr<Self_Ty>;
-    using cIter_Ty = ListNs::list_const_iter<Self_Ty>;
-    using cRitr_Ty = ListNs::list_const_ritr<Self_Ty>;
+    using Node_Ty = _Internal::_List::list_node<Ty>;
+    using Iter_Ty = _Internal::_List::list_iter<Self_Ty>;
+    using Ritr_Ty = _Internal::_List::list_ritr<Self_Ty>;
+    using cIter_Ty = _Internal::_List::list_const_iter<Self_Ty>;
+    using cRitr_Ty = _Internal::_List::list_const_ritr<Self_Ty>;
 
-    friend class ListNs::list_iter<Self_Ty>;
-    friend class ListNs::list_ritr<Self_Ty>;
-    friend class ListNs::list_const_iter<Self_Ty>;
-    friend class ListNs::list_const_ritr<Self_Ty>;
+    friend class _Internal::_List::list_iter<Self_Ty>;
+    friend class _Internal::_List::list_ritr<Self_Ty>;
+    friend class _Internal::_List::list_const_iter<Self_Ty>;
+    friend class _Internal::_List::list_const_ritr<Self_Ty>;
 
 public:
     list() :
@@ -928,7 +928,7 @@ private:
     }
 
 private:
-    ListNs::list_dummy_node head;
-    SlotAllocatorNs::slot_allocator<sizeof(Node_Ty)> allocator;
+    _Internal::_List::list_dummy_node head;
+    _Internal::_SlotAllocator::slot_allocator<sizeof(Node_Ty)> allocator;
     s64 sz;
 };

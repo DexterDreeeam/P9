@@ -1,7 +1,7 @@
 #pragma once
 
-namespace _InternalNs
-{
+namespace _Internal {
+namespace _Timer {
 
 struct timer_context
 {
@@ -23,7 +23,7 @@ static void timer_call_back_fn(void* par)
     delete ctx;
 }
 
-}
+}} // _Internal::_Timer
 
 _INLINE_ timer::timer() :
     _ctx(nullptr)
@@ -51,7 +51,7 @@ _INLINE_ boole timer::init(timer_call_back_function* fn)
     assert(fn);
     assert(_ctx == nullptr);
 
-    auto* ctx = new _InternalNs::timer_context();
+    auto* ctx = new _Internal::_Timer::timer_context();
     ctx->fn = fn;
     _ctx = ctx;
     return boole::True;
@@ -59,7 +59,7 @@ _INLINE_ boole timer::init(timer_call_back_function* fn)
 
 _INLINE_ boole timer::uninit()
 {
-    auto* ctx = pointer_convert(_ctx, 0, _InternalNs::timer_context*);
+    auto* ctx = pointer_convert(_ctx, 0, _Internal::_Timer::timer_context*);
     assert(ctx);
 
     delete ctx;
@@ -69,16 +69,16 @@ _INLINE_ boole timer::uninit()
 
 _INLINE_ boole timer::trigger(void* par, u64 ms)
 {
-    auto* ctx = pointer_convert(_ctx, 0, _InternalNs::timer_context*);
+    auto* ctx = pointer_convert(_ctx, 0, _Internal::_Timer::timer_context*);
     assert(ctx);
 
-    auto* cb_ctx = new _InternalNs::timer_cb_context();
+    auto* cb_ctx = new _Internal::_Timer::timer_cb_context();
     cb_ctx->fn = ctx->fn;
     cb_ctx->par = par;
     cb_ctx->delay = ms;
 
     thread t;
-    if (t.init(_InternalNs::timer_call_back_fn) == boole::False)
+    if (t.init(_Internal::_Timer::timer_call_back_fn) == boole::False)
     {
         delete cb_ctx;
         return boole::False;

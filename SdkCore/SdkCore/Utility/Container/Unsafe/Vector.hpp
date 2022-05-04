@@ -5,352 +5,352 @@
 template<typename Ty>
 class vector;
 
-namespace VectorNs
-{
-
-    template<typename Ctnr_Ty>
-    class vector_iter;
-
-    template<typename Ctnr_Ty>
-    class vector_ritr;
-
-    template<typename Ctnr_Ty>
-    class vector_const_iter;
-
-    template<typename Ctnr_Ty>
-    class vector_const_ritr;
-
-
-    template<typename Ty>
-    class vector_iter<vector<Ty>>
-    {
-        friend class vector<Ty>;
-
-        using Container_Ty = vector<Ty>;
-        using Self_Ty = vector_iter<Container_Ty>;
-        using Data_Ty = Ty;
-
-    public:
-        vector_iter() :
-            data(nullptr)
-        {}
-
-        vector_iter(const Self_Ty& rhs) :
-            data(rhs.data)
-        {}
-
-        ~vector_iter() noexcept = default;
-
-        Self_Ty& operator =(const Self_Ty& rhs) noexcept
-        {
-            data = rhs.data;
-            return *this;
-        }
-
-        Self_Ty& operator ++() noexcept
-        {
-            data = pointer_convert(data, sizeof(Ty), Ty*);
-            return *this;
-        }
-
-        Self_Ty& operator --() noexcept
-        {
-            data = pointer_convert(data, -(s64)sizeof(Ty), Ty*);
-            return *this;
-        }
-
-        Self_Ty operator ++(int) noexcept
-        {
-            Self_Ty ret(data);
-            data = pointer_convert(data, sizeof(Ty), Ty*);
-            return ret;
-        }
-
-        Self_Ty operator --(int) noexcept
-        {
-            Self_Ty ret(data);
-            data = pointer_convert(data, -(s64)sizeof(Ty), Ty*);
-            return ret;
-        }
-
-        bool operator ==(const Self_Ty& rhs) const noexcept
-        {
-            return data == rhs.data;
-        }
-
-        bool operator !=(const Self_Ty& rhs) const noexcept
-        {
-            return data != rhs.data;
-        }
-
-        Data_Ty* operator ->() noexcept
-        {
-            return data;
-        }
-
-        Data_Ty& operator *() noexcept
-        {
-            return *data;
-        }
-
-        s64 operator -(const Self_Ty& rhs) const noexcept
-        {
-            s64 diff = reinterpret_cast<s64>(data) - reinterpret_cast<s64>(rhs.data);
-            return diff / sizeof(Data_Ty);
-        }
-
-    private:
-        vector_iter(Data_Ty* ptr) :
-            data(ptr)
-        {}
-
-        Data_Ty* data;
-    };
-
-    template<typename Ty>
-    class vector_ritr<vector<Ty>>
-    {
-        friend class vector<Ty>;
-
-        using Container_Ty = vector<Ty>;
-        using Self_Ty = vector_ritr<Container_Ty>;
-        using Data_Ty = Ty;
-
-    public:
-        vector_ritr() :
-            data(nullptr)
-        {}
-
-        vector_ritr(const Self_Ty& rhs) :
-            data(rhs.data)
-        {}
-
-        ~vector_ritr() noexcept = default;
-
-        Self_Ty& operator =(const Self_Ty& rhs) noexcept
-        {
-            data = rhs.data;
-            return *this;
-        }
-
-        Self_Ty& operator ++() noexcept
-        {
-            data = pointer_convert(data, -(s64)sizeof(Ty), Ty*);
-            return *this;
-        }
-
-        Self_Ty& operator --() noexcept
-        {
-            data = pointer_convert(data, sizeof(Ty), Ty*);
-            return *this;
-        }
-
-        Self_Ty operator ++(int) noexcept
-        {
-            Self_Ty ret(data);
-            data = pointer_convert(data, -(s64)sizeof(Ty), Ty*);
-            return ret;
-        }
-
-        Self_Ty operator --(int) noexcept
-        {
-            Self_Ty ret(data);
-            data = pointer_convert(data, sizeof(Ty), Ty*);
-            return ret;
-        }
-
-        bool operator ==(const Self_Ty& rhs)
-        {
-            return data == rhs.data;
-        }
-
-        bool operator !=(const Self_Ty& rhs)
-        {
-            return data != rhs.data;
-        }
-
-        Data_Ty* operator ->()
-        {
-            return data;
-        }
-
-        Data_Ty& operator *()
-        {
-            return *data;
-        }
-
-    private:
-        vector_ritr(Data_Ty* ptr) :
-            data(ptr)
-        {}
-
-        Data_Ty* data;
-    };
-
-    template<typename Ty>
-    class vector_const_iter<vector<Ty>>
-    {
-        friend class vector<Ty>;
-
-        using Container_Ty = vector<Ty>;
-        using Self_Ty = vector_const_iter<Container_Ty>;
-        using Data_Ty = Ty;
-
-    public:
-        vector_const_iter() :
-            data(nullptr)
-        {}
-
-        vector_const_iter(const Self_Ty& rhs) :
-            data(rhs.data)
-        {}
-
-        ~vector_const_iter() noexcept = default;
-
-        Self_Ty& operator =(const Self_Ty& rhs) noexcept
-        {
-            data = rhs.data;
-            return *this;
-        }
-
-        Self_Ty& operator ++() noexcept
-        {
-            data = pointer_convert(data, sizeof(Ty), Ty*);
-            return *this;
-        }
-
-        Self_Ty& operator --() noexcept
-        {
-            data = pointer_convert(data, -(s64)sizeof(Ty), Ty*);
-            return *this;
-        }
-
-        Self_Ty operator ++(int) noexcept
-        {
-            Self_Ty ret(data);
-            data = pointer_convert(data, sizeof(Ty), Ty*);
-            return ret;
-        }
-
-        Self_Ty operator --(int) noexcept
-        {
-            Self_Ty ret(data);
-            data = pointer_convert(data, -(s64)sizeof(Ty), Ty*);
-            return ret;
-        }
-
-        bool operator ==(const Self_Ty& rhs)
-        {
-            return data == rhs.data;
-        }
-
-        bool operator !=(const Self_Ty& rhs)
-        {
-            return data != rhs.data;
-        }
-
-        const Data_Ty* operator ->()
-        {
-            return data;
-        }
-
-        const Data_Ty& operator *()
-        {
-            return *data;
-        }
-
-    private:
-        vector_const_iter(const Data_Ty* ptr) :
-            data(ptr)
-        {}
-
-        const Data_Ty* data;
-    };
-
-    template<typename Ty>
-    class vector_const_ritr<vector<Ty>>
-    {
-        friend class vector<Ty>;
-
-        using Container_Ty = vector<Ty>;
-        using Self_Ty = vector_const_ritr<Container_Ty>;
-        using Data_Ty = Ty;
-
-    public:
-        vector_const_ritr() :
-            data(nullptr)
-        {}
-
-        vector_const_ritr(const Self_Ty& rhs) :
-            data(rhs.data)
-        {}
-
-        ~vector_const_ritr() noexcept = default;
-
-        Self_Ty& operator =(const Self_Ty& rhs) noexcept
-        {
-            data = rhs.data;
-            return *this;
-        }
-
-        Self_Ty& operator ++() noexcept
-        {
-            data = pointer_convert(data, -(s64)sizeof(Ty), Ty*);
-            return *this;
-        }
-
-        Self_Ty& operator --() noexcept
-        {
-            data = pointer_convert(data, sizeof(Ty), Ty*);
-            return *this;
-        }
-
-        Self_Ty operator ++(int) noexcept
-        {
-            Self_Ty ret(data);
-            data = pointer_convert(data, -(s64)sizeof(Ty), Ty*);
-            return ret;
-        }
-
-        Self_Ty operator --(int) noexcept
-        {
-            Self_Ty ret(data);
-            data = pointer_convert(data, sizeof(Ty), Ty*);
-            return ret;
-        }
-
-        bool operator ==(const Self_Ty& rhs)
-        {
-            return data == rhs.data;
-        }
-
-        bool operator !=(const Self_Ty& rhs)
-        {
-            return data != rhs.data;
-        }
-
-        const Data_Ty* operator ->()
-        {
-            return data;
-        }
-
-        const Data_Ty& operator *()
-        {
-            return *data;
-        }
-
-    private:
-        vector_const_ritr(const Data_Ty* ptr) :
-            data(ptr)
-        {}
-
-        const Data_Ty* data;
-    };
-
-}
+namespace _Internal {
+namespace _Vector {
 
 const s64 vector_unit_extent = 4LL;
 const s64 vector_cap_max = 1LL << 30;
+
+template<typename Ctnr_Ty>
+class vector_iter;
+
+template<typename Ctnr_Ty>
+class vector_ritr;
+
+template<typename Ctnr_Ty>
+class vector_const_iter;
+
+template<typename Ctnr_Ty>
+class vector_const_ritr;
+
+
+template<typename Ty>
+class vector_iter<vector<Ty>>
+{
+    friend class vector<Ty>;
+
+    using Container_Ty = vector<Ty>;
+    using Self_Ty = vector_iter<Container_Ty>;
+    using Data_Ty = Ty;
+
+public:
+    vector_iter() :
+        data(nullptr)
+    {}
+
+    vector_iter(const Self_Ty& rhs) :
+        data(rhs.data)
+    {}
+
+    ~vector_iter() noexcept = default;
+
+    Self_Ty& operator =(const Self_Ty& rhs) noexcept
+    {
+        data = rhs.data;
+        return *this;
+    }
+
+    Self_Ty& operator ++() noexcept
+    {
+        data = pointer_convert(data, sizeof(Ty), Ty*);
+        return *this;
+    }
+
+    Self_Ty& operator --() noexcept
+    {
+        data = pointer_convert(data, -(s64)sizeof(Ty), Ty*);
+        return *this;
+    }
+
+    Self_Ty operator ++(int) noexcept
+    {
+        Self_Ty ret(data);
+        data = pointer_convert(data, sizeof(Ty), Ty*);
+        return ret;
+    }
+
+    Self_Ty operator --(int) noexcept
+    {
+        Self_Ty ret(data);
+        data = pointer_convert(data, -(s64)sizeof(Ty), Ty*);
+        return ret;
+    }
+
+    bool operator ==(const Self_Ty& rhs) const noexcept
+    {
+        return data == rhs.data;
+    }
+
+    bool operator !=(const Self_Ty& rhs) const noexcept
+    {
+        return data != rhs.data;
+    }
+
+    Data_Ty* operator ->() noexcept
+    {
+        return data;
+    }
+
+    Data_Ty& operator *() noexcept
+    {
+        return *data;
+    }
+
+    s64 operator -(const Self_Ty& rhs) const noexcept
+    {
+        s64 diff = reinterpret_cast<s64>(data) - reinterpret_cast<s64>(rhs.data);
+        return diff / sizeof(Data_Ty);
+    }
+
+private:
+    vector_iter(Data_Ty* ptr) :
+        data(ptr)
+    {}
+
+    Data_Ty* data;
+};
+
+template<typename Ty>
+class vector_ritr<vector<Ty>>
+{
+    friend class vector<Ty>;
+
+    using Container_Ty = vector<Ty>;
+    using Self_Ty = vector_ritr<Container_Ty>;
+    using Data_Ty = Ty;
+
+public:
+    vector_ritr() :
+        data(nullptr)
+    {}
+
+    vector_ritr(const Self_Ty& rhs) :
+        data(rhs.data)
+    {}
+
+    ~vector_ritr() noexcept = default;
+
+    Self_Ty& operator =(const Self_Ty& rhs) noexcept
+    {
+        data = rhs.data;
+        return *this;
+    }
+
+    Self_Ty& operator ++() noexcept
+    {
+        data = pointer_convert(data, -(s64)sizeof(Ty), Ty*);
+        return *this;
+    }
+
+    Self_Ty& operator --() noexcept
+    {
+        data = pointer_convert(data, sizeof(Ty), Ty*);
+        return *this;
+    }
+
+    Self_Ty operator ++(int) noexcept
+    {
+        Self_Ty ret(data);
+        data = pointer_convert(data, -(s64)sizeof(Ty), Ty*);
+        return ret;
+    }
+
+    Self_Ty operator --(int) noexcept
+    {
+        Self_Ty ret(data);
+        data = pointer_convert(data, sizeof(Ty), Ty*);
+        return ret;
+    }
+
+    bool operator ==(const Self_Ty& rhs)
+    {
+        return data == rhs.data;
+    }
+
+    bool operator !=(const Self_Ty& rhs)
+    {
+        return data != rhs.data;
+    }
+
+    Data_Ty* operator ->()
+    {
+        return data;
+    }
+
+    Data_Ty& operator *()
+    {
+        return *data;
+    }
+
+private:
+    vector_ritr(Data_Ty* ptr) :
+        data(ptr)
+    {}
+
+    Data_Ty* data;
+};
+
+template<typename Ty>
+class vector_const_iter<vector<Ty>>
+{
+    friend class vector<Ty>;
+
+    using Container_Ty = vector<Ty>;
+    using Self_Ty = vector_const_iter<Container_Ty>;
+    using Data_Ty = Ty;
+
+public:
+    vector_const_iter() :
+        data(nullptr)
+    {}
+
+    vector_const_iter(const Self_Ty& rhs) :
+        data(rhs.data)
+    {}
+
+    ~vector_const_iter() noexcept = default;
+
+    Self_Ty& operator =(const Self_Ty& rhs) noexcept
+    {
+        data = rhs.data;
+        return *this;
+    }
+
+    Self_Ty& operator ++() noexcept
+    {
+        data = pointer_convert(data, sizeof(Ty), Ty*);
+        return *this;
+    }
+
+    Self_Ty& operator --() noexcept
+    {
+        data = pointer_convert(data, -(s64)sizeof(Ty), Ty*);
+        return *this;
+    }
+
+    Self_Ty operator ++(int) noexcept
+    {
+        Self_Ty ret(data);
+        data = pointer_convert(data, sizeof(Ty), Ty*);
+        return ret;
+    }
+
+    Self_Ty operator --(int) noexcept
+    {
+        Self_Ty ret(data);
+        data = pointer_convert(data, -(s64)sizeof(Ty), Ty*);
+        return ret;
+    }
+
+    bool operator ==(const Self_Ty& rhs)
+    {
+        return data == rhs.data;
+    }
+
+    bool operator !=(const Self_Ty& rhs)
+    {
+        return data != rhs.data;
+    }
+
+    const Data_Ty* operator ->()
+    {
+        return data;
+    }
+
+    const Data_Ty& operator *()
+    {
+        return *data;
+    }
+
+private:
+    vector_const_iter(const Data_Ty* ptr) :
+        data(ptr)
+    {}
+
+    const Data_Ty* data;
+};
+
+template<typename Ty>
+class vector_const_ritr<vector<Ty>>
+{
+    friend class vector<Ty>;
+
+    using Container_Ty = vector<Ty>;
+    using Self_Ty = vector_const_ritr<Container_Ty>;
+    using Data_Ty = Ty;
+
+public:
+    vector_const_ritr() :
+        data(nullptr)
+    {}
+
+    vector_const_ritr(const Self_Ty& rhs) :
+        data(rhs.data)
+    {}
+
+    ~vector_const_ritr() noexcept = default;
+
+    Self_Ty& operator =(const Self_Ty& rhs) noexcept
+    {
+        data = rhs.data;
+        return *this;
+    }
+
+    Self_Ty& operator ++() noexcept
+    {
+        data = pointer_convert(data, -(s64)sizeof(Ty), Ty*);
+        return *this;
+    }
+
+    Self_Ty& operator --() noexcept
+    {
+        data = pointer_convert(data, sizeof(Ty), Ty*);
+        return *this;
+    }
+
+    Self_Ty operator ++(int) noexcept
+    {
+        Self_Ty ret(data);
+        data = pointer_convert(data, -(s64)sizeof(Ty), Ty*);
+        return ret;
+    }
+
+    Self_Ty operator --(int) noexcept
+    {
+        Self_Ty ret(data);
+        data = pointer_convert(data, sizeof(Ty), Ty*);
+        return ret;
+    }
+
+    bool operator ==(const Self_Ty& rhs)
+    {
+        return data == rhs.data;
+    }
+
+    bool operator !=(const Self_Ty& rhs)
+    {
+        return data != rhs.data;
+    }
+
+    const Data_Ty* operator ->()
+    {
+        return data;
+    }
+
+    const Data_Ty& operator *()
+    {
+        return *data;
+    }
+
+private:
+    vector_const_ritr(const Data_Ty* ptr) :
+        data(ptr)
+    {}
+
+    const Data_Ty* data;
+};
+
+}} // _Internal::_Vector
 
 template<typename Ty>
 class stack;
@@ -362,15 +362,15 @@ class vector
 
     using Self_Ty = vector<Ty>;
     using Data_Ty = Ty;
-    using Iter_Ty = VectorNs::vector_iter<Self_Ty>;
-    using Ritr_Ty = VectorNs::vector_ritr<Self_Ty>;
-    using cIter_Ty = VectorNs::vector_const_iter<Self_Ty>;
-    using cRitr_Ty = VectorNs::vector_const_ritr<Self_Ty>;
+    using Iter_Ty = _Internal::_Vector::vector_iter<Self_Ty>;
+    using Ritr_Ty = _Internal::_Vector::vector_ritr<Self_Ty>;
+    using cIter_Ty = _Internal::_Vector::vector_const_iter<Self_Ty>;
+    using cRitr_Ty = _Internal::_Vector::vector_const_ritr<Self_Ty>;
 
-    friend class VectorNs::vector_iter<Self_Ty>;
-    friend class VectorNs::vector_ritr<Self_Ty>;
-    friend class VectorNs::vector_const_iter<Self_Ty>;
-    friend class VectorNs::vector_const_ritr<Self_Ty>;
+    friend class _Internal::_Vector::vector_iter<Self_Ty>;
+    friend class _Internal::_Vector::vector_ritr<Self_Ty>;
+    friend class _Internal::_Vector::vector_const_iter<Self_Ty>;
+    friend class _Internal::_Vector::vector_const_ritr<Self_Ty>;
 
 public:
     vector() :
@@ -648,8 +648,8 @@ public:
         void* p_tobe_release = elem;
         while (sz + add > cap)
         {
-            cap = cap == 0 ? vector_unit_extent : (cap << 1);
-            assert(cap <= vector_cap_max);
+            cap = cap == 0 ? _Internal::_Vector::vector_unit_extent : (cap << 1);
+            assert(cap <= _Internal::_Vector::vector_cap_max);
         }
         elem = (Ty*)memory::alloc<void>(sizeof(Ty) * cap);
         if (fore_sz)
@@ -889,7 +889,7 @@ public:
 private:
     static s64 _ceil_align(s64 len) noexcept
     {
-        return math::ceil(len, vector_unit_extent);
+        return math::ceil(len, _Internal::_Vector::vector_unit_extent);
     }
 
     static bool _default_cmp_op(const Ty& e1, const Ty& e2) noexcept
@@ -946,8 +946,8 @@ private:
         s64 new_cap = cap;
         while (sz + add > new_cap)
         {
-            new_cap = new_cap == 0 ? vector_unit_extent : (new_cap << 1);
-            assert(new_cap <= vector_cap_max);
+            new_cap = new_cap == 0 ? _Internal::_Vector::vector_unit_extent : (new_cap << 1);
+            assert(new_cap <= _Internal::_Vector::vector_cap_max);
         }
         Ty* new_elem = memory::alloc<Ty>(sizeof(Ty) * new_cap);
         for (s64 i = 0; i < sz; ++i)

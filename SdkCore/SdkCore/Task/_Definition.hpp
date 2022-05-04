@@ -3,15 +3,14 @@
 // #define Await   co_await
 // #define Return  co_return
 
-
-namespace _TaskNs
-{
+namespace _Internal {
+namespace _Task {
 
 class task_async_base;
 
 class task_base;
 
-}
+}} // _Internal::_Task
 
 template<typename RetTy = void>
 class task_async;
@@ -25,8 +24,8 @@ using CoroTy = std::coroutine_handle<PromiseTy>;
 using CoroTyBase = std::coroutine_handle<>;
 
 
-namespace _TaskNs
-{
+namespace _Internal {
+namespace _Task {
 
 class auto_event
 {
@@ -154,12 +153,12 @@ struct runtime_context
 
 using task_state = runtime_context::task_state;
 
-bool operator ==(const task_state& s, s64 cmp)
+_INLINE_ bool operator ==(const task_state& s, s64 cmp)
 {
     return (s64)s == cmp;
 }
 
-bool operator ==(s64 cmp, const task_state& s)
+_INLINE_ bool operator ==(s64 cmp, const task_state& s)
 {
     return (s64)s == cmp;
 }
@@ -186,4 +185,4 @@ public:
     }
 };
 
-}
+}} // _Internal::_Task

@@ -98,10 +98,10 @@ public:
 };
 
 template<typename Key_Ty, typename Cmp_Ty = set_comparer>
-class set : public RBTreeNs::rbtree<Key_Ty, RBTreeNs::rbtree_dummy_type, Cmp_Ty>
+class set : public _Internal::_RbTree::rbtree<Key_Ty, _Internal::_RbTree::rbtree_dummy_type, Cmp_Ty>
 {
     using Self_Ty = set<Key_Ty, Cmp_Ty>;
-    using Base_Ty = RBTreeNs::rbtree<Key_Ty, RBTreeNs::rbtree_dummy_type, Cmp_Ty>;
+    using Base_Ty = _Internal::_RbTree::rbtree<Key_Ty, _Internal::_RbTree::rbtree_dummy_type, Cmp_Ty>;
     using Node_Ty = typename Base_Ty::Node_Ty;
 
     using Iter_Ty = typename Base_Ty::Iter_Ty;

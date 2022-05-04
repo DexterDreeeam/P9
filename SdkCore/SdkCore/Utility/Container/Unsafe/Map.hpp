@@ -98,10 +98,10 @@ public:
 };
 
 template<typename Key_Ty, typename Val_Ty, typename Cmp_Ty = map_comparer>
-class map : public RBTreeNs::rbtree<Key_Ty, Val_Ty, Cmp_Ty>
+class map : public _Internal::_RbTree::rbtree<Key_Ty, Val_Ty, Cmp_Ty>
 {
     using Self_Ty = map<Key_Ty, Val_Ty>;
-    using Base_Ty = RBTreeNs::rbtree<Key_Ty, Val_Ty, Cmp_Ty>;
+    using Base_Ty = _Internal::_RbTree::rbtree<Key_Ty, Val_Ty, Cmp_Ty>;
     using Node_Ty = typename Base_Ty::Node_Ty;
 
     using Iter_Ty = typename Base_Ty::Iter_Ty;

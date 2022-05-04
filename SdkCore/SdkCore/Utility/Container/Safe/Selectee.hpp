@@ -1,7 +1,7 @@
 #pragma once
 
-namespace _SelecteeNs
-{
+namespace _Internal {
+namespace _Selectee {
 
 _INLINE_ constexpr s64 safe_selectee_layer(u64 cap)
 {
@@ -66,18 +66,18 @@ public:
     Ty*       ptr;
 };
 
-}
+}} // _Internal::_Selectee
 
 template<typename Ty, u64 Cap, bool InitSignal>
 class selectee
 {
-    using Node_Ty = _SelecteeNs::safe_selectee_node<Ty>;
+    using Node_Ty = _Internal::_Selectee::safe_selectee_node<Ty>;
 
 public:
     selectee() :
         data()
     {
-        s64 idx = _SelecteeNs::safe_selectee_last_layer_head(Cap);
+        s64 idx = _Internal::_Selectee::safe_selectee_last_layer_head(Cap);
         for (; idx < _length(); ++idx)
         {
             data[idx].ptr = memory::alloc<Ty>(sizeof(Ty));
@@ -86,11 +86,11 @@ public:
         }
         if (InitSignal)
         {
-            idx = _SelecteeNs::safe_selectee_last_layer_head(Cap);
+            idx = _Internal::_Selectee::safe_selectee_last_layer_head(Cap);
             while (--idx >= 0)
             {
-                s64 left = _SelecteeNs::safe_selectee_myleft(idx);
-                s64 right = _SelecteeNs::safe_selectee_myright(idx);
+                s64 left = _Internal::_Selectee::safe_selectee_myleft(idx);
+                s64 right = _Internal::_Selectee::safe_selectee_myright(idx);
                 data[idx].signal = data[left].signal + data[right].signal;
             }
         }
@@ -114,10 +114,10 @@ public:
             return -1;
         }
         s64 idx = 0;
-        while (idx < _SelecteeNs::safe_selectee_last_layer_head(Cap))
+        while (idx < _Internal::_Selectee::safe_selectee_last_layer_head(Cap))
         {
-            s64 left = _SelecteeNs::safe_selectee_myleft(idx);
-            s64 right = _SelecteeNs::safe_selectee_myright(idx);
+            s64 left = _Internal::_Selectee::safe_selectee_myleft(idx);
+            s64 right = _Internal::_Selectee::safe_selectee_myright(idx);
             assert(left < _length() && right < _length());
             if (--data[left].signal >= 0)
             {
@@ -153,30 +153,30 @@ public:
             assert(0);
             return;
         }
-        idx = _SelecteeNs::safe_selectee_myparent(idx);
+        idx = _Internal::_Selectee::safe_selectee_myparent(idx);
         while (idx >= 0)
         {
             ++data[idx].signal;
-            idx = _SelecteeNs::safe_selectee_myparent(idx);
+            idx = _Internal::_Selectee::safe_selectee_myparent(idx);
         }
     }
 
 private:
     s64 _length() const
     {
-        return _SelecteeNs::safe_selectee_length(Cap);
+        return _Internal::_Selectee::safe_selectee_length(Cap);
     }
 
     s64 _ext_to_int(s64 idx)
     {
-        return _SelecteeNs::safe_selectee_last_layer_head(Cap) + idx;
+        return _Internal::_Selectee::safe_selectee_last_layer_head(Cap) + idx;
     }
 
     s64 _int_to_ext(s64 idx)
     {
-        return idx - _SelecteeNs::safe_selectee_last_layer_head(Cap);
+        return idx - _Internal::_Selectee::safe_selectee_last_layer_head(Cap);
     }
 
 private:
-    Node_Ty data[_SelecteeNs::safe_selectee_length(Cap)];
+    Node_Ty data[_Internal::_Selectee::safe_selectee_length(Cap)];
 };

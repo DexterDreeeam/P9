@@ -18,8 +18,8 @@ using CoroCtxTy = std::coroutine_handle<>;
 // #define Await   co_await
 // #define Return  co_return
 
-namespace _TaskNs
-{
+namespace _Internal {
+namespace _Task {
 
 class sync_event_wrapper
 {
@@ -104,4 +104,4 @@ public:
     ref<RetTy>  _r_rst;
 };
 
-}
+}} // _Internal::_Task

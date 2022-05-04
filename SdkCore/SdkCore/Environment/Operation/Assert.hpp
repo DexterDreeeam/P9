@@ -11,8 +11,8 @@ struct exception
     s64 line;
 };
 
-namespace _InternalNs
-{
+namespace _Internal {
+namespace _Assert {
 
 template<typename JudgeTy>
 _INLINE_ void assert_func(const JudgeTy& exp, const char* s, const char* file, s64 line);
@@ -20,12 +20,12 @@ _INLINE_ void assert_func(const JudgeTy& exp, const char* s, const char* file, s
 template<typename JudgeTy>
 _INLINE_ void assert_func(const JudgeTy& exp, const char* s, const char* info, const char* file, s64 line);
 
-}
+}} // _InternalNs::_AssertNs
 
 #if DEBUG_LEVEL >= DEBUG_LEVEL_CALIBRATION_CHECK_BASIC
 
-#define assert(exp)           _InternalNs::assert_func(exp, #exp, __FUNCTION__, __LINE__)
-#define assert_info(exp,info) _InternalNs::assert_func(exp, #exp, info, __FUNCTION__, __LINE__)
+#define assert(exp)           _Internal::_Assert::assert_func(exp, #exp, __FUNCTION__, __LINE__)
+#define assert_info(exp,info) _Internal::_Assert::assert_func(exp, #exp, info, __FUNCTION__, __LINE__)
 
 #else
 
