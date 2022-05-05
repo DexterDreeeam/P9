@@ -3,6 +3,8 @@
 #include "../_InterfaceExt.hpp"
 
 #include "UT_Log_Print.hpp"
+#include "UT_Sleep.hpp"
+#include "UT_Random.hpp"
 #include "UT_Traverse_Directory.hpp"
 #include "UT_Functional.hpp"
 #include "UT_Task.hpp"
@@ -11,6 +13,8 @@
 int main()
 {
     UT_Log_Print();
+    UT_Sleep();
+    UT_Random();
     UT_Traverse_Directory();
     UT_Functional();
     UT_Task();

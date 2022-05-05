@@ -71,7 +71,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Sdk.lib</AdditionalDependencies>
+      <AdditionalDependencies>SdkCore.lib;Sdk.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)..\.lib.$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -92,7 +92,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)..\.lib.$(Configuration)\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Sdk.lib</AdditionalDependencies>
+      <AdditionalDependencies>SdkCore.lib;Sdk.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

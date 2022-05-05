@@ -8,6 +8,9 @@ public:
     static u64 new_u64() noexcept;
 
     static u64 new_u64_with_mod(u64 m) noexcept;
+
+private:
+    static u8  native_rand() noexcept;
 };
 
 class date final
@@ -50,6 +53,8 @@ public:
 
 public:
     static void sleep(u64 ms);
+
+    static void usleep(u64 us);
 
     static u64 count();
 

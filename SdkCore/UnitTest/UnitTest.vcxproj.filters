@@ -9,5 +9,7 @@
     <ClInclude Include="UT_Log_Print.hpp" />
     <ClInclude Include="UT_Traverse_Directory.hpp" />
     <ClInclude Include="UT_Object.hpp" />
+    <ClInclude Include="UT_Sleep.hpp" />
+    <ClInclude Include="UT_Random.hpp" />
   </ItemGroup>
 </Project>
